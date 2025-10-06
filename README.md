@@ -1,1 +1,1 @@
-# bovine-weight-estimation
+# Bovine Weight Estimation
