@@ -335,3 +335,21 @@ El sistema debe cumplir con requisitos específicos de las entidades regulatoria
 - **Satisfacción del usuario**: >90% (a validar en pruebas de campo)
 - **Cumplimiento normativo**: 100% de reportes SENASAG/REGENSA automatizados
 - **Preparación para competencias**: Reducción de tiempo de preparación para eventos ASOCEBU
+
+## Decisiones Técnicas Validadas
+
+- **Offline-first** (CONFIRMADO: zona rural sin conectividad estable)
+- **Móvil** (CONFIRMADO: Bruno Brito Macedo tiene smartphones Android/iOS)
+- **Precisión >95%** (POR VALIDAR en Sprint 1)
+- **Captura continua** (CONFIRMADO: 10-15 FPS durante 3-5 segundos)
+- **7 razas bovinas** (CONFIRMADO: Brahman, Nelore, Angus, Cebuinas, Criollo, Pardo Suizo, Jersey)
+- **Integración normativa** (CONFIRMADO: SENASAG, REGENSA, ASOCEBU)
+
+## Decisiones Técnicas Pendientes
+
+- **Stack específico** (Flutter vs React Native - decidir en Sprint 1)
+- **Base de datos** (MongoDB vs PostgreSQL - decidir cuando sea necesario)
+- **Arquitectura interna** (emergente según necesidades reales)
+- **Modelos ML específicos** (TensorFlow Lite vs otros - validar en Sprint 1)
+- **Estrategia de sincronización** (last-write-wins vs otros - implementar según necesidad)
+- **UI/UX específica** (emergente según feedback de Bruno Brito Macedo)

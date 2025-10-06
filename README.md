@@ -221,18 +221,21 @@ flutter run
 ### 🏛️ Entidades Regulatorias Bolivianas
 
 #### 📋 SENASAG
+
 - **Trazabilidad ganadera** obligatoria
 - **Reportes de inventario** (PDF/CSV/XML)
 - **Certificados digitales** de trazabilidad
 - **Frecuencia**: Mensual/trimestral según normativa
 
 #### 📜 REGENSA (Capítulos 3.10 y 7.1)
+
 - **Integración sistema Gran Paitití** (plataforma gubernamental)
 - **Guía de Movimiento Animal (GMA)** digital
 - **Registro obligatorio** con timestamp y ubicación GPS
 - **Requisitos infraestructura**: rampas, corrales, desinfección
 
 #### 🏆 ASOCEBU
+
 - **Datos históricos** para competencias ganaderas
 - **Certificaciones de peso** para participación en ferias
 - **Preparación competitiva** optimizada
@@ -277,13 +280,21 @@ cd mobile && flutter test --coverage
 
 ## 📚 Documentación
 
-### 🏗️ Arquitectura
+### 🎯 Visión del Producto
 
-- [📋 Contexto del Sistema](docs/architecture/01-system-context.md)
-- [🏗️ Arquitectura de Contenedores](docs/architecture/02-container-architecture.md)
-- [🧩 Arquitectura de Componentes](docs/architecture/03-component-architecture.md)
-- [🗄️ Modelo de Datos](docs/architecture/04-data-model.md)
-- [⚙️ Decisiones Tecnológicas](docs/architecture/05-technology-decisions.md)
+- [📋 Contexto del Sistema](docs/vision/01-system-context.md) - Negocio y stakeholders
+- [🏗️ Visión de Arquitectura](docs/vision/02-architecture-vision.md) - Visión arquitectónica
+- [🧩 Áreas Funcionales](docs/vision/03-areas-funcionales.md) - Alcance por áreas
+- [🗄️ Modelo de Dominio](docs/vision/04-domain-model.md) - Modelo conceptual
+
+### 📋 Producto (Scrum)
+
+- [📝 Product Backlog](docs/product/product-backlog.md) - User stories priorizadas
+- [✅ Definition of Done](docs/product/definition-of-done.md) - Criterios de completitud
+
+### 🚀 Sprints (Evolución Real)
+
+- [🎯 Sprint 1 - Validación Core](docs/sprints/sprint-01/sprint-goal.md) - Objetivos y validación
 
 ### 📖 Estándares
 

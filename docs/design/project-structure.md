@@ -16,7 +16,7 @@ La aplicación móvil sigue **Clean Architecture** con separación clara de resp
 
 Cada feature se organiza según las **5 áreas funcionales** del sistema:
 
-```
+```text
 lib/
 ├── features/
 │   ├── data_management/           # Área 1: Gestión de Datos
@@ -200,6 +200,7 @@ dev_dependencies:
 ```
 
 **Justificación de Dependencias**:
+
 - **Riverpod**: Gestión de estado reactiva, mejor que Provider para casos complejos
 - **Freezed**: Inmutabilidad y code generation, reduce boilerplate
 - **SQLite**: Base de datos local robusta para offline-first
@@ -210,7 +211,7 @@ dev_dependencies:
 
 ### 2.1 Estructura de Carpetas
 
-```
+```text
 app/
 ├── api/
 │   ├── routes/
@@ -349,6 +350,7 @@ pytest-asyncio==0.21.1              # Testing asíncrono
 ```
 
 **Justificación de Dependencias**:
+
 - **FastAPI**: Framework moderno con validación automática y documentación
 - **Motor/Beanie**: MongoDB asíncrono con ODM type-safe
 - **Boto3**: Integración nativa con AWS S3 para modelos ML
@@ -359,7 +361,7 @@ pytest-asyncio==0.21.1              # Testing asíncrono
 
 ### 3.1 Estructura de Carpetas
 
-```
+```text
 ml-training/
 ├── data/
 │   ├── raw/                         # Datos originales
@@ -443,10 +445,12 @@ ml-training/
 ### 3.2 Versionado de Modelos
 
 **Estrategia de Naming**:
+
 - Formato: `{raza}-v{major}.{minor}.{patch}.tflite`
 - Ejemplo: `brahman-v1.2.0.tflite`
 
 **Manifest.json**:
+
 ```json
 {
   "version": "1.2.0",
@@ -469,12 +473,14 @@ ml-training/
 ### 3.3 MLflow Tracking
 
 **Configuración**:
+
 - **Tracking URI**: Local (`mlruns/`) + S3 para producción
 - **Experimentos**: Uno por raza bovina
 - **Métricas clave**: R², MAE, Precisión, Tiempo de inferencia
 - **Parámetros**: Learning rate, batch size, epochs, arquitectura
 
 **Métricas de Validación**:
+
 - **R² ≥ 0.95**: Coeficiente de determinación
 - **MAE < 5 kg**: Error absoluto promedio
 - **Precisión ≥ 95%**: Porcentaje de predicciones correctas
@@ -510,6 +516,7 @@ boto3==1.34.0                       # AWS S3 para modelos
 ```
 
 **Justificación de Dependencias**:
+
 - **TensorFlow**: Framework estándar para deep learning
 - **MLflow**: Tracking de experimentos y versionado de modelos
 - **OpenCV**: Procesamiento de imágenes para preprocesamiento
@@ -520,7 +527,7 @@ boto3==1.34.0                       # AWS S3 para modelos
 
 ### 4.1 Archivos de Configuración Raíz
 
-```
+```text
 bovine-weight-estimation/
 ├── .gitignore                       # Archivos ignorados por Git
 ├── .env.example                     # Template de variables de entorno
@@ -599,6 +606,7 @@ volumes:
 ```
 
 Esta estructura modular permite:
+
 - **Desarrollo independiente** de cada componente
 - **Testing aislado** por feature y tecnología
 - **Despliegue escalable** con Docker
