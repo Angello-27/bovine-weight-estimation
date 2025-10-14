@@ -3,14 +3,25 @@
 ## Información del Sprint
 
 **Duración**: 2 semanas  
-**Fecha inicio**: [Por definir]  
-**Fecha fin**: [Por definir]  
+**Fecha inicio**: 30 septiembre 2024  
+**Fecha fin**: 13 octubre 2024  
 **Scrum Master**: Rodrigo Escobar Morón  
 **Product Owner**: Miguel Angel Escobar Lazcano  
+**Cliente**: Bruno Brito Macedo (Hacienda Gamelera)
+
+## Contexto del Proyecto
+
+**Cliente**: Hacienda Gamelera (Bruno Brito Macedo)  
+**Ubicación**: San Ignacio de Velasco, Bolivia  
+**Escala**: 500 cabezas de ganado bovino  
+**Razas**: Brahman, Nelore, Angus, Cebuinas, Criollo, Pardo Suizo, Jersey
+
+**Problema actual**: Método tradicional requiere 2-3 días para 20 animales con error 5-20 kg  
+**Objetivo**: Sistema IA con precisión >95% y tiempo <2 horas para 20 animales
 
 ## Sprint Goal
 
-**Validar que la captura continua de fotogramas y estimación de peso por IA funciona en condiciones reales de campo con Bruno Brito Macedo en Hacienda Gamelera.**
+**"Validar que la captura continua de fotogramas y estimación de peso por IA funciona en condiciones reales de campo con Bruno Brito Macedo en Hacienda Gamelera, logrando precisión >95% con al menos 3 razas principales."**
 
 ## Objetivos Específicos
 

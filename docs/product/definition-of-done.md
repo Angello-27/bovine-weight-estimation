@@ -3,8 +3,17 @@
 ## Contexto del Proyecto
 
 **Cliente**: Hacienda Gamelera (Bruno Brito Macedo)  
+**Ubicación**: San Ignacio de Velasco, Bolivia  
+**Escala**: 500 cabezas de ganado bovino  
 **Product Owner**: Miguel Angel Escobar Lazcano  
 **Scrum Master**: Rodrigo Escobar Morón  
+
+## Cronograma Académico
+
+- **Sprint 0** (Planificación): Completado antes del 30 septiembre 2024 ✅
+- **Sprint 1**: 30 septiembre - 13 octubre 2024 (2 semanas) - Validación Core
+- **Sprint 2**: 14 octubre - 27 octubre 2024 (2 semanas) - **Presentación: 23 octubre**
+- **Sprint 3**: 28 octubre - 10 noviembre 2024 (2 semanas) - **Presentación: 6 noviembre** 🎯
 
 ## Criterios de Done por Nivel
 
