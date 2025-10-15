@@ -19,9 +19,9 @@ Sprint 3 enfocado en integraciones con entidades regulatorias bolivianas (SENASA
 
 ---
 
-## 📈 Progreso General: 60% Completado
+## 📈 Progreso General: 75% Completado
 
-### ✅ Completado (60%)
+### ✅ Completado (75%)
 
 #### 📚 Documentación Técnica Completa
 - [x] **Visión del Producto** (4 documentos)
@@ -93,9 +93,37 @@ Sprint 3 enfocado en integraciones con entidades regulatorias bolivianas (SENASA
   - [x] Estructura de proyecto documentada
   - [x] Links a toda la documentación
 
+#### 🎯 User Stories Implementadas (Sprint 1)
+
+- [x] **US-001: Captura Continua de Fotogramas** ✅ COMPLETADA
+  - [x] Clean Architecture completa (Domain → Data → Presentation)
+  - [x] 31 archivos creados (2,743 líneas)
+  - [x] Atomic Design: 2 atoms, 2 molecules, 1 organism
+  - [x] SOLID: Single Responsibility en todos los archivos
+  - [x] SQLite: Tablas capture_sessions + frames con índices
+  - [x] Provider: CaptureProvider con state management
+  - [x] UI: CapturePage con Material Design 3
+  - [x] Tests: Unit test baseline
+  - [x] Commits: 5d0841f, b20ac44, 4c2031d
+  - [x] 8/8 criterios de aceptación cumplidos
+
+- [x] **US-002: Estimación de Peso por Raza con IA** ✅ COMPLETADA
+  - [x] Domain: WeightEstimation entity con ConfidenceLevel
+  - [x] Data: TFLiteDataSource (7 modelos), WeightEstimationLocalDataSource
+  - [x] Presentation: WeightEstimationProvider + WeightEstimationPage
+  - [x] Atomic Design: BreedSelectorGrid (organism nuevo)
+  - [x] SQLite: Tabla weight_estimations + 4 índices
+  - [x] UI: Grid 3x3 razas + Confidence colors (Verde/Amarillo/Rojo)
+  - [x] Integración: US-001 → US-002 flujo completo
+  - [x] 10 archivos nuevos, 5 modificados (1,968 líneas)
+  - [x] Commit: df08f9a
+  - [x] 9/9 criterios de aceptación cumplidos
+
+**Progreso Sprint 1**: 21/26 SP completados (81%) - Falta US-003 (5 SP)
+
 ---
 
-### 🔄 En Progreso (25%)
+### 🔄 En Progreso (10%)
 
 #### US-007: Integración SENASAG
 - **Story Points**: 8
