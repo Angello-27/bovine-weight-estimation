@@ -1,5 +1,5 @@
 name: bovine_weight_mobile
-description: "Sistema de Estimación de Peso Bovino con IA - Hacienda Gamelera"
+description: "Sistema de Estimación de Peso Bovino con IA - Agrocom (Taller de Grado UAGRM)"
 publish_to: 'none'
 
 version: 1.0.0+1

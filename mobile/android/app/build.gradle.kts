@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.haciendagamelera.bovine_weight_mobile"
+    namespace = "com.agrocom.bovine_weight"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -20,8 +20,8 @@ android {
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.haciendagamelera.bovine_weight_mobile"
+        // Agrocom - Sistema de Estimación de Peso Bovino (Taller de Grado UAGRM)
+        applicationId = "com.agrocom.bovine_weight"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = 26  // Requerido por tflite_flutter
