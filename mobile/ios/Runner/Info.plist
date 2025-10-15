@@ -51,16 +51,15 @@
 	<key>NSCameraUsageDescription</key>
 	<string>La app necesita acceso a la cámara para capturar fotogramas y estimar el peso del ganado bovino.</string>
 	
-	<!-- Fotos: Guardar fotogramas capturados -->
-	<key>NSPhotoLibraryUsageDescription</key>
-	<string>La app necesita acceso a la galería para guardar fotogramas de las capturas realizadas.</string>
-	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>La app necesita permiso para guardar fotogramas en la galería.</string>
-	
-	<!-- GPS: Geolocalización de pesajes -->
+	<!-- GPS: Geolocalización de pesajes (opcional) -->
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>La app necesita acceso a tu ubicación para registrar la geolocalización de los pesajes realizados en Hacienda Gamelera.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 	<string>La app necesita acceso a tu ubicación para registrar datos de ubicación de los pesajes.</string>
+	
+	<!-- NOTA: NO se requieren permisos de galería porque:
+	     - Los fotogramas son temporales (no se guardan en galería)
+	     - Solo se usan para inferencia ML y luego se eliminan
+	     - Almacenamiento interno de la app no requiere permisos -->
 </dict>
 </plist>
