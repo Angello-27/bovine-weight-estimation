@@ -74,7 +74,7 @@
 
 ### Sprint 1: Validación Core (2 semanas)
 
-#### US-001: Captura Continua de Fotogramas
+#### US-001: Captura Continua de Fotogramas ✅ COMPLETADA
 
 **Como** ganadero de Hacienda Gamelera  
 **Quiero** capturar fotogramas continuos de bovinos mediante la cámara de mi smartphone  
@@ -82,19 +82,32 @@
 
 **Criterios de aceptación**:
 
-- [ ] Captura continua de 10-15 FPS durante 3-5 segundos automáticamente
-- [ ] Evaluación en tiempo real de calidad: nitidez, iluminación, contraste, visibilidad de silueta, ángulo
-- [ ] Selección automática del mejor fotograma con score ponderado (Silueta 40%, Nitidez 30%, Iluminación 20%, Ángulo 10%)
-- [ ] Funciona en condiciones de campo reales (luz solar, movimiento animal, distancia 2-5 metros)
-- [ ] Interfaz intuitiva: botón único "Capturar" con feedback visual durante proceso
-- [ ] Almacenamiento local automático de fotogramas en SQLite
-- [ ] Indicador de progreso: "Capturando... 30/45 fotogramas"
-- [ ] Confirmación visual del fotograma seleccionado antes de procesamiento
+- [x] Captura continua de 10-15 FPS durante 3-5 segundos automáticamente ✅
+- [x] Evaluación en tiempo real de calidad: nitidez, iluminación, contraste, visibilidad de silueta, ángulo ✅
+- [x] Selección automática del mejor fotograma con score ponderado (Silueta 40%, Nitidez 30%, Iluminación 20%, Ángulo 10%) ✅
+- [x] Funciona en condiciones de campo reales (luz solar, movimiento animal, distancia 2-5 metros) ✅
+- [x] Interfaz intuitiva: botón único "Capturar" con feedback visual durante proceso ✅
+- [x] Almacenamiento local automático de fotogramas en SQLite ✅
+- [x] Indicador de progreso: "Capturando... 30/45 fotogramas" ✅
+- [x] Confirmación visual del fotograma seleccionado antes de procesamiento ✅
 
 **Story Points**: 8  
-**Prioridad**: Crítica
+**Prioridad**: Crítica  
 **Dependencias**: Ninguna  
-**Sprint**: Sprint 1
+**Sprint**: Sprint 1  
+**Estado**: ✅ **COMPLETADA** (28 Oct 2024)
+
+**Implementación**:
+- 📦 Clean Architecture: Domain → Data → Presentation (31 archivos)
+- 🏗️ Atomic Design: 8 componentes reutilizables
+- 🎯 SOLID Principles: Aplicado en toda la arquitectura
+- 📱 UI/UX: Material Design 3 + tema completo
+- 🗄️ SQLite: Schema con tablas e índices
+- 🔧 Config: DI Container, Router, Theme separados
+- ✅ Tests: Unit test baseline (expandir a >80%)
+
+**Archivos**: Ver `docs/sprints/sprint-01/sprint-progress.md`  
+**Commits**: `5d0841f`, `b20ac44`, `4c2031d`
 
 #### US-002: Estimación de Peso por Raza
 

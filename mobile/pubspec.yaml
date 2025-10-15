@@ -11,40 +11,113 @@ dependencies:
   flutter:
     sdk: flutter
 
-  # State Management
+  # ========================================
+  # STATE MANAGEMENT
+  # ========================================
+  # Provider: State management reactivo para Clean Architecture
+  # Usado en: CaptureProvider, SelectionProvider, WeightEstimationProvider
+  # Documentación: docs/standards/flutter-standards.md
   provider: ^6.1.1
 
-  # Local Database (Offline-first)
+  # ========================================
+  # LOCAL DATABASE (OFFLINE-FIRST)
+  # ========================================
+  # SQLite: Base de datos local primaria (offline-first strategy)
+  # Usado en: FrameLocalDataSource, almacenamiento de sesiones y fotogramas
+  # Documentación: docs/design/database-schema.md
   sqflite: ^2.3.0
+  
+  # Path: Utilidades para manejo de paths del sistema de archivos
+  # Usado en: Obtener directorios de base de datos y almacenamiento temporal
   path: ^1.8.3
 
-  # Machine Learning
+  # ========================================
+  # MACHINE LEARNING
+  # ========================================
+  # TFLite Flutter: Inferencia de modelos TensorFlow Lite
+  # Usado en: US-003 - Estimación de peso con 7 modelos (uno por raza)
+  # Modelos: brahman-v1.0.0.tflite, nelore-v1.0.0.tflite, etc.
+  # Documentación: docs/standards/ml-training-standards.md
   tflite_flutter: ^0.10.4
+  
+  # Image: Procesamiento de imágenes (evaluación de calidad de fotogramas)
+  # Usado en: CameraDataSource - cálculo de nitidez, iluminación, contraste
+  # Métricas: sharpness >0.7, brightness 0.4-0.8, contrast >0.5
   image: ^4.1.3
 
-  # Camera
+  # ========================================
+  # CAMERA
+  # ========================================
+  # Camera: Captura de fotogramas en tiempo real (US-001)
+  # Usado en: Captura continua 10-15 FPS durante 3-5 segundos
+  # Documentación: docs/product/product-backlog-detailed.md (US-001)
   camera: ^0.10.5+5
+  
+  # Image Picker: Selección de imágenes desde galería (opcional)
+  # Usado en: Funcionalidad auxiliar para testing y debugging
   image_picker: ^1.0.4
 
-  # HTTP Client
+  # ========================================
+  # HTTP CLIENT (SINCRONIZACIÓN)
+  # ========================================
+  # HTTP: Cliente HTTP básico
+  # Usado en: Requests simples a Backend FastAPI
   http: ^1.1.0
+  
+  # Dio: Cliente HTTP avanzado con interceptors
+  # Usado en: US-005 - Sincronización bidireccional con MongoDB
+  # Features: Retry logic, timeout, interceptors para auth
+  # Documentación: docs/sprints/sprint-02/sprint-goal.md
   dio: ^5.4.0
 
-  # Utilities
+  # ========================================
+  # UTILITIES
+  # ========================================
+  # Intl: Internacionalización y formateo de fechas/números
+  # Usado en: Formateo de pesos (kg), fechas de captura, localización ES-BO
   intl: ^0.18.1
+  
+  # UUID: Generación de IDs únicos
+  # Usado en: IDs de sesiones de captura, fotogramas, registros de peso
   uuid: ^4.2.1
+  
+  # Equatable: Comparación de objetos por valor
+  # Usado en: Entities (Frame, CaptureSession) para comparación en tests
+  # Clean Architecture: Facilita testing y comparación de entidades
   equatable: ^2.0.5
+  
+  # Dartz: Functional programming (Either<Failure, Success>)
+  # Usado en: Manejo robusto de errores en repositorios y use cases
+  # Pattern: Either<Failure, T> para retornos de funciones críticas
+  # Documentación: docs/standards/flutter-standards.md
   dartz: ^0.10.1
 
+  # ========================================
   # UI
+  # ========================================
+  # Cupertino Icons: Iconos de iOS (compatibilidad cross-platform)
+  # Usado en: Material Design 3 + Cupertino para iOS nativo
   cupertino_icons: ^1.0.8
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   
+  # Flutter Lints: Reglas de linting recomendadas
+  # Configuración: analysis_options.yaml
+  # Documentación: docs/standards/flutter-standards.md
   flutter_lints: ^5.0.0
+  
+  # Mockito: Mocking para tests unitarios
+  # Usado en: Tests de repositorios, data sources, use cases
+  # Genera mocks con @GenerateMocks annotation
+  # Target cobertura: >80%
+  # Documentación: docs/standards/testing-standards.md
   mockito: ^5.4.4
+  
+  # Build Runner: Code generation (mocks, JSON serialization)
+  # Usado en: Generar mocks de Mockito
+  # Comando: flutter pub run build_runner build
   build_runner: ^2.4.7
 
 # For information on the generic Dart part of this file, see the
