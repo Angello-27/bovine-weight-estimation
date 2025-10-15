@@ -7,8 +7,8 @@
 library;
 
 import 'dart:io';
-import 'dart:typed_data';
 
+import 'package:flutter/foundation.dart';
 import 'package:image/image.dart' as img;
 import 'package:uuid/uuid.dart';
 
@@ -59,7 +59,7 @@ class TFLiteDataSourceImpl implements TFLiteDataSource {
         // Por ahora, marcar como cargado (mock)
         _loadedModels[breed] = true;
 
-        print('✅ Modelo cargado: ${breed.modelFilename}');
+        debugPrint('✅ Modelo cargado: ${breed.modelFilename}');
       }
     } catch (e) {
       throw ModelException(message: 'Error al cargar modelos TFLite: $e');
