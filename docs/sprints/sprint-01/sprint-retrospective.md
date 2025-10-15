@@ -2,7 +2,7 @@
 
 **Sprint**: 1  
 **Duración**: 30 Sep - 13 Oct 2024  
-**Fecha de Culminación**: ✅ **13 Oct 2024**  
+**Fecha de Culminación**: ✅ **30 Sep 2024** (completado anticipadamente)  
 **Presentación**: 9 Oct 2024  
 **Estado**: ✅ **COMPLETADO** (100%)
 

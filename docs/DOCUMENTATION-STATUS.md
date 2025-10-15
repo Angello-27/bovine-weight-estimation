@@ -58,11 +58,11 @@
 
 ---
 
-## ✅ SPRINT 1 COMPLETADO (13 Oct 2024)
+## ✅ SPRINT 1 COMPLETADO (30 Sep 2024)
 
 **Estado**: ✅ **100% Completado**  
 **Story Points**: 26/26 (100%)  
-**Fecha culminación**: 13 Octubre 2024  
+**Fecha culminación**: 30 Septiembre 2024 (anticipadamente)  
 
 ---
 
@@ -107,7 +107,7 @@
 
 ## 📈 Progreso del Proyecto
 
-### Sprint 1 ✅ COMPLETADO (13 Oct 2024)
+### Sprint 1 ✅ COMPLETADO (30 Sep 2024)
 - **US-001**: ✅ Completada (8 SP)
 - **US-002**: ✅ Completada (13 SP)
 - **US-003**: ✅ Completada (5 SP)
@@ -140,7 +140,7 @@
 
 ## 🎯 Próximos Pasos
 
-### 1. Sprint 1 ✅ COMPLETADO (13 Oct 2024)
+### 1. Sprint 1 ✅ COMPLETADO (30 Sep 2024)
 - [x] **US-001**: Captura Continua ✅
 - [x] **US-002**: Estimación IA ✅
 - [x] **US-003**: Registro Animales ✅

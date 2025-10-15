@@ -4,7 +4,7 @@
 **Cliente**: Hacienda Gamelera (Bruno Brito Macedo)  
 **Sprint**: 1 - Validación Core  
 **Fecha de Inicio**: 30 Septiembre 2024  
-**Fecha de Culminación**: ✅ **13 Octubre 2024**  
+**Fecha de Culminación**: ✅ **30 Septiembre 2024** (anticipadamente)  
 **Estado**: ✅ **COMPLETADO AL 100%**
 
 ---
@@ -13,10 +13,10 @@
 
 | ID | Nombre | SP | Criterios | Estado | Fecha |
 |----|--------|----|----|--------|-------|
-| **US-001** | Captura Continua de Fotogramas | 8 | 8/8 ✅ | ✅ | 28 Oct 2024 |
-| **US-002** | Estimación de Peso por Raza con IA | 13 | 9/9 ✅ | ✅ | 28 Oct 2024 |
-| **US-003** | Registro Automático de Animales | 5 | 10/10 ✅ | ✅ | 28 Oct 2024 |
-| **TOTAL** | **Sprint 1** | **26** | **27/27 ✅** | ✅ **100%** | **13 Oct 2024** |
+| **US-001** | Captura Continua de Fotogramas | 8 | 8/8 ✅ | ✅ | 30 Sep 2024 |
+| **US-002** | Estimación de Peso por Raza con IA | 13 | 9/9 ✅ | ✅ | 30 Sep 2024 |
+| **US-003** | Registro Automático de Animales | 5 | 10/10 ✅ | ✅ | 30 Sep 2024 |
+| **TOTAL** | **Sprint 1** | **26** | **27/27 ✅** | ✅ **100%** | **30 Sep 2024** |
 
 ---
 
@@ -248,7 +248,9 @@ aa2da22 docs: crear UI Design System
 
 ## 📝 Certificación
 
-Este documento certifica que el **Sprint 1** del proyecto "Sistema de Estimación de Peso Bovino con IA" para Hacienda Gamelera ha sido **completado exitosamente al 100%** el día **13 de Octubre de 2024**.
+Este documento certifica que el **Sprint 1** del proyecto "Sistema de Estimación de Peso Bovino con IA" para Hacienda Gamelera ha sido **completado exitosamente al 100%** el día **30 de Septiembre de 2024** (anticipadamente, antes de la fecha planificada del 13 de Octubre).
+
+**Nota**: Este certificado es un documento de referencia interna y NO es parte estándar de Scrum. Los documentos oficiales Scrum son: sprint-goal.md, sprint-retrospective.md y sprint-progress.md.
 
 **Firmantes**:
 - **Product Owner**: Miguel Angel Escobar Lazcano
