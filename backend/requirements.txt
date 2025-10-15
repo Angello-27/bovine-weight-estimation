@@ -1,0 +1,47 @@
+# Backend FastAPI - Sistema de Estimación de Peso Bovino
+# Python 3.11+
+
+# Framework Web
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+python-multipart==0.0.6
+
+# Database
+motor==3.3.2  # MongoDB async driver
+pymongo==4.6.0
+beanie==1.23.6  # ODM para MongoDB
+
+# Validación y Serialización
+pydantic==2.5.0
+pydantic-settings==2.1.0
+email-validator==2.1.0
+
+# Autenticación y Seguridad
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+python-dotenv==1.0.0
+
+# Machine Learning
+tensorflow==2.15.0
+pillow==10.1.0
+numpy==1.26.2
+
+# Utilidades
+python-dateutil==2.8.2
+pytz==2023.3
+
+# Logging y Monitoreo
+python-json-logger==2.0.7
+
+# Testing
+pytest==7.4.3
+pytest-asyncio==0.21.1
+pytest-cov==4.1.0
+httpx==0.25.2
+
+# Code Quality
+black==23.11.0
+flake8==6.1.0
+mypy==1.7.1
+isort==5.12.0
+

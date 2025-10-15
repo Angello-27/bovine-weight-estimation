@@ -1,0 +1,110 @@
+# Sistema de Estimación de Peso Bovino - Hacienda Gamelera
+# .gitignore principal
+
+# ========================================
+# MOBILE (Flutter)
+# ========================================
+
+# Dart/Flutter
+mobile/.dart_tool/
+mobile/.packages
+mobile/.pub-cache/
+mobile/.pub/
+mobile/build/
+mobile/.flutter-plugins
+mobile/.flutter-plugins-dependencies
+
+# IDE
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+
+# ========================================
+# BACKEND (Python/FastAPI)
+# ========================================
+
+# Python
+backend/__pycache__/
+backend/**/__pycache__/
+backend/*.py[cod]
+backend/*$py.class
+backend/.pytest_cache/
+backend/htmlcov/
+backend/.coverage
+backend/coverage.xml
+
+# Virtual Environment
+backend/venv/
+backend/.venv/
+backend/env/
+backend/.env
+backend/.env.local
+
+# ========================================
+# ML TRAINING (Python/TensorFlow)
+# ========================================
+
+# Python
+ml-training/__pycache__/
+ml-training/**/__pycache__/
+ml-training/*.py[cod]
+ml-training/*$py.class
+ml-training/.pytest_cache/
+
+# Jupyter
+ml-training/.ipynb_checkpoints/
+ml-training/**/.ipynb_checkpoints/
+
+# MLflow
+ml-training/experiments/mlflow/mlruns/
+ml-training/experiments/mlflow/mlartifacts/
+
+# DVC
+ml-training/.dvc/cache/
+ml-training/.dvc/tmp/
+
+# Data (NO versionar datasets grandes)
+ml-training/src/data/raw/*.jpg
+ml-training/src/data/raw/*.png
+ml-training/src/data/processed/*.npy
+ml-training/src/data/augmented/*.jpg
+
+# Models (NO versionar modelos grandes, usar DVC)
+ml-training/src/models/**/*.h5
+ml-training/src/models/**/*.keras
+ml-training/src/models/**/*.tflite
+ml-training/src/models/**/*.pb
+
+# Virtual Environment
+ml-training/venv/
+ml-training/.venv/
+ml-training/env/
+ml-training/.env
+
+# ========================================
+# GENERAL
+# ========================================
+
+# OS
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+logs/
+
+# Backups
+*-backup.*
+*.bak
+
+# Secrets (NUNCA versionar)
+*.pem
+*.key
+secrets/
+credentials.json
+

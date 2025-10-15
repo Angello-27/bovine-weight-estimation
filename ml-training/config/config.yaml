@@ -1,0 +1,63 @@
+# ML Training Configuration
+# Sistema de Estimación de Peso Bovino - Hacienda Gamelera
+
+project:
+  name: "bovine-weight-estimation"
+  version: "1.0.0"
+  hacienda: "Gamelera"
+  owner: "Bruno Brito Macedo"
+
+# Razas exactas (7 razas de Hacienda Gamelera)
+breeds:
+  - brahman
+  - nelore
+  - angus
+  - cebuinas
+  - criollo
+  - pardo_suizo
+  - jersey
+
+# Categorías de edad exactas (4 categorías)
+age_categories:
+  - terneros  # <8 meses
+  - vaquillonas_torillos  # 6-18 meses
+  - vaquillonas_toretes  # 19-30 meses
+  - vacas_toros  # >30 meses
+
+# Data Paths
+data:
+  raw: "./src/data/raw"
+  processed: "./src/data/processed"
+  augmented: "./src/data/augmented"
+
+# Model Training
+training:
+  image_size: [224, 224, 3]
+  batch_size: 32
+  epochs: 100
+  validation_split: 0.2
+  test_split: 0.1
+  early_stopping_patience: 10
+  learning_rate: 0.001
+
+# Target Metrics (Requisitos críticos)
+metrics:
+  target_r2: 0.95  # R² ≥ 0.95
+  max_mae: 5.0  # Error absoluto < 5 kg
+  max_inference_time: 3.0  # < 3 segundos
+
+# MLflow
+mlflow:
+  tracking_uri: "./experiments/mlflow"
+  experiment_name: "bovine-weight-estimation"
+
+# DVC
+dvc:
+  remote_storage: "s3://bovine-weight-models"
+
+# Export
+export:
+  tflite_format: true
+  quantization: true
+  output_dir: "./src/models/export"
+
