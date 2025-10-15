@@ -92,7 +92,7 @@
 - [ ] Confirmación visual del fotograma seleccionado antes de procesamiento
 
 **Story Points**: 8  
-**Prioridad**: Crítica  
+**Prioridad**: Crítica
 **Dependencias**: Ninguna  
 **Sprint**: Sprint 1
 
@@ -115,7 +115,7 @@
 - [ ] Histórico de estimaciones almacenado localmente con timestamp, GPS, raza, peso, confidence
 
 **Story Points**: 13  
-**Prioridad**: Crítica  
+**Prioridad**: Crítica
 **Dependencias**: US-001 (requiere fotogramas capturados)  
 **Sprint**: Sprint 1
 
@@ -139,7 +139,7 @@
 - [ ] Almacenamiento local en SQLite funcionando offline
 
 **Story Points**: 5  
-**Prioridad**: Alta  
+**Prioridad**: Alta
 **Dependencias**: Ninguna (independiente de captura/estimación)  
 **Sprint**: Sprint 1
 
@@ -165,7 +165,7 @@
 - [ ] Funcionalidad offline completa con sincronización de datos históricos
 
 **Story Points**: 8  
-**Prioridad**: Alta  
+**Prioridad**: Alta
 **Dependencias**: US-002 (requiere pesajes almacenados), US-003 (requiere animales registrados)  
 **Sprint**: Sprint 2
 
@@ -217,7 +217,7 @@
 - [ ] Persistencia de filtros al navegar: mantiene búsqueda activa
 
 **Story Points**: 5  
-**Prioridad**: Media  
+**Prioridad**: Media
 **Dependencias**: US-003 (requiere animales registrados)  
 **Sprint**: Sprint 2
 
@@ -250,7 +250,7 @@
 - [ ] Validación de datos antes de generación: alertar si faltan datos críticos
 
 **Story Points**: 8  
-**Prioridad**: Alta  
+**Prioridad**: Alta
 **Dependencias**: US-004 (requiere historial completo), US-003 (requiere inventario actualizado)  
 **Sprint**: Sprint 3
 
@@ -328,7 +328,7 @@
 - [ ] Alertas inteligentes de preparación: "15 animales candidatos para próxima competencia ASOCEBU"
 
 **Story Points**: 8  
-**Prioridad**: Media  
+**Prioridad**: Media
 **Dependencias**: US-004 (historial para detectar anomalías), US-003 (datos de animales)  
 **Sprint**: Sprint 4 (Futuro)
 
@@ -353,7 +353,7 @@
 - [ ] Sugerencias inteligentes: "Sesión óptima: 25 animales del Potrero Norte este viernes 8:00 AM"
 
 **Story Points**: 5  
-**Prioridad**: Baja  
+**Prioridad**: Baja
 **Dependencias**: US-003 (animales con ubicaciones), US-006 (búsqueda y filtros)  
 **Sprint**: Sprint 4 (Futuro)
 
@@ -570,295 +570,29 @@ Una User Story está completa cuando cumple TODOS los criterios aplicables:
 
 ---
 
-# ANEXO: Historias de Usuario Completas (Formato Académico 3C)
+## Documentación Complementaria
 
-## Metodología de Especificación
+### User Stories Detalladas (Formato Académico 3C)
 
-Este anexo documenta todas las User Stories identificadas durante el Sprint 0 (Planificación) en formato académico completo, siguiendo el estándar **3C (Card, Conversation, Confirmation)** requerido por metodología Scrum:
+Para especificación completa de cada User Story en formato académico 3C (Card, Conversation, Confirmation), ver:
 
-- **Card (Tarjeta)**: Descripción breve con rol, acción y beneficio
-- **Conversation (Conversación)**: Contexto, dependencias, riesgos y decisiones
-- **Confirmation (Confirmación)**: Criterios de aceptación testeables y validación
+📄 **[product-backlog-detailed.md](product-backlog-detailed.md)**
 
----
-
-## US-001: Captura Continua de Fotogramas
-
-### Card (Tarjeta)
-
-- **ID**: US-001
-- **Nombre corto**: Captura Continua de Fotogramas
-- **Prioridad**: Crítica
-- **Story Points**: 8
-- **Sprint asignado**: Sprint 1
-- **Como**: Ganadero de Hacienda Gamelera
-- **Quiero**: Capturar fotogramas continuos de bovinos mediante la cámara de mi smartphone
-- **Para**: Estimar peso con IA sin necesidad de básculas tradicionales, ahorrando tiempo y eliminando estrés animal
-
-### Conversation (Conversación)
-
-**Contexto de negocio**:  
-En Hacienda Gamelera, Bruno Brito Macedo y su equipo actualmente requieren 2-3 días para pesar 20 animales usando básculas mecánicas y cinta bovinométrica (fórmula Schaeffer). Este proceso requiere:
-- 30-45 minutos de calibración diaria
-- 1-2 horas de coordinación de personal (capataz, vaquero, peón)
-- 5-10 minutos por animal para captura y aseguramiento
-- 10% de reintentos por lecturas inestables
-
-La captura continua automática elimina estos cuellos de botella permitiendo al ganadero capturar 30-75 fotogramas en 3-5 segundos sin intervención manual compleja.
-
-**Restricciones técnicas**:
-- **Offline-first**: Zona rural sin conectividad estable
-- **Condiciones campo**: Luz solar variable, movimiento del animal, distancia 2-5 metros
-- **Dispositivos**: Smartphones Android/iOS comunes (no equipos especializados)
-- **Performance**: Captura debe ser fluida sin lag (<100ms entre fotogramas)
-
-**Dependencias**:
-- Ninguna (US fundacional del sistema)
-
-**Riesgos identificados**:
-1. **Técnicos**: Performance de captura en dispositivos de gama media/baja
-2. **Operacionales**: Animales en movimiento pueden no quedar en ningún fotograma óptimo
-3. **UX**: Interfaz debe ser intuitiva para personal rural sin entrenamiento formal
-
-**Preguntas del equipo**:
-- Q: ¿Cuántos fotogramas son suficientes para garantizar uno óptimo?
-- Q: ¿Qué criterios definen un fotograma "óptimo"?
-- Q: ¿Qué hacer si ningún fotograma cumple criterios mínimos?
-
-**Respuestas del Product Owner**:
-- R: 30-75 fotogramas (10-15 FPS × 3-5 segundos) dan alta probabilidad de captura óptima
-- R: Criterios: nitidez >0.7, iluminación 0.4-0.8, contraste >0.5, silueta >0.8, ángulo >0.6
-- R: Si ninguno cumple, permitir reintento inmediato con feedback visual al usuario
-
-### Confirmation (Confirmación)
-
-**Criterios de aceptación**:
-
-1. ✅ **Captura continua automática**: Sistema captura 10-15 FPS durante 3-5 segundos sin intervención manual después de presionar botón "Capturar"
-2. ✅ **Evaluación en tiempo real**: Cada fotograma evaluado automáticamente por:
-   - Nitidez (sharpness > 0.7)
-   - Iluminación (brightness 0.4-0.8)
-   - Contraste (contrast > 0.5)
-   - Visibilidad de silueta (silhouette_visibility > 0.8)
-   - Ángulo apropiado (angle_score > 0.6)
-3. ✅ **Selección automática**: Score ponderado global calcula mejor fotograma: Silueta 40%, Nitidez 30%, Iluminación 20%, Ángulo 10%
-4. ✅ **Funcionamiento en campo real**: Pruebas exitosas con luz solar, animales en movimiento, distancia 2-5 metros en Hacienda Gamelera
-5. ✅ **Interfaz intuitiva**: Botón único "Capturar" con feedback visual claro: "Capturando... 30/45 fotogramas"
-6. ✅ **Almacenamiento local**: Fotogramas almacenados automáticamente en SQLite (offline-first)
-7. ✅ **Indicador de progreso**: Barra visual mostrando progreso: "Capturando 30 de 45 fotogramas (67%)"
-8. ✅ **Confirmación visual**: Usuario ve fotograma seleccionado antes de continuar con estimación de peso
-
-**Criterios de validación con Bruno**:
-- ¿Bruno puede capturar fotogramas de bovinos sin dificultad en <30 segundos?
-- ¿La interfaz es lo suficientemente simple para usar sin entrenamiento?
-- ¿El sistema selecciona fotogramas donde el animal es claramente visible?
-- ¿Bruno prefiere este método vs llevar animal a báscula?
-
-**Definition of Done aplicable**:
-- Code review aprobado por desarrollador senior
-- Tests unitarios de algoritmos de evaluación (nitidez, iluminación, etc.) >80% cobertura
-- Tests de integración: captura → evaluación → selección
-- Performance: 10-15 FPS mantenidos durante 5 segundos en dispositivos gama media
-- Validación en campo real con Bruno en Hacienda Gamelera
-
-**Prototipo/Mockup**:
-- Pantalla principal: Vista de cámara en tiempo real con botón "Capturar" prominente
-- Durante captura: Overlay con contador "Capturando... X/Y fotogramas" y barra de progreso
-- Post-captura: Fotograma seleccionado mostrado con score de calidad visual
+Ese documento incluye para US-001 a US-011:
+- **Card**: ID, prioridad, story points, rol/acción/beneficio
+- **Conversation**: Contexto Hacienda Gamelera, restricciones, dependencias, riesgos, Q&A Product Owner
+- **Confirmation**: 8-10 criterios aceptación, validación Bruno, métricas cuantificables, DoD aplicable, mockups
 
 ---
 
-## US-002: Estimación de Peso por Raza
-
-### Card (Tarjeta)
-
-- **ID**: US-002
-- **Nombre corto**: Estimación de Peso por Raza con IA
-- **Prioridad**: Crítica
-- **Story Points**: 13
-- **Sprint asignado**: Sprint 1
-- **Como**: Ganadero de Hacienda Gamelera
-- **Quiero**: Que el sistema estime automáticamente el peso del animal según su raza específica usando IA
-- **Para**: Obtener precisión >95% superior a la fórmula Schaeffer manual (error actual 5-20 kg)
-
-### Conversation (Conversación)
-
-**Contexto de negocio**:  
-El método actual de Bruno (fórmula Schaeffer) tiene error de 5-20 kg por animal, causando:
-- Errores en dosificación de medicamentos veterinarios
-- Decisiones subóptimas de cruce (vaquillas subpesadas cruzadas prematuramente con riesgo de complicaciones de parto)
-- Preparación inadecuada para competencias ASOCEBU (ej: solo 10 de 15 hembras procesadas para 3ª Faena Técnica 2024)
-
-La estimación por IA con modelos específicos por raza permite precisión >95% considerando características morfológicas únicas de cada raza bovina.
-
-**Restricciones técnicas**:
-- **7 razas específicas**: Brahman, Nelore, Angus, Cebuinas (Bos indicus), Criollo, Pardo Suizo, Jersey
-- **Offline-first**: Modelo ML debe ejecutarse localmente (TensorFlow Lite)
-- **Performance**: <3 segundos desde fotograma hasta resultado
-- **Precisión objetivo**: R² ≥ 0.95, error absoluto <5 kg
-- **Dispositivos**: Smartphones gama media (no requiere GPU dedicada)
-
-**Dependencias**:
-- US-001: Requiere fotogramas capturados de calidad óptima
-
-**Riesgos identificados**:
-1. **Técnicos**: Modelo ML puede no alcanzar precisión >95% con dataset limitado
-2. **Operacionales**: Razas mixtas o no registradas pueden dar estimaciones incorrectas
-3. **Dataset**: Conseguir imágenes etiquetadas con peso real de 7 razas puede ser complejo
-
-**Preguntas del equipo**:
-- Q: ¿Cómo validaremos que el modelo alcanza >95% precisión?
-- Q: ¿Qué pasa si el animal es raza mixta no identificable?
-- Q: ¿Cuántas imágenes necesitamos por raza para entrenar el modelo?
-
-**Respuestas del Product Owner**:
-- R: Validación cruzada con báscula real en mínimo 50 animales en Hacienda Gamelera
-- R: Sistema solicita selección manual de raza antes de captura; mixtas usan modelo más cercano
-- R: Mínimo 100 imágenes por raza para training, 30 para validation (total ~1000 imágenes)
-
-### Confirmation (Confirmación)
-
-**Criterios de aceptación**:
-
-1. ✅ **Soporte 7 razas bovinas**: Brahman, Nelore, Angus, Cebuinas (Bos indicus), Criollo, Pardo Suizo, Jersey con modelos ML específicos
-2. ✅ **Modelo ML por raza**: TensorFlow Lite optimizado con arquitectura CNN (MobileNetV2/EfficientNet)
-3. ✅ **Precisión >95%**: R² ≥ 0.95 validado con al menos 3 razas principales (Brahman, Nelore, Angus) en campo real
-4. ✅ **Error absoluto <5 kg**: Promedio |peso_estimado - peso_real| < 5 kg por animal en condiciones controladas
-5. ✅ **Tiempo procesamiento <3 segundos**: Desde fotograma hasta resultado mostrado en pantalla
-6. ✅ **Confidence score visual**: "Precisión: 97%" con código de colores (Verde >90%, Amarillo 80-90%, Rojo <80%)
-7. ✅ **Funcionamiento 100% offline**: Sin conexión a internet, procesamiento local completo
-8. ✅ **Selección de raza pre-captura**: Usuario selecciona raza con iconos visuales intuitivos antes de capturar
-9. ✅ **Histórico almacenado localmente**: Cada estimación guardada con timestamp, GPS, raza, peso, confidence en SQLite
-
-**Criterios de validación con Bruno**:
-- ¿Bruno confirma que estimaciones son más precisas que fórmula Schaeffer?
-- ¿Las estimaciones están dentro de ±5 kg comparadas con báscula real?
-- ¿Bruno confía en usar estimaciones para decisiones veterinarias?
-- ¿El proceso completo (captura + estimación) es más rápido que método tradicional?
-
-**Métricas cuantificables**:
-- R² (coeficiente de determinación) ≥ 0.95
-- MAE (Mean Absolute Error) < 5 kg
-- MAPE (Mean Absolute Percentage Error) < 5%
-- Tiempo inferencia: < 3 segundos en dispositivo gama media
-- Validación con N ≥ 50 animales en campo real
-
-**Definition of Done aplicable**:
-- Modelo entrenado con dataset validado (mínimo 700 imágenes)
-- Tests de precisión: R² ≥ 0.95 en conjunto de validación
-- Modelo optimizado para TensorFlow Lite (<50 MB)
-- Tests de performance: <3 segundos en dispositivos objetivo
-- Code review de lógica de inferencia y post-procesamiento
-- Validación en campo con Bruno: mínimo 20 animales comparados con báscula
-
-**Prototipo/Mockup**:
-- Pantalla selección raza: Grid 3x3 con iconos de las 7 razas + nombre
-- Pantalla resultado: Peso estimado grande (ej: "487 kg"), confidence score con color, botón "Guardar"
-
----
-
-## US-003: Registro Automático de Animales
-
-### Card (Tarjeta)
-
-- **ID**: US-003
-- **Nombre corto**: Registro de Animales
-- **Prioridad**: Alta
-- **Story Points**: 5
-- **Sprint asignado**: Sprint 1
-- **Como**: Ganadero de Hacienda Gamelera
-- **Quiero**: Registrar animales de forma rápida y simple en el sistema
-- **Para**: Mantener control organizado de mi hato de 500 cabezas en Hacienda Gamelera
-
-### Conversation (Conversación)
-
-**Contexto de negocio**:  
-Bruno actualmente registra animales en cuadernos de papel y hojas de cálculo Excel básicas. Esto dificulta:
-- Búsqueda rápida de animal específico (revisión manual de hojas)
-- Trazabilidad histórica (pesajes en cuadernos separados no vinculados)
-- Cumplimiento normativo (SENASAG requiere registros digitales)
-- Escalabilidad (500 cabezas requieren organización eficiente)
-
-El registro digital permite vincular cada animal con su historial de pesajes, facilitando análisis de crecimiento y cumplimiento normativo.
-
-**Restricciones técnicas**:
-- **Offline-first**: Registro debe funcionar sin conexión
-- **Escalabilidad**: Optimizado para 500+ animales sin degradación de performance
-- **Validación única**: Número de caravana/arete único por hacienda
-- **Cálculo automático**: Edad y categoría calculadas desde fecha de nacimiento
-
-**Dependencias**:
-- Ninguna (independiente de captura/estimación)
-
-**Riesgos identificados**:
-1. **UX**: Formulario complejo puede dificultar adopción por personal rural
-2. **Validación**: Números de caravana duplicados pueden causar inconsistencias
-3. **Performance**: Búsqueda en 500 animales debe ser instantánea (<500ms)
-
-**Preguntas del equipo**:
-- Q: ¿Qué campos son obligatorios vs opcionales?
-- Q: ¿Cómo se calcula la categoría de edad (ternero, vaquillona, etc.)?
-- Q: ¿Se permite editar/eliminar animales registrados?
-
-**Respuestas del Product Owner**:
-- R: Obligatorios: caravana, raza, fecha nacimiento, género. Opcionales: color, peso al nacer, madre/padre, observaciones
-- R: Categorías: <8 meses (Ternero), 6-18m (Vaquillona/Torillo), 19-30m (Vaquillona/Torete), >30m (Vaca/Toro)
-- R: Sí, editar datos básicos. Eliminar solo cambiar estado a "Muerto/Vendido" (no borrar registro)
-
-### Confirmation (Confirmación)
-
-**Criterios de aceptación**:
-
-1. ✅ **Formulario con campos obligatorios**: número caravana/arete (único), raza (7 opciones), fecha nacimiento, género (Macho/Hembra)
-2. ✅ **Selección raza visual**: Lista con 7 opciones (Brahman, Nelore, Angus, Cebuinas, Criollo, Pardo Suizo, Jersey) con iconos
-3. ✅ **Validación número único**: Sistema verifica que caravana no esté duplicada en base de datos antes de guardar
-4. ✅ **Cálculo automático edad/categoría**: Desde fecha nacimiento calcula: Ternero (<8m), Vaquillona/Torillo (6-18m), Vaquillona/Torete (19-30m), Vaca/Toro (>30m)
-5. ✅ **Campos opcionales**: color, peso al nacer, madre ID, padre ID, observaciones (texto libre)
-6. ✅ **Búsqueda rápida con autocompletado**: Búsqueda por caravana con resultados instantáneos (<500ms)
-7. ✅ **Lista de animales registrados**: Ordenada cronológicamente (más recientes primero) con scroll infinito
-8. ✅ **Indicador visual de estado**: Activo (verde), Inactivo (gris), Vendido (azul), Muerto (rojo) con íconos
-9. ✅ **Edición de datos**: Permite modificar datos básicos de animal existente (excepto caravana)
-10. ✅ **Almacenamiento offline**: SQLite local, sincronización posterior con servidor
-
-**Criterios de validación con Bruno**:
-- ¿Bruno puede registrar 10 animales en <30 minutos?
-- ¿La búsqueda por caravana es suficientemente rápida?
-- ¿La lista de 500 animales es navegable sin problemas de performance?
-- ¿Los campos opcionales cubren las necesidades reales?
-
-**Definition of Done aplicable**:
-- Formulario validado con lógica cliente (campos obligatorios, formato caravana)
-- Tests unitarios de validación única de caravana
-- Tests de performance: búsqueda <500ms en dataset de 1000 animales
-- Índice en base de datos para búsquedas optimizadas
-- Code review de lógica de negocio y queries SQL
-- Validación con Bruno: registrar 20 animales reales sin errores
-
-**Prototipo/Mockup**:
-- Pantalla formulario: Campos ordenados verticalmente, botones grandes para táctil
-- Pantalla lista: Tarjetas con foto placeholder, caravana, raza, edad, estado
-
----
-
-*[Continúa con US-004 a US-011 en el mismo formato 3C detallado...]*
-
-**Nota**: Por límites de espacio, las US-004 a US-011 siguen el mismo formato académico 3C con nivel de detalle equivalente. Cada US incluye Card completa, Conversation con contexto de Hacienda Gamelera, y Confirmation con 8-10 criterios de aceptación testeables, validación con Bruno, métricas cuantificables y DoD aplicable.
-
-**Resumen de US restantes**:
-- **US-004**: Historial de Pesajes con gráficos (Sprint 2)
-- **US-005**: Sincronización Offline (Sprint 2)
-- **US-006**: Búsqueda y Filtros (Sprint 2)
-- **US-007**: Reportes SENASAG (Sprint 3)
-- **US-008**: Integración Gran Paitití (Sprint 3)
-- **US-009**: Exportación ASOCEBU (Sprint 3)
-- **US-010**: Alertas Inteligentes (Sprint 4/Backlog)
-- **US-011**: Planificación de Sesiones (Sprint 4/Backlog)
-
----
-
-**Documento Product Backlog Completo v2.0**  
+**Documento Product Backlog v3.0 (Ejecutivo)**  
 **Última actualización**: 28 octubre 2024  
 **Product Owner**: Miguel Angel Escobar Lazcano  
 **Scrum Master**: Rodrigo Escobar Morón  
 **Total User Stories**: 11  
-**Total Story Points**: 105 (Sprint 1: 26, Sprint 2: 26, Sprint 3: 26, Sprint 4: 13, Backlog: 14)
+**Total Story Points**: 105 (Sprint 1: 26, Sprint 2: 26, Sprint 3: 26, Sprint 4+: 27)
+
+**Documentación relacionada**:
+- 📄 Detalle US (3C): [product-backlog-detailed.md](product-backlog-detailed.md)
+- ✅ Definition of Done: [definition-of-done.md](definition-of-done.md)
+- 🎯 Sprint Goals: [../sprints/](../sprints/)
