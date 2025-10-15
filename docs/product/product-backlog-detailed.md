@@ -155,7 +155,7 @@ IA con modelos por raza: precisión >95% considerando morfología única de cada
 
 ---
 
-## US-003: Registro Automático de Animales
+## US-003: Registro Automático de Animales ✅ COMPLETADA
 
 ### Card
 
@@ -166,6 +166,7 @@ IA con modelos por raza: precisión >95% considerando morfología única de cada
 | **Prioridad** | Alta |
 | **Story Points** | 5 |
 | **Sprint** | Sprint 1 |
+| **Estado** | ✅ **COMPLETADA** (28 Oct 2024) |
 | **Como** | Ganadero Hacienda Gamelera |
 | **Quiero** | Registrar animales rápido y simple |
 | **Para** | Control organizado de 500 cabezas |
@@ -206,6 +207,16 @@ Registro digital vincula animal con historial pesajes → análisis crecimiento 
 **DoD**: Formulario validado, tests unicidad, performance <500ms en 1000 animales, índices BD, queries optimizadas, registrar 20 animales sin errores
 
 **Mockup**: Formulario vertical, botones grandes táctil. Lista: tarjetas con foto placeholder, caravana, raza, edad, estado
+
+**Implementación realizada**:
+- ✅ Commit: 4f6b864
+- ✅ 12 archivos nuevos, 4 modificados (2,059 líneas)
+- ✅ Cattle entity con Gender y CattleStatus enums
+- ✅ CattleRegistrationForm (organism Atomic Design)
+- ✅ TextInputField (atom), BreedDropdown + GenderDropdown (molecules)
+- ✅ SQLite tabla cattle + 5 índices (ear_tag UNIQUE, search optimizado)
+- ✅ Validaciones: Unicidad, formato, fecha, peso
+- ✅ Tests: cattle_test.dart + register_cattle_usecase_test.dart
 
 ---
 
