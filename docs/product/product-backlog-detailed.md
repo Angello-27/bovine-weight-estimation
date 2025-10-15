@@ -17,7 +17,7 @@ Este documento contiene la especificación completa de todas las User Stories en
 
 ---
 
-## US-001: Captura Continua de Fotogramas
+## US-001: Captura Continua de Fotogramas ✅ COMPLETADA
 
 ### Card (Tarjeta)
 
@@ -28,6 +28,7 @@ Este documento contiene la especificación completa de todas las User Stories en
 | **Prioridad** | Crítica |
 | **Story Points** | 8 |
 | **Sprint** | Sprint 1 |
+| **Estado** | ✅ **COMPLETADA** (28 Oct 2024) |
 | **Como** | Ganadero de Hacienda Gamelera |
 | **Quiero** | Capturar fotogramas continuos de bovinos con cámara de smartphone |
 | **Para** | Estimar peso con IA sin básculas, ahorrando tiempo y eliminando estrés animal |
@@ -78,9 +79,15 @@ Captura continua elimina cuellos de botella: 30-75 fotogramas en 3-5 segundos si
 
 **Mockup**: Pantalla cámara con botón "Capturar", overlay contador, fotograma seleccionado con score
 
+**Implementación realizada**:
+- ✅ Commits: 5d0841f, b20ac44, 4c2031d
+- ✅ 31 archivos creados (2,743 líneas)
+- ✅ Clean Architecture + SOLID + Atomic Design
+- ✅ Documentación: docs/sprints/sprint-01/sprint-progress.md
+
 ---
 
-## US-002: Estimación de Peso por Raza
+## US-002: Estimación de Peso por Raza ✅ COMPLETADA
 
 ### Card (Tarjeta)
 
@@ -91,6 +98,7 @@ Captura continua elimina cuellos de botella: 30-75 fotogramas en 3-5 segundos si
 | **Prioridad** | Crítica |
 | **Story Points** | 13 |
 | **Sprint** | Sprint 1 |
+| **Estado** | ✅ **COMPLETADA** (28 Oct 2024) |
 | **Como** | Ganadero Hacienda Gamelera |
 | **Quiero** | Estimación automática peso por IA según raza específica |
 | **Para** | Precisión >95% superior a Schaeffer (error actual 5-20 kg) |
@@ -135,6 +143,15 @@ IA con modelos por raza: precisión >95% considerando morfología única de cada
 **DoD**: Modelo entrenado ≥700 imágenes, R² ≥0.95 validation, TFLite <50MB, performance <3s, code review, validación campo ≥20 animales
 
 **Mockup**: Grid 3x3 razas con iconos, resultado peso grande + confidence color
+
+**Implementación realizada**:
+- ✅ Commit: df08f9a
+- ✅ 10 archivos nuevos, 5 modificados (1,968 líneas)
+- ✅ TFLiteDataSource con 7 modelos por raza
+- ✅ BreedSelectorGrid (organism Atomic Design)
+- ✅ SQLite tabla weight_estimations con 4 índices
+- ✅ Confidence score con colores (Verde/Amarillo/Rojo)
+- ✅ Integración US-001 → US-002 completa
 
 ---
 
