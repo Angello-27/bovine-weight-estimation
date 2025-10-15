@@ -1,11 +1,12 @@
 /// Dependency Injection
-/// 
+///
 /// Configuración de inyección de dependencias.
 /// Single Responsibility: Crear y proveer instancias de servicios.
 ///
 /// Core Config Layer
 library;
 
+import '../services/permission_service.dart';
 import '../../data/datasources/camera_datasource.dart';
 import '../../data/datasources/cattle_local_datasource.dart';
 import '../../data/datasources/frame_local_datasource.dart';
@@ -22,13 +23,16 @@ import '../../domain/usecases/estimate_weight_usecase.dart';
 import '../../domain/usecases/register_cattle_usecase.dart';
 
 /// Contenedor de dependencias
-/// 
+///
 /// TODO: Migrar a GetIt para DI más robusto en producción
 class DependencyInjection {
   // Singleton
   static final DependencyInjection _instance = DependencyInjection._internal();
   factory DependencyInjection() => _instance;
   DependencyInjection._internal();
+
+  // Services
+  late final PermissionService _permissionService;
 
   // DataSources - US-001
   late final CameraDataSource _cameraDataSource;
@@ -53,6 +57,9 @@ class DependencyInjection {
 
   /// Inicializa todas las dependencias
   void init() {
+    // Services
+    _permissionService = PermissionService();
+
     // DataSources - US-001
     _cameraDataSource = CameraDataSourceImpl();
     _frameLocalDataSource = FrameLocalDataSourceImpl();
@@ -91,6 +98,9 @@ class DependencyInjection {
     _registerCattleUseCase = RegisterCattleUseCase(_cattleRepository);
   }
 
+  // Getters - Services
+  PermissionService get permissionService => _permissionService;
+
   // Getters - US-001
   CameraDataSource get cameraDataSource => _cameraDataSource;
   FrameLocalDataSource get frameLocalDataSource => _frameLocalDataSource;
@@ -118,4 +128,3 @@ class DependencyInjection {
     await _tfliteDataSource.dispose();
   }
 }
-

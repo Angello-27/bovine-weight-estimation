@@ -45,5 +45,22 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	
+	<!-- Permisos requeridos -->
+	<!-- Cámara: US-001 Captura continua de fotogramas -->
+	<key>NSCameraUsageDescription</key>
+	<string>La app necesita acceso a la cámara para capturar fotogramas y estimar el peso del ganado bovino.</string>
+	
+	<!-- Fotos: Guardar fotogramas capturados -->
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>La app necesita acceso a la galería para guardar fotogramas de las capturas realizadas.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>La app necesita permiso para guardar fotogramas en la galería.</string>
+	
+	<!-- GPS: Geolocalización de pesajes -->
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>La app necesita acceso a tu ubicación para registrar la geolocalización de los pesajes realizados en Hacienda Gamelera.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>La app necesita acceso a tu ubicación para registrar datos de ubicación de los pesajes.</string>
 </dict>
 </plist>

@@ -36,6 +36,14 @@ dependencies:
   path_provider: ^2.1.1
 
   # ========================================
+  # PERMISSIONS
+  # ========================================
+  # Permission Handler: Gestión de permisos en runtime
+  # Usado en: Solicitar permisos de cámara, almacenamiento, GPS
+  # Permisos requeridos: CAMERA, WRITE_EXTERNAL_STORAGE, ACCESS_FINE_LOCATION
+  permission_handler: ^11.1.0
+
+  # ========================================
   # MACHINE LEARNING
   # ========================================
   # TFLite Flutter: Inferencia de modelos TensorFlow Lite
