@@ -1,5 +1,5 @@
 /// Repository Implementation: WeightEstimationRepositoryImpl
-/// 
+///
 /// Implementación del repositorio de estimación de peso.
 /// Single Responsibility: Coordinar TFLite y almacenamiento local.
 ///
@@ -7,6 +7,7 @@
 library;
 
 import 'package:dartz/dartz.dart';
+import 'package:flutter/foundation.dart';
 
 import '../../core/constants/breeds.dart';
 import '../../core/errors/exceptions.dart';
@@ -43,7 +44,7 @@ class WeightEstimationRepositoryImpl implements WeightEstimationRepository {
 
       // Validar que el tiempo de procesamiento sea <3s
       if (estimation.processingTimeMs >= 3000) {
-        print(
+        debugPrint(
           '⚠️ Procesamiento lento: ${estimation.processingTimeMs}ms (objetivo: <3000ms)',
         );
       }
@@ -90,14 +91,16 @@ class WeightEstimationRepositoryImpl implements WeightEstimationRepository {
     String cattleId,
   ) async {
     try {
-      final estimations = await localDataSource.getEstimationsByCattle(cattleId);
+      final estimations = await localDataSource.getEstimationsByCattle(
+        cattleId,
+      );
       return Right(estimations);
     } on DatabaseException catch (e) {
       return Left(DatabaseFailure(message: e.message));
     } catch (e) {
-      return Left(UnknownFailure(
-        message: 'Error al obtener estimaciones del animal: $e',
-      ));
+      return Left(
+        UnknownFailure(message: 'Error al obtener estimaciones del animal: $e'),
+      );
     }
   }
 
@@ -111,9 +114,9 @@ class WeightEstimationRepositoryImpl implements WeightEstimationRepository {
     } on DatabaseException catch (e) {
       return Left(DatabaseFailure(message: e.message));
     } catch (e) {
-      return Left(UnknownFailure(
-        message: 'Error al obtener última estimación: $e',
-      ));
+      return Left(
+        UnknownFailure(message: 'Error al obtener última estimación: $e'),
+      );
     }
   }
 
@@ -157,4 +160,3 @@ class WeightEstimationRepositoryImpl implements WeightEstimationRepository {
     }
   }
 }
-

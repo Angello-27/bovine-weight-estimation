@@ -1,7 +1,7 @@
 /// UseCase: EstimateWeightUseCase
-/// 
+///
 /// US-002: Estimación de Peso por Raza con IA
-/// 
+///
 /// Caso de uso que implementa la estimación de peso usando modelos TFLite
 /// específicos por raza, logrando precisión >95% (R² ≥0.95, MAE <5kg).
 ///
@@ -9,6 +9,7 @@
 library;
 
 import 'package:dartz/dartz.dart';
+import 'package:flutter/foundation.dart';
 
 import '../../core/constants/breeds.dart';
 import '../../core/errors/failures.dart';
@@ -24,16 +25,16 @@ class EstimateWeightUseCase
   EstimateWeightUseCase(this.repository);
 
   /// Ejecuta la estimación de peso
-  /// 
+  ///
   /// Proceso:
   /// 1. Validar que los modelos TFLite estén cargados
   /// 2. Ejecutar inferencia con el modelo de la raza específica
   /// 3. Validar que el tiempo de procesamiento sea <3s
   /// 4. Guardar estimación en SQLite
-  /// 
+  ///
   /// Parámetros:
   /// - [params]: Parámetros de estimación (imagen, raza, cattleId)
-  /// 
+  ///
   /// Retorna:
   /// - [Right(WeightEstimation)]: Estimación exitosa
   /// - [Left(Failure)]: Error durante la estimación
@@ -55,9 +56,11 @@ class EstimateWeightUseCase
       if (loadResult.isLeft()) {
         return loadResult.fold(
           (failure) => Left(failure),
-          (_) => const Left(ModelLoadFailure(
-            message: 'No se pudieron cargar los modelos TFLite',
-          )),
+          (_) => const Left(
+            ModelLoadFailure(
+              message: 'No se pudieron cargar los modelos TFLite',
+            ),
+          ),
         );
       }
     }
@@ -71,34 +74,34 @@ class EstimateWeightUseCase
       cattleId: params.cattleId,
     );
 
-    return estimationResult.fold(
-      (failure) => Left(failure),
-      (estimation) async {
-        // 3. Validar tiempo de procesamiento <3 segundos
-        final processingTime = DateTime.now().difference(startTime);
-        if (processingTime.inMilliseconds >= 3000) {
-          // Advertir pero no fallar (métrica de performance)
-          print('⚠️ Procesamiento tomó ${processingTime.inMilliseconds}ms (>3000ms)');
-        }
-
-        // 4. Validar métricas de calidad
-        if (estimation.confidenceScore < 0.80) {
-          print('⚠️ Confianza baja: ${(estimation.confidenceScore * 100).toStringAsFixed(0)}%');
-        }
-
-        // 5. Guardar estimación en SQLite
-        final saveResult = await repository.saveEstimation(estimation);
-        
-        return saveResult.fold(
-          (failure) {
-            // Error al guardar, pero retornar estimación
-            print('⚠️ Error al guardar estimación: $failure');
-            return Right(estimation);
-          },
-          (_) => Right(estimation),
+    return estimationResult.fold((failure) => Left(failure), (
+      estimation,
+    ) async {
+      // 3. Validar tiempo de procesamiento <3 segundos
+      final processingTime = DateTime.now().difference(startTime);
+      if (processingTime.inMilliseconds >= 3000) {
+        // Advertir pero no fallar (métrica de performance)
+        debugPrint(
+          '⚠️ Procesamiento tomó ${processingTime.inMilliseconds}ms (>3000ms)',
         );
-      },
-    );
+      }
+
+      // 4. Validar métricas de calidad
+      if (estimation.confidenceScore < 0.80) {
+        debugPrint(
+          '⚠️ Confianza baja: ${(estimation.confidenceScore * 100).toStringAsFixed(0)}%',
+        );
+      }
+
+      // 5. Guardar estimación en SQLite
+      final saveResult = await repository.saveEstimation(estimation);
+
+      return saveResult.fold((failure) {
+        // Error al guardar, pero retornar estimación
+        debugPrint('⚠️ Error al guardar estimación: $failure');
+        return Right(estimation);
+      }, (_) => Right(estimation));
+    });
   }
 }
 
@@ -123,4 +126,3 @@ class EstimateWeightParams {
   String toString() =>
       'EstimateWeightParams(breed: ${breed.displayName}, cattleId: $cattleId)';
 }
-
