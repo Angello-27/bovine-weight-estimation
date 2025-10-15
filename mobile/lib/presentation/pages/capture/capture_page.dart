@@ -1,7 +1,7 @@
 /// Page: CapturePage
-/// 
+///
 /// US-001: Captura Continua de Fotogramas
-/// 
+///
 /// Pantalla refactorizada con Atomic Design + SOLID.
 /// Single Responsibility: Coordinar componentes de captura.
 ///
@@ -12,13 +12,13 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/routes/app_router.dart';
-import '../../../core/ui/atoms/buttons/primary_button.dart';
-import '../../../core/ui/atoms/indicators/loading_indicator.dart';
-import '../../../core/ui/molecules/cards/status_card.dart';
-import '../../../core/ui/organisms/capture/capture_config_section.dart';
-import '../../../core/ui/theme/app_colors.dart';
-import '../../../core/ui/theme/app_spacing.dart';
+import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_spacing.dart';
 import '../../providers/capture_provider.dart';
+import '../../widgets/atoms/buttons/primary_button.dart';
+import '../../widgets/atoms/indicators/loading_indicator.dart';
+import '../../widgets/molecules/cards/status_card.dart';
+import '../../widgets/organisms/capture/capture_config_section.dart';
 import 'widgets/capture_error_card.dart';
 import 'widgets/capture_progress_indicator.dart';
 import 'widgets/capture_results_card.dart';
@@ -30,9 +30,7 @@ class CapturePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Captura de Fotogramas'),
-      ),
+      appBar: AppBar(title: const Text('Captura de Fotogramas')),
       body: Consumer<CaptureProvider>(
         builder: (context, provider, child) {
           return SafeArea(
@@ -61,7 +59,8 @@ class CapturePage extends StatelessWidget {
                               provider.state == CaptureState.idle)
                             CaptureConfigSection(
                               targetFps: provider.targetFps,
-                              targetDurationSeconds: provider.targetDurationSeconds,
+                              targetDurationSeconds:
+                                  provider.targetDurationSeconds,
                               onFpsChanged: provider.setTargetFps,
                               onDurationChanged: provider.setTargetDuration,
                             ),
@@ -74,41 +73,45 @@ class CapturePage extends StatelessWidget {
                               expectedFrameCount: provider.expectedFrameCount,
                             ),
 
-                  // Resultados (si completó)
-                  if (provider.state == CaptureState.completed) ...[
-                    CaptureResultsCard(
-                      totalFrames: provider.frameCount,
-                      optimalFrames: provider.optimalFrames.length,
-                      bestScore: provider.bestFrame?.globalScore,
-                    ),
-                    
-                    const SizedBox(height: AppSpacing.md),
-                    
-                    // Botón para continuar a estimación de peso (US-002)
-                    if (provider.bestFrame != null)
-                      ElevatedButton.icon(
-                        onPressed: () {
-                          AppRouter.push(
-                            context,
-                            AppRoutes.weightEstimation,
-                            arguments: {
-                              'framePath': provider.bestFrame!.imagePath,
-                              'cattleId': null,
-                            },
-                          );
-                        },
-                        icon: const Icon(Icons.navigate_next),
-                        label: const Text('Continuar a Estimación de Peso'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.secondary,
-                        ),
-                      ),
-                  ],
+                          // Resultados (si completó)
+                          if (provider.state == CaptureState.completed) ...[
+                            CaptureResultsCard(
+                              totalFrames: provider.frameCount,
+                              optimalFrames: provider.optimalFrames.length,
+                              bestScore: provider.bestFrame?.globalScore,
+                            ),
+
+                            const SizedBox(height: AppSpacing.md),
+
+                            // Botón para continuar a estimación de peso (US-002)
+                            if (provider.bestFrame != null)
+                              ElevatedButton.icon(
+                                onPressed: () {
+                                  AppRouter.push(
+                                    context,
+                                    AppRoutes.weightEstimation,
+                                    arguments: {
+                                      'framePath':
+                                          provider.bestFrame!.imagePath,
+                                      'cattleId': null,
+                                    },
+                                  );
+                                },
+                                icon: const Icon(Icons.navigate_next),
+                                label: const Text(
+                                  'Continuar a Estimación de Peso',
+                                ),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppColors.secondary,
+                                ),
+                              ),
+                          ],
 
                           // Error (si hay error)
                           if (provider.hasError)
                             CaptureErrorCard(
-                              errorMessage: provider.errorMessage ?? 'Error desconocido',
+                              errorMessage:
+                                  provider.errorMessage ?? 'Error desconocido',
                             ),
                         ],
                       ),

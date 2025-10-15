@@ -11,10 +11,11 @@ library;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../../core/ui/atoms/buttons/primary_button.dart';
-import '../../../core/ui/organisms/breed/breed_selector_grid.dart';
-import '../../../core/ui/theme/app_spacing.dart';
+import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_spacing.dart';
 import '../../providers/weight_estimation_provider.dart';
+import '../../widgets/atoms/buttons/primary_button.dart';
+import '../../widgets/organisms/breed/breed_selector_grid.dart';
 import 'widgets/weight_estimation_result_card.dart';
 
 /// Pantalla de estimación de peso
@@ -83,12 +84,12 @@ class WeightEstimationPage extends StatelessWidget {
                   // Error (si hay error)
                   if (provider.hasError)
                     Card(
-                      color: Colors.red[50],
+                      color: AppColors.errorLight,
                       child: Padding(
                         padding: const EdgeInsets.all(AppSpacing.cardPadding),
                         child: Text(
                           provider.errorMessage ?? 'Error desconocido',
-                          style: const TextStyle(color: Colors.red),
+                          style: const TextStyle(color: AppColors.error),
                         ),
                       ),
                     ),
@@ -118,12 +119,16 @@ class WeightEstimationPage extends StatelessWidget {
           fit: BoxFit.cover,
           errorBuilder: (context, error, stackTrace) {
             return Container(
-              color: Colors.grey[300],
+              color: AppColors.grey300,
               child: const Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.image, size: 64, color: Colors.grey),
-                  SizedBox(height: 8),
+                  Icon(
+                    Icons.image,
+                    size: AppSpacing.iconSizeXXLarge,
+                    color: AppColors.grey500,
+                  ),
+                  SizedBox(height: AppSpacing.sm),
                   Text('Fotograma seleccionado'),
                 ],
               ),

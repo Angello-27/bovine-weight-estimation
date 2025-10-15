@@ -8,7 +8,7 @@ library;
 
 import 'package:flutter/material.dart';
 
-import '../../../constants/breeds.dart';
+import '../../../../core/constants/breeds.dart';
 
 /// Dropdown de selección de raza
 class BreedDropdown extends StatelessWidget {

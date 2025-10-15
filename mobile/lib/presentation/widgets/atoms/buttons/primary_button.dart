@@ -1,5 +1,5 @@
 /// Atom: PrimaryButton
-/// 
+///
 /// Botón principal de la aplicación.
 /// Single Responsibility: Renderizar botón con estilo primario.
 ///
@@ -8,7 +8,7 @@ library;
 
 import 'package:flutter/material.dart';
 
-import '../../theme/app_spacing.dart';
+import '../../../../core/theme/app_spacing.dart';
 
 /// Botón primario
 class PrimaryButton extends StatelessWidget {
@@ -59,4 +59,3 @@ class PrimaryButton extends StatelessWidget {
     );
   }
 }
-

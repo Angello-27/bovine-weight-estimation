@@ -1,8 +1,8 @@
 /// Main App - Sistema de Estimación de Peso Bovino
-/// 
+///
 /// Hacienda Gamelera - Bruno Brito Macedo
 /// Clean Architecture + Provider + Material Design 3
-/// 
+///
 /// Single Responsibility: Inicializar app y configurar providers
 library;
 
@@ -12,7 +12,7 @@ import 'package:provider/provider.dart';
 import 'core/config/app_config.dart';
 import 'core/config/dependency_injection.dart';
 import 'core/routes/app_router.dart';
-import 'core/ui/theme/app_theme.dart';
+import 'core/theme/app_theme.dart';
 import 'presentation/providers/capture_provider.dart';
 import 'presentation/providers/cattle_provider.dart';
 import 'presentation/providers/weight_estimation_provider.dart';
@@ -33,10 +33,7 @@ void main() async {
 class MyApp extends StatelessWidget {
   final DependencyInjection di;
 
-  const MyApp({
-    super.key,
-    required this.di,
-  });
+  const MyApp({super.key, required this.di});
 
   @override
   Widget build(BuildContext context) {
@@ -44,9 +41,8 @@ class MyApp extends StatelessWidget {
       providers: [
         // Provider para captura de fotogramas (US-001)
         ChangeNotifierProvider(
-          create: (_) => CaptureProvider(
-            captureFramesUseCase: di.captureFramesUseCase,
-          ),
+          create: (_) =>
+              CaptureProvider(captureFramesUseCase: di.captureFramesUseCase),
         ),
 
         // Provider para estimación de peso (US-002)
@@ -58,11 +54,10 @@ class MyApp extends StatelessWidget {
 
         // Provider para registro de ganado (US-003)
         ChangeNotifierProvider(
-          create: (_) => CattleProvider(
-            registerCattleUseCase: di.registerCattleUseCase,
-          ),
+          create: (_) =>
+              CattleProvider(registerCattleUseCase: di.registerCattleUseCase),
         ),
-        
+
         // TODO: Agregar más providers según se implementen US
         // US-004: AnalysisProvider
         // US-005: SyncProvider

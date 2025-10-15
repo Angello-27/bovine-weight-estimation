@@ -12,11 +12,11 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/constants/breeds.dart';
-import '../../../core/ui/atoms/buttons/primary_button.dart';
-import '../../../core/ui/organisms/forms/cattle_registration_form.dart';
-import '../../../core/ui/theme/app_colors.dart';
-import '../../../core/ui/theme/app_spacing.dart';
+import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_spacing.dart';
 import '../../../domain/entities/cattle.dart';
+import '../../widgets/atoms/buttons/primary_button.dart';
+import '../../widgets/organisms/forms/cattle_registration_form.dart';
 import '../../providers/cattle_provider.dart';
 
 /// Pantalla de registro de ganado

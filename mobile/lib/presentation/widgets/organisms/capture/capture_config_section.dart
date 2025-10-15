@@ -1,5 +1,5 @@
 /// Organism: CaptureConfigSection
-/// 
+///
 /// Sección de configuración de captura (FPS y duración).
 /// Single Responsibility: Agrupar controles de configuración.
 ///
@@ -8,9 +8,9 @@ library;
 
 import 'package:flutter/material.dart';
 
-import '../../../config/app_config.dart';
+import '../../../../core/config/app_config.dart';
+import '../../../../core/theme/app_spacing.dart';
 import '../../molecules/sliders/configuration_slider.dart';
-import '../../theme/app_spacing.dart';
 
 /// Sección de configuración de captura
 class CaptureConfigSection extends StatelessWidget {
@@ -32,10 +32,7 @@ class CaptureConfigSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Configuración',
-          style: Theme.of(context).textTheme.titleMedium,
-        ),
+        Text('Configuración', style: Theme.of(context).textTheme.titleMedium),
         const SizedBox(height: AppSpacing.sm),
 
         // Slider de FPS
@@ -57,7 +54,8 @@ class CaptureConfigSection extends StatelessWidget {
           value: targetDurationSeconds.toDouble(),
           min: AppConfig.minCaptureDuration.toDouble(),
           max: AppConfig.maxCaptureDuration.toDouble(),
-          divisions: AppConfig.maxCaptureDuration - AppConfig.minCaptureDuration,
+          divisions:
+              AppConfig.maxCaptureDuration - AppConfig.minCaptureDuration,
           valueFormatter: (value) => '${value.toInt()}s',
           onChanged: (value) => onDurationChanged(value.toInt()),
         ),
@@ -65,4 +63,3 @@ class CaptureConfigSection extends StatelessWidget {
     );
   }
 }
-

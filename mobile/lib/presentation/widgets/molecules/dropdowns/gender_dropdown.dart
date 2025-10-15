@@ -8,7 +8,7 @@ library;
 
 import 'package:flutter/material.dart';
 
-import '../../../../domain/entities/cattle.dart';
+import '../../../../../domain/entities/cattle.dart';
 
 /// Dropdown de selección de género
 class GenderDropdown extends StatelessWidget {

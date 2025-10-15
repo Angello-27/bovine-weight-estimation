@@ -1,5 +1,5 @@
 /// Widget: WeightEstimationResultCard
-/// 
+///
 /// Card con resultado de estimación de peso.
 /// Single Responsibility: Mostrar resultado con peso, confidence y metadatos.
 ///
@@ -8,18 +8,15 @@ library;
 
 import 'package:flutter/material.dart';
 
+import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_spacing.dart';
 import '../../../../domain/entities/weight_estimation.dart';
-import '../../../../core/ui/theme/app_colors.dart';
-import '../../../../core/ui/theme/app_spacing.dart';
 
 /// Card de resultado de estimación
 class WeightEstimationResultCard extends StatelessWidget {
   final WeightEstimation estimation;
 
-  const WeightEstimationResultCard({
-    super.key,
-    required this.estimation,
-  });
+  const WeightEstimationResultCard({super.key, required this.estimation});
 
   @override
   Widget build(BuildContext context) {
@@ -34,9 +31,9 @@ class WeightEstimationResultCard extends StatelessWidget {
             // Título
             Text(
               '¡Estimación Completada!',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    color: AppColors.success,
-                  ),
+              style: Theme.of(
+                context,
+              ).textTheme.titleLarge?.copyWith(color: AppColors.success),
               textAlign: TextAlign.center,
             ),
 
@@ -51,16 +48,16 @@ class WeightEstimationResultCard extends StatelessWidget {
                 Text(
                   estimation.estimatedWeight.toStringAsFixed(1),
                   style: Theme.of(context).textTheme.displayLarge?.copyWith(
-                        color: AppColors.primary,
-                        fontWeight: FontWeight.bold,
-                      ),
+                    color: AppColors.primary,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-                const SizedBox(width: 8),
+                const SizedBox(width: AppSpacing.sm),
                 Text(
                   'kg',
                   style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                        color: AppColors.primary,
-                      ),
+                    color: AppColors.primary,
+                  ),
                 ),
               ],
             ),
@@ -74,8 +71,10 @@ class WeightEstimationResultCard extends StatelessWidget {
                 vertical: AppSpacing.sm,
               ),
               decoration: BoxDecoration(
-                color: confidenceColor.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(AppSpacing.borderRadiusLarge),
+                color: confidenceColor.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(
+                  AppSpacing.borderRadiusLarge,
+                ),
                 border: Border.all(color: confidenceColor, width: 2),
               ),
               child: Row(
@@ -156,21 +155,25 @@ class WeightEstimationResultCard extends StatelessWidget {
       children: [
         Row(
           children: [
-            Icon(icon, size: 20, color: Colors.grey[600]),
+            Icon(
+              icon,
+              size: AppSpacing.iconSizeSmall,
+              color: AppColors.grey600,
+            ),
             const SizedBox(width: AppSpacing.sm),
             Text(
               label,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Colors.grey[700],
-                  ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(color: AppColors.grey700),
             ),
           ],
         ),
         Text(
           value,
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+          style: Theme.of(
+            context,
+          ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold),
         ),
       ],
     );
@@ -200,4 +203,3 @@ class WeightEstimationResultCard extends StatelessWidget {
     }
   }
 }
-

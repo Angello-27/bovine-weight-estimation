@@ -1,5 +1,5 @@
 /// Widget: CaptureProgressIndicator
-/// 
+///
 /// Indicador de progreso durante la captura.
 /// Single Responsibility: Mostrar progreso de captura en tiempo real.
 ///
@@ -8,8 +8,8 @@ library;
 
 import 'package:flutter/material.dart';
 
-import '../../../../core/ui/theme/app_colors.dart';
-import '../../../../core/ui/theme/app_spacing.dart';
+import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_spacing.dart';
 
 /// Indicador de progreso de captura
 class CaptureProgressIndicator extends StatelessWidget {
@@ -33,28 +33,27 @@ class CaptureProgressIndicator extends StatelessWidget {
           style: Theme.of(context).textTheme.titleMedium,
           textAlign: TextAlign.center,
         ),
-        
+
         const SizedBox(height: AppSpacing.md),
-        
+
         LinearProgressIndicator(
           value: progress,
           minHeight: 8,
           backgroundColor: AppColors.surfaceVariant,
           valueColor: const AlwaysStoppedAnimation<Color>(AppColors.primary),
         ),
-        
+
         const SizedBox(height: AppSpacing.sm),
-        
+
         Text(
           '$frameCount / $expectedFrameCount fotogramas',
           style: Theme.of(context).textTheme.bodySmall,
         ),
-        
+
         const SizedBox(height: AppSpacing.lg),
-        
+
         const CircularProgressIndicator(),
       ],
     );
   }
 }
-

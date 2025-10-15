@@ -1,5 +1,5 @@
 /// Molecule: ConfigurationSlider
-/// 
+///
 /// Slider de configuración con label y valor actual.
 /// Single Responsibility: Permitir ajuste de valor numérico.
 ///
@@ -8,7 +8,7 @@ library;
 
 import 'package:flutter/material.dart';
 
-import '../../theme/app_spacing.dart';
+import '../../../../core/theme/app_spacing.dart';
 
 /// Slider de configuración
 class ConfigurationSlider extends StatelessWidget {
@@ -58,4 +58,3 @@ class ConfigurationSlider extends StatelessWidget {
     );
   }
 }
-

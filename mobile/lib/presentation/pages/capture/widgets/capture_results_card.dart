@@ -1,5 +1,5 @@
 /// Widget: CaptureResultsCard
-/// 
+///
 /// Card con resultados de la captura completada.
 /// Single Responsibility: Mostrar resumen de resultados.
 ///
@@ -8,8 +8,8 @@ library;
 
 import 'package:flutter/material.dart';
 
-import '../../../../core/ui/theme/app_colors.dart';
-import '../../../../core/ui/theme/app_spacing.dart';
+import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_spacing.dart';
 
 /// Card de resultados de captura
 class CaptureResultsCard extends StatelessWidget {
@@ -30,14 +30,14 @@ class CaptureResultsCard extends StatelessWidget {
       children: [
         Text(
           '¡Captura completada!',
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                color: AppColors.success,
-              ),
+          style: Theme.of(
+            context,
+          ).textTheme.titleLarge?.copyWith(color: AppColors.success),
           textAlign: TextAlign.center,
         ),
-        
+
         const SizedBox(height: AppSpacing.md),
-        
+
         Card(
           elevation: AppSpacing.elevationMedium,
           child: Padding(
@@ -50,18 +50,18 @@ class CaptureResultsCard extends StatelessWidget {
                   '$totalFrames',
                   Icons.photo_library,
                 ),
-                
+
                 const Divider(height: AppSpacing.md),
-                
+
                 _buildResultRow(
                   context,
                   'Fotogramas óptimos',
                   '$optimalFrames',
                   Icons.check_circle,
                 ),
-                
+
                 const Divider(height: AppSpacing.md),
-                
+
                 _buildResultRow(
                   context,
                   'Mejor score',
@@ -98,12 +98,11 @@ class CaptureResultsCard extends StatelessWidget {
         Text(
           value,
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-                color: AppColors.primary,
-              ),
+            fontWeight: FontWeight.bold,
+            color: AppColors.primary,
+          ),
         ),
       ],
     );
   }
 }
-

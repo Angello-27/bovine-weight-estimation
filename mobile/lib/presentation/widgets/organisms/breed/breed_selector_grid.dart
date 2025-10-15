@@ -1,5 +1,5 @@
 /// Organism: BreedSelectorGrid
-/// 
+///
 /// Grid de selección de raza bovina (7 razas).
 /// Single Responsibility: Permitir selección visual de raza.
 ///
@@ -8,9 +8,9 @@ library;
 
 import 'package:flutter/material.dart';
 
-import '../../../constants/breeds.dart';
-import '../../theme/app_colors.dart';
-import '../../theme/app_spacing.dart';
+import '../../../../core/constants/breeds.dart';
+import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_spacing.dart';
 
 /// Grid de selección de raza
 class BreedSelectorGrid extends StatelessWidget {
@@ -32,9 +32,9 @@ class BreedSelectorGrid extends StatelessWidget {
           'Selecciona la raza',
           style: Theme.of(context).textTheme.titleMedium,
         ),
-        
+
         const SizedBox(height: AppSpacing.md),
-        
+
         // Grid 3x3 de razas (7 razas + 2 espacios)
         GridView.builder(
           shrinkWrap: true,
@@ -77,14 +77,16 @@ class _BreedCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      elevation: isSelected ? AppSpacing.elevationHigh : AppSpacing.elevationLow,
+      elevation: isSelected
+          ? AppSpacing.elevationHigh
+          : AppSpacing.elevationLow,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(AppSpacing.borderRadiusMedium),
         side: isSelected
             ? const BorderSide(color: AppColors.primary, width: 2)
             : BorderSide.none,
       ),
-      color: isSelected ? AppColors.primary.withOpacity(0.1) : null,
+      color: isSelected ? AppColors.primary.withValues(alpha: 0.1) : null,
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(AppSpacing.borderRadiusMedium),
@@ -96,31 +98,31 @@ class _BreedCard extends StatelessWidget {
               // Icono de la raza
               Icon(
                 Icons.pets,
-                size: 40,
-                color: isSelected ? AppColors.primary : Colors.grey[600],
+                size: AppSpacing.iconSizeXLarge,
+                color: isSelected ? AppColors.primary : AppColors.grey600,
               ),
-              
+
               const SizedBox(height: AppSpacing.xs),
-              
+
               // Nombre de la raza
               Text(
                 breed.displayName,
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  fontSize: 12,
+                  fontSize: AppSpacing.fontSizeSmall,
                   fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                  color: isSelected ? AppColors.primary : Colors.grey[800],
+                  color: isSelected ? AppColors.primary : AppColors.grey800,
                 ),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
-              
+
               // Checkmark si está seleccionado
               if (isSelected) ...[
                 const SizedBox(height: AppSpacing.xs),
                 const Icon(
                   Icons.check_circle,
-                  size: 16,
+                  size: AppSpacing.iconSizeXSmall,
                   color: AppColors.success,
                 ),
               ],
@@ -131,4 +133,3 @@ class _BreedCard extends StatelessWidget {
     );
   }
 }
-

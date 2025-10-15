@@ -1,5 +1,5 @@
 /// Page: HomePage
-/// 
+///
 /// Pantalla de inicio de la aplicación.
 /// Single Responsibility: Mostrar opciones principales de navegación.
 ///
@@ -10,8 +10,8 @@ import 'package:flutter/material.dart';
 
 import '../../../core/config/app_config.dart';
 import '../../../core/routes/app_router.dart';
-import '../../../core/ui/theme/app_colors.dart';
-import '../../../core/ui/theme/app_spacing.dart';
+import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_spacing.dart';
 
 /// Pantalla de inicio
 class HomePage extends StatelessWidget {
@@ -20,9 +20,7 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(AppConfig.haciendaName),
-      ),
+      appBar: AppBar(title: Text(AppConfig.haciendaName)),
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
@@ -33,18 +31,18 @@ class HomePage extends StatelessWidget {
                 // Logo/Icono
                 const Icon(
                   Icons.pets,
-                  size: 100,
+                  size: AppSpacing.iconSizeHero,
                   color: AppColors.primary,
                 ),
 
                 const SizedBox(height: AppSpacing.lg),
 
                 // Título
-                const Text(
+                Text(
                   'Sistema de Estimación\nde Peso Bovino',
                   textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 24,
+                  style: const TextStyle(
+                    fontSize: AppSpacing.fontSizeTitle,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -54,9 +52,9 @@ class HomePage extends StatelessWidget {
                 // Subtítulo
                 Text(
                   AppConfig.haciendaName,
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.grey[600],
+                  style: const TextStyle(
+                    fontSize: AppSpacing.fontSizeNormal,
+                    color: AppColors.grey600,
                   ),
                 ),
 
@@ -163,9 +161,9 @@ class HomePage extends StatelessWidget {
                 Text(
                   '${AppConfig.ownerName}\n${AppConfig.location}',
                   textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey[500],
+                  style: const TextStyle(
+                    fontSize: AppSpacing.fontSizeSmall,
+                    color: AppColors.grey500,
                   ),
                 ),
               ],
@@ -182,18 +180,14 @@ class HomePage extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
       child: Row(
         children: [
-          Icon(
-            icon,
-            size: 20,
-            color: Colors.grey[600],
-          ),
+          Icon(icon, size: AppSpacing.iconSizeSmall, color: AppColors.grey600),
           const SizedBox(width: AppSpacing.sm),
           Expanded(
             child: Text(
               text,
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey[700],
+              style: const TextStyle(
+                fontSize: AppSpacing.fontSizeMedium,
+                color: AppColors.grey700,
               ),
             ),
           ),
@@ -202,4 +196,3 @@ class HomePage extends StatelessWidget {
     );
   }
 }
-

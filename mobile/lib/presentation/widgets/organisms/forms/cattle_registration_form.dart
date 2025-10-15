@@ -8,14 +8,14 @@ library;
 
 import 'package:flutter/material.dart';
 
-import '../../../constants/age_categories.dart';
-import '../../../constants/breeds.dart';
+import '../../../../core/constants/age_categories.dart';
+import '../../../../core/constants/breeds.dart';
+import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_spacing.dart';
 import '../../../../domain/entities/cattle.dart';
 import '../../atoms/inputs/text_input_field.dart';
 import '../../molecules/dropdowns/breed_dropdown.dart';
 import '../../molecules/dropdowns/gender_dropdown.dart';
-import '../../theme/app_spacing.dart';
-import '../../../config/app_config.dart';
 
 /// Formulario de registro de ganado
 class CattleRegistrationForm extends StatefulWidget {
@@ -194,12 +194,12 @@ class _CattleRegistrationFormState extends State<CattleRegistrationForm> {
     final category = AgeCategory.fromAgeInMonths(ageInMonths);
 
     return Card(
-      color: Colors.blue[50],
+      color: AppColors.infoLight,
       child: Padding(
         padding: const EdgeInsets.all(AppSpacing.md),
         child: Row(
           children: [
-            const Icon(Icons.info, color: Colors.blue),
+            const Icon(Icons.info, color: AppColors.info),
             const SizedBox(width: AppSpacing.sm),
             Expanded(
               child: Column(
@@ -209,12 +209,12 @@ class _CattleRegistrationFormState extends State<CattleRegistrationForm> {
                     'Categoría calculada automáticamente:',
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: AppSpacing.xs),
                   Text(
                     '${category.displayName} ($ageInMonths meses)',
                     style: Theme.of(
                       context,
-                    ).textTheme.titleSmall?.copyWith(color: Colors.blue[900]),
+                    ).textTheme.titleSmall?.copyWith(color: AppColors.info),
                   ),
                 ],
               ),
