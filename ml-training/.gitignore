@@ -1,0 +1,138 @@
+# ML Training - Sistema de Estimación de Peso Bovino
+# .gitignore específico del proyecto ML/TensorFlow
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.coverage
+.coverage.*
+.cache
+.pytest_cache/
+coverage.xml
+*.cover
+
+# Jupyter Notebook
+.ipynb_checkpoints
+**/.ipynb_checkpoints/
+
+# IPython
+profile_default/
+ipython_config.py
+
+# pyenv
+.python-version
+
+# Environments
+.env
+.env.local
+.venv
+env/
+venv/
+ENV/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ========================================
+# ML SPECIFIC
+# ========================================
+
+# Datasets (NO versionar, usar DVC)
+src/data/raw/*.jpg
+src/data/raw/*.jpeg
+src/data/raw/*.png
+src/data/raw/*.mp4
+src/data/raw/*.avi
+src/data/processed/*.npy
+src/data/processed/*.npz
+src/data/processed/*.pkl
+src/data/processed/*.pickle
+src/data/augmented/*.jpg
+src/data/augmented/*.jpeg
+src/data/augmented/*.png
+
+# Modelos entrenados (NO versionar, usar DVC)
+src/models/**/*.h5
+src/models/**/*.keras
+src/models/**/*.pb
+src/models/**/*.tflite
+src/models/**/*.ckpt
+src/models/**/*.pth
+src/models/**/*.pt
+src/models/**/*.weights
+src/models/**/*.onnx
+!src/models/**/.gitkeep
+
+# TensorBoard logs
+logs/
+runs/
+tensorboard/
+
+# MLflow artifacts (NO versionar artifacts grandes)
+experiments/mlflow/mlruns/
+experiments/mlflow/mlartifacts/
+mlruns/
+mlartifacts/
+
+# DVC
+.dvc/cache/
+.dvc/tmp/
+.dvc/plots/
+
+# Weights & Biases
+wandb/
+
+# Checkpoints
+checkpoints/
+*.ckpt
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# macOS
+.DS_Store
+
+# Logs
+*.log
+logs/
+
+# Notebooks autosave
+notebooks/.ipynb_checkpoints/
+notebooks/**/.ipynb_checkpoints/
+
+# Python cache
+__pycache__/
+*.pyc
+

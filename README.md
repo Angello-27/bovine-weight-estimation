@@ -249,10 +249,27 @@ flutter run
 ```text
 bovine-weight-estimation/
 ├── 📱 mobile/          # Aplicación Flutter
+│   └── README.md       # Guía del proyecto móvil
 ├── 🐍 backend/         # API FastAPI  
+│   └── README.md       # Guía del backend
 ├── 🤖 ml-training/     # Entrenamiento de modelos
-└── 📚 docs/            # Documentación técnica
+│   └── README.md       # Guía de ML Training
+└── 📚 docs/            # Documentación técnica completa
+    ├── design/         # Arquitectura y diseño
+    ├── product/        # Product Backlog, DoD
+    ├── sprints/        # Documentación de sprints
+    ├── standards/      # Estándares de desarrollo
+    ├── tools/          # Setup y herramientas
+    └── vision/         # Visión y contexto del sistema
 ```
+
+### 📂 READMEs por Proyecto
+
+Cada proyecto tiene su propia documentación específica:
+
+- **📱 Mobile App**: [mobile/README.md](mobile/README.md) - Setup Flutter, arquitectura Clean, estructura de carpetas
+- **🐍 Backend API**: [backend/README.md](backend/README.md) - Setup FastAPI, endpoints, MongoDB
+- **🤖 ML Training**: [ml-training/README.md](ml-training/README.md) - Entrenamiento, MLflow, DVC, exportación TFLite
 
 ### 🧪 Testing
 
@@ -262,20 +279,27 @@ cd backend && pytest tests/ --cov=app
 
 # Flutter  
 cd mobile && flutter test --coverage
+
+# ML Training
+cd ml-training && pytest tests/ -v
 ```
 
-### 📝 Estándares
+### 📝 Estándares de Desarrollo
 
-- **Flutter**: [docs/standards/flutter-standards.md](docs/standards/flutter-standards.md)
-- **Python**: [docs/standards/python-standards.md](docs/standards/python-standards.md)
-- **Git**: [docs/standards/git-workflow.md](docs/standards/git-workflow.md)
+- **📱 Flutter**: [docs/standards/flutter-standards.md](docs/standards/flutter-standards.md)
+- **🐍 Python Backend**: [docs/standards/python-standards.md](docs/standards/python-standards.md)
+- **🤖 ML Training**: [docs/standards/ml-training-standards.md](docs/standards/ml-training-standards.md)
+- **🏗️ Arquitectura**: [docs/standards/architecture-standards.md](docs/standards/architecture-standards.md)
+- **🔄 Git Workflow**: [docs/standards/git-workflow.md](docs/standards/git-workflow.md)
+- **🧪 Testing**: [docs/standards/testing-standards.md](docs/standards/testing-standards.md)
+- **🚀 Deployment**: [docs/standards/deployment-standards.md](docs/standards/deployment-standards.md)
 
 ### 🎯 Metodología
 
-- **Scrum**: Sprints iterativos con historias de usuario
-- **Clean Architecture**: Separación clara de responsabilidades
+- **Scrum**: Sprints iterativos con historias de usuario (ver [docs/product/](docs/product/))
+- **Clean Architecture**: Separación clara de responsabilidades (ver [docs/design/](docs/design/))
 - **SOLID**: Principios de diseño orientado a objetos
-- **Atomic Design**: Componentes reutilizables y escalables
+- **Atomic Design**: Componentes reutilizables y escalables (Flutter)
 - **Provider**: Gestión de estado reactiva en Flutter
 
 ## 📚 Documentación
@@ -289,19 +313,36 @@ cd mobile && flutter test --coverage
 
 ### 📋 Producto (Scrum)
 
-- [📝 Product Backlog](docs/product/product-backlog.md) - User stories priorizadas
-- [✅ Definition of Done](docs/product/definition-of-done.md) - Criterios de completitud
+- [📝 Product Backlog](docs/product/product-backlog.md) - User stories priorizadas (versión ejecutiva)
+- [📄 Product Backlog Detallado](docs/product/product-backlog-detailed.md) - Formato académico 3C completo
+- [✅ Definition of Done](docs/product/definition-of-done.md) - Criterios de completitud por nivel
 
-### 🚀 Sprints (Evolución Real)
+### 🚀 Sprints (Evolución del Proyecto)
 
-- [🎯 Sprint 1 - Validación Core](docs/sprints/sprint-01/sprint-goal.md) - Objetivos y validación
+- [🎯 Sprint 1 - Validación Core](docs/sprints/sprint-01/sprint-goal.md) - Captura, selección, estimación offline
+- [📊 Sprint 2 - Análisis y Sync](docs/sprints/sprint-02/sprint-goal.md) - Análisis, sincronización, búsqueda
+- [🔗 Sprint 3 - Integraciones](docs/sprints/sprint-03/sprint-goal.md) - SENASAG, REGENSA, ASOCEBU
 
-### 📖 Estándares
+### 🏗️ Diseño y Arquitectura
 
-- [📱 Flutter](docs/standards/flutter-standards.md)
-- [🐍 Python](docs/standards/python-standards.md)
-- [🔄 Git Workflow](docs/standards/git-workflow.md)
-- [🧪 Testing](docs/standards/testing-standards.md)
+- [🎯 Decisiones Arquitectónicas (ADRs)](docs/design/architecture-decisions.md) - Decisiones clave registradas
+- [🗄️ Esquema de Base de Datos](docs/design/database-schema.md) - MongoDB y SQLite
+
+### 📖 Estándares de Desarrollo
+
+- [📋 Índice de Estándares](docs/standards/README.md) - Resumen y quick reference
+- [📱 Flutter Standards](docs/standards/flutter-standards.md) - Clean Architecture, Atomic Design, Provider
+- [🐍 Python Backend Standards](docs/standards/python-standards.md) - FastAPI, Pydantic, Type Hints
+- [🤖 ML Training Standards](docs/standards/ml-training-standards.md) - TensorFlow, MLflow, DVC
+- [🏗️ Architecture Standards](docs/standards/architecture-standards.md) - Patrones, NFRs, compliance
+- [🔄 Git Workflow](docs/standards/git-workflow.md) - Git Flow, Conventional Commits
+- [🧪 Testing Standards](docs/standards/testing-standards.md) - Estrategia de testing, cobertura
+- [🚀 Deployment Standards](docs/standards/deployment-standards.md) - CI/CD, Docker, AWS
+
+### 🛠️ Herramientas y Setup
+
+- [🔧 Development Setup](docs/tools/development-setup.md) - Configuración del entorno
+- [📅 Herramientas por Sprint](docs/tools/herramientas-por-sprint.md) - Roadmap de herramientas
 
 ### 🔗 Enlaces Útiles
 
@@ -309,6 +350,8 @@ cd mobile && flutter test --coverage
 - [🚀 Documentación FastAPI](https://fastapi.tiangolo.com/)
 - [🤖 TensorFlow Lite](https://tensorflow.org/lite)
 - [🍃 MongoDB](https://docs.mongodb.com/)
+- [📊 MLflow](https://mlflow.org/docs/latest/index.html)
+- [📦 DVC](https://dvc.org/doc)
 
 ## 🤝 Contribución
 
