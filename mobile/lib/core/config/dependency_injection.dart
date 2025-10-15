@@ -7,15 +7,19 @@
 library;
 
 import '../../data/datasources/camera_datasource.dart';
+import '../../data/datasources/cattle_local_datasource.dart';
 import '../../data/datasources/frame_local_datasource.dart';
 import '../../data/datasources/tflite_datasource.dart';
 import '../../data/datasources/weight_estimation_local_datasource.dart';
+import '../../data/repositories/cattle_repository_impl.dart';
 import '../../data/repositories/frame_repository_impl.dart';
 import '../../data/repositories/weight_estimation_repository_impl.dart';
+import '../../domain/repositories/cattle_repository.dart';
 import '../../domain/repositories/frame_repository.dart';
 import '../../domain/repositories/weight_estimation_repository.dart';
 import '../../domain/usecases/capture_frames_usecase.dart';
 import '../../domain/usecases/estimate_weight_usecase.dart';
+import '../../domain/usecases/register_cattle_usecase.dart';
 
 /// Contenedor de dependencias
 /// 
@@ -34,13 +38,18 @@ class DependencyInjection {
   late final TFLiteDataSource _tfliteDataSource;
   late final WeightEstimationLocalDataSource _weightEstimationLocalDataSource;
 
+  // DataSources - US-003
+  late final CattleLocalDataSource _cattleLocalDataSource;
+
   // Repositories
   late final FrameRepository _frameRepository;
   late final WeightEstimationRepository _weightEstimationRepository;
+  late final CattleRepository _cattleRepository;
 
   // UseCases
   late final CaptureFramesUseCase _captureFramesUseCase;
   late final EstimateWeightUseCase _estimateWeightUseCase;
+  late final RegisterCattleUseCase _registerCattleUseCase;
 
   /// Inicializa todas las dependencias
   void init() {
@@ -51,6 +60,9 @@ class DependencyInjection {
     // DataSources - US-002
     _tfliteDataSource = TFLiteDataSourceImpl();
     _weightEstimationLocalDataSource = WeightEstimationLocalDataSourceImpl();
+
+    // DataSources - US-003
+    _cattleLocalDataSource = CattleLocalDataSourceImpl();
 
     // Repositories - US-001
     _frameRepository = FrameRepositoryImpl(
@@ -64,11 +76,19 @@ class DependencyInjection {
       localDataSource: _weightEstimationLocalDataSource,
     );
 
+    // Repositories - US-003
+    _cattleRepository = CattleRepositoryImpl(
+      localDataSource: _cattleLocalDataSource,
+    );
+
     // UseCases - US-001
     _captureFramesUseCase = CaptureFramesUseCase(_frameRepository);
 
     // UseCases - US-002
     _estimateWeightUseCase = EstimateWeightUseCase(_weightEstimationRepository);
+
+    // UseCases - US-003
+    _registerCattleUseCase = RegisterCattleUseCase(_cattleRepository);
   }
 
   // Getters - US-001
@@ -85,10 +105,16 @@ class DependencyInjection {
       _weightEstimationRepository;
   EstimateWeightUseCase get estimateWeightUseCase => _estimateWeightUseCase;
 
+  // Getters - US-003
+  CattleLocalDataSource get cattleLocalDataSource => _cattleLocalDataSource;
+  CattleRepository get cattleRepository => _cattleRepository;
+  RegisterCattleUseCase get registerCattleUseCase => _registerCattleUseCase;
+
   /// Libera recursos
   Future<void> dispose() async {
     await _frameLocalDataSource.close();
     await _weightEstimationLocalDataSource.close();
+    await _cattleLocalDataSource.close();
     await _tfliteDataSource.dispose();
   }
 }

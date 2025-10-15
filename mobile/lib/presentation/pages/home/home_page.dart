@@ -103,6 +103,23 @@ class HomePage extends StatelessWidget {
 
                 const SizedBox(height: AppSpacing.md),
 
+                // Botón US-003
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton.icon(
+                    onPressed: () {
+                      AppRouter.push(context, AppRoutes.cattleRegistration);
+                    },
+                    icon: const Icon(Icons.add_circle),
+                    label: const Text('Registrar Animal (US-003)'),
+                    style: OutlinedButton.styleFrom(
+                      minimumSize: const Size(double.infinity, 56),
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: AppSpacing.md),
+
                 // Placeholder para funcionalidades futuras
                 Card(
                   child: Padding(

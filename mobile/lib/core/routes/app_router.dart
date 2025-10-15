@@ -9,6 +9,7 @@ library;
 import 'package:flutter/material.dart';
 
 import '../../presentation/pages/capture/capture_page.dart';
+import '../../presentation/pages/cattle_registration/cattle_registration_page.dart';
 import '../../presentation/pages/home/home_page.dart';
 import '../../presentation/pages/weight_estimation/weight_estimation_page.dart';
 
@@ -17,9 +18,9 @@ class AppRoutes {
   static const String home = '/';
   static const String capture = '/capture';
   static const String weightEstimation = '/weight-estimation';
+  static const String cattleRegistration = '/cattle-registration';
   
-  // TODO: Agregar rutas para US-003, US-004, etc.
-  // static const String cattleRegistration = '/cattle-registration';
+  // TODO: Agregar rutas para US-004, US-005, US-006, etc.
   // static const String cattleList = '/cattle-list';
   // static const String cattleDetail = '/cattle-detail';
   // static const String analysis = '/analysis';
@@ -54,6 +55,12 @@ class AppRouter {
             framePath: framePath,
             cattleId: cattleId,
           ),
+          settings: settings,
+        );
+
+      case AppRoutes.cattleRegistration:
+        return MaterialPageRoute(
+          builder: (_) => const CattleRegistrationPage(),
           settings: settings,
         );
 
