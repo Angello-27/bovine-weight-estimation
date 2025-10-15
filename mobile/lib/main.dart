@@ -14,6 +14,7 @@ import 'core/config/dependency_injection.dart';
 import 'core/routes/app_router.dart';
 import 'core/ui/theme/app_theme.dart';
 import 'presentation/providers/capture_provider.dart';
+import 'presentation/providers/weight_estimation_provider.dart';
 
 void main() async {
   // Asegurar inicialización de Flutter
@@ -46,10 +47,16 @@ class MyApp extends StatelessWidget {
             captureFramesUseCase: di.captureFramesUseCase,
           ),
         ),
+
+        // Provider para estimación de peso (US-002)
+        ChangeNotifierProvider(
+          create: (_) => WeightEstimationProvider(
+            estimateWeightUseCase: di.estimateWeightUseCase,
+          ),
+        ),
         
         // TODO: Agregar más providers según se implementen US
-        // US-002: SelectionProvider
-        // US-003: WeightEstimationProvider
+        // US-003: CattleRegistrationProvider
         // US-004: AnalysisProvider
         // US-005: SyncProvider
         // US-006: SearchProvider

@@ -79,6 +79,30 @@ class HomePage extends StatelessWidget {
 
                 const SizedBox(height: AppSpacing.md),
 
+                // Botón US-002 (Demo directo)
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton.icon(
+                    onPressed: () {
+                      AppRouter.push(
+                        context,
+                        AppRoutes.weightEstimation,
+                        arguments: {
+                          'framePath': '/mock/frame.jpg',
+                          'cattleId': null,
+                        },
+                      );
+                    },
+                    icon: const Icon(Icons.monitor_weight),
+                    label: const Text('Estimar Peso con IA (US-002)'),
+                    style: OutlinedButton.styleFrom(
+                      minimumSize: const Size(double.infinity, 56),
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: AppSpacing.md),
+
                 // Placeholder para funcionalidades futuras
                 Card(
                   child: Padding(

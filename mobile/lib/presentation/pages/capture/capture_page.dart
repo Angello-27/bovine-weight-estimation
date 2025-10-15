@@ -11,6 +11,7 @@ library;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../../core/routes/app_router.dart';
 import '../../../core/ui/atoms/buttons/primary_button.dart';
 import '../../../core/ui/atoms/indicators/loading_indicator.dart';
 import '../../../core/ui/molecules/cards/status_card.dart';
@@ -73,13 +74,36 @@ class CapturePage extends StatelessWidget {
                               expectedFrameCount: provider.expectedFrameCount,
                             ),
 
-                          // Resultados (si completó)
-                          if (provider.state == CaptureState.completed)
-                            CaptureResultsCard(
-                              totalFrames: provider.frameCount,
-                              optimalFrames: provider.optimalFrames.length,
-                              bestScore: provider.bestFrame?.globalScore,
-                            ),
+                  // Resultados (si completó)
+                  if (provider.state == CaptureState.completed) ...[
+                    CaptureResultsCard(
+                      totalFrames: provider.frameCount,
+                      optimalFrames: provider.optimalFrames.length,
+                      bestScore: provider.bestFrame?.globalScore,
+                    ),
+                    
+                    const SizedBox(height: AppSpacing.md),
+                    
+                    // Botón para continuar a estimación de peso (US-002)
+                    if (provider.bestFrame != null)
+                      ElevatedButton.icon(
+                        onPressed: () {
+                          AppRouter.push(
+                            context,
+                            AppRoutes.weightEstimation,
+                            arguments: {
+                              'framePath': provider.bestFrame!.imagePath,
+                              'cattleId': null,
+                            },
+                          );
+                        },
+                        icon: const Icon(Icons.navigate_next),
+                        label: const Text('Continuar a Estimación de Peso'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.secondary,
+                        ),
+                      ),
+                  ],
 
                           // Error (si hay error)
                           if (provider.hasError)

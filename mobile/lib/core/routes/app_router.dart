@@ -10,15 +10,16 @@ import 'package:flutter/material.dart';
 
 import '../../presentation/pages/capture/capture_page.dart';
 import '../../presentation/pages/home/home_page.dart';
+import '../../presentation/pages/weight_estimation/weight_estimation_page.dart';
 
 /// Nombres de rutas
 class AppRoutes {
   static const String home = '/';
   static const String capture = '/capture';
+  static const String weightEstimation = '/weight-estimation';
   
-  // TODO: Agregar rutas para US-002, US-003, etc.
-  // static const String frameSelection = '/frame-selection';
-  // static const String weightEstimation = '/weight-estimation';
+  // TODO: Agregar rutas para US-003, US-004, etc.
+  // static const String cattleRegistration = '/cattle-registration';
   // static const String cattleList = '/cattle-list';
   // static const String cattleDetail = '/cattle-detail';
   // static const String analysis = '/analysis';
@@ -39,6 +40,20 @@ class AppRouter {
       case AppRoutes.capture:
         return MaterialPageRoute(
           builder: (_) => const CapturePage(),
+          settings: settings,
+        );
+
+      case AppRoutes.weightEstimation:
+        // Espera argumentos: { 'framePath': String, 'cattleId': String? }
+        final args = settings.arguments as Map<String, dynamic>?;
+        final framePath = args?['framePath'] as String? ?? '';
+        final cattleId = args?['cattleId'] as String?;
+
+        return MaterialPageRoute(
+          builder: (_) => WeightEstimationPage(
+            framePath: framePath,
+            cattleId: cattleId,
+          ),
           settings: settings,
         );
 
