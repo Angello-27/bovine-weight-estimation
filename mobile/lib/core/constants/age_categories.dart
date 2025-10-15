@@ -1,5 +1,6 @@
 /// Categorías de Edad Bovinas - Hacienda Gamelera
 /// 4 categorías exactas (NO MODIFICAR sin autorización de Bruno Brito Macedo)
+library;
 
 /// Enum de categorías de edad
 enum AgeCategory {
@@ -30,16 +31,16 @@ enum AgeCategory {
 
   /// Valor para almacenamiento/API
   final String value;
-  
+
   /// Nombre para mostrar en UI
   final String displayName;
-  
+
   /// Descripción del rango
   final String rangeDescription;
-  
+
   /// Edad mínima en meses
   final int minMonths;
-  
+
   /// Edad máxima en meses (null = sin límite)
   final int? maxMonths;
 
@@ -80,4 +81,3 @@ enum AgeCategory {
 
 /// Lista de todas las categorías para uso en dropdowns
 const List<AgeCategory> allAgeCategories = AgeCategory.values;
-

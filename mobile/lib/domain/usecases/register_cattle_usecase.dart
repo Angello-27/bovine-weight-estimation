@@ -1,7 +1,7 @@
 /// UseCase: RegisterCattleUseCase
-/// 
+///
 /// US-003: Registro Automático de Animales
-/// 
+///
 /// Caso de uso para registrar un nuevo animal con validaciones de negocio.
 /// Single Responsibility: Lógica de registro con validaciones.
 ///
@@ -10,7 +10,6 @@ library;
 
 import 'package:dartz/dartz.dart';
 
-import '../../core/constants/age_categories.dart';
 import '../../core/constants/breeds.dart';
 import '../../core/errors/failures.dart';
 import '../../core/usecases/usecase.dart';
@@ -24,16 +23,16 @@ class RegisterCattleUseCase implements UseCase<Cattle, RegisterCattleParams> {
   RegisterCattleUseCase(this.repository);
 
   /// Ejecuta el registro de un animal
-  /// 
+  ///
   /// Proceso:
   /// 1. Validar campos obligatorios
   /// 2. Verificar que la caravana no esté duplicada
   /// 3. Validar fecha de nacimiento (no futura)
   /// 4. Registrar animal en SQLite
-  /// 
+  ///
   /// Parámetros:
   /// - [params]: Datos del animal a registrar
-  /// 
+  ///
   /// Retorna:
   /// - [Right(Cattle)]: Animal registrado exitosamente
   /// - [Left(Failure)]: Error durante el registro
@@ -48,15 +47,14 @@ class RegisterCattleUseCase implements UseCase<Cattle, RegisterCattleParams> {
     // 2. Verificar que la caravana no exista
     final existsResult = await repository.earTagExists(params.earTag);
 
-    final exists = existsResult.fold(
-      (failure) => false,
-      (exists) => exists,
-    );
+    final exists = existsResult.fold((failure) => false, (exists) => exists);
 
     if (exists) {
-      return const Left(ValidationFailure(
-        message: 'El número de caravana ya existe en el sistema',
-      ));
+      return const Left(
+        ValidationFailure(
+          message: 'El número de caravana ya existe en el sistema',
+        ),
+      );
     }
 
     // 3. Crear entidad Cattle
@@ -101,7 +99,9 @@ class RegisterCattleUseCase implements UseCase<Cattle, RegisterCattleParams> {
     }
 
     // Fecha de nacimiento razonable (no más de 20 años atrás)
-    final twentyYearsAgo = DateTime.now().subtract(const Duration(days: 365 * 20));
+    final twentyYearsAgo = DateTime.now().subtract(
+      const Duration(days: 365 * 20),
+    );
     if (params.birthDate.isBefore(twentyYearsAgo)) {
       return 'La fecha de nacimiento es demasiado antigua';
     }
@@ -167,6 +167,6 @@ class RegisterCattleParams {
   });
 
   @override
-  String toString() => 'RegisterCattleParams(earTag: $earTag, breed: ${breed.displayName})';
+  String toString() =>
+      'RegisterCattleParams(earTag: $earTag, breed: ${breed.displayName})';
 }
-

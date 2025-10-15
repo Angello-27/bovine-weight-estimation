@@ -1,5 +1,5 @@
 /// App Theme - Material Design 3
-/// 
+///
 /// Tema completo de la aplicación.
 /// Single Responsibility: Definir estilos visuales globales.
 ///
@@ -46,7 +46,7 @@ class AppTheme {
       ),
 
       // Card Theme
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         elevation: AppSpacing.elevationMedium,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppSpacing.borderRadiusMedium),
@@ -175,7 +175,7 @@ class AppTheme {
       ),
 
       // Dialog Theme
-      dialogTheme: DialogTheme(
+      dialogTheme: DialogThemeData(
         elevation: AppSpacing.elevationHigh,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppSpacing.borderRadiusLarge),
@@ -198,4 +198,3 @@ class AppTheme {
   // TODO: Implementar tema oscuro si es necesario
   // static ThemeData get darkTheme { ... }
 }
-

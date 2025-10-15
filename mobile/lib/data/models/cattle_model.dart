@@ -1,12 +1,11 @@
 /// Model: CattleModel
-/// 
+///
 /// Modelo de datos para Cattle con serialización JSON y SQLite.
 /// Single Responsibility: Serialización de datos de ganado.
 ///
 /// Data Layer - Clean Architecture
 library;
 
-import '../../core/constants/age_categories.dart';
 import '../../core/constants/breeds.dart';
 import '../../domain/entities/cattle.dart';
 
@@ -180,4 +179,3 @@ class CattleModel extends Cattle {
     );
   }
 }
-

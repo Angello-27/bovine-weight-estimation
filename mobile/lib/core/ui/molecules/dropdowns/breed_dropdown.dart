@@ -1,5 +1,5 @@
 /// Molecule: BreedDropdown
-/// 
+///
 /// Dropdown para seleccionar raza bovina (7 razas exactas).
 /// Single Responsibility: Selector de raza con validación.
 ///
@@ -26,7 +26,7 @@ class BreedDropdown extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DropdownButtonFormField<BreedType>(
-      value: selectedBreed,
+      initialValue: selectedBreed,
       decoration: const InputDecoration(
         labelText: 'Raza *',
         hintText: 'Selecciona la raza',
@@ -54,4 +54,3 @@ class BreedDropdown extends StatelessWidget {
     );
   }
 }
-

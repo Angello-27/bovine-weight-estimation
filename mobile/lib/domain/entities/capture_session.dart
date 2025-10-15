@@ -1,5 +1,5 @@
 /// Entity: CaptureSession (Sesión de Captura)
-/// 
+///
 /// Representa una sesión completa de captura continua de fotogramas.
 /// Agrupa todos los fotogramas capturados en una sesión de 3-5 segundos.
 ///
@@ -48,8 +48,7 @@ class CaptureSession extends Equatable {
   });
 
   /// Duración real de la sesión
-  Duration? get duration =>
-      endTime != null ? endTime!.difference(startTime) : null;
+  Duration? get duration => endTime?.difference(startTime);
 
   /// Número total de fotogramas capturados
   int get frameCount => frames.length;
@@ -77,7 +76,8 @@ class CaptureSession extends Equatable {
   Frame? get bestFrame {
     if (frames.isEmpty) return null;
     return frames.reduce(
-      (current, next) => next.globalScore > current.globalScore ? next : current,
+      (current, next) =>
+          next.globalScore > current.globalScore ? next : current,
     );
   }
 
@@ -100,24 +100,26 @@ class CaptureSession extends Equatable {
       status: status ?? this.status,
       selectedFrame: selectedFrame ?? this.selectedFrame,
       targetFps: targetFps ?? this.targetFps,
-      targetDurationSeconds: targetDurationSeconds ?? this.targetDurationSeconds,
+      targetDurationSeconds:
+          targetDurationSeconds ?? this.targetDurationSeconds,
     );
   }
 
   @override
   List<Object?> get props => [
-        id,
-        startTime,
-        endTime,
-        frames,
-        status,
-        selectedFrame,
-        targetFps,
-        targetDurationSeconds,
-      ];
+    id,
+    startTime,
+    endTime,
+    frames,
+    status,
+    selectedFrame,
+    targetFps,
+    targetDurationSeconds,
+  ];
 
   @override
-  String toString() => 'CaptureSession(id: $id, frames: $frameCount, '
+  String toString() =>
+      'CaptureSession(id: $id, frames: $frameCount, '
       'status: $status, progress: ${(progress * 100).toStringAsFixed(0)}%)';
 }
 
@@ -156,4 +158,3 @@ extension CaptureSessionStatusExtension on CaptureSessionStatus {
     }
   }
 }
-

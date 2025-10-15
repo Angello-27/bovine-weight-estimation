@@ -1,5 +1,5 @@
 /// Provider: CaptureProvider
-/// 
+///
 /// Provider para gestionar el estado de captura continua de fotogramas (US-001).
 /// Implementa la lógica de UI y comunica con el UseCase.
 ///
@@ -49,9 +49,7 @@ class CaptureProvider with ChangeNotifier {
   /// Duración objetivo en segundos (3-5)
   int _targetDurationSeconds = 4;
 
-  CaptureProvider({
-    required this.captureFramesUseCase,
-  });
+  CaptureProvider({required this.captureFramesUseCase});
 
   // Getters
   CaptureState get state => _state;
@@ -81,7 +79,8 @@ class CaptureProvider with ChangeNotifier {
   Frame? get bestFrame {
     if (_frames.isEmpty) return null;
     return _frames.reduce(
-      (current, next) => next.globalScore > current.globalScore ? next : current,
+      (current, next) =>
+          next.globalScore > current.globalScore ? next : current,
     );
   }
 
@@ -119,7 +118,7 @@ class CaptureProvider with ChangeNotifier {
       // Crear parámetros de captura
       final params = CaptureParams(
         targetFps: _targetFps,
-        targetDurationSeconds: _targetDurationSeconds,
+        durationSeconds: _targetDurationSeconds,
       );
 
       // Ejecutar caso de uso
@@ -169,4 +168,3 @@ class CaptureProvider with ChangeNotifier {
     super.dispose();
   }
 }
-

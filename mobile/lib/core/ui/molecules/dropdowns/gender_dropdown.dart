@@ -1,5 +1,5 @@
 /// Molecule: GenderDropdown
-/// 
+///
 /// Dropdown para seleccionar género del animal.
 /// Single Responsibility: Selector de género con validación.
 ///
@@ -26,7 +26,7 @@ class GenderDropdown extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DropdownButtonFormField<Gender>(
-      value: selectedGender,
+      initialValue: selectedGender,
       decoration: const InputDecoration(
         labelText: 'Género *',
         hintText: 'Selecciona el género',
@@ -54,4 +54,3 @@ class GenderDropdown extends StatelessWidget {
     );
   }
 }
-

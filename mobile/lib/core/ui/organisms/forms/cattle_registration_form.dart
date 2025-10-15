@@ -1,5 +1,5 @@
 /// Organism: CattleRegistrationForm
-/// 
+///
 /// Formulario completo de registro de ganado.
 /// Single Responsibility: Capturar datos de registro de animal.
 ///
@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 
 import '../../../constants/age_categories.dart';
 import '../../../constants/breeds.dart';
+import '../../../../domain/entities/cattle.dart';
 import '../../atoms/inputs/text_input_field.dart';
 import '../../molecules/dropdowns/breed_dropdown.dart';
 import '../../molecules/dropdowns/gender_dropdown.dart';
@@ -64,7 +65,7 @@ class _CattleRegistrationFormState extends State<CattleRegistrationForm> {
             'Datos Obligatorios',
             style: Theme.of(context).textTheme.titleMedium,
           ),
-          
+
           const SizedBox(height: AppSpacing.md),
 
           // Caravana (único, obligatorio)
@@ -125,8 +126,7 @@ class _CattleRegistrationFormState extends State<CattleRegistrationForm> {
           const SizedBox(height: AppSpacing.lg),
 
           // Categoría de edad (calculada automáticamente)
-          if (widget.selectedBirthDate != null)
-            _buildAgeCategoryInfo(),
+          if (widget.selectedBirthDate != null) _buildAgeCategoryInfo(),
 
           const SizedBox(height: AppSpacing.lg),
 
@@ -212,9 +212,9 @@ class _CattleRegistrationFormState extends State<CattleRegistrationForm> {
                   const SizedBox(height: 4),
                   Text(
                     '${category.displayName} ($ageInMonths meses)',
-                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                          color: Colors.blue[900],
-                        ),
+                    style: Theme.of(
+                      context,
+                    ).textTheme.titleSmall?.copyWith(color: Colors.blue[900]),
                   ),
                 ],
               ),
@@ -242,4 +242,3 @@ class _CattleRegistrationFormState extends State<CattleRegistrationForm> {
     }
   }
 }
-

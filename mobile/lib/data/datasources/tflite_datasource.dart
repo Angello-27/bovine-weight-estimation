@@ -1,5 +1,5 @@
 /// DataSource: TFLiteDataSource
-/// 
+///
 /// DataSource para inferencia con modelos TensorFlow Lite.
 /// Single Responsibility: Ejecutar inferencia ML con modelos por raza.
 ///
@@ -14,6 +14,7 @@ import 'package:uuid/uuid.dart';
 
 import '../../core/constants/breeds.dart';
 import '../../core/errors/exceptions.dart';
+import '../../domain/entities/weight_estimation.dart';
 import '../models/weight_estimation_model.dart';
 
 /// DataSource para operaciones de TFLite
@@ -54,16 +55,14 @@ class TFLiteDataSourceImpl implements TFLiteDataSource {
         // TODO: Cargar modelo TFLite real
         // final modelPath = await _getModelPath(breed);
         // final interpreter = await Interpreter.fromAsset(modelPath);
-        
+
         // Por ahora, marcar como cargado (mock)
         _loadedModels[breed] = true;
-        
+
         print('✅ Modelo cargado: ${breed.modelFilename}');
       }
     } catch (e) {
-      throw ModelException(
-        message: 'Error al cargar modelos TFLite: $e',
-      );
+      throw ModelException(message: 'Error al cargar modelos TFLite: $e');
     }
   }
 
@@ -96,7 +95,7 @@ class TFLiteDataSourceImpl implements TFLiteDataSource {
       // TODO: Implementar inferencia real con TFLite
       // final output = await _interpreter.run(inputTensor);
       // final estimatedWeight = _postprocessOutput(output);
-      
+
       // Por ahora, simular inferencia (mock)
       final estimatedWeight = await _mockInference(breed, inputTensor);
 
@@ -158,7 +157,7 @@ class TFLiteDataSourceImpl implements TFLiteDataSource {
       for (int y = 0; y < inputSize; y++) {
         for (int x = 0; x < inputSize; x++) {
           final pixel = resized.getPixel(x, y);
-          
+
           // Normalizar RGB a 0.0-1.0
           inputTensor[pixelIndex++] = pixel.r / 255.0;
           inputTensor[pixelIndex++] = pixel.g / 255.0;
@@ -195,7 +194,7 @@ class TFLiteDataSourceImpl implements TFLiteDataSource {
     // Agregar variación aleatoria ±20kg
     final baseWeight = mockWeights[breed] ?? 400.0;
     final variation = (DateTime.now().millisecond % 40) - 20; // -20 a +20
-    
+
     return baseWeight + variation;
   }
 
@@ -205,7 +204,7 @@ class TFLiteDataSourceImpl implements TFLiteDataSource {
     // Confidence simulado: 85-98%
     final baseConfidence = 0.85;
     final variation = (DateTime.now().millisecond % 13) / 100; // 0.00-0.13
-    
+
     return (baseConfidence + variation).clamp(0.80, 0.98);
   }
 
@@ -215,4 +214,3 @@ class TFLiteDataSourceImpl implements TFLiteDataSource {
     _loadedModels.clear();
   }
 }
-

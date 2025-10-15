@@ -1,7 +1,7 @@
 /// Page: WeightEstimationPage
-/// 
+///
 /// US-002: Estimación de Peso por Raza con IA
-/// 
+///
 /// Pantalla para seleccionar raza y estimar peso usando TFLite.
 /// Single Responsibility: Coordinar estimación de peso.
 ///
@@ -11,7 +11,6 @@ library;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../../core/constants/breeds.dart';
 import '../../../core/ui/atoms/buttons/primary_button.dart';
 import '../../../core/ui/organisms/breed/breed_selector_grid.dart';
 import '../../../core/ui/theme/app_spacing.dart';
@@ -35,9 +34,7 @@ class WeightEstimationPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Estimación de Peso'),
-      ),
+      appBar: AppBar(title: const Text('Estimación de Peso')),
       body: Consumer<WeightEstimationProvider>(
         builder: (context, provider, child) {
           // Establecer imagen al iniciar
@@ -171,4 +168,3 @@ class WeightEstimationPage extends StatelessWidget {
     );
   }
 }
-

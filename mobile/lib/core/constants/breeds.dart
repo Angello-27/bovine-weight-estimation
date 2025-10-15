@@ -1,5 +1,6 @@
 /// Constantes de Razas Bovinas - Hacienda Gamelera
 /// 7 razas exactas (NO MODIFICAR sin autorización de Bruno Brito Macedo)
+library;
 
 /// Enum de razas bovinas disponibles
 enum BreedType {
@@ -15,10 +16,10 @@ enum BreedType {
 
   /// Valor para almacenamiento/API
   final String value;
-  
+
   /// Nombre para mostrar en UI
   final String displayName;
-  
+
   /// Especie bovina (Bos indicus o Bos taurus)
   final BovineSpecies species;
 
@@ -72,4 +73,3 @@ const List<BreedType> bosTaurusBreeds = [
   BreedType.pardoSuizo,
   BreedType.jersey,
 ];
-

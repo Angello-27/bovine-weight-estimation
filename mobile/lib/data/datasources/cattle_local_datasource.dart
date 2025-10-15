@@ -1,5 +1,5 @@
 /// DataSource: CattleLocalDataSource
-/// 
+///
 /// DataSource para almacenamiento local (SQLite) de ganado.
 /// Single Responsibility: Operaciones CRUD de ganado en SQLite.
 ///
@@ -7,7 +7,7 @@
 library;
 
 import 'package:path/path.dart';
-import 'package:sqflite/sqflite.dart';
+import 'package:sqflite/sqflite.dart' as sqflite;
 
 import '../../core/errors/exceptions.dart';
 import '../../domain/entities/cattle.dart';
@@ -51,26 +51,26 @@ abstract class CattleLocalDataSource {
 
 /// Implementación con SQLite
 class CattleLocalDataSourceImpl implements CattleLocalDataSource {
-  Database? _database;
+  sqflite.Database? _database;
 
   static const String _databaseName = 'bovine_weight.db';
   static const int _databaseVersion = 1;
   static const String _tableCattle = 'cattle';
 
   /// Obtiene la instancia de la base de datos
-  Future<Database> get database async {
+  Future<sqflite.Database> get database async {
     if (_database != null) return _database!;
     _database = await _initDatabase();
     return _database!;
   }
 
   /// Inicializa la base de datos
-  Future<Database> _initDatabase() async {
+  Future<sqflite.Database> _initDatabase() async {
     try {
-      final databasesPath = await getDatabasesPath();
+      final databasesPath = await sqflite.getDatabasesPath();
       final path = join(databasesPath, _databaseName);
 
-      return await openDatabase(
+      return await sqflite.openDatabase(
         path,
         version: _databaseVersion,
         onCreate: _onCreate,
@@ -82,7 +82,7 @@ class CattleLocalDataSourceImpl implements CattleLocalDataSource {
   }
 
   /// Crea las tablas
-  Future<void> _onCreate(Database db, int version) async {
+  Future<void> _onCreate(sqflite.Database db, int version) async {
     // Tabla de ganado
     await db.execute('''
       CREATE TABLE $_tableCattle (
@@ -127,7 +127,11 @@ class CattleLocalDataSourceImpl implements CattleLocalDataSource {
     ''');
   }
 
-  Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
+  Future<void> _onUpgrade(
+    sqflite.Database db,
+    int oldVersion,
+    int newVersion,
+  ) async {
     // TODO: Migraciones futuras
   }
 
@@ -138,7 +142,7 @@ class CattleLocalDataSourceImpl implements CattleLocalDataSource {
       await db.insert(
         _tableCattle,
         cattle.toSQLite(),
-        conflictAlgorithm: ConflictAlgorithm.replace,
+        conflictAlgorithm: sqflite.ConflictAlgorithm.replace,
       );
     } catch (e) {
       throw DatabaseException(message: 'Error al guardar ganado: $e');
@@ -218,7 +222,7 @@ class CattleLocalDataSourceImpl implements CattleLocalDataSource {
     try {
       final db = await database;
       final term = '%$searchTerm%';
-      
+
       final maps = await db.query(
         _tableCattle,
         where: 'ear_tag LIKE ? OR name LIKE ?',
@@ -251,11 +255,7 @@ class CattleLocalDataSourceImpl implements CattleLocalDataSource {
   Future<void> deleteCattle(String id) async {
     try {
       final db = await database;
-      await db.delete(
-        _tableCattle,
-        where: 'id = ?',
-        whereArgs: [id],
-      );
+      await db.delete(_tableCattle, where: 'id = ?', whereArgs: [id]);
     } catch (e) {
       throw DatabaseException(message: 'Error al eliminar ganado: $e');
     }
@@ -265,10 +265,10 @@ class CattleLocalDataSourceImpl implements CattleLocalDataSource {
   Future<bool> earTagExists(String earTag, {String? excludeId}) async {
     try {
       final db = await database;
-      
+
       String whereClause = 'ear_tag = ?';
       List<dynamic> whereArgs = [earTag];
-      
+
       if (excludeId != null) {
         whereClause += ' AND id != ?';
         whereArgs.add(excludeId);
@@ -317,4 +317,3 @@ class CattleLocalDataSourceImpl implements CattleLocalDataSource {
     }
   }
 }
-

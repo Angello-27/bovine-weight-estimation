@@ -1,5 +1,5 @@
 /// DataSource: WeightEstimationLocalDataSource
-/// 
+///
 /// DataSource para almacenamiento local (SQLite) de estimaciones de peso.
 /// Single Responsibility: Operaciones CRUD de estimaciones en SQLite.
 ///
@@ -7,7 +7,7 @@
 library;
 
 import 'package:path/path.dart';
-import 'package:sqflite/sqflite.dart';
+import 'package:sqflite/sqflite.dart' as sqflite;
 
 import '../../core/errors/exceptions.dart';
 import '../models/weight_estimation_model.dart';
@@ -39,26 +39,26 @@ abstract class WeightEstimationLocalDataSource {
 /// Implementación con SQLite
 class WeightEstimationLocalDataSourceImpl
     implements WeightEstimationLocalDataSource {
-  Database? _database;
+  sqflite.Database? _database;
 
   static const String _databaseName = 'bovine_weight.db';
   static const int _databaseVersion = 1;
   static const String _tableEstimations = 'weight_estimations';
 
   /// Obtiene la instancia de la base de datos
-  Future<Database> get database async {
+  Future<sqflite.Database> get database async {
     if (_database != null) return _database!;
     _database = await _initDatabase();
     return _database!;
   }
 
   /// Inicializa la base de datos
-  Future<Database> _initDatabase() async {
+  Future<sqflite.Database> _initDatabase() async {
     try {
-      final databasesPath = await getDatabasesPath();
+      final databasesPath = await sqflite.getDatabasesPath();
       final path = join(databasesPath, _databaseName);
 
-      return await openDatabase(
+      return await sqflite.openDatabase(
         path,
         version: _databaseVersion,
         onCreate: _onCreate,
@@ -72,7 +72,7 @@ class WeightEstimationLocalDataSourceImpl
   }
 
   /// Crea las tablas
-  Future<void> _onCreate(Database db, int version) async {
+  Future<void> _onCreate(sqflite.Database db, int version) async {
     // Tabla de estimaciones de peso
     await db.execute('''
       CREATE TABLE $_tableEstimations (
@@ -112,7 +112,11 @@ class WeightEstimationLocalDataSourceImpl
   }
 
   /// Maneja upgrades
-  Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
+  Future<void> _onUpgrade(
+    sqflite.Database db,
+    int oldVersion,
+    int newVersion,
+  ) async {
     // TODO: Implementar migraciones
   }
 
@@ -124,7 +128,7 @@ class WeightEstimationLocalDataSourceImpl
       await db.insert(
         _tableEstimations,
         estimation.toSQLite(),
-        conflictAlgorithm: ConflictAlgorithm.replace,
+        conflictAlgorithm: sqflite.ConflictAlgorithm.replace,
       );
     } catch (e) {
       throw DatabaseException(message: 'Error al guardar estimación: $e');
@@ -156,10 +160,7 @@ class WeightEstimationLocalDataSourceImpl
     try {
       final db = await database;
 
-      final maps = await db.query(
-        _tableEstimations,
-        orderBy: 'timestamp DESC',
-      );
+      final maps = await db.query(_tableEstimations, orderBy: 'timestamp DESC');
 
       return maps.map((map) => WeightEstimationModel.fromSQLite(map)).toList();
     } catch (e) {
@@ -236,4 +237,3 @@ class WeightEstimationLocalDataSourceImpl
     }
   }
 }
-

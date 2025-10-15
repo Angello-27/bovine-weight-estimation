@@ -1,7 +1,7 @@
 /// Unit Test: CaptureFramesUseCase
-/// 
+///
 /// Tests unitarios para el caso de uso de captura continua de fotogramas.
-/// 
+///
 /// Testing Layer
 library;
 
@@ -40,10 +40,12 @@ void main() {
 
     test('debe iniciar sesión de captura correctamente', () async {
       // Arrange
-      when(mockRepository.startCaptureSession(
-        targetFps: anyNamed('targetFps'),
-        durationSeconds: anyNamed('durationSeconds'),
-      )).thenAnswer((_) async => Right(tSession));
+      when(
+        mockRepository.startCaptureSession(
+          targetFps: anyNamed('targetFps'),
+          durationSeconds: anyNamed('durationSeconds'),
+        ),
+      ).thenAnswer((_) async => Right(tSession));
 
       const tParams = CaptureParams(targetFps: 12, durationSeconds: 4);
 
@@ -52,10 +54,9 @@ void main() {
 
       // Assert
       expect(result.isRight(), true);
-      verify(mockRepository.startCaptureSession(
-        targetFps: 12,
-        durationSeconds: 4,
-      )).called(1);
+      verify(
+        mockRepository.startCaptureSession(targetFps: 12, durationSeconds: 4),
+      ).called(1);
     });
 
     test('debe retornar ValidationFailure con FPS inválido', () async {
@@ -64,7 +65,7 @@ void main() {
 
       // Act & Assert
       expect(
-        () => const CaptureParams(targetFps: 9, durationSeconds: 4),
+        () => CaptureParams(targetFps: 9, durationSeconds: 4),
         throwsA(isA<AssertionError>()),
       );
     });
@@ -75,20 +76,21 @@ void main() {
 
       // Act & Assert
       expect(
-        () => const CaptureParams(targetFps: 12, durationSeconds: 6),
+        () => CaptureParams(targetFps: 12, durationSeconds: 6),
         throwsA(isA<AssertionError>()),
       );
     });
 
     test('debe manejar error del repositorio correctamente', () async {
       // Arrange
-      when(mockRepository.startCaptureSession(
-        targetFps: anyNamed('targetFps'),
-        durationSeconds: anyNamed('durationSeconds'),
-      )).thenAnswer(
-        (_) async => const Left(
-          CameraFailure(message: 'Error al acceder a la cámara'),
+      when(
+        mockRepository.startCaptureSession(
+          targetFps: anyNamed('targetFps'),
+          durationSeconds: anyNamed('durationSeconds'),
         ),
+      ).thenAnswer(
+        (_) async =>
+            const Left(CameraFailure(message: 'Error al acceder a la cámara')),
       );
 
       const tParams = CaptureParams(targetFps: 12, durationSeconds: 4);
@@ -105,4 +107,3 @@ void main() {
     });
   });
 }
-

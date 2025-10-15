@@ -30,6 +30,10 @@ dependencies:
   # Path: Utilidades para manejo de paths del sistema de archivos
   # Usado en: Obtener directorios de base de datos y almacenamiento temporal
   path: ^1.8.3
+  
+  # Path Provider: Acceso a directorios del sistema
+  # Usado en: Obtener directorios temporales para fotogramas capturados
+  path_provider: ^2.1.1
 
   # ========================================
   # MACHINE LEARNING

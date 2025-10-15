@@ -1,7 +1,7 @@
 /// Page: CattleRegistrationPage
-/// 
+///
 /// US-003: Registro Automático de Animales
-/// 
+///
 /// Pantalla para registrar un nuevo animal en el sistema.
 /// Single Responsibility: Coordinar registro de ganado.
 ///
@@ -29,7 +29,7 @@ class CattleRegistrationPage extends StatefulWidget {
 
 class _CattleRegistrationPageState extends State<CattleRegistrationPage> {
   final _formKey = GlobalKey<FormState>();
-  
+
   // Controllers
   final _earTagController = TextEditingController();
   final _nameController = TextEditingController();
@@ -55,9 +55,7 @@ class _CattleRegistrationPageState extends State<CattleRegistrationPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Registrar Animal'),
-      ),
+      appBar: AppBar(title: const Text('Registrar Animal')),
       body: Consumer<CattleProvider>(
         builder: (context, provider, child) {
           // Mostrar snackbar en éxito
@@ -111,7 +109,7 @@ class _CattleRegistrationPageState extends State<CattleRegistrationPage> {
                     onBirthDateChanged: (date) {
                       setState(() => _selectedBirthDate = date);
                     },
-                    onGenderChanged: (gender) {
+                    onGenderChanged: (Gender? gender) {
                       setState(() => _selectedGender = gender);
                     },
                   ),
@@ -175,4 +173,3 @@ class _CattleRegistrationPageState extends State<CattleRegistrationPage> {
     });
   }
 }
-
