@@ -25,10 +25,7 @@ void main() async {
   final di = DependencyInjection();
   di.init();
 
-  // Solicitar permisos esenciales al inicio
-  await di.permissionService.requestRequiredPermissions();
-
-  // Ejecutar app
+  // Ejecutar app (permisos se solicitan just-in-time en cada feature)
   runApp(MyApp(di: di));
 }
 

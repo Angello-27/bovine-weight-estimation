@@ -9,12 +9,15 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 
+import '../../../core/config/dependency_injection.dart';
 import '../../../core/routes/app_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../providers/capture_provider.dart';
+import '../../widgets/molecules/dialogs/permission_rationale_dialog.dart';
 import '../../widgets/atoms/buttons/primary_button.dart';
 import '../../widgets/atoms/indicators/loading_indicator.dart';
 import '../../widgets/molecules/cards/status_card.dart';
@@ -149,10 +152,77 @@ class CapturePage extends StatelessWidget {
         if (!isIdle) {
           provider.reset();
         } else {
-          await provider.startCapture();
+          // Solicitar permiso de cámara just-in-time
+          await _handleCaptureWithPermissions(context, provider);
         }
       },
     );
+  }
+
+  /// Maneja la captura con verificación de permisos
+  Future<void> _handleCaptureWithPermissions(
+    BuildContext context,
+    CaptureProvider provider,
+  ) async {
+    final di = DependencyInjection();
+
+    // 1. Verificar si ya tiene permiso
+    final hasPermission = await di.permissionService.isPermissionGranted(
+      Permission.camera,
+    );
+
+    if (hasPermission) {
+      // Ya tiene permiso, iniciar captura
+      await provider.startCapture();
+      return;
+    }
+
+    // 2. Mostrar diálogo explicativo
+    if (!context.mounted) return;
+
+    final shouldRequest = await PermissionRationaleDialog.showCameraPermission(
+      context,
+    );
+
+    if (shouldRequest != true) {
+      // Usuario canceló
+      return;
+    }
+
+    // 3. Solicitar permiso
+    final status = await di.permissionService.requestPermission(
+      Permission.camera,
+    );
+
+    if (status.isGranted) {
+      // Permiso otorgado, iniciar captura
+      await provider.startCapture();
+    } else if (status.isPermanentlyDenied) {
+      // Permiso denegado permanentemente
+      if (!context.mounted) return;
+
+      final openSettings =
+          await PermissionRationaleDialog.showPermissionDeniedDialog(
+            context,
+            'Cámara',
+          );
+
+      if (openSettings == true) {
+        await di.permissionService.openAppSettings();
+      }
+    } else {
+      // Permiso denegado temporalmente
+      if (!context.mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Se necesita permiso de cámara para capturar fotogramas',
+          ),
+          backgroundColor: AppColors.warning,
+        ),
+      );
+    }
   }
 
   // Métodos helper para obtener información de estado
