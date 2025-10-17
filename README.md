@@ -149,7 +149,29 @@ Donde:
 4. **Database**: MongoDB (cloud) + SQLite (local offline)
 5. **Cloud Storage**: AWS S3 para modelos ML y manifest.json
 
-> 📖 **Arquitectura detallada**: Ver [docs/architecture/](docs/architecture/) para diagramas completos y decisiones técnicas
+> 📖 **Arquitectura detallada**: Ver [docs/design/](docs/design/) para diagramas completos y decisiones técnicas
+
+### 🎨 Design System Moderno (Sprint 2)
+
+**Tema**: Agro-Tech Premium - Diseño inspirado en líderes del mercado (AgriWebb, HerdWatch, CattleMax)
+
+**Características visuales**:
+- 🌈 **Paleta vibrante**: Verde Esmeralda (#10B981) + Azul Tech (#3B82F6) + Ámbar (#F59E0B)
+- ✨ **Gradientes predefinidos**: Profundidad visual con transiciones suaves
+- 🎴 **Dashboard moderno**: Estadísticas con glassmorphism + Grid de acciones
+- 🎬 **Animaciones fluidas**: Scale, fade-in, transitions (200ms)
+- 📐 **Atomic Design 100%**: 25+ componentes reutilizables (Atoms → Organisms)
+- 🧩 **Composición pura**: Pages sin lógica de construcción de UI
+- 🔧 **Extension methods**: Estado → UI mapping cohesivo
+
+**Componentes destacados**:
+- `GradientCard` - Cards con gradientes configurables
+- `GlassCard` - Glassmorphism con blur effect
+- `AnimatedScaleButton` - Bounce effect al tocar
+- `ActionTile` - Tiles de acción con iconos grandes
+- `StatCard` - Estadísticas con glass effect
+
+> 🎨 **Design System completo**: Ver [docs/design/ui-design-system.md](docs/design/ui-design-system.md)
 
 ## 📊 Métricas de Éxito
 
@@ -319,14 +341,16 @@ cd ml-training && pytest tests/ -v
 
 ### 🚀 Sprints (Evolución del Proyecto)
 
-- [🎯 Sprint 1 - Validación Core](docs/sprints/sprint-01/sprint-goal.md) - Captura, selección, estimación offline
-- [📊 Sprint 2 - Análisis y Sync](docs/sprints/sprint-02/sprint-goal.md) - Análisis, sincronización, búsqueda
-- [🔗 Sprint 3 - Integraciones](docs/sprints/sprint-03/sprint-goal.md) - SENASAG, REGENSA, ASOCEBU
+- [🎯 Sprint 1 - Validación Core](docs/sprints/sprint-01/sprint-goal.md) - Captura, selección, estimación offline (✅ Completado)
+- [📊 Sprint 2 - Modernización + Análisis](docs/sprints/sprint-02/sprint-goal.md) - UI/UX moderna, análisis, sincronización (✅ Completado)
+  - [📈 Sprint 2 Progress](docs/sprints/sprint-02/sprint-progress.md) - Detalles de modernización UI/UX
+- [🔗 Sprint 3 - Integraciones](docs/sprints/sprint-03/sprint-goal.md) - SENASAG, REGENSA, ASOCEBU (🔜 En progreso)
 
 ### 🏗️ Diseño y Arquitectura
 
 - [🎯 Decisiones Arquitectónicas (ADRs)](docs/design/architecture-decisions.md) - Decisiones clave registradas
 - [🗄️ Esquema de Base de Datos](docs/design/database-schema.md) - MongoDB y SQLite
+- [🎨 UI Design System](docs/design/ui-design-system.md) - Paleta, componentes, Atomic Design
 
 ### 📖 Estándares de Desarrollo
 
