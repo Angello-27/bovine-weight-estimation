@@ -45,6 +45,20 @@ abstract class CattleLocalDataSource {
   /// Obtiene conteo por estado
   Future<Map<CattleStatus, int>> getCattleCountByStatus();
 
+  /// ===== Métodos de Sincronización (US-005) =====
+
+  /// Obtiene animales no sincronizados
+  Future<List<CattleModel>> getUnsyncedCattle();
+
+  /// Marca un animal como sincronizado
+  Future<void> markAsSynced(String id);
+
+  /// Marca un animal con error de sincronización
+  Future<void> markAsSyncError(String id, String error);
+
+  /// Obtiene el conteo de animales pendientes de sincronización
+  Future<int> getUnsyncedCount();
+
   /// Cierra la base de datos
   Future<void> close();
 }
@@ -54,7 +68,7 @@ class CattleLocalDataSourceImpl implements CattleLocalDataSource {
   sqflite.Database? _database;
 
   static const String _databaseName = 'bovine_weight.db';
-  static const int _databaseVersion = 1;
+  static const int _databaseVersion = 2; // v2: Columnas sync (US-005)
   static const String _tableCattle = 'cattle';
 
   /// Obtiene la instancia de la base de datos
@@ -101,7 +115,10 @@ class CattleLocalDataSourceImpl implements CattleLocalDataSource {
         registration_date INTEGER NOT NULL,
         last_updated INTEGER NOT NULL,
         photo_path TEXT,
-        created_at INTEGER NOT NULL DEFAULT (strftime('%s', 'now'))
+        created_at INTEGER NOT NULL DEFAULT (strftime('%s', 'now')),
+        synced INTEGER NOT NULL DEFAULT 0,
+        sync_status TEXT NOT NULL DEFAULT 'pending',
+        last_sync_at INTEGER
       )
     ''');
 
@@ -125,6 +142,11 @@ class CattleLocalDataSourceImpl implements CattleLocalDataSource {
     await db.execute('''
       CREATE INDEX idx_cattle_search ON $_tableCattle (ear_tag, name)
     ''');
+
+    // Índice para sincronización (US-005)
+    await db.execute('''
+      CREATE INDEX idx_cattle_sync_status ON $_tableCattle (sync_status, synced)
+    ''');
   }
 
   Future<void> _onUpgrade(
@@ -132,7 +154,22 @@ class CattleLocalDataSourceImpl implements CattleLocalDataSource {
     int oldVersion,
     int newVersion,
   ) async {
-    // TODO: Migraciones futuras
+    // Migración v1 -> v2: Agregar columnas de sincronización (US-005)
+    if (oldVersion < 2) {
+      await db.execute('''
+        ALTER TABLE $_tableCattle ADD COLUMN synced INTEGER NOT NULL DEFAULT 0
+      ''');
+      await db.execute('''
+        ALTER TABLE $_tableCattle ADD COLUMN sync_status TEXT NOT NULL DEFAULT 'pending'
+      ''');
+      await db.execute('''
+        ALTER TABLE $_tableCattle ADD COLUMN last_sync_at INTEGER
+      ''');
+      await db.execute('''
+        CREATE INDEX IF NOT EXISTS idx_cattle_sync_status 
+        ON $_tableCattle (sync_status, synced)
+      ''');
+    }
   }
 
   @override
@@ -305,6 +342,76 @@ class CattleLocalDataSourceImpl implements CattleLocalDataSource {
       return result;
     } catch (e) {
       throw DatabaseException(message: 'Error al contar ganado: $e');
+    }
+  }
+
+  // ===== Métodos de Sincronización (US-005) =====
+
+  @override
+  Future<List<CattleModel>> getUnsyncedCattle() async {
+    try {
+      final db = await database;
+
+      final maps = await db.query(
+        _tableCattle,
+        where: 'synced = ?',
+        whereArgs: [0],
+        orderBy: 'last_updated ASC',
+      );
+
+      return maps.map((map) => CattleModel.fromSQLite(map)).toList();
+    } catch (e) {
+      throw DatabaseException(message: 'Error al obtener no sincronizados: $e');
+    }
+  }
+
+  @override
+  Future<void> markAsSynced(String id) async {
+    try {
+      final db = await database;
+      final now = DateTime.now().millisecondsSinceEpoch;
+
+      await db.update(
+        _tableCattle,
+        {'synced': 1, 'sync_status': 'synced', 'last_sync_at': now},
+        where: 'id = ?',
+        whereArgs: [id],
+      );
+    } catch (e) {
+      throw DatabaseException(message: 'Error al marcar sincronizado: $e');
+    }
+  }
+
+  @override
+  Future<void> markAsSyncError(String id, String error) async {
+    try {
+      final db = await database;
+
+      await db.update(
+        _tableCattle,
+        {'synced': 0, 'sync_status': 'error'},
+        where: 'id = ?',
+        whereArgs: [id],
+      );
+    } catch (e) {
+      throw DatabaseException(message: 'Error al marcar error sync: $e');
+    }
+  }
+
+  @override
+  Future<int> getUnsyncedCount() async {
+    try {
+      final db = await database;
+
+      final result = await db.rawQuery('''
+        SELECT COUNT(*) as count 
+        FROM $_tableCattle 
+        WHERE synced = 0
+      ''');
+
+      return sqflite.Sqflite.firstIntValue(result) ?? 0;
+    } catch (e) {
+      throw DatabaseException(message: 'Error al contar no sincronizados: $e');
     }
   }
 

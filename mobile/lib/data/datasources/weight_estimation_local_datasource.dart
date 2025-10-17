@@ -32,6 +32,20 @@ abstract class WeightEstimationLocalDataSource {
   /// Elimina una estimación
   Future<void> deleteEstimation(String estimationId);
 
+  /// ===== Métodos de Sincronización (US-005) =====
+
+  /// Obtiene estimaciones no sincronizadas
+  Future<List<WeightEstimationModel>> getUnsyncedEstimations();
+
+  /// Marca una estimación como sincronizada
+  Future<void> markAsSynced(String id);
+
+  /// Marca una estimación con error de sincronización
+  Future<void> markAsSyncError(String id, String error);
+
+  /// Obtiene el conteo de estimaciones pendientes de sincronización
+  Future<int> getUnsyncedCount();
+
   /// Cierra la base de datos
   Future<void> close();
 }
@@ -42,7 +56,7 @@ class WeightEstimationLocalDataSourceImpl
   sqflite.Database? _database;
 
   static const String _databaseName = 'bovine_weight.db';
-  static const int _databaseVersion = 1;
+  static const int _databaseVersion = 2; // v2: Columnas sync (US-005)
   static const String _tableEstimations = 'weight_estimations';
 
   /// Obtiene la instancia de la base de datos
@@ -89,7 +103,10 @@ class WeightEstimationLocalDataSourceImpl
         model_version TEXT NOT NULL DEFAULT '1.0.0',
         processing_time_ms INTEGER NOT NULL,
         created_at INTEGER NOT NULL DEFAULT (strftime('%s', 'now')),
-        updated_at INTEGER NOT NULL DEFAULT (strftime('%s', 'now'))
+        updated_at INTEGER NOT NULL DEFAULT (strftime('%s', 'now')),
+        synced INTEGER NOT NULL DEFAULT 0,
+        sync_status TEXT NOT NULL DEFAULT 'pending',
+        last_sync_at INTEGER
       )
     ''');
 
@@ -109,6 +126,11 @@ class WeightEstimationLocalDataSourceImpl
     await db.execute('''
       CREATE INDEX idx_estimations_confidence ON $_tableEstimations (confidence_score DESC)
     ''');
+
+    // Índice para sincronización (US-005)
+    await db.execute('''
+      CREATE INDEX idx_estimations_sync_status ON $_tableEstimations (sync_status, synced)
+    ''');
   }
 
   /// Maneja upgrades
@@ -117,7 +139,22 @@ class WeightEstimationLocalDataSourceImpl
     int oldVersion,
     int newVersion,
   ) async {
-    // TODO: Implementar migraciones
+    // Migración v1 -> v2: Agregar columnas de sincronización (US-005)
+    if (oldVersion < 2) {
+      await db.execute('''
+        ALTER TABLE $_tableEstimations ADD COLUMN synced INTEGER NOT NULL DEFAULT 0
+      ''');
+      await db.execute('''
+        ALTER TABLE $_tableEstimations ADD COLUMN sync_status TEXT NOT NULL DEFAULT 'pending'
+      ''');
+      await db.execute('''
+        ALTER TABLE $_tableEstimations ADD COLUMN last_sync_at INTEGER
+      ''');
+      await db.execute('''
+        CREATE INDEX IF NOT EXISTS idx_estimations_sync_status 
+        ON $_tableEstimations (sync_status, synced)
+      ''');
+    }
   }
 
   @override
@@ -225,6 +262,78 @@ class WeightEstimationLocalDataSourceImpl
       );
     } catch (e) {
       throw DatabaseException(message: 'Error al eliminar estimación: $e');
+    }
+  }
+
+  // ===== Métodos de Sincronización (US-005) =====
+
+  @override
+  Future<List<WeightEstimationModel>> getUnsyncedEstimations() async {
+    try {
+      final db = await database;
+
+      final maps = await db.query(
+        _tableEstimations,
+        where: 'synced = ?',
+        whereArgs: [0],
+        orderBy: 'timestamp ASC',
+      );
+
+      return maps.map((map) => WeightEstimationModel.fromSQLite(map)).toList();
+    } catch (e) {
+      throw DatabaseException(
+        message: 'Error al obtener estimaciones no sincronizadas: $e',
+      );
+    }
+  }
+
+  @override
+  Future<void> markAsSynced(String id) async {
+    try {
+      final db = await database;
+      final now = DateTime.now().millisecondsSinceEpoch;
+
+      await db.update(
+        _tableEstimations,
+        {'synced': 1, 'sync_status': 'synced', 'last_sync_at': now},
+        where: 'id = ?',
+        whereArgs: [id],
+      );
+    } catch (e) {
+      throw DatabaseException(message: 'Error al marcar sincronizado: $e');
+    }
+  }
+
+  @override
+  Future<void> markAsSyncError(String id, String error) async {
+    try {
+      final db = await database;
+
+      await db.update(
+        _tableEstimations,
+        {'synced': 0, 'sync_status': 'error'},
+        where: 'id = ?',
+        whereArgs: [id],
+      );
+    } catch (e) {
+      throw DatabaseException(message: 'Error al marcar error sync: $e');
+    }
+  }
+
+  @override
+  Future<int> getUnsyncedCount() async {
+    try {
+      final db = await database;
+
+      final result = await db.rawQuery('''
+        SELECT COUNT(*) as count 
+        FROM $_tableEstimations 
+        WHERE synced = 0
+      ''');
+
+      return sqflite.Sqflite.firstIntValue(result) ?? 0;
+    } catch (e) {
+      throw DatabaseException(message: 'Error al contar no sincronizados: $e');
     }
   }
 
