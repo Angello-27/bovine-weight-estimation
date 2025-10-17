@@ -24,120 +24,176 @@ class WeightEstimationResultCard extends StatelessWidget {
 
     return Card(
       elevation: AppSpacing.elevationHigh,
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.cardPadding * 1.5),
-        child: Column(
-          children: [
-            // Título
-            Text(
-              '¡Estimación Completada!',
-              style: Theme.of(
-                context,
-              ).textTheme.titleLarge?.copyWith(color: AppColors.success),
-              textAlign: TextAlign.center,
-            ),
-
-            const SizedBox(height: AppSpacing.lg),
-
-            // Peso estimado (grande y prominente)
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.baseline,
-              textBaseline: TextBaseline.alphabetic,
-              children: [
-                Text(
-                  estimation.estimatedWeight.toStringAsFixed(1),
-                  style: Theme.of(context).textTheme.displayLarge?.copyWith(
-                    color: AppColors.primary,
-                    fontWeight: FontWeight.bold,
-                  ),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppSpacing.borderRadiusXLarge),
+      ),
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [AppColors.successLight, Colors.white],
+          ),
+          borderRadius: BorderRadius.circular(AppSpacing.borderRadiusXLarge),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(AppSpacing.cardPadding * 1.5),
+          child: Column(
+            children: [
+              // Ícono de éxito
+              Container(
+                padding: const EdgeInsets.all(AppSpacing.md),
+                decoration: BoxDecoration(
+                  color: AppColors.success.withValues(alpha: 0.15),
+                  shape: BoxShape.circle,
                 ),
-                const SizedBox(width: AppSpacing.sm),
-                Text(
-                  'kg',
-                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                    color: AppColors.primary,
-                  ),
+                child: const Icon(
+                  Icons.check_circle,
+                  size: AppSpacing.iconSizeXXLarge,
+                  color: AppColors.success,
                 ),
-              ],
-            ),
-
-            const SizedBox(height: AppSpacing.md),
-
-            // Confidence score con color
-            Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: AppSpacing.md,
-                vertical: AppSpacing.sm,
               ),
-              decoration: BoxDecoration(
-                color: confidenceColor.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(
-                  AppSpacing.borderRadiusLarge,
+
+              const SizedBox(height: AppSpacing.md),
+
+              // Título
+              Text(
+                '¡Estimación Completada!',
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  color: AppColors.success,
+                  fontWeight: FontWeight.bold,
                 ),
-                border: Border.all(color: confidenceColor, width: 2),
+                textAlign: TextAlign.center,
               ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    _getConfidenceIcon(estimation.confidenceLevel),
-                    color: confidenceColor,
+
+              const SizedBox(height: AppSpacing.lg),
+
+              // Peso estimado en card destacado
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.xl,
+                  vertical: AppSpacing.lg,
+                ),
+                decoration: BoxDecoration(
+                  gradient: AppColors.primaryGradient,
+                  borderRadius: BorderRadius.circular(
+                    AppSpacing.borderRadiusLarge,
                   ),
-                  const SizedBox(width: AppSpacing.sm),
-                  Text(
-                    'Confianza: ${(estimation.confidenceScore * 100).toStringAsFixed(0)}%',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: confidenceColor,
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.primary.withValues(alpha: 0.3),
+                      blurRadius: AppSpacing.elevationHigh,
+                      offset: const Offset(0, 4),
                     ),
-                  ),
-                ],
+                  ],
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.baseline,
+                  textBaseline: TextBaseline.alphabetic,
+                  children: [
+                    Text(
+                      estimation.estimatedWeight.toStringAsFixed(1),
+                      style: const TextStyle(
+                        fontSize: 56,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(width: AppSpacing.sm),
+                    const Text(
+                      'kg',
+                      style: TextStyle(
+                        fontSize: 28,
+                        color: Colors.white,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
 
-            const SizedBox(height: AppSpacing.lg),
+              const SizedBox(height: AppSpacing.lg),
 
-            const Divider(),
+              // Confidence score con color
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.lg,
+                  vertical: AppSpacing.md,
+                ),
+                decoration: BoxDecoration(
+                  color: confidenceColor.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(
+                    AppSpacing.borderRadiusLarge,
+                  ),
+                  border: Border.all(
+                    color: confidenceColor.withValues(alpha: 0.5),
+                    width: 1.5,
+                  ),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      _getConfidenceIcon(estimation.confidenceLevel),
+                      color: confidenceColor,
+                      size: AppSpacing.iconSize,
+                    ),
+                    const SizedBox(width: AppSpacing.sm),
+                    Text(
+                      'Confianza: ${(estimation.confidenceScore * 100).toStringAsFixed(0)}%',
+                      style: TextStyle(
+                        fontSize: AppSpacing.fontSizeNormal,
+                        fontWeight: FontWeight.bold,
+                        color: confidenceColor,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
 
-            const SizedBox(height: AppSpacing.md),
+              const SizedBox(height: AppSpacing.lg),
 
-            // Metadatos
-            _buildMetadataRow(
-              context,
-              'Raza',
-              estimation.breed.displayName,
-              Icons.category,
-            ),
+              const Divider(),
 
-            const SizedBox(height: AppSpacing.sm),
+              const SizedBox(height: AppSpacing.md),
 
-            _buildMetadataRow(
-              context,
-              'Método',
-              estimation.method.name.toUpperCase(),
-              Icons.psychology,
-            ),
+              // Metadatos
+              _buildMetadataRow(
+                context,
+                'Raza',
+                estimation.breed.displayName,
+                Icons.category,
+              ),
 
-            const SizedBox(height: AppSpacing.sm),
+              const SizedBox(height: AppSpacing.sm),
 
-            _buildMetadataRow(
-              context,
-              'Tiempo procesamiento',
-              '${(estimation.processingTimeMs / 1000).toStringAsFixed(2)}s',
-              Icons.timer,
-            ),
+              _buildMetadataRow(
+                context,
+                'Método',
+                estimation.method.name.toUpperCase(),
+                Icons.psychology,
+              ),
 
-            const SizedBox(height: AppSpacing.sm),
+              const SizedBox(height: AppSpacing.sm),
 
-            _buildMetadataRow(
-              context,
-              'Modelo',
-              'v${estimation.modelVersion}',
-              Icons.model_training,
-            ),
-          ],
+              _buildMetadataRow(
+                context,
+                'Tiempo procesamiento',
+                '${(estimation.processingTimeMs / 1000).toStringAsFixed(2)}s',
+                Icons.timer,
+              ),
+
+              const SizedBox(height: AppSpacing.sm),
+
+              _buildMetadataRow(
+                context,
+                'Modelo',
+                'v${estimation.modelVersion}',
+                Icons.model_training,
+              ),
+            ],
+          ),
         ),
       ),
     );

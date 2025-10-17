@@ -55,7 +55,13 @@ class _CattleRegistrationPageState extends State<CattleRegistrationPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Registrar Animal')),
+      backgroundColor: AppColors.grey50,
+      appBar: AppBar(
+        title: const Text('Registrar Animal'),
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(gradient: AppColors.accentGradient),
+        ),
+      ),
       body: Consumer<CattleProvider>(
         builder: (context, provider, child) {
           // Mostrar snackbar en éxito
@@ -64,8 +70,20 @@ class _CattleRegistrationPageState extends State<CattleRegistrationPage> {
             WidgetsBinding.instance.addPostFrameCallback((_) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content: Text(provider.successMessage!),
+                  content: Row(
+                    children: [
+                      const Icon(Icons.check_circle, color: Colors.white),
+                      const SizedBox(width: AppSpacing.sm),
+                      Expanded(child: Text(provider.successMessage!)),
+                    ],
+                  ),
                   backgroundColor: AppColors.success,
+                  behavior: SnackBarBehavior.floating,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(
+                      AppSpacing.borderRadiusMedium,
+                    ),
+                  ),
                 ),
               );
               provider.clearMessages();
@@ -78,8 +96,20 @@ class _CattleRegistrationPageState extends State<CattleRegistrationPage> {
             WidgetsBinding.instance.addPostFrameCallback((_) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content: Text(provider.errorMessage!),
+                  content: Row(
+                    children: [
+                      const Icon(Icons.error, color: Colors.white),
+                      const SizedBox(width: AppSpacing.sm),
+                      Expanded(child: Text(provider.errorMessage!)),
+                    ],
+                  ),
                   backgroundColor: AppColors.error,
+                  behavior: SnackBarBehavior.floating,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(
+                      AppSpacing.borderRadiusMedium,
+                    ),
+                  ),
                 ),
               );
               provider.clearMessages();
@@ -92,6 +122,70 @@ class _CattleRegistrationPageState extends State<CattleRegistrationPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
+                  // Header informativo
+                  Container(
+                    padding: const EdgeInsets.all(AppSpacing.lg),
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [AppColors.accentLight, Colors.white],
+                      ),
+                      borderRadius: BorderRadius.circular(
+                        AppSpacing.borderRadiusLarge,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppColors.accent.withValues(alpha: 0.1),
+                          blurRadius: AppSpacing.elevationMedium,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(AppSpacing.md),
+                          decoration: BoxDecoration(
+                            color: AppColors.accent.withValues(alpha: 0.15),
+                            borderRadius: BorderRadius.circular(
+                              AppSpacing.borderRadiusMedium,
+                            ),
+                          ),
+                          child: const Icon(
+                            Icons.add_circle,
+                            color: AppColors.accent,
+                            size: AppSpacing.iconSizeXLarge,
+                          ),
+                        ),
+                        const SizedBox(width: AppSpacing.md),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Nuevo Animal',
+                                style: Theme.of(context).textTheme.titleLarge
+                                    ?.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                      color: AppColors.grey900,
+                                    ),
+                              ),
+                              const SizedBox(height: AppSpacing.xs),
+                              Text(
+                                'Completa los datos del animal',
+                                style: Theme.of(context).textTheme.bodyMedium
+                                    ?.copyWith(color: AppColors.grey600),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(height: AppSpacing.lg),
+
                   // Formulario
                   CattleRegistrationForm(
                     formKey: _formKey,
@@ -123,6 +217,8 @@ class _CattleRegistrationPageState extends State<CattleRegistrationPage> {
                     isLoading: provider.isLoading,
                     onPressed: _handleRegister,
                   ),
+
+                  const SizedBox(height: AppSpacing.md),
                 ],
               ),
             ),

@@ -1,6 +1,6 @@
 /// Organism: BreedSelectorGrid
 ///
-/// Grid de selección de raza bovina (7 razas).
+/// Grid de selección de raza bovina (7 razas) con animaciones.
 /// Single Responsibility: Permitir selección visual de raza.
 ///
 /// Atomic Design - Organisms Layer
@@ -11,6 +11,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/constants/breeds.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
+import '../../atoms/animated_scale_button.dart';
 
 /// Grid de selección de raza
 class BreedSelectorGrid extends StatelessWidget {
@@ -76,53 +77,81 @@ class _BreedCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: isSelected
-          ? AppSpacing.elevationHigh
-          : AppSpacing.elevationLow,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(AppSpacing.borderRadiusMedium),
-        side: isSelected
-            ? const BorderSide(color: AppColors.primary, width: 2)
-            : BorderSide.none,
-      ),
-      color: isSelected ? AppColors.primary.withValues(alpha: 0.1) : null,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(AppSpacing.borderRadiusMedium),
+    return AnimatedScaleButton(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.easeInOut,
+        decoration: BoxDecoration(
+          color: isSelected
+              ? AppColors.primary.withValues(alpha: 0.1)
+              : AppColors.surface,
+          borderRadius: BorderRadius.circular(AppSpacing.borderRadiusLarge),
+          border: Border.all(
+            color: isSelected ? AppColors.primary : AppColors.grey300,
+            width: isSelected ? 2.5 : 1,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: isSelected
+                  ? AppColors.primary.withValues(alpha: 0.2)
+                  : AppColors.grey300.withValues(alpha: 0.3),
+              blurRadius: isSelected
+                  ? AppSpacing.elevationHigh
+                  : AppSpacing.elevationLow,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
         child: Padding(
-          padding: const EdgeInsets.all(AppSpacing.sm),
+          padding: const EdgeInsets.all(6.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
             children: [
               // Icono de la raza
-              Icon(
-                Icons.pets,
-                size: AppSpacing.iconSizeXLarge,
-                color: isSelected ? AppColors.primary : AppColors.grey600,
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                padding: const EdgeInsets.all(AppSpacing.xs),
+                decoration: BoxDecoration(
+                  color: isSelected
+                      ? AppColors.primary.withValues(alpha: 0.15)
+                      : Colors.transparent,
+                  borderRadius: BorderRadius.circular(
+                    AppSpacing.borderRadiusMedium,
+                  ),
+                ),
+                child: Icon(
+                  Icons.pets,
+                  size: AppSpacing.iconSize,
+                  color: isSelected ? AppColors.primary : AppColors.grey600,
+                ),
               ),
 
-              const SizedBox(height: AppSpacing.xs),
+              const SizedBox(height: 2),
 
               // Nombre de la raza
-              Text(
-                breed.displayName,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: AppSpacing.fontSizeSmall,
-                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                  color: isSelected ? AppColors.primary : AppColors.grey800,
+              Flexible(
+                child: Text(
+                  breed.displayName,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                    color: isSelected ? AppColors.primary : AppColors.grey800,
+                    height: 1.2,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
               ),
 
               // Checkmark si está seleccionado
               if (isSelected) ...[
-                const SizedBox(height: AppSpacing.xs),
+                const SizedBox(height: 2),
                 const Icon(
                   Icons.check_circle,
-                  size: AppSpacing.iconSizeXSmall,
+                  size: 16,
                   color: AppColors.success,
                 ),
               ],

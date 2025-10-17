@@ -44,16 +44,18 @@ class AppTheme {
         ),
       ),
 
-      // Card Theme
+      // Card Theme (más moderno con elevación y bordes suaves)
       cardTheme: CardThemeData(
         elevation: AppSpacing.elevationMedium,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppSpacing.borderRadiusMedium),
+          borderRadius: BorderRadius.circular(AppSpacing.borderRadiusLarge),
         ),
         margin: const EdgeInsets.all(AppSpacing.sm),
+        surfaceTintColor: AppColors.primary,
+        shadowColor: AppColors.primary.withValues(alpha: 0.1),
       ),
 
-      // Elevated Button Theme
+      // Elevated Button Theme (más moderno con gradiente visual)
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.primary,
@@ -64,9 +66,10 @@ class AppTheme {
             vertical: AppSpacing.md,
           ),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppSpacing.borderRadiusMedium),
+            borderRadius: BorderRadius.circular(AppSpacing.borderRadiusLarge),
           ),
-          elevation: AppSpacing.elevationLow,
+          elevation: AppSpacing.elevationMedium,
+          shadowColor: AppColors.primary.withValues(alpha: 0.3),
         ),
       ),
 
@@ -98,11 +101,14 @@ class AppTheme {
         ),
       ),
 
-      // FloatingActionButton Theme
-      floatingActionButtonTheme: const FloatingActionButtonThemeData(
+      // FloatingActionButton Theme (más prominente)
+      floatingActionButtonTheme: FloatingActionButtonThemeData(
         backgroundColor: AppColors.secondary,
         foregroundColor: AppColors.onSecondary,
         elevation: AppSpacing.elevationHigh,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppSpacing.borderRadiusLarge),
+        ),
       ),
 
       // Input Decoration Theme

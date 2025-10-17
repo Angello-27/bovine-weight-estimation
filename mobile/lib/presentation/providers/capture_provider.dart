@@ -6,8 +6,9 @@
 /// Presentation Layer - Clean Architecture + Provider Pattern
 library;
 
-import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 
+import '../../core/theme/app_colors.dart';
 import '../../domain/entities/capture_session.dart';
 import '../../domain/entities/frame.dart';
 import '../../domain/usecases/capture_frames_usecase.dart';
@@ -25,6 +26,65 @@ enum CaptureState {
 
   /// Error durante la captura
   error,
+}
+
+/// Extensión para mapear estados a propiedades de UI
+extension CaptureStateUI on CaptureState {
+  /// Ícono representativo del estado
+  IconData get icon {
+    switch (this) {
+      case CaptureState.idle:
+        return Icons.camera_alt;
+      case CaptureState.capturing:
+        return Icons.camera;
+      case CaptureState.completed:
+        return Icons.check_circle;
+      case CaptureState.error:
+        return Icons.error;
+    }
+  }
+
+  /// Color del estado
+  Color get color {
+    switch (this) {
+      case CaptureState.idle:
+        return AppColors.primary;
+      case CaptureState.capturing:
+        return AppColors.info;
+      case CaptureState.completed:
+        return AppColors.success;
+      case CaptureState.error:
+        return AppColors.error;
+    }
+  }
+
+  /// Título del estado
+  String get title {
+    switch (this) {
+      case CaptureState.idle:
+        return 'Listo para capturar';
+      case CaptureState.capturing:
+        return 'Capturando...';
+      case CaptureState.completed:
+        return 'Completado';
+      case CaptureState.error:
+        return 'Error';
+    }
+  }
+
+  /// Descripción del estado
+  String get description {
+    switch (this) {
+      case CaptureState.idle:
+        return 'Configura los parámetros y presiona "Iniciar Captura"';
+      case CaptureState.capturing:
+        return 'Capturando fotogramas continuos';
+      case CaptureState.completed:
+        return 'Captura finalizada exitosamente';
+      case CaptureState.error:
+        return 'Ocurrió un error durante la captura';
+    }
+  }
 }
 
 /// Provider para gestionar el estado de captura de fotogramas

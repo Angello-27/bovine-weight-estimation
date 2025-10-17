@@ -14,8 +14,9 @@ import 'package:provider/provider.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../providers/weight_estimation_provider.dart';
-import '../../widgets/atoms/buttons/primary_button.dart';
 import '../../widgets/organisms/breed/breed_selector_grid.dart';
+import 'widgets/estimation_action_button.dart';
+import 'widgets/frame_preview_card.dart';
 import 'widgets/weight_estimation_result_card.dart';
 
 /// Pantalla de estimación de peso
@@ -52,7 +53,7 @@ class WeightEstimationPage extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   // Preview de la imagen
-                  _buildImagePreview(framePath),
+                  FramePreviewCard(imagePath: framePath),
 
                   const SizedBox(height: AppSpacing.lg),
 
@@ -65,13 +66,44 @@ class WeightEstimationPage extends StatelessWidget {
 
                   // Indicador de progreso (si está estimando)
                   if (provider.isEstimating)
-                    const Center(
-                      child: Column(
-                        children: [
-                          CircularProgressIndicator(),
-                          SizedBox(height: AppSpacing.md),
-                          Text('Estimando peso con IA...'),
-                        ],
+                    Center(
+                      child: Container(
+                        padding: const EdgeInsets.all(AppSpacing.xl),
+                        decoration: BoxDecoration(
+                          color: AppColors.primary.withValues(alpha: 0.05),
+                          borderRadius: BorderRadius.circular(
+                            AppSpacing.borderRadiusLarge,
+                          ),
+                        ),
+                        child: const Column(
+                          children: [
+                            SizedBox(
+                              width: 60,
+                              height: 60,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 6,
+                                color: AppColors.primary,
+                              ),
+                            ),
+                            SizedBox(height: AppSpacing.lg),
+                            Text(
+                              'Estimando peso con IA...',
+                              style: TextStyle(
+                                fontSize: AppSpacing.fontSizeNormal,
+                                fontWeight: FontWeight.w500,
+                                color: AppColors.grey800,
+                              ),
+                            ),
+                            SizedBox(height: AppSpacing.sm),
+                            Text(
+                              'Analizando características del animal',
+                              style: TextStyle(
+                                fontSize: AppSpacing.fontSizeSmall,
+                                color: AppColors.grey600,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
 
@@ -97,79 +129,17 @@ class WeightEstimationPage extends StatelessWidget {
                   const SizedBox(height: AppSpacing.lg),
 
                   // Botón de acción
-                  _buildActionButton(context, provider),
+                  EstimationActionButton(
+                    provider: provider,
+                    framePath: framePath,
+                    cattleId: cattleId,
+                  ),
                 ],
               ),
             ),
           );
         },
       ),
-    );
-  }
-
-  /// Preview de la imagen
-  Widget _buildImagePreview(String imagePath) {
-    return Card(
-      elevation: AppSpacing.elevationMedium,
-      clipBehavior: Clip.antiAlias,
-      child: AspectRatio(
-        aspectRatio: 16 / 9,
-        child: Image.asset(
-          imagePath,
-          fit: BoxFit.cover,
-          errorBuilder: (context, error, stackTrace) {
-            return Container(
-              color: AppColors.grey300,
-              child: const Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.image,
-                    size: AppSpacing.iconSizeXXLarge,
-                    color: AppColors.grey500,
-                  ),
-                  SizedBox(height: AppSpacing.sm),
-                  Text('Fotograma seleccionado'),
-                ],
-              ),
-            );
-          },
-        ),
-      ),
-    );
-  }
-
-  /// Botón de acción
-  Widget _buildActionButton(
-    BuildContext context,
-    WeightEstimationProvider provider,
-  ) {
-    if (provider.isEstimating) {
-      return const SizedBox.shrink();
-    }
-
-    if (provider.hasResult) {
-      return PrimaryButton(
-        text: 'Estimar Otra Vez',
-        icon: Icons.refresh,
-        onPressed: () {
-          provider.reset();
-        },
-      );
-    }
-
-    return PrimaryButton(
-      text: 'Estimar Peso',
-      icon: Icons.calculate,
-      onPressed: provider.selectedBreed != null
-          ? () async {
-              await provider.estimateWeight(
-                imagePath: framePath,
-                breed: provider.selectedBreed,
-                cattleId: cattleId,
-              );
-            }
-          : null, // Deshabilitado si no hay raza seleccionada
     );
   }
 }

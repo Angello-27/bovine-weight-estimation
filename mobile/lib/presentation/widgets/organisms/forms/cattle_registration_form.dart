@@ -61,9 +61,37 @@ class _CattleRegistrationFormState extends State<CattleRegistrationForm> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           // Sección: Datos Obligatorios
-          Text(
-            'Datos Obligatorios',
-            style: Theme.of(context).textTheme.titleMedium,
+          Container(
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.md,
+              vertical: AppSpacing.sm,
+            ),
+            decoration: BoxDecoration(
+              color: AppColors.primary.withValues(alpha: 0.05),
+              borderRadius: BorderRadius.circular(
+                AppSpacing.borderRadiusMedium,
+              ),
+              border: Border(
+                left: BorderSide(color: AppColors.primary, width: 4),
+              ),
+            ),
+            child: Row(
+              children: [
+                const Icon(
+                  Icons.star,
+                  color: AppColors.primary,
+                  size: AppSpacing.iconSizeSmall,
+                ),
+                const SizedBox(width: AppSpacing.sm),
+                Text(
+                  'Datos Obligatorios',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.primary,
+                  ),
+                ),
+              ],
+            ),
           ),
 
           const SizedBox(height: AppSpacing.md),
@@ -131,9 +159,37 @@ class _CattleRegistrationFormState extends State<CattleRegistrationForm> {
           const SizedBox(height: AppSpacing.lg),
 
           // Sección: Datos Opcionales
-          Text(
-            'Datos Opcionales',
-            style: Theme.of(context).textTheme.titleMedium,
+          Container(
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.md,
+              vertical: AppSpacing.sm,
+            ),
+            decoration: BoxDecoration(
+              color: AppColors.grey200,
+              borderRadius: BorderRadius.circular(
+                AppSpacing.borderRadiusMedium,
+              ),
+              border: Border(
+                left: BorderSide(color: AppColors.grey500, width: 4),
+              ),
+            ),
+            child: Row(
+              children: [
+                const Icon(
+                  Icons.info_outline,
+                  color: AppColors.grey600,
+                  size: AppSpacing.iconSizeSmall,
+                ),
+                const SizedBox(width: AppSpacing.sm),
+                Text(
+                  'Datos Opcionales',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.grey700,
+                  ),
+                ),
+              ],
+            ),
           ),
 
           const SizedBox(height: AppSpacing.md),
@@ -193,34 +249,58 @@ class _CattleRegistrationFormState extends State<CattleRegistrationForm> {
         DateTime.now().difference(widget.selectedBirthDate!).inDays ~/ 30;
     final category = AgeCategory.fromAgeInMonths(ageInMonths);
 
-    return Card(
-      color: AppColors.infoLight,
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.md),
-        child: Row(
-          children: [
-            const Icon(Icons.info, color: AppColors.info),
-            const SizedBox(width: AppSpacing.sm),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Categoría calculada automáticamente:',
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-                  const SizedBox(height: AppSpacing.xs),
-                  Text(
-                    '${category.displayName} ($ageInMonths meses)',
-                    style: Theme.of(
-                      context,
-                    ).textTheme.titleSmall?.copyWith(color: AppColors.info),
-                  ),
-                ],
-              ),
-            ),
-          ],
+    return Container(
+      padding: const EdgeInsets.all(AppSpacing.md),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [AppColors.infoLight, Colors.white],
         ),
+        borderRadius: BorderRadius.circular(AppSpacing.borderRadiusMedium),
+        border: Border.all(
+          color: AppColors.info.withValues(alpha: 0.3),
+          width: 1.5,
+        ),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(AppSpacing.sm),
+            decoration: BoxDecoration(
+              color: AppColors.info.withValues(alpha: 0.15),
+              borderRadius: BorderRadius.circular(AppSpacing.borderRadiusSmall),
+            ),
+            child: const Icon(
+              Icons.cake,
+              color: AppColors.info,
+              size: AppSpacing.iconSize,
+            ),
+          ),
+          const SizedBox(width: AppSpacing.md),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Categoría Automática',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: AppColors.grey600,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.xs),
+                Text(
+                  '${category.displayName} ($ageInMonths meses)',
+                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                    color: AppColors.info,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
