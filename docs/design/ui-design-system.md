@@ -23,45 +23,34 @@
 
 ---
 
-## 🏗️ Atomic Design - Jerarquía de Componentes
+## 🏗️ Atomic Design - Jerarquía de Componentes (ACTUALIZADO Sprint 2)
 
 ### Nivel 1: **Atoms (Átomos)** 
 *Componentes básicos indivisibles*
 
 ```
-lib/core/ui/atoms/
+lib/presentation/widgets/atoms/
 ├── buttons/
 │   ├── primary_button.dart           # Botón principal (acción primaria)
 │   ├── secondary_button.dart         # Botón secundario
 │   ├── icon_button.dart              # Botón solo icono
 │   └── floating_action_button.dart   # FAB Material Design
 │
-├── text/
-│   ├── heading_text.dart             # Títulos (H1, H2, H3)
-│   ├── body_text.dart                # Texto de cuerpo
-│   ├── caption_text.dart             # Texto pequeño/secundario
-│   └── label_text.dart               # Etiquetas de formulario
+├── animated_scale_button.dart        # ✨ NUEVO Sprint 2: Botón con animación bounce
+├── fade_in_widget.dart               # ✨ NUEVO Sprint 2: Fade-in + slide automático
+│
+├── gradient_card.dart                # ✨ NUEVO Sprint 2: Card con gradiente configurable
+├── glass_card.dart                   # ✨ NUEVO Sprint 2: Glassmorphism con blur
 │
 ├── inputs/
-│   ├── text_field.dart               # Input de texto
+│   ├── text_input_field.dart         # Input de texto con validación
 │   ├── number_field.dart             # Input numérico
 │   ├── dropdown.dart                 # Selector dropdown
 │   ├── checkbox.dart                 # Checkbox
 │   └── radio_button.dart             # Radio button
 │
-├── icons/
-│   ├── cattle_icon.dart              # Icono de bovino
-│   ├── weight_icon.dart              # Icono de peso
-│   ├── camera_icon.dart              # Icono de cámara
-│   └── sync_icon.dart                # Icono de sincronización
-│
-├── images/
-│   ├── avatar_image.dart             # Imagen circular (foto animal)
-│   ├── thumbnail_image.dart          # Miniatura
-│   └── placeholder_image.dart        # Placeholder sin imagen
-│
 └── indicators/
-    ├── loading_spinner.dart          # Spinner de carga
+    ├── loading_indicator.dart        # Spinner de carga
     ├── progress_bar.dart             # Barra de progreso
     ├── badge.dart                    # Badge de notificación
     └── chip.dart                     # Chip Material Design
@@ -73,33 +62,31 @@ lib/core/ui/atoms/
 *Combinación de átomos con funcionalidad específica*
 
 ```
-lib/core/ui/molecules/
-├── form_fields/
-│   ├── labeled_text_field.dart       # Label + TextField + Error
-│   ├── breed_selector.dart           # Label + Dropdown (7 razas)
-│   ├── age_category_selector.dart    # Label + Dropdown (4 categorías)
-│   └── date_picker_field.dart        # Label + DatePicker
+lib/presentation/widgets/molecules/
+├── stat_card.dart                    # ✨ NUEVO Sprint 2: Card estadística con glass effect
+├── action_tile.dart                  # ✨ NUEVO Sprint 2: Tile de acción con gradiente
 │
 ├── cards/
 │   ├── cattle_card.dart              # Card de animal (foto + nombre + raza)
 │   ├── weight_record_card.dart       # Card de registro de peso
+│   ├── status_card.dart              # Card de estado con icono y color
 │   └── info_card.dart                # Card informativa genérica
 │
-├── list_items/
-│   ├── cattle_list_tile.dart         # Item de lista de ganado
-│   ├── weight_history_tile.dart      # Item de historial de peso
-│   └── sync_status_tile.dart         # Item de estado de sync
+├── dropdowns/
+│   ├── breed_dropdown.dart           # Dropdown de 7 razas
+│   ├── gender_dropdown.dart          # Dropdown de género
+│   └── age_category_dropdown.dart    # Dropdown de categoría de edad
 │
 ├── dialogs/
 │   ├── confirmation_dialog.dart      # Diálogo de confirmación
 │   ├── error_dialog.dart             # Diálogo de error
-│   └── loading_dialog.dart           # Diálogo de carga
+│   ├── loading_dialog.dart           # Diálogo de carga
+│   └── permission_rationale_dialog.dart # Diálogo de permisos JIT
 │
-└── feedback/
-    ├── success_snackbar.dart         # Snackbar de éxito
-    ├── error_snackbar.dart           # Snackbar de error
-    ├── info_banner.dart              # Banner informativo
-    └── empty_state.dart              # Estado vacío (sin datos)
+└── list_items/
+    ├── cattle_list_tile.dart         # Item de lista de ganado
+    ├── weight_history_tile.dart      # Item de historial de peso
+    └── sync_status_tile.dart         # Item de estado de sync
 ```
 
 ---
@@ -108,31 +95,21 @@ lib/core/ui/molecules/
 *Componentes complejos con lógica de negocio*
 
 ```
-lib/core/ui/organisms/
-├── navigation/
-│   ├── app_bar_custom.dart           # AppBar con logo y acciones
-│   ├── bottom_navigation_bar.dart    # Navegación inferior (4 tabs)
-│   └── drawer_menu.dart              # Menú lateral (navegación)
-│
+lib/presentation/widgets/organisms/
 ├── forms/
-│   ├── cattle_registration_form.dart # Formulario de registro de ganado
-│   ├── weight_estimation_form.dart   # Formulario de estimación
-│   └── search_filter_panel.dart      # Panel de búsqueda con filtros
+│   └── cattle_registration_form.dart # Formulario completo de registro (✅ Sprint 1)
 │
-├── lists/
-│   ├── cattle_list.dart              # Lista de ganado (scroll infinito)
-│   ├── weight_history_list.dart      # Lista de historial de peso
-│   └── search_results_list.dart      # Lista de resultados de búsqueda
+├── breed/
+│   └── breed_selector_grid.dart      # Grid 3x3 de razas con animaciones (✅ Sprint 1)
 │
 ├── capture/
-│   ├── camera_preview_widget.dart    # Vista previa de cámara en vivo
-│   ├── frame_quality_overlay.dart    # Overlay de calidad de fotograma
-│   └── capture_controls.dart         # Controles de captura (botones)
+│   ├── capture_config_section.dart   # Configuración FPS + Duración (✅ Sprint 1)
+│   ├── camera_preview_widget.dart    # Vista previa de cámara (🔜 Sprint 2)
+│   └── frame_quality_overlay.dart    # Overlay de calidad (🔜 Sprint 2)
 │
-└── analysis/
-    ├── weight_trend_chart.dart       # Gráfico de tendencia de peso
-    ├── statistics_panel.dart         # Panel de estadísticas (GDP, etc.)
-    └── anomaly_alert_card.dart       # Alerta de anomalía detectada
+└── lists/
+    ├── cattle_list.dart              # Lista de ganado (🔜 Sprint 2)
+    └── weight_history_list.dart      # Lista de historial (🔜 Sprint 2)
 ```
 
 ---
@@ -166,27 +143,62 @@ lib/features/[feature]/presentation/pages/
 
 ---
 
-## 🎨 Paleta de Colores (Material Design 3)
+## 🎨 Paleta de Colores (Material Design 3) - ACTUALIZADO Sprint 2
 
-### **Tema: Ganadería Rural Boliviana**
+### **Tema: Agro-Tech Premium (Verde Vibrante + Azul Tecnológico)**
+**Inspiración**: AgriWebb, HerdWatch, CattleMax - Apps agropecuarias modernas
 
 ```dart
-// lib/core/ui/theme/app_colors.dart
+// lib/core/theme/app_colors.dart
 
 import 'package:flutter/material.dart';
 
 class AppColors {
-  // Colores Primarios (Verde Campo/Agricultura)
-  static const Color primary = Color(0xFF2E7D32);        // Verde oscuro
-  static const Color primaryLight = Color(0xFF60AD5E);   // Verde claro
-  static const Color primaryDark = Color(0xFF005005);    // Verde muy oscuro
+  // ========================================
+  // COLORES PRINCIPALES
+  // ========================================
   
-  // Colores Secundarios (Terracota/Tierra)
-  static const Color secondary = Color(0xFFD84315);      // Terracota
-  static const Color secondaryLight = Color(0xFFFF7543); // Terracota claro
-  static const Color secondaryDark = Color(0xFF9F0000);  // Terracota oscuro
+  // Primarios (Verde Esmeralda - Naturaleza + Innovación)
+  static const Color primary = Color(0xFF10B981);        // Verde esmeralda vibrante
+  static const Color primaryLight = Color(0xFF34D399);   // Verde menta claro
+  static const Color primaryDark = Color(0xFF059669);    // Verde bosque
   
-  // Colores de Superficie (Neutrales)
+  // Secundarios (Azul Tech - Innovación + Precisión)
+  static const Color secondary = Color(0xFF3B82F6);      // Azul brillante
+  static const Color secondaryLight = Color(0xFF60A5FA); // Azul cielo
+  static const Color secondaryDark = Color(0xFF2563EB);  // Azul profundo
+  
+  // Acento (Ámbar - Alertas y llamadas a la acción)
+  static const Color accent = Color(0xFFF59E0B);         // Ámbar cálido
+  static const Color accentLight = Color(0xFFFBBF24);    // Ámbar claro
+  static const Color accentDark = Color(0xFFD97706);     // Ámbar oscuro
+  
+  // ========================================
+  // GRADIENTES PREDEFINIDOS (Sprint 2)
+  // ========================================
+  
+  static const LinearGradient primaryGradient = LinearGradient(
+    colors: [Color(0xFF10B981), Color(0xFF059669)],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+  
+  static const LinearGradient secondaryGradient = LinearGradient(
+    colors: [Color(0xFF3B82F6), Color(0xFF2563EB)],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+  
+  static const LinearGradient accentGradient = LinearGradient(
+    colors: [Color(0xFFF59E0B), Color(0xFFD97706)],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+  
+  // ========================================
+  // COLORES DE SUPERFICIE
+  // ========================================
+  
   static const Color surface = Color(0xFFFAFAFA);        // Blanco roto
   static const Color background = Color(0xFFFFFFFF);     // Blanco
   static const Color surfaceVariant = Color(0xFFE0E0E0); // Gris claro
@@ -196,28 +208,46 @@ class AppColors {
   static const Color onSecondary = Color(0xFFFFFFFF);    // Blanco
   static const Color onSurface = Color(0xFF212121);      // Negro suave
   static const Color onBackground = Color(0xFF212121);   // Negro suave
+  static const Color textSecondary = Color(0xFF757575);  // Gris texto secundario
+  static const Color textTertiary = Color(0xFF9E9E9E);   // Gris texto terciario
   
-  // Colores Semánticos
-  static const Color success = Color(0xFF4CAF50);        // Verde éxito
-  static const Color error = Color(0xFFD32F2F);          // Rojo error
-  static const Color warning = Color(0xFFFFA726);        // Naranja warning
-  static const Color info = Color(0xFF1976D2);           // Azul info
+  // ========================================
+  // COLORES SEMÁNTICOS (más vibrantes)
+  // ========================================
   
-  // Colores de Estado (Offline/Online)
+  static const Color success = Color(0xFF10B981);        // Verde esmeralda
+  static const Color error = Color(0xFFEF4444);          // Rojo brillante
+  static const Color warning = Color(0xFFF59E0B);        // Ámbar
+  static const Color info = Color(0xFF3B82F6);           // Azul brillante
+  
+  // Fondos Semánticos (sutiles)
+  static const Color successLight = Color(0xFFD1FAE5);   // Verde menta muy claro
+  static const Color errorLight = Color(0xFFFEE2E2);     // Rojo rosa claro
+  static const Color warningLight = Color(0xFFFEF3C7);   // Ámbar crema
+  static const Color infoLight = Color(0xFFDBEAFE);      // Azul cielo claro
+  
+  // ========================================
+  // ESCALA DE GRISES COMPLETA
+  // ========================================
+  
+  static const Color grey50 = Color(0xFFFAFAFA);
+  static const Color grey100 = Color(0xFFF5F5F5);
+  static const Color grey200 = Color(0xFFEEEEEE);
+  static const Color grey300 = Color(0xFFE0E0E0);
+  static const Color grey400 = Color(0xFFBDBDBD);
+  static const Color grey500 = Color(0xFF9E9E9E);
+  static const Color grey600 = Color(0xFF757575);
+  static const Color grey700 = Color(0xFF616161);
+  static const Color grey800 = Color(0xFF424242);
+  static const Color grey900 = Color(0xFF212121);
+  
+  // ========================================
+  // COLORES DE ESTADO
+  // ========================================
+  
   static const Color offline = Color(0xFF9E9E9E);        // Gris (offline)
-  static const Color online = Color(0xFF4CAF50);         // Verde (online)
-  static const Color syncing = Color(0xFF2196F3);        // Azul (sincronizando)
-  
-  // Colores de Raza (Opcional para diferenciar visualmente)
-  static const Map<String, Color> breedColors = {
-    'brahman': Color(0xFFBCAAA4),      // Beige claro (Brahman)
-    'nelore': Color(0xFF8D6E63),       // Marrón claro (Nelore)
-    'angus': Color(0xFF424242),        // Negro (Angus)
-    'cebuinas': Color(0xFFA1887F),     // Marrón rosado (Cebuinas)
-    'criollo': Color(0xFF795548),      // Marrón (Criollo)
-    'pardo_suizo': Color(0xFF6D4C41),  // Marrón oscuro (Pardo Suizo)
-    'jersey': Color(0xFFD7CCC8),       // Beige (Jersey)
-  };
+  static const Color online = Color(0xFF10B981);         // Verde (online)
+  static const Color syncing = Color(0xFF3B82F6);        // Azul (sincronizando)
 }
 ```
 
@@ -616,17 +646,78 @@ Para cada componente UI que creemos, validar:
 
 ---
 
+## 🔧 Patrones Arquitectónicos Modernos (Sprint 2)
+
+### **Extension Methods para UI State**
+
+Pattern aplicado para mantener Atomic Design puro en Pages:
+
+```dart
+// lib/presentation/providers/capture_provider.dart
+
+/// Estados posibles de la captura
+enum CaptureState {
+  idle,
+  capturing,
+  completed,
+  error,
+}
+
+/// Extensión para mapear estados a propiedades de UI
+extension CaptureStateUI on CaptureState {
+  /// Ícono representativo del estado
+  IconData get icon {
+    switch (this) {
+      case CaptureState.idle: return Icons.camera_alt;
+      case CaptureState.capturing: return Icons.camera;
+      case CaptureState.completed: return Icons.check_circle;
+      case CaptureState.error: return Icons.error;
+    }
+  }
+
+  /// Color del estado
+  Color get color {
+    switch (this) {
+      case CaptureState.idle: return AppColors.primary;
+      case CaptureState.capturing: return AppColors.info;
+      case CaptureState.completed: return AppColors.success;
+      case CaptureState.error: return AppColors.error;
+    }
+  }
+
+  String get title { /* ... */ }
+  String get description { /* ... */ }
+}
+
+// Uso en Page (100% composición):
+StatusCard(
+  icon: provider.state.icon,        // ✅ Extension method
+  iconColor: provider.state.color,  // ✅ Extension method
+  title: provider.state.title,
+  description: provider.state.description,
+)
+```
+
+**Ventajas**:
+- ✅ Cohesión: Lógica junto al enum
+- ✅ SOLID: Single Responsibility
+- ✅ Type Safety: No se puede pasar tipo incorrecto
+- ✅ Atomic Design: Pages 100% composición, cero métodos `_build...()`
+
+---
+
 ## 📚 Referencias
 
 - [Material Design 3](https://m3.material.io/)
 - [Flutter Material Components](https://docs.flutter.dev/ui/widgets/material)
 - [Atomic Design by Brad Frost](https://atomicdesign.bradfrost.com/)
-- [Google Fonts](https://fonts.google.com/)
+- [Tailwind CSS Colors](https://tailwindcss.com/docs/customizing-colors) (inspiración paleta Sprint 2)
+- [AgriWebb](https://www.agriwebb.com/) / [HerdWatch](https://www.herdwatch.com/) (referencia UX agro-tech)
 - [Material Icons](https://fonts.google.com/icons)
 
 ---
 
-**Última actualización**: 28 Oct 2024  
-**Versión**: 1.0.0  
-**Autor**: Equipo de Desarrollo - Hacienda Gamelera
+**Última actualización**: 17 Oct 2024 (Sprint 2 - Modernización UI/UX)  
+**Versión**: 2.0.0  
+**Autor**: Equipo de Desarrollo - Agrocom/UAGRM
 
