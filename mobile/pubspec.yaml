@@ -110,6 +110,27 @@ dependencies:
   # Cupertino Icons: Iconos de iOS (compatibilidad cross-platform)
   # Usado en: Material Design 3 + Cupertino para iOS nativo
   cupertino_icons: ^1.0.8
+  
+  # ========================================
+  # CHARTS Y VISUALIZACIÓN (US-004)
+  # ========================================
+  # FL Chart: Librería de gráficos para Flutter
+  # Usado en: US-004 - Historial de pesajes con gráficos de evolución
+  # Features: Line charts, bar charts, scatter plots
+  # Documentación: docs/sprints/sprint-02/sprint-goal.md
+  fl_chart: ^0.65.0
+  
+  # ========================================
+  # EXPORTACIÓN DE DOCUMENTOS (US-004, US-007)
+  # ========================================
+  # PDF: Generación de documentos PDF
+  # Usado en: US-004 (exportación historial), US-007 (reportes SENASAG)
+  # Features: Texto, tablas, gráficos, imágenes
+  pdf: ^3.10.7
+  
+  # Printing: Renderizado y compartir PDFs
+  # Usado en: Compartir reportes generados, vista previa
+  printing: ^5.11.1
 
 dev_dependencies:
   flutter_test:
