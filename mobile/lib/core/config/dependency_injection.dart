@@ -15,11 +15,14 @@ import '../../data/datasources/weight_estimation_local_datasource.dart';
 import '../../data/repositories/cattle_repository_impl.dart';
 import '../../data/repositories/frame_repository_impl.dart';
 import '../../data/repositories/weight_estimation_repository_impl.dart';
+import '../../data/repositories/weight_history_repository_impl.dart';
 import '../../domain/repositories/cattle_repository.dart';
 import '../../domain/repositories/frame_repository.dart';
 import '../../domain/repositories/weight_estimation_repository.dart';
+import '../../domain/repositories/weight_history_repository.dart';
 import '../../domain/usecases/capture_frames_usecase.dart';
 import '../../domain/usecases/estimate_weight_usecase.dart';
+import '../../domain/usecases/get_weight_history_usecase.dart';
 import '../../domain/usecases/register_cattle_usecase.dart';
 
 /// Contenedor de dependencias
@@ -49,11 +52,13 @@ class DependencyInjection {
   late final FrameRepository _frameRepository;
   late final WeightEstimationRepository _weightEstimationRepository;
   late final CattleRepository _cattleRepository;
+  late final WeightHistoryRepository _weightHistoryRepository;
 
   // UseCases
   late final CaptureFramesUseCase _captureFramesUseCase;
   late final EstimateWeightUseCase _estimateWeightUseCase;
   late final RegisterCattleUseCase _registerCattleUseCase;
+  late final GetWeightHistoryUseCase _getWeightHistoryUseCase;
 
   /// Inicializa todas las dependencias
   void init() {
@@ -88,6 +93,12 @@ class DependencyInjection {
       localDataSource: _cattleLocalDataSource,
     );
 
+    // Repositories - US-004
+    _weightHistoryRepository = WeightHistoryRepositoryImpl(
+      weightEstimationDataSource: _weightEstimationLocalDataSource,
+      cattleDataSource: _cattleLocalDataSource,
+    );
+
     // UseCases - US-001
     _captureFramesUseCase = CaptureFramesUseCase(_frameRepository);
 
@@ -96,6 +107,11 @@ class DependencyInjection {
 
     // UseCases - US-003
     _registerCattleUseCase = RegisterCattleUseCase(_cattleRepository);
+
+    // UseCases - US-004
+    _getWeightHistoryUseCase = GetWeightHistoryUseCase(
+      repository: _weightHistoryRepository,
+    );
   }
 
   // Getters - Services
@@ -119,6 +135,12 @@ class DependencyInjection {
   CattleLocalDataSource get cattleLocalDataSource => _cattleLocalDataSource;
   CattleRepository get cattleRepository => _cattleRepository;
   RegisterCattleUseCase get registerCattleUseCase => _registerCattleUseCase;
+
+  // Getters - US-004
+  WeightHistoryRepository get weightHistoryRepository =>
+      _weightHistoryRepository;
+  GetWeightHistoryUseCase get getWeightHistoryUseCase =>
+      _getWeightHistoryUseCase;
 
   /// Libera recursos
   Future<void> dispose() async {

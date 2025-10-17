@@ -16,6 +16,7 @@ import 'core/theme/app_theme.dart';
 import 'presentation/providers/capture_provider.dart';
 import 'presentation/providers/cattle_provider.dart';
 import 'presentation/providers/weight_estimation_provider.dart';
+import 'presentation/providers/weight_history_provider.dart';
 
 void main() async {
   // Asegurar inicialización de Flutter
@@ -58,8 +59,14 @@ class MyApp extends StatelessWidget {
               CattleProvider(registerCattleUseCase: di.registerCattleUseCase),
         ),
 
+        // Provider para historial de peso (US-004)
+        ChangeNotifierProvider(
+          create: (_) => WeightHistoryProvider(
+            getWeightHistoryUseCase: di.getWeightHistoryUseCase,
+          ),
+        ),
+
         // TODO: Agregar más providers según se implementen US
-        // US-004: AnalysisProvider
         // US-005: SyncProvider
         // US-006: SearchProvider
       ],

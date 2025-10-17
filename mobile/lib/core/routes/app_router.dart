@@ -1,5 +1,5 @@
 /// App Router
-/// 
+///
 /// Gestión de rutas de navegación de la aplicación.
 /// Single Responsibility: Definir y gestionar todas las rutas.
 ///
@@ -12,6 +12,7 @@ import '../../presentation/pages/capture/capture_page.dart';
 import '../../presentation/pages/cattle_registration/cattle_registration_page.dart';
 import '../../presentation/pages/home/home_page.dart';
 import '../../presentation/pages/weight_estimation/weight_estimation_page.dart';
+import '../../presentation/pages/weight_history/weight_history_page.dart';
 
 /// Nombres de rutas
 class AppRoutes {
@@ -19,11 +20,12 @@ class AppRoutes {
   static const String capture = '/capture';
   static const String weightEstimation = '/weight-estimation';
   static const String cattleRegistration = '/cattle-registration';
-  
-  // TODO: Agregar rutas para US-004, US-005, US-006, etc.
+  static const String weightHistory = '/weight-history';
+
+  // TODO: Agregar rutas para US-005, US-006, etc.
   // static const String cattleList = '/cattle-list';
   // static const String cattleDetail = '/cattle-detail';
-  // static const String analysis = '/analysis';
+  // static const String sync = '/sync';
   // static const String settings = '/settings';
 }
 
@@ -51,16 +53,26 @@ class AppRouter {
         final cattleId = args?['cattleId'] as String?;
 
         return MaterialPageRoute(
-          builder: (_) => WeightEstimationPage(
-            framePath: framePath,
-            cattleId: cattleId,
-          ),
+          builder: (_) =>
+              WeightEstimationPage(framePath: framePath, cattleId: cattleId),
           settings: settings,
         );
 
       case AppRoutes.cattleRegistration:
         return MaterialPageRoute(
           builder: (_) => const CattleRegistrationPage(),
+          settings: settings,
+        );
+
+      case AppRoutes.weightHistory:
+        // Espera argumentos: { 'cattleId': String, 'cattleName': String }
+        final args = settings.arguments as Map<String, dynamic>?;
+        final cattleId = args?['cattleId'] as String? ?? '';
+        final cattleName = args?['cattleName'] as String? ?? 'Animal';
+
+        return MaterialPageRoute(
+          builder: (_) =>
+              WeightHistoryPage(cattleId: cattleId, cattleName: cattleName),
           settings: settings,
         );
 
@@ -75,18 +87,12 @@ class AppRouter {
   static Route<dynamic> _errorRoute(String? routeName) {
     return MaterialPageRoute(
       builder: (_) => Scaffold(
-        appBar: AppBar(
-          title: const Text('Error'),
-        ),
+        appBar: AppBar(title: const Text('Error')),
         body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(
-                Icons.error_outline,
-                size: 80,
-                color: Colors.red,
-              ),
+              const Icon(Icons.error_outline, size: 80, color: Colors.red),
               const SizedBox(height: 16),
               Text(
                 'Ruta no encontrada: $routeName',
@@ -106,11 +112,7 @@ class AppRouter {
     String routeName, {
     Object? arguments,
   }) {
-    return Navigator.pushNamed<T>(
-      context,
-      routeName,
-      arguments: arguments,
-    );
+    return Navigator.pushNamed<T>(context, routeName, arguments: arguments);
   }
 
   /// Navegación con reemplazo de ruta actual
@@ -145,4 +147,3 @@ class AppRouter {
     Navigator.pop(context, result);
   }
 }
-
