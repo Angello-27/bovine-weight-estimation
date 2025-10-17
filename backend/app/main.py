@@ -6,6 +6,8 @@ Sistema de Estimación de Peso Bovino con IA
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.api.routes import sync_router
+
 app = FastAPI(
     title="Bovine Weight Estimation API",
     description="Sistema de Estimación de Peso Bovino con IA - Hacienda Gamelera",
@@ -23,6 +25,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Include Routers
+app.include_router(sync_router)  # US-005: Sincronización Offline
+
 
 @app.get("/")
 async def root():
@@ -38,11 +43,16 @@ async def root():
 
 @app.get("/health")
 async def health():
-    """Detailed health check"""
+    """
+    Detailed health check
+    
+    Note: Para sync health, usar /api/v1/sync/health
+    """
     return {
         "status": "healthy",
         "database": "pending",  # TODO: Check MongoDB connection
         "ml_models": "pending",  # TODO: Check TFLite models loaded
+        "sync_service": "active",  # US-005
     }
 
 
