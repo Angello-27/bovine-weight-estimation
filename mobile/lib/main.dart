@@ -15,6 +15,7 @@ import 'core/routes/app_router.dart';
 import 'core/theme/app_theme.dart';
 import 'presentation/providers/capture_provider.dart';
 import 'presentation/providers/cattle_provider.dart';
+import 'presentation/providers/sync_provider.dart';
 import 'presentation/providers/weight_estimation_provider.dart';
 import 'presentation/providers/weight_history_provider.dart';
 
@@ -66,8 +67,17 @@ class MyApp extends StatelessWidget {
           ),
         ),
 
+        // Provider para sincronización (US-005)
+        ChangeNotifierProvider(
+          create: (_) => SyncProvider(
+            syncPendingItemsUseCase: di.syncPendingItemsUseCase,
+            getPendingCountUseCase: di.getPendingCountUseCase,
+            triggerManualSyncUseCase: di.triggerManualSyncUseCase,
+            checkConnectivityUseCase: di.checkConnectivityUseCase,
+          ),
+        ),
+
         // TODO: Agregar más providers según se implementen US
-        // US-005: SyncProvider
         // US-006: SearchProvider
       ],
       child: MaterialApp(

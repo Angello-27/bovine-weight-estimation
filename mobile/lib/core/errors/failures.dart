@@ -1,5 +1,5 @@
 /// Failures (Errores de Dominio)
-/// 
+///
 /// Define todos los posibles fallos que pueden ocurrir en la aplicación.
 /// Siguiendo Clean Architecture, los Failures son para el Domain Layer.
 ///
@@ -13,10 +13,7 @@ abstract class Failure extends Equatable {
   final String message;
   final String? code;
 
-  const Failure({
-    required this.message,
-    this.code,
-  });
+  const Failure({required this.message, this.code});
 
   @override
   List<Object?> get props => [message, code];
@@ -27,10 +24,7 @@ abstract class Failure extends Equatable {
 
 /// Fallo al capturar fotograma
 class CameraFailure extends Failure {
-  const CameraFailure({
-    required super.message,
-    super.code = 'CAMERA_ERROR',
-  });
+  const CameraFailure({required super.message, super.code = 'CAMERA_ERROR'});
 }
 
 /// Fallo al acceder a la cámara (permisos)
@@ -51,10 +45,7 @@ class CameraInitializationFailure extends Failure {
 
 /// Fallo al guardar fotograma
 class StorageFailure extends Failure {
-  const StorageFailure({
-    required super.message,
-    super.code = 'STORAGE_ERROR',
-  });
+  const StorageFailure({required super.message, super.code = 'STORAGE_ERROR'});
 }
 
 /// Fallo al acceder a SQLite
@@ -91,10 +82,7 @@ class NetworkFailure extends Failure {
 
 /// Fallo del servidor (Backend API)
 class ServerFailure extends Failure {
-  const ServerFailure({
-    required super.message,
-    super.code = 'SERVER_ERROR',
-  });
+  const ServerFailure({required super.message, super.code = 'SERVER_ERROR'});
 }
 
 /// Fallo desconocido o inesperado
@@ -123,9 +111,18 @@ class InferenceFailure extends Failure {
 
 /// Fallo al sincronizar con backend
 class SyncFailure extends Failure {
-  const SyncFailure({
-    required super.message,
-    super.code = 'SYNC_ERROR',
-  });
+  const SyncFailure({required super.message, super.code = 'SYNC_ERROR'});
 }
 
+/// Fallo por timeout
+class TimeoutFailure extends Failure {
+  const TimeoutFailure({required super.message, super.code = 'TIMEOUT_ERROR'});
+}
+
+/// Fallo inesperado
+class UnexpectedFailure extends Failure {
+  const UnexpectedFailure({
+    required super.message,
+    super.code = 'UNEXPECTED_ERROR',
+  });
+}

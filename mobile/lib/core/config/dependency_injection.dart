@@ -20,10 +20,18 @@ import '../../domain/repositories/cattle_repository.dart';
 import '../../domain/repositories/frame_repository.dart';
 import '../../domain/repositories/weight_estimation_repository.dart';
 import '../../domain/repositories/weight_history_repository.dart';
+import '../../data/datasources/sync_queue_local_datasource.dart';
+import '../../data/datasources/sync_remote_datasource.dart';
+import '../../data/repositories/sync_repository_impl.dart';
+import '../../domain/repositories/sync_repository.dart';
 import '../../domain/usecases/capture_frames_usecase.dart';
+import '../../domain/usecases/check_connectivity_usecase.dart';
 import '../../domain/usecases/estimate_weight_usecase.dart';
+import '../../domain/usecases/get_pending_count_usecase.dart';
 import '../../domain/usecases/get_weight_history_usecase.dart';
 import '../../domain/usecases/register_cattle_usecase.dart';
+import '../../domain/usecases/sync_pending_items_usecase.dart';
+import '../../domain/usecases/trigger_manual_sync_usecase.dart';
 
 /// Contenedor de dependencias
 ///
@@ -48,17 +56,26 @@ class DependencyInjection {
   // DataSources - US-003
   late final CattleLocalDataSource _cattleLocalDataSource;
 
+  // DataSources - US-005
+  late final SyncQueueLocalDataSource _syncQueueLocalDataSource;
+  late final SyncRemoteDataSource _syncRemoteDataSource;
+
   // Repositories
   late final FrameRepository _frameRepository;
   late final WeightEstimationRepository _weightEstimationRepository;
   late final CattleRepository _cattleRepository;
   late final WeightHistoryRepository _weightHistoryRepository;
+  late final SyncRepository _syncRepository;
 
   // UseCases
   late final CaptureFramesUseCase _captureFramesUseCase;
   late final EstimateWeightUseCase _estimateWeightUseCase;
   late final RegisterCattleUseCase _registerCattleUseCase;
   late final GetWeightHistoryUseCase _getWeightHistoryUseCase;
+  late final SyncPendingItemsUseCase _syncPendingItemsUseCase;
+  late final GetPendingCountUseCase _getPendingCountUseCase;
+  late final TriggerManualSyncUseCase _triggerManualSyncUseCase;
+  late final CheckConnectivityUseCase _checkConnectivityUseCase;
 
   /// Inicializa todas las dependencias
   void init() {
@@ -75,6 +92,13 @@ class DependencyInjection {
 
     // DataSources - US-003
     _cattleLocalDataSource = CattleLocalDataSourceImpl();
+
+    // DataSources - US-005
+    _syncQueueLocalDataSource = SyncQueueLocalDataSourceImpl();
+    _syncRemoteDataSource = SyncRemoteDataSourceFactory.create(
+      // TODO: Cargar baseUrl desde .env en producción
+      baseUrl: 'http://localhost:8000',
+    );
 
     // Repositories - US-001
     _frameRepository = FrameRepositoryImpl(
@@ -99,6 +123,16 @@ class DependencyInjection {
       cattleDataSource: _cattleLocalDataSource,
     );
 
+    // Repositories - US-005
+    _syncRepository = SyncRepositoryImpl(
+      syncQueueLocal: _syncQueueLocalDataSource,
+      cattleLocal: _cattleLocalDataSource,
+      weightEstimationLocal: _weightEstimationLocalDataSource,
+      syncRemote: _syncRemoteDataSource,
+      // TODO: Generar deviceId único al instalar la app
+      deviceId: 'dev-device-001',
+    );
+
     // UseCases - US-001
     _captureFramesUseCase = CaptureFramesUseCase(_frameRepository);
 
@@ -112,6 +146,12 @@ class DependencyInjection {
     _getWeightHistoryUseCase = GetWeightHistoryUseCase(
       repository: _weightHistoryRepository,
     );
+
+    // UseCases - US-005
+    _syncPendingItemsUseCase = SyncPendingItemsUseCase(_syncRepository);
+    _getPendingCountUseCase = GetPendingCountUseCase(_syncRepository);
+    _triggerManualSyncUseCase = TriggerManualSyncUseCase(_syncRepository);
+    _checkConnectivityUseCase = CheckConnectivityUseCase(_syncRepository);
   }
 
   // Getters - Services
@@ -142,11 +182,23 @@ class DependencyInjection {
   GetWeightHistoryUseCase get getWeightHistoryUseCase =>
       _getWeightHistoryUseCase;
 
+  // Getters - US-005
+  SyncRepository get syncRepository => _syncRepository;
+  SyncPendingItemsUseCase get syncPendingItemsUseCase =>
+      _syncPendingItemsUseCase;
+  GetPendingCountUseCase get getPendingCountUseCase => _getPendingCountUseCase;
+  TriggerManualSyncUseCase get triggerManualSyncUseCase =>
+      _triggerManualSyncUseCase;
+  CheckConnectivityUseCase get checkConnectivityUseCase =>
+      _checkConnectivityUseCase;
+
   /// Libera recursos
   Future<void> dispose() async {
     await _frameLocalDataSource.close();
     await _weightEstimationLocalDataSource.close();
     await _cattleLocalDataSource.close();
+    await _syncQueueLocalDataSource.close();
     await _tfliteDataSource.dispose();
+    await _syncRepository.stopAutoSyncListener();
   }
 }

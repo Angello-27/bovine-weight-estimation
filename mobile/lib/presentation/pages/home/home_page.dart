@@ -7,11 +7,13 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../../../core/config/app_config.dart';
 import '../../../core/routes/app_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
+import '../../providers/sync_provider.dart';
 import '../../widgets/molecules/action_tile.dart';
 import 'widgets/home_stat_card.dart';
 
@@ -39,7 +41,7 @@ class HomePage extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Título con logo
+                    // Título con logo + indicador de sincronización
                     Row(
                       children: [
                         Container(
@@ -78,6 +80,64 @@ class HomePage extends StatelessWidget {
                               ),
                             ],
                           ),
+                        ),
+                        // Indicador de sincronización (US-005)
+                        Consumer<SyncProvider>(
+                          builder: (context, syncProvider, _) {
+                            return GestureDetector(
+                              onTap: () =>
+                                  Navigator.pushNamed(context, AppRoutes.sync),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: AppSpacing.sm,
+                                  vertical: AppSpacing.xs,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withValues(alpha: 0.2),
+                                  borderRadius: BorderRadius.circular(
+                                    AppSpacing.borderRadiusLarge,
+                                  ),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      syncProvider.isSyncing
+                                          ? Icons.sync_rounded
+                                          : syncProvider.isOffline
+                                          ? Icons.cloud_off_rounded
+                                          : Icons.cloud_done_rounded,
+                                      color: Colors.white,
+                                      size: 16,
+                                    ),
+                                    if (syncProvider.hasPendingItems) ...[
+                                      const SizedBox(width: 4),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 6,
+                                          vertical: 2,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: Colors.amber.shade600,
+                                          borderRadius: BorderRadius.circular(
+                                            10,
+                                          ),
+                                        ),
+                                        child: Text(
+                                          '${syncProvider.pendingCount}',
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
                         ),
                       ],
                     ),

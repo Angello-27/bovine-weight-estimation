@@ -1,5 +1,5 @@
 /// Exceptions (Excepciones Técnicas)
-/// 
+///
 /// Define todas las excepciones que pueden ocurrir en Data Layer.
 /// Siguiendo Clean Architecture, las Exceptions son para Data Layer
 /// y luego se convierten en Failures en Domain Layer.
@@ -12,10 +12,7 @@ class AppException implements Exception {
   final String message;
   final String? code;
 
-  const AppException({
-    required this.message,
-    this.code,
-  });
+  const AppException({required this.message, this.code});
 
   @override
   String toString() => 'AppException(message: $message, code: $code)';
@@ -108,3 +105,23 @@ class ModelException extends AppException {
   });
 }
 
+/// Excepción de timeout
+class TimeoutException extends AppException {
+  const TimeoutException({
+    required super.message,
+    super.code = 'TIMEOUT_EXCEPTION',
+  });
+}
+
+/// Excepción de autenticación
+class AuthException extends AppException {
+  const AuthException({required super.message, super.code = 'AUTH_EXCEPTION'});
+}
+
+/// Excepción de operación cancelada
+class CancelledException extends AppException {
+  const CancelledException({
+    required super.message,
+    super.code = 'CANCELLED_EXCEPTION',
+  });
+}
