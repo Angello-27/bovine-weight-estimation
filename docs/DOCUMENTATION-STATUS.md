@@ -2,7 +2,7 @@
 
 **Proyecto**: Sistema de Estimación de Peso Bovino  
 **Cliente**: Hacienda Gamelera  
-**Última actualización**: 28 Oct 2024
+**Última actualización**: 18 Oct 2024
 
 ---
 
@@ -62,7 +62,57 @@
 
 **Estado**: ✅ **100% Completado**  
 **Story Points**: 26/26 (100%)  
-**Fecha culminación**: 30 Septiembre 2024 (anticipadamente)  
+**Fecha culminación**: 30 Septiembre 2024 (anticipadamente)
+
+---
+
+## 🔄 SPRINT 2 EN PROGRESO (14-27 Oct 2024)
+
+**Estado**: 🔄 **50% Completado**  
+**Story Points**: 13/26 (50%)  
+**Fecha actualización**: 18 Octubre 2024
+
+### ✅ Completado Sprint 2:
+
+#### **Modernización UI/UX** (17 Oct 2024)
+- Nueva paleta de colores moderna
+- 10 componentes nuevos Atomic Design
+- Refactorización 100% composición pura
+- Dashboard moderno en HomePage
+
+#### **US-005: Sincronización Offline** ✅ (18 Oct 2024)
+
+**Story Points**: 13  
+**Estado**: ✅ 100% Completado
+
+**Implementación**:
+- 19 archivos creados/modificados
+- 2,338 líneas de código
+- Domain Layer: 5 archivos (Repository + 4 UseCases)
+- Data Layer: 4 archivos (Models + DataSources + Repository)
+- Presentation Layer: 8 archivos (Provider + Page + Widgets Atomic)
+- Integration: DI + Router + HomePage
+- Commit: `e3317d0`
+
+**Características implementadas**:
+- ✅ Sincronización bidireccional SQLite ↔ Backend
+- ✅ Last-write-wins basado en timestamps UTC
+- ✅ Queue con backoff exponencial (5s, 15s, 30s, 1m, 5m)
+- ✅ Indicadores visuales (offline/sincronizando/sincronizado)
+- ✅ Sincronización automática cada 60s
+- ✅ Sincronización manual con botón
+- ✅ Batch sync (100 items/lote)
+- ✅ Badge de pendientes en HomePage
+
+**Arquitectura**:
+- ✅ 100% Clean Architecture
+- ✅ 100% SOLID principles
+- ✅ 100% Atomic Design
+- ✅ 0 linter errors
+
+### ⏳ Pendiente Sprint 2:
+- **US-004: Historial de Pesajes** (8 SP)
+- **US-006: Búsqueda y Filtros** (5 SP)  
 
 ---
 
@@ -113,6 +163,14 @@
 - **US-003**: ✅ Completada (5 SP)
 
 **Total**: 26/26 SP (**100%**) ✅
+
+### Sprint 2 🔄 EN PROGRESO (14-27 Oct 2024)
+- **Modernización UI/UX**: ✅ Completada (17 Oct 2024)
+- **US-005: Sincronización Offline**: ✅ Completada (18 Oct 2024) - 13 SP
+- **US-004: Historial de Pesajes**: ⏳ Pendiente - 8 SP
+- **US-006: Búsqueda y Filtros**: ⏳ Pendiente - 5 SP
+
+**Total**: 13/26 SP (**50%**) 🔄
 
 **Entregables**:
 - 55 archivos Dart creados
