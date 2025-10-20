@@ -1,54 +1,199 @@
-# Backend API - Sistema de Estimación de Peso Bovino
+# Backend FastAPI - Sistema de Estimación de Peso Bovino
 
-API FastAPI para sincronización y análisis avanzado - Hacienda Gamelera.
+**Cliente**: Hacienda Gamelera (Bruno Brito Macedo)  
+**Stack**: Python 3.11+ | FastAPI | MongoDB (Beanie ODM) | TensorFlow  
+**Arquitectura**: Clean Architecture + SOLID Principles
 
-## 🏗️ Arquitectura
+---
+
+## 🏗️ Arquitectura Backend (Clean Architecture)
 
 ```
-app/
-├── api/            # Routes, Dependencies
-├── core/           # Config, Constants, Errors
-├── models/         # MongoDB Models (Beanie ODM)
-├── schemas/        # Pydantic Schemas
-├── services/       # Business Logic
-└── utils/          # Utilidades
+backend/app/
+├── core/                      # Core Layer (independiente)
+│   ├── config.py              # Configuración (Pydantic Settings)
+│   ├── constants/             # Constantes del dominio
+│   │   ├── breeds.py          # 7 razas exactas
+│   │   ├── age_categories.py  # 4 categorías de edad
+│   │   ├── metrics.py         # Métricas del sistema
+│   │   └── hacienda.py        # Datos Hacienda Gamelera
+│   └── errors/
+│       └── exceptions.py      # Excepciones personalizadas
+│
+├── models/                    # Data Layer (Beanie ODM)
+│   ├── animal_model.py        # Modelo MongoDB de animales
+│   └── weight_estimation_model.py  # Modelo de pesajes
+│
+├── schemas/                   # API Layer (Pydantic DTOs)
+│   ├── animal_schemas.py      # Request/Response animales
+│   ├── weighing_schemas.py    # Request/Response pesajes
+│   └── sync_schemas.py        # DTOs sincronización
+│
+├── services/                  # Business Logic Layer
+│   ├── animal_service.py      # Lógica de negocio animales
+│   ├── weighing_service.py    # Lógica de negocio pesajes
+│   └── sync_service.py        # Lógica sincronización
+│
+├── api/routes/                # Presentation Layer (Routers)
+│   ├── animals.py             # 5 endpoints CRUD animales
+│   ├── weighings.py           # 4 endpoints pesajes
+│   └── sync.py                # 3 endpoints sincronización
+│
+└── main.py                    # Application entry point
 ```
 
-## 🎯 Características
+---
 
-- Sincronización bidireccional con MongoDB
-- Endpoints REST para análisis y reportes
-- Integración con entidades regulatorias (SENASAG, REGENSA, ASOCEBU)
+## 🚀 Inicio Rápido
 
-## 📋 Requisitos
-
-- Python 3.11+
-- MongoDB 5.0+
-
-## 🚀 Instalación
+### 1. Instalación
 
 ```bash
-# Instalar dependencias
+cd backend
+python -m venv venv
+source venv/bin/activate  # Windows: venv\Scripts\activate
 pip install -r requirements.txt
-
-# Ejecutar servidor
-python -m app.main
 ```
+
+### 2. Configuración MongoDB
+
+**Opción A - MongoDB Local (Desarrollo):**
+```bash
+# macOS
+brew install mongodb-community@7.0
+brew services start mongodb-community
+
+# Ubuntu
+sudo apt install mongodb-org
+sudo systemctl start mongod
+```
+
+**Opción B - MongoDB Atlas (Cloud Gratuito):**
+1. Ir a https://www.mongodb.com/cloud/atlas
+2. Crear cuenta y cluster M0 (gratis)
+3. Obtener connection string
+4. Actualizar en `.env`
+
+### 3. Configurar Variables
+
+```bash
+cp .env.example .env
+# Editar .env con tu MONGODB_URL
+```
+
+### 4. Ejecutar Servidor
+
+```bash
+# Con auto-reload
+python -m app.main
+
+# O con uvicorn
+uvicorn app.main:app --reload
+```
+
+### 5. Verificar
+
+- **API Docs**: http://localhost:8000/api/docs
+- **Health**: http://localhost:8000/health
+
+---
+
+## 📚 API Endpoints
+
+### 🐄 Animals (US-003)
+
+| Método | Endpoint | Descripción |
+|--------|----------|-------------|
+| POST | `/api/v1/animals` | Crear animal |
+| GET | `/api/v1/animals/{id}` | Obtener por ID |
+| GET | `/api/v1/animals?farm_id=...` | Listar (paginado) |
+| PUT | `/api/v1/animals/{id}` | Actualizar |
+| DELETE | `/api/v1/animals/{id}` | Eliminar (soft) |
+
+### ⚖️ Weighings (US-002, US-004)
+
+| Método | Endpoint | Descripción |
+|--------|----------|-------------|
+| POST | `/api/v1/weighings` | Crear estimación |
+| GET | `/api/v1/weighings/{id}` | Obtener por ID |
+| GET | `/api/v1/weighings/animal/{id}` | Historial |
+| GET | `/api/v1/weighings` | Listar todas |
+
+### 🔄 Sync (US-005)
+
+| Método | Endpoint | Descripción |
+|--------|----------|-------------|
+| POST | `/api/v1/sync/cattle` | Batch animales |
+| POST | `/api/v1/sync/weight-estimations` | Batch pesajes |
+| GET | `/api/v1/sync/health` | Health check |
+
+---
+
+## 🎯 Constantes del Dominio
+
+### 7 Razas Bovinas (NO MODIFICAR)
+
+1. Brahman (Bos indicus)
+2. Nelore (Bos indicus)
+3. Angus (Bos taurus)
+4. Cebuinas (Bos indicus)
+5. Criollo (Bos taurus)
+6. Pardo Suizo (Bos taurus)
+7. Jersey (Bos taurus)
+
+### 4 Categorías de Edad
+
+1. Terneros (<8 meses)
+2. Vaquillonas/Torillos (6-18 meses)
+3. Vaquillonas/Toretes (19-30 meses)
+4. Vacas/Toros (>30 meses)
+
+### Métricas del Sistema
+
+- **Precisión ML**: ≥95% (R² ≥ 0.95)
+- **Error absoluto**: <5 kg
+- **Tiempo procesamiento**: <3 segundos
+- **Confidence mínimo**: ≥80%
+
+---
 
 ## 🧪 Testing
 
 ```bash
-pytest tests/ -v
-pytest --cov=app tests/
+# Todos los tests
+pytest
+
+# Con cobertura
+pytest --cov=app --cov-report=html
+
+# Solo unit tests
+pytest tests/unit/ -v
 ```
 
-## 🔧 Configuración
+---
 
-Copiar `.env.example` a `.env` y configurar variables.
+## 🔧 Desarrollo
 
-## 📊 Datos Críticos
+### Code Quality
 
-**7 Razas**: Brahman, Nelore, Angus, Cebuinas, Criollo, Pardo Suizo, Jersey  
-**Owner**: Bruno Brito Macedo  
-**Ubicación**: San Ignacio de Velasco, Santa Cruz, Bolivia
+```bash
+# Formatear código
+black app/
+
+# Ordenar imports
+isort app/
+
+# Linting
+flake8 app/
+ruff check app/
+
+# Type checking
+mypy app/
+```
+
+---
+
+**Hacienda Gamelera** - Bruno Brito Macedo  
+**Versión**: 1.0.0  
+**Última actualización**: 20 Oct 2024
 
