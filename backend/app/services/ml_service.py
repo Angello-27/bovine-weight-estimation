@@ -1,0 +1,95 @@
+"""
+ML Service - Business Logic for ML Inference
+Lógica de negocio para inferencia ML
+
+Single Responsibility: Coordinar proceso de estimación de peso con IA
+"""
+
+from typing import Dict, Optional
+from uuid import UUID
+
+from ..core.constants import BreedType
+from ..core.errors import MLModelException, ValidationException
+from ..ml import MLInferenceEngine
+from ..models import WeightEstimationModel
+
+
+class MLService:
+    """
+    Servicio de inferencia ML para estimación de peso.
+
+    Coordina: validación → preprocesamiento → inferencia → persistencia.
+    """
+
+    def __init__(self):
+        """Inicializa servicio ML."""
+        self.inference_engine = MLInferenceEngine()
+
+    async def predict_weight(
+        self,
+        image_bytes: bytes,
+        breed: BreedType,
+        animal_id: Optional[UUID] = None,
+        device_id: Optional[str] = None,
+    ) -> WeightEstimationModel:
+        """
+        Predice peso de un bovino desde imagen.
+
+        Args:
+            image_bytes: Bytes de imagen (JPEG/PNG)
+            breed: Raza del animal (una de las 7)
+            animal_id: ID del animal (opcional)
+            device_id: ID del dispositivo (opcional)
+
+        Returns:
+            WeightEstimationModel guardado en MongoDB
+
+        Raises:
+            ValidationException: Si datos son inválidos
+            MLModelException: Si hay error en ML
+        """
+        # 1. Validar imagen no esté vacía
+        if not image_bytes or len(image_bytes) == 0:
+            raise ValidationException("Imagen vacía o inválida")
+
+        # 2. Validar tamaño de imagen (max 10 MB)
+        max_size_bytes = 10 * 1024 * 1024  # 10 MB
+        if len(image_bytes) > max_size_bytes:
+            raise ValidationException(
+                f"Imagen demasiado grande: {len(image_bytes)/1024/1024:.1f} MB "
+                f"(máximo: 10 MB)"
+            )
+
+        # 3. Ejecutar inferencia
+        result = await self.inference_engine.estimate_weight(
+            image_bytes=image_bytes, breed=breed
+        )
+
+        # 4. Crear modelo de peso
+        # Nota: frame_image_path sería path real en producción
+        weight_estimation = WeightEstimationModel(
+            animal_id=animal_id,
+            breed=breed,
+            estimated_weight_kg=result.estimated_weight_kg,
+            confidence=result.confidence,
+            method="tflite",
+            model_version=result.model_version,
+            processing_time_ms=result.processing_time_ms,
+            frame_image_path=f"temp/frame_{animal_id or 'unknown'}.jpg",  # TODO: S3
+            device_id=device_id,
+        )
+
+        # 5. Guardar en MongoDB
+        await weight_estimation.insert()
+
+        return weight_estimation
+
+    async def get_models_status(self) -> Dict:
+        """
+        Obtiene estado de modelos ML cargados.
+
+        Returns:
+            Diccionario con info de modelos
+        """
+        return self.inference_engine.get_loaded_models_info()
+

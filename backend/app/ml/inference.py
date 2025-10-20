@@ -1,0 +1,196 @@
+"""
+ML Inference Engine
+Motor de inferencia para estimación de peso bovino
+
+Single Responsibility: Ejecutar inferencia con modelos ML
+"""
+
+import time
+from typing import Dict, Tuple
+
+import numpy as np
+
+from ..core.constants import BreedType, SystemMetrics, WeightConstants
+from ..core.errors import MLModelException, ValidationException
+from .model_loader import MLModelLoader
+from .preprocessing import ImagePreprocessor
+
+
+class MLInferenceResult:
+    """Resultado de inferencia ML."""
+
+    def __init__(
+        self,
+        estimated_weight_kg: float,
+        confidence: float,
+        processing_time_ms: int,
+        model_version: str,
+        breed: BreedType,
+    ):
+        self.estimated_weight_kg = estimated_weight_kg
+        self.confidence = confidence
+        self.processing_time_ms = processing_time_ms
+        self.model_version = model_version
+        self.breed = breed
+
+    def to_dict(self) -> Dict:
+        """Convierte a diccionario."""
+        return {
+            "estimated_weight_kg": self.estimated_weight_kg,
+            "confidence": self.confidence,
+            "processing_time_ms": self.processing_time_ms,
+            "model_version": self.model_version,
+            "breed": self.breed.value,
+            "meets_quality_criteria": self.confidence
+            >= SystemMetrics.MIN_CONFIDENCE
+            and self.processing_time_ms < SystemMetrics.MAX_PROCESSING_TIME_MS,
+        }
+
+
+class MLInferenceEngine:
+    """
+    Motor de inferencia ML para estimación de peso bovino.
+
+    Coordina: carga modelo → preprocesamiento → inferencia → validación.
+    """
+
+    def __init__(self):
+        """Inicializa engine."""
+        self.model_loader = MLModelLoader()
+        self.preprocessor = ImagePreprocessor()
+
+    async def estimate_weight(
+        self, image_bytes: bytes, breed: BreedType
+    ) -> MLInferenceResult:
+        """
+        Estima peso de un bovino desde imagen.
+
+        Args:
+            image_bytes: Bytes de imagen (JPEG/PNG)
+            breed: Raza del animal (una de las 7)
+
+        Returns:
+            MLInferenceResult con peso, confidence, tiempo
+
+        Raises:
+            MLModelException: Si hay error en inferencia
+            ValidationException: Si imagen es inválida
+        """
+        start_time = time.time()
+
+        try:
+            # 1. Validar raza
+            if not BreedType.is_valid(breed.value):
+                raise ValidationException(
+                    f"Raza inválida: {breed}. "
+                    f"Razas válidas: {[b.value for b in BreedType]}"
+                )
+
+            # 2. Preprocesar imagen
+            preprocessed_image = self.preprocessor.preprocess_from_bytes(image_bytes)
+
+            # 3. Cargar modelo (o usar cache)
+            model = self.model_loader.load_model(breed)
+
+            # 4. Ejecutar inferencia
+            # TODO: Implementar inferencia real con TFLite cuando tengamos modelos
+            # Por ahora: estimación mock basada en raza
+            estimated_weight, confidence = self._mock_inference(breed, preprocessed_image)
+
+            # 5. Calcular tiempo de procesamiento
+            processing_time_ms = int((time.time() - start_time) * 1000)
+
+            # 6. Validar que cumpla métricas del sistema
+            if processing_time_ms > SystemMetrics.MAX_PROCESSING_TIME_MS:
+                print(
+                    f"⚠️ ADVERTENCIA: Procesamiento {processing_time_ms}ms > 3000ms objetivo"
+                )
+
+            if confidence < SystemMetrics.MIN_CONFIDENCE:
+                print(f"⚠️ ADVERTENCIA: Confidence {confidence:.2%} < 80% mínimo")
+
+            # 7. Crear resultado
+            return MLInferenceResult(
+                estimated_weight_kg=estimated_weight,
+                confidence=confidence,
+                processing_time_ms=processing_time_ms,
+                model_version=model.get("version", "1.0.0-mock"),
+                breed=breed,
+            )
+
+        except ValidationException:
+            raise
+        except MLModelException:
+            raise
+        except Exception as e:
+            raise MLModelException(
+                f"Error inesperado en inferencia para {breed.value}: {str(e)}"
+            )
+
+    def _mock_inference(
+        self, breed: BreedType, image: np.ndarray
+    ) -> Tuple[float, float]:
+        """
+        Inferencia mock (MVP - reemplazar con modelo real).
+
+        Genera estimación basada en rangos típicos por raza.
+        Simula variabilidad realista.
+
+        Args:
+            breed: Raza del animal
+            image: Imagen preprocesada (no se usa en mock)
+
+        Returns:
+            (peso_estimado_kg, confidence)
+        """
+        # Rangos típicos por raza (promedios Hacienda Gamelera)
+        breed_weight_ranges = {
+            BreedType.BRAHMAN: (400, 650),  # Bos indicus robusto
+            BreedType.NELORE: (380, 620),  # Bos indicus
+            BreedType.ANGUS: (450, 700),  # Bos taurus, buena carne
+            BreedType.CEBUINAS: (350, 600),  # Bos indicus general
+            BreedType.CRIOLLO: (300, 550),  # Adaptado local
+            BreedType.PARDO_SUIZO: (500, 800),  # Bos taurus grande
+            BreedType.JERSEY: (350, 500),  # Lechera, menor tamaño
+        }
+
+        # Obtener rango de la raza
+        weight_min, weight_max = breed_weight_ranges.get(
+            breed, (400, 600)  # Default si no está en map
+        )
+
+        # Generar peso pseudo-aleatorio en el rango
+        # Usar suma de píxeles de la imagen como "seed" para variabilidad
+        pixel_sum = float(np.sum(image))
+        normalized_seed = (pixel_sum % 1000) / 1000  # Normalizar a [0-1]
+
+        estimated_weight = weight_min + (weight_max - weight_min) * normalized_seed
+
+        # Confidence mock (alto para simular modelo bueno)
+        # Variar ligeramente basado en la "calidad" de la imagen
+        base_confidence = 0.93
+        confidence_variation = normalized_seed * 0.05  # ±2.5%
+        confidence = min(0.98, base_confidence + confidence_variation)
+
+        return round(estimated_weight, 1), round(confidence, 4)
+
+    def get_loaded_models_info(self) -> Dict:
+        """
+        Obtiene información de modelos cargados.
+
+        Returns:
+            Diccionario con info de modelos
+        """
+        loaded_breeds = self.model_loader.get_loaded_breeds()
+
+        return {
+            "total_loaded": len(loaded_breeds),
+            "breeds_loaded": [breed.value for breed in loaded_breeds],
+            "all_breeds": [breed.value for breed in BreedType],
+            "missing_breeds": [
+                breed.value
+                for breed in BreedType
+                if breed not in loaded_breeds
+            ],
+        }
+

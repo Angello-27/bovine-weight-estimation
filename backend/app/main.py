@@ -12,7 +12,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
 
-from app.api.routes import animals_router, sync_router, weighings_router
+from app.api.routes import animals_router, ml_router, sync_router, weighings_router
 from app.core.config import settings
 from app.models import AnimalModel, WeightEstimationModel
 
@@ -73,6 +73,7 @@ app.add_middleware(
 # Include Routers (separados por dominio)
 app.include_router(animals_router)  # US-003: Registro de Animales
 app.include_router(weighings_router)  # US-002/US-004: Estimación y Historial
+app.include_router(ml_router)  # US-002: Inferencia ML (Core del proyecto)
 app.include_router(sync_router)  # US-005: Sincronización Offline
 
 
