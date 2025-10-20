@@ -13,7 +13,7 @@
 
 - **Sprint 0** (Planificación): Completado antes del 30 septiembre 2024 ✅
 - **Sprint 1**: 30 septiembre - 13 octubre 2024 (2 semanas) - Validación Core
-- **Sprint 2**: 14 octubre - 27 octubre 2024 (2 semanas) - **Presentación: 23 octubre**
+- **Sprint 2**: 14 octubre - 27 octubre 2024 (2 semanas) - **Presentación: 28 octubre**
 - **Sprint 3**: 28 octubre - 10 noviembre 2024 (2 semanas) - **Presentación: 6 noviembre** 🎯
 
 ## Problema Actual
@@ -327,7 +327,7 @@
 
 ### Sprint 2: Funcionalidad Completa (2 semanas)
 
-#### US-004: Historial de Pesajes
+#### US-004: Historial de Pesajes ✅ COMPLETADA
 
 **Como** ganadero  
 **Quiero** visualizar el historial completo de pesajes de cada animal con gráficos de evolución  
@@ -335,21 +335,30 @@
 
 **Criterios de aceptación**:
 
-- [ ] Lista cronológica detallada de todos los pesajes por animal: fecha, hora, peso, método (IA/Manual/Báscula), confidence, ubicación GPS
-- [ ] Gráfico de líneas de evolución de peso con eje X (tiempo) y eje Y (kg) renderizado en <2 segundos
-- [ ] Línea de tendencia con regresión lineal mostrando ganancia diaria promedio (GDP)
-- [ ] Indicadores clave: peso actual, peso inicial, ganancia total, GDP, proyección a 30/60/90 días
-- [ ] Filtros por período: última semana, último mes, último trimestre, último año, rango personalizado
-- [ ] Comparativa visual entre 2-5 animales seleccionados en mismo gráfico con colores diferenciados
-- [ ] Detección automática de anomalías: pérdida de peso >5%, estancamiento >15 días, bajo GDP para categoría
-- [ ] Exportación de historial individual en PDF profesional con logo, datos animal, gráficos, tabla de pesajes
-- [ ] Exportación masiva en CSV para análisis en Excel: animal_id, fecha, peso, método, confidence, GPS
-- [ ] Funcionalidad offline completa con sincronización de datos históricos
+- [x] Lista cronológica detallada de todos los pesajes por animal: fecha, hora, peso, método (IA/Manual/Báscula), confidence, ubicación GPS ✅
+- [x] Gráfico de líneas de evolución de peso con eje X (tiempo) y eje Y (kg) renderizado en <2 segundos ✅
+- [x] Línea de tendencia con regresión lineal mostrando ganancia diaria promedio (GDP) ✅
+- [x] Indicadores clave: peso actual, peso inicial, ganancia total, GDP, proyección a 30/60/90 días ✅
+- [x] Filtros por período: última semana, último mes, último trimestre, último año, rango personalizado ✅
+- [x] Comparativa visual entre 2-5 animales seleccionados en mismo gráfico con colores diferenciados ✅
+- [x] Detección automática de anomalías: pérdida de peso >5%, estancamiento >15 días, bajo GDP para categoría ✅
+- [x] Exportación de historial individual en PDF profesional con logo, datos animal, gráficos, tabla de pesajes ✅
+- [x] Exportación masiva en CSV para análisis en Excel: animal_id, fecha, peso, método, confidence, GPS ✅
+- [x] Funcionalidad offline completa con sincronización de datos históricos ✅
 
 **Story Points**: 8  
-**Prioridad**: Alta
+**Prioridad**: Alta  
 **Dependencias**: US-002 (requiere pesajes almacenados), US-003 (requiere animales registrados)  
-**Sprint**: Sprint 2
+**Sprint**: Sprint 2  
+**Estado**: ✅ **COMPLETADA** (20 Oct 2024)
+
+**Implementación**:
+- 5 use cases creados (calculate_gdp, detect_anomalies, export_pdf, export_csv, get_comparative_history)
+- Exportación PDF/CSV funcional con integración completa
+- Gráficos con fl_chart y línea de tendencia
+- Detección de 4 tipos de anomalías
+- 15 archivos modificados, 5 archivos nuevos (2,207 líneas)
+- Commit: `0c80b62`
 
 #### US-005: Sincronización Offline ✅ COMPLETADA
 

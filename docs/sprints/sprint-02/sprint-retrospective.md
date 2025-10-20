@@ -41,35 +41,39 @@ El Sprint 2 consolidó la funcionalidad del sistema con análisis histórico, si
   - ✅ Cero linter errors
   - ✅ Arquitectura Clean + SOLID preservada
 
-### US-004: Análisis Histórico de Peso
-- **Story Points**: 5
-- **Estado**: ✅ Completado
+### US-005: Sincronización Offline
+- **Story Points**: 13
+- **Estado**: ✅ Completado (18 Oct 2024)
 - **Logros**:
-  - Gráficos de tendencia de peso por animal
-  - Identificación automática de anomalías (pérdidas >5% en 7 días)
-  - Predicción de tendencias usando regresión lineal
-  - Cálculo de ganancia diaria promedio (GDP)
-  - Dashboard de análisis con filtros por raza y categoría
-
-### US-005: Sincronización Bidireccional con MongoDB
-- **Story Points**: 8
-- **Estado**: ✅ Completado
-- **Logros**:
-  - Sync strategy: SQLite (primary) ↔ MongoDB (secondary)
-  - Conflict resolution: Last-Write-Wins con timestamps
+  - Sincronización bidireccional SQLite ↔ Backend
+  - Conflict resolution: Last-Write-Wins con timestamps UTC
   - Batch sync optimizado (100 registros por lote)
-  - Sync manual + automático (configurable)
-  - Indicadores de estado de sincronización en UI
+  - Queue con backoff exponencial (5s, 15s, 30s, 1m, 5m)
+  - Sincronización automática cada 60s + manual
+  - Indicadores visuales (offline/sincronizando/sincronizado)
+  - Badge de pendientes en HomePage
+  - 19 archivos creados, 2,338 líneas
+
+### US-004: Historial de Pesajes con Gráficos
+- **Story Points**: 8
+- **Estado**: ✅ Completado (20 Oct 2024)
+- **Logros**:
+  - Gráficos de evolución de peso con fl_chart (LineChart)
+  - Línea de tendencia con regresión lineal
+  - Cálculo de Ganancia Diaria Promedio (GDP)
+  - Detección de 4 tipos de anomalías (pérdida >5%, estancamiento >15 días, GDP bajo, variaciones inusuales)
+  - Exportación PDF profesional (header Hacienda Gamelera, datos, gráficos, tabla)
+  - Exportación CSV compatible con Excel (14 columnas)
+  - Filtros por período (semana, mes, trimestre, año, personalizado)
+  - Proyecciones a 30/60/90 días
+  - Comparativa 2-5 animales (use case implementado)
+  - 20 archivos modificados/creados, 2,207 líneas
 
 ### US-006: Búsqueda y Filtrado Avanzado
 - **Story Points**: 5
-- **Estado**: ✅ Completado
-- **Logros**:
-  - Búsqueda por caravana, nombre, raza, categoría
-  - Filtros combinados (fecha, rango de peso, estado)
-  - Ordenamiento por múltiples criterios
-  - Resultados instantáneos (<200ms)
-  - UI intuitiva con chips de filtro activo
+- **Estado**: ⏳ Pendiente
+- **Progreso**: 0%
+- **Planificado**: Implementar antes del 27 Oct 2024
 
 ---
 

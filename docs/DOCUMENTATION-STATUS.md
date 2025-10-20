@@ -68,9 +68,9 @@
 
 ## 🔄 SPRINT 2 EN PROGRESO (14-27 Oct 2024)
 
-**Estado**: 🔄 **50% Completado**  
-**Story Points**: 13/26 (50%)  
-**Fecha actualización**: 18 Octubre 2024
+**Estado**: 🔄 **81% Completado**  
+**Story Points**: 21/26 (81%)  
+**Fecha actualización**: 20 Octubre 2024
 
 ### ✅ Completado Sprint 2:
 
@@ -110,9 +110,49 @@
 - ✅ 100% Atomic Design
 - ✅ 0 linter errors
 
+#### **US-004: Historial de Pesajes** ✅ (20 Oct 2024)
+
+**Story Points**: 8  
+**Estado**: ✅ 100% Completado
+
+**Implementación Técnica**:
+
+**Domain Layer** (5 use cases nuevos):
+- ✅ `calculate_gdp_usecase.dart` - Ganancia Diaria Promedio
+- ✅ `detect_anomalies_usecase.dart` - 4 tipos de anomalías
+- ✅ `export_pdf_usecase.dart` - Exportación PDF
+- ✅ `export_csv_usecase.dart` - Exportación CSV
+- ✅ `get_comparative_history_usecase.dart` - Comparativa
+
+**Data Layer**:
+- ✅ Exportación PDF/CSV completa
+- ✅ PDF profesional con header, estadísticas, proyecciones
+- ✅ CSV compatible con Excel (14 columnas)
+
+**Presentation Layer**:
+- ✅ `export_options_bottom_sheet.dart` funcional
+- ✅ Compartir/imprimir PDF
+- ✅ Guardar CSV
+
+**Características**:
+- ✅ Gráficos con fl_chart + línea de tendencia
+- ✅ Detección automática de anomalías
+- ✅ Filtros por período
+- ✅ Proyecciones a 30/60/90 días
+- ✅ 100% offline-first
+
+**Métricas**:
+- 20 archivos modificados/creados
+- 2,207 líneas de código
+- 10/10 criterios de aceptación
+- 0 linter errors
+
+**Commits**: `0c80b62`, `7df99a8`
+
+---
+
 ### ⏳ Pendiente Sprint 2:
-- **US-004: Historial de Pesajes** (8 SP)
-- **US-006: Búsqueda y Filtros** (5 SP)  
+- **US-006: Búsqueda y Filtros** (5 SP) - Por implementar (19%)  
 
 ---
 
