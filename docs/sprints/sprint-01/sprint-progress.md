@@ -53,30 +53,42 @@ Sprint 1 **completado exitosamente al 100%** el **30 de septiembre de 2024** (an
 
 ---
 
-### US-002: Estimación de Peso por Raza con IA ✅ COMPLETADA
-- **Story Points**: 13
-- **Estado**: ✅ Completado
-- **Progreso**: 100%
+### US-002: Estimación de Peso por Raza con IA 🟡 ARQUITECTURA COMPLETADA
+- **Story Points**: 13 (Arquitectura Sprint 1)
+- **Estado**: 🟡 30% Completado (Arquitectura lista, ML Training pendiente Sprints 4-6)
+- **Progreso**: Arquitectura 100%, Modelos ML 0%
 
-**Implementación completa**:
+**Implementación Sprint 1 (Arquitectura Mobile)**:
 - ✅ Domain Layer: WeightEstimation entity con ConfidenceLevel
-- ✅ Data Layer: TFLiteDataSource (7 modelos), WeightEstimationLocalDataSource (SQLite)
+- ✅ Data Layer: TFLiteDataSource (7 slots preparados), WeightEstimationLocalDataSource (SQLite)
 - ✅ Presentation Layer: WeightEstimationProvider + WeightEstimationPage
 - ✅ Atomic Design: BreedSelectorGrid (organism), WeightEstimationResultCard (widget)
 - ✅ Integración: US-001 → US-002 (navegación con framePath)
 - ✅ SOLID: 10 archivos, cada uno con Single Responsibility
 - ✅ SQLite: Tabla weight_estimations con índices (breed, cattle_id, timestamp, confidence)
 
-**Criterios de aceptación cumplidos** (9/9):
-1. ✅ 7 razas con modelos TFLite específicos
-2. ✅ TensorFlow Lite CNN (input 224x224x3)
-3. ✅ R² ≥0.95 validable (mock funcional)
-4. ✅ Error <5 kg (algoritmo preparado)
-5. ✅ Procesamiento <3s (validación en UseCase)
-6. ✅ Confidence score con colores (Verde >90%, Amarillo 80-90%, Rojo <80%)
-7. ✅ 100% offline
-8. ✅ Selección raza con Grid 3x3 visual
-9. ✅ Histórico SQLite con GPS, timestamps
+**Criterios de aceptación Sprint 1** (Arquitectura - 7/7):
+1. ✅ 7 razas con slots TFLite preparados (Brahman, Nelore, Angus, Cebuinas, Criollo, Pardo Suizo, Jersey)
+2. ✅ Pipeline TensorFlow Lite (input 224x224x3) funcional
+3. ✅ Procesamiento <3s (validación en UseCase)
+4. ✅ Confidence score con colores (Verde >90%, Amarillo 80-90%, Rojo <80%)
+5. ✅ 100% offline
+6. ✅ Selección raza con Grid 3x3 visual
+7. ✅ Histórico SQLite con GPS, timestamps
+
+**Estado actual de inferencia**:
+- ⚠️ **Modelos TFLite**: Usando reglas heurísticas por raza (NO modelos entrenados)
+- ⚠️ **Precisión R² ≥0.95**: Pendiente validación con modelos reales (Sprints 4-6)
+- ⚠️ **MAE <5 kg**: Pendiente medición con báscula de referencia
+
+**Estrategia de entrega incremental**:
+- ✅ **Sprint 1**: Arquitectura mobile preparada
+- 📋 **Sprint 3**: Fundamentación teórica + análisis datasets
+- 🔜 **Sprint 4**: Backend + 2 modelos ML (Brahman, Nelore)
+- 🔜 **Sprint 5**: 3 modelos adicionales (Angus, Cebuinas, Jersey)
+- 🔜 **Sprint 6**: Recolección + 2 finales (Criollo, Pardo Suizo)
+
+Ver: `ml-training/dataset-strategy.md` (771 líneas)
 
 ---
 

@@ -23,40 +23,60 @@
 
 ## Sprint Goal
 
-**"Integrar el sistema con las entidades normativas bolivianas (SENASAG, REGENSA/Gran Paitití, ASOCEBU) para garantizar cumplimiento legal obligatorio de trazabilidad ganadera y exportación de datos para competencias, demostrando sistema completo funcional y normativo el 6 de noviembre."**
+**"Presentar la fundamentación teórica completa del proyecto con análisis de datasets disponibles, roadmap técnico documentado de implementación ML (Sprints 4-6), y demostración de la aplicación Flutter funcional con arquitectura preparada para entrenamiento de modelos en fase posterior."**
 
 ## Objetivos Específicos
 
-### 1. Integrar con SENASAG (Trazabilidad Obligatoria)
+### 1. Fundamentación Teórica del Proyecto 📚
 
-- **Objetivo**: Generar reportes automáticos de trazabilidad ganadera cumpliendo normativa boliviana
-- **Criterio de éxito**: Bruno puede generar reportes SENASAG en PDF/CSV/XML sin errores y enviarlos automáticamente
-- **Validación**: Reporte mensual de inventario completo de Hacienda Gamelera (500 cabezas) generado y validado estructuralmente
+- **Objetivo**: Presentar base científica y técnica del proyecto de estimación de peso bovino con IA
+- **Criterio de éxito**: Documentación completa de arquitectura, análisis de datasets, y justificación de decisiones técnicas
+- **Validación**: Revisión académica de documentación técnica y presentación de fundamentación sólida
 
-### 2. Integrar con REGENSA/Gran Paitití (Capítulos 3.10 y 7.1)
+### 2. Análisis de Datasets Disponibles 🔬
 
-- **Objetivo**: Cumplir capítulos 3.10 y 7.1 del Reglamento General de Sanidad Animal con registro digital obligatorio
-- **Criterio de éxito**: Generación automática de GMA (Guía de Movimiento Animal) digital integrada con sistema Gran Paitití
-- **Validación**: Creación de GMA demo con datos de Hacienda Gamelera y validación de estructura según normativa REGENSA
+- **Objetivo**: Investigar y documentar datasets públicos disponibles para entrenamiento ML
+- **Criterio de éxito**: Identificar 6+ datasets con análisis detallado de ventajas/limitaciones por raza
+- **Validación**: Documento `ml-training/dataset-strategy.md` completo con referencias y análisis comparativo
 
-### 3. Integrar con ASOCEBU (Competencias Ganaderas)
+### 3. Roadmap Técnico de Implementación ML 📋
 
-- **Objetivo**: Exportar datos históricos para competencias ganaderas optimizando preparación de animales
-- **Criterio de éxito**: Bruno puede exportar historial completo, certificaciones de peso y proyecciones para eventos
-- **Validación**: Exportación de datos de medalla bronce 3ª Faena Técnica 2024 y preparación para próximo evento
+- **Objetivo**: Diseñar plan de entrenamiento incremental de modelos en 3 fases para Sprints 4-6
+- **Criterio de éxito**: Roadmap detallado con timeline realista (Brahman/Nelore Sprint 4, resto Sprint 5-6)
+- **Validación**: Cronograma con asignación de datasets por raza, métricas objetivo, y entregables claros
 
-### 4. Preparar Demostración Final (Presentación Académica)
+### 4. Demostración de Aplicación Flutter 📱
 
-- **Objetivo**: Presentación académica completa el 6 noviembre mostrando incremento funcional Sprint 1+2+3
-- **Criterio de éxito**: Demo fluida de 20-25 minutos demostrando sistema completo end-to-end con cumplimiento normativo
-- **Validación**: Ensayo completo exitoso con evaluación >90/100, todos los materiales de soporte preparados
+- **Objetivo**: Presentar app móvil funcional con arquitectura preparada para recibir modelos ML
+- **Criterio de éxito**: Demo fluida de captura, registro, historial, sincronización offline
+- **Validación**: Presentación exitosa de 20-25 minutos con arquitectura Clean + SOLID + Atomic Design
+
+### 5. Preparación para Sprints 4-6 (ML + Backend) 🚀
+
+- **Objetivo**: Planificar implementación de backend y entrenamiento ML para siguientes sprints
+- **Criterio de éxito**: Backlog refinado con US-013 (Backend API), US-014 (ML Brahman/Nelore), US-015 (ML resto razas)
+- **Validación**: Sprint Planning 4 listo con tareas técnicas, datasets identificados, y herramientas configuradas
 
 ## User Stories del Sprint
 
-### US-007: Reportes SENASAG
+**NOTA IMPORTANTE**: US-007, US-008, US-009 (integraciones normativas) se **mueven a Sprint 4-5** debido a:
+- Falta de backend implementado (prerequisito)
+- Sprint 3 enfocado en fundamentación teórica + demo Flutter
+- Integraciones requieren API funcional
+
+### US-012: Fundamentación Teórica y Roadmap ML (SPRINT 3 ACTUAL)
+
+Ver detalles completos arriba. **Esta es la única US activa en Sprint 3.**
+
+---
+
+## User Stories Movidas a Sprint 4+ (Documentadas para referencia)
+
+### US-007: Reportes SENASAG → MOVIDA A SPRINT 4
 
 **Story Points**: 8  
-**Prioridad**: Alta (Cumplimiento legal obligatorio)
+**Prioridad**: Alta (Cumplimiento legal obligatorio)  
+**Prerequisitos**: Backend API funcional (US-013)
 
 **Descripción**:  
 Como ganadero boliviano  
@@ -75,10 +95,11 @@ Para cumplir con normativas bolivianas obligatorias sin procesos manuales comple
 - [ ] Vista previa de reporte antes de envío oficial
 - [ ] Validación de datos antes de generación con alertas si faltan datos críticos
 
-### US-008: Integración Gran Paitití
+### US-008: Integración Gran Paitití → MOVIDA A SPRINT 4-5
 
 **Story Points**: 13  
-**Prioridad**: Alta (Crítica para cumplimiento normativo)
+**Prioridad**: Alta (Crítica para cumplimiento normativo)  
+**Prerequisitos**: Backend API funcional (US-013), credenciales Gran Paitití
 
 **Descripción**:  
 Como ganadero boliviano  
@@ -99,10 +120,11 @@ Para cumplir con normativas REGENSA (Reglamento General de Sanidad Animal) capí
 - [ ] Exportación de GMA en PDF oficial con código QR para verificación digital
 - [ ] Modo offline: creación de GMA offline y sincronización posterior
 
-### US-009: Exportación ASOCEBU
+### US-009: Exportación ASOCEBU → MOVIDA A SPRINT 5
 
 **Story Points**: 5  
-**Prioridad**: Media (Alta si hay competencia próxima)
+**Prioridad**: Media (Alta si hay competencia próxima)  
+**Prerequisitos**: Backend API funcional, historial de pesajes con modelos ML reales
 
 **Descripción**:  
 Como ganadero participante en competencias de ASOCEBU  
@@ -121,7 +143,37 @@ Para preparar eficientemente animales para ferias y optimizar resultados competi
 - [ ] Lista de verificación pre-competencia: pesajes recientes, documentación, ajustes nutricionales
 - [ ] Exportación masiva para lotes completos (ej: 15 hembras para faena)
 
-**Total Story Points**: 26
+### US-012: Fundamentación Teórica y Roadmap ML (NUEVA) 📚
+
+**Story Points**: 5  
+**Prioridad**: CRÍTICA (Presentación académica)
+
+**Descripción**:  
+Como Product Owner del proyecto académico  
+Quiero documentar la fundamentación teórica completa y el roadmap técnico de implementación ML  
+Para presentar el proyecto con base científica sólida y plan de desarrollo claro para Sprints 4-6
+
+**Criterios de aceptación**:
+- [x] Análisis completo de datasets públicos disponibles (CID, CattleEyeView, Mendeley, Aberdeen, Indian Bovine, Cowbree)
+- [x] Evaluación de 6+ datasets con análisis de ventajas, limitaciones, y aplicabilidad por raza
+- [x] Identificación de razas sin datasets públicos: Criollo y Pardo Suizo (requieren recolección propia)
+- [x] Roadmap de entrenamiento documentado en 3 fases para Sprints 4-6
+  - Fase 1 (Sprint 4): Backend + 2 modelos (Brahman, Nelore)
+  - Fase 2 (Sprint 5): 3 modelos adicionales (Angus, Cebuinas, Jersey)
+  - Fase 3 (Sprint 6): Recolección + 2 modelos finales (Criollo, Pardo Suizo)
+- [x] Timeline realista con cronograma detallado (Noviembre 2024 - Enero 2025)
+- [x] Actualización de US-002 en Product Backlog con estrategia de entrega incremental
+- [x] Documento técnico: `ml-training/dataset-strategy.md` con análisis detallado (771 líneas)
+- [x] Presentación académica preparada con fundamentación sólida
+- [x] Demo de aplicación Flutter funcional (arquitectura preparada para ML)
+
+**Justificación**:
+- **Fundamentación académica**: Presentar investigación exhaustiva de datasets y plan técnico robusto
+- **Estrategia incremental**: Entrega por fases permite validación progresiva (2 modelos → 5 modelos → 7 modelos)
+- **Viabilidad técnica**: Datasets identificados son accesibles, herramientas disponibles (Kaggle GPU gratis)
+- **Arquitectura preparada**: TFLite pipeline funcional puede recibir modelos sin refactoring
+
+**Total Story Points Sprint 3**: 5 (US-012) + Preparación presentación
 
 ## Integración con Sprint 2
 

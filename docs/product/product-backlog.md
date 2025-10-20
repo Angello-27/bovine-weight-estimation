@@ -109,41 +109,185 @@
 **Archivos**: Ver `docs/sprints/sprint-01/sprint-progress.md`  
 **Commits**: `5d0841f`, `b20ac44`, `4c2031d`
 
-#### US-002: Estimación de Peso por Raza ✅ COMPLETADA
+#### US-002: Estimación de Peso por Raza 🟡 EN PROGRESO (Entrega Incremental)
 
 **Como** ganadero  
 **Quiero** que el sistema estime automáticamente el peso del animal según su raza específica usando IA  
 **Para** obtener precisión >95% superior a la fórmula Schaeffer manual (error actual 5-20 kg)
 
-**Criterios de aceptación**:
+**Criterios de aceptación** (Arquitectura Mobile - Sprint 1):
 
 - [x] Soporte para 7 razas bovinas: Brahman, Nelore, Angus, Cebuinas (Bos indicus), Criollo, Pardo Suizo, Jersey ✅
-- [x] Modelo ML específico por raza implementado con TensorFlow Lite ✅
-- [x] Precisión >95% (R² ≥ 0.95) validada con al menos 3 razas principales (Brahman, Nelore, Angus) ✅
-- [x] Error absoluto <5 kg por animal en condiciones controladas ✅
+- [x] Pipeline TFLite con 7 slots preparados para modelos por raza ✅
 - [x] Tiempo procesamiento <3 segundos desde fotograma hasta resultado ✅
 - [x] Confidence score visible: "Precisión: 97%" con código de colores (Verde >90%, Amarillo 80-90%, Rojo <80%) ✅
 - [x] Funcionamiento 100% offline sin conexión a internet ✅
 - [x] Selección de raza antes de captura con iconos visuales intuitivos ✅
 - [x] Histórico de estimaciones almacenado localmente con timestamp, GPS, raza, peso, confidence ✅
 
-**Story Points**: 13  
+**Story Points**: 13 (Sprint 1) + 13 (Sprint 4 ML) + 8 (Sprint 5 ML) = 34 total  
 **Prioridad**: Crítica  
 **Dependencias**: US-001 (requiere fotogramas capturados)  
-**Sprint**: Sprint 1  
-**Estado**: ✅ **COMPLETADA** (28 Oct 2024)
+**Sprint**: Sprint 1 (Arquitectura) + Sprint 4 (ML Fase 1) + Sprint 5 (ML Fase 2)  
+**Estado**: 🟡 **30% COMPLETADO** - Arquitectura mobile lista, modelos ML en roadmap Sprint 4+
 
-**Implementación**:
-- 📦 Clean Architecture: WeightEstimation entity + TFLite DataSource + Provider
+---
+
+### 📊 Estrategia de Implementación Incremental
+
+#### ✅ Sprint 1: Arquitectura Mobile (COMPLETADO - Oct 2024)
+
+**Implementación técnica**:
+- 📦 Clean Architecture: WeightEstimation entity + TFLiteDataSource + Provider
 - 🏗️ Atomic Design: BreedSelectorGrid (organism), WeightEstimationResultCard (widget)
 - 🎯 SOLID: 10 archivos nuevos, cada uno con Single Responsibility
-- 🤖 TFLite: 7 modelos por raza (brahman-v1.0.0.tflite, etc.) preparados
+- 🤖 TFLite Pipeline: 7 slots preparados para modelos por raza
 - 🗄️ SQLite: Tabla weight_estimations con 4 índices optimizados
 - 🎨 UI/UX: Grid 3x3 razas, resultado con confidence colors (Verde/Amarillo/Rojo)
 - 🔗 Integración: Flujo US-001 → US-002 completo
 
 **Archivos**: 10 nuevos, 5 modificados  
-**Commits**: `df08f9a`
+**Commits**: `df08f9a`  
+**Resultado**: Arquitectura preparada para recibir modelos ML reales
+
+---
+
+#### 🎯 Sprint 3: Fundamentación Teórica (EN CURSO - Nov 2024)
+
+**Enfoque del sprint**:
+- 📚 Documentación completa de arquitectura técnica
+- 🔬 Investigación y análisis de datasets disponibles
+- 📋 Roadmap técnico detallado de implementación ML
+- 🎤 Presentación de fundamentación del proyecto
+
+**Entregables Sprint 3**:
+- ✅ Documento estrategia de datasets (`ml-training/dataset-strategy.md`)
+- ✅ Análisis de 6 datasets públicos identificados
+- ✅ Plan de recolección propia para Criollo y Pardo Suizo
+- ✅ Roadmap de entrenamiento en 3 fases documentado
+- 🎯 Presentación académica con fundamentación sólida
+
+**Alcance Sprint 3**:
+- ❌ NO incluye entrenamiento de modelos (requiere 4-8 semanas)
+- ❌ NO incluye backend (Sprint 4)
+- ✅ SI incluye demo Flutter funcional con arquitectura preparada
+- ✅ SI incluye integraciones normativas documentadas
+
+---
+
+#### 🚀 Sprint 4: ML Training Fase 1 + Backend (PLANIFICADO - Nov-Dic 2024)
+
+**Objetivo**: Implementar backend y entrenar 2 modelos prioritarios
+
+**Backend API** (8 SP):
+- FastAPI con PostgreSQL
+- Endpoints: Sync, Reportes, GMAs
+- Autenticación JWT
+- Deploy en Railway/Render
+
+**ML Training - Prioridad Alta** (13 SP):
+- **Brahman**: CattleEyeView dataset (30,703 frames)
+  - Meta: R² ≥0.92, MAE <6 kg
+  - Tiempo: 1-2 semanas
+- **Nelore**: Mendeley + CID subset (augmentation)
+  - Meta: R² ≥0.90, MAE <7 kg
+  - Tiempo: 1-2 semanas
+
+**Entregables Sprint 4**:
+- ✅ Backend API funcional
+- ✅ 2 modelos TFLite operativos (Brahman, Nelore)
+- ✅ Integración mobile-backend
+- ✅ Validación de precisión con subset de test
+
+**Timeline**: 3-4 semanas (Noviembre-Diciembre 2024)
+
+---
+
+#### 🔬 Sprint 5: ML Training Fase 2 (PLANIFICADO - Dic 2024)
+
+**Objetivo**: Entrenar 3 modelos adicionales con datasets disponibles
+
+**Modelos a entrenar** (8 SP):
+- **Angus**: Aberdeen Angus RGB-D (121 animales)
+- **Cebuinas**: Indian Bovine + CID Bos indicus
+- **Jersey**: Cowbree + CID razas lecheras
+
+**Meta por modelo**: R² ≥0.90, MAE <7 kg
+
+**Timeline**: 2-3 semanas (Diciembre 2024)
+
+---
+
+#### 📸 Sprint 6: Recolección Propia + ML Final (PLANIFICADO - Dic 2024 - Ene 2025)
+
+**Objetivo**: Completar 7/7 modelos con recolección en campo
+
+**Recolección de datos**:
+- **Criollo**: 50 animales × 60 frames = 3,000 imágenes (Hacienda Gamelera)
+- **Pardo Suizo**: 50 animales × 60 frames = 3,000 imágenes (ganaderías asociadas)
+
+**Entrenamiento final**:
+- Transfer learning desde modelo genérico
+- Meta: R² ≥0.95, MAE <5 kg
+
+**Validación en campo**:
+- 30 animales nuevos con báscula de referencia
+- Validación con Bruno Brito Macedo
+
+**Timeline**: 3-4 semanas (Diciembre 2024 - Enero 2025)
+
+---
+
+### 📅 Cronograma de Entrega Incremental
+
+| Sprint | Período | Enfoque | Modelos ML | Backend | Entregable |
+|--------|---------|---------|------------|---------|------------|
+| **Sprint 1** | Sep-Oct 2024 | Arquitectura Mobile | 0/7 | ❌ | Flutter app + Pipeline TFLite |
+| **Sprint 2** | Oct 2024 | Funcionalidad completa | 0/7 | ❌ | Historial + Sync + Búsqueda |
+| **Sprint 3** | Oct-Nov 2024 | **Fundamentación teórica** | 0/7 | ❌ | Documentación + Roadmap |
+| **Sprint 4** | Nov-Dic 2024 | Backend + ML Fase 1 | **2/7** ✅ | ✅ | Brahman, Nelore + API |
+| **Sprint 5** | Dic 2024 | ML Fase 2 | **5/7** ✅ | ✅ | +Angus, Cebuinas, Jersey |
+| **Sprint 6** | Dic-Ene 2025 | ML Final + Recolección | **7/7** ✅ | ✅ | +Criollo, Pardo Suizo |
+
+**Meta final**: Sistema completo 7/7 modelos R² ≥0.95 para **Enero 2025**
+
+---
+
+### 🎯 Valor Actual del Sistema (Sprint 3 - Fundamentación)
+
+**Lo que tenemos funcionando HOY**:
+
+✅ **Aplicación Flutter completa**:
+- Captura continua optimizada (10-15 FPS)
+- Selección automática del mejor frame
+- Registro de 500 cabezas de ganado
+- Histórico de pesajes con gráficos
+- Sincronización offline-first
+- Búsqueda y filtros optimizados
+
+✅ **Arquitectura técnica sólida**:
+- Clean Architecture (Domain/Data/Presentation)
+- SOLID principles aplicados
+- Atomic Design (8 componentes reutilizables)
+- SQLite con índices optimizados
+- TFLite pipeline preparado
+
+✅ **Documentación técnica completa**:
+- Análisis de 6 datasets públicos
+- Roadmap de 3 fases documentado
+- Plan de recolección propia
+- Fundamentación académica sólida
+
+**Lo que falta (Sprints 4-6)**:
+- ❌ Backend API (Sprint 4)
+- ❌ Modelos ML entrenados (Sprints 4-6)
+- ❌ Integraciones normativas reales (Sprint 4-5)
+
+**Enfoque presentación Sprint 3**:
+- 🎯 Demostrar aplicación Flutter funcional
+- 🎯 Presentar fundamentación teórica del proyecto
+- 🎯 Mostrar roadmap técnico claro y viable
+- 🎯 Evidenciar investigación exhaustiva de datasets
 
 #### US-003: Registro Automático de Animales ✅ COMPLETADA
 
