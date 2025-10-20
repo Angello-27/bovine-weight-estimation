@@ -68,3 +68,24 @@ BreedTypeLiteral = Literal[
     "jersey",
 ]
 
+# Mapeos útiles
+BREED_DISPLAY_NAMES = {
+    BreedType.BRAHMAN: "Brahman",
+    BreedType.NELORE: "Nelore",
+    BreedType.ANGUS: "Angus",
+    BreedType.CEBUINAS: "Cebuinas (Bos indicus)",
+    BreedType.CRIOLLO: "Criollo (Bos taurus)",
+    BreedType.PARDO_SUIZO: "Pardo Suizo",
+    BreedType.JERSEY: "Jersey",
+}
+
+BREED_MODEL_FILENAMES = {
+    BreedType.BRAHMAN: "brahman-v1.0.0.tflite",
+    BreedType.NELORE: "nelore-v1.0.0.tflite",
+    BreedType.ANGUS: "angus-v1.0.0.tflite",
+    BreedType.CEBUINAS: "cebuinas-v1.0.0.tflite",
+    BreedType.CRIOLLO: "criollo-v1.0.0.tflite",
+    BreedType.PARDO_SUIZO: "pardo_suizo-v1.0.0.tflite",
+    BreedType.JERSEY: "jersey-v1.0.0.tflite",
+}
+

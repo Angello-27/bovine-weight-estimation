@@ -1,47 +1,61 @@
+# ============================================================
 # Backend FastAPI - Sistema de Estimación de Peso Bovino
 # Python 3.11+
+# Hacienda Gamelera - Bruno Brito Macedo
+# ============================================================
 
-# Framework Web
+# ===== Framework Web =====
 fastapi==0.104.1
 uvicorn[standard]==0.24.0
 python-multipart==0.0.6
 
-# Database
-motor==3.3.2  # MongoDB async driver
-pymongo==4.6.0
-beanie==1.23.6  # ODM para MongoDB
+# ===== Database (MongoDB) =====
+motor==3.3.2       # MongoDB async driver
+pymongo==4.6.0     # MongoDB sync driver (para scripts)
+beanie==1.23.6     # ODM para MongoDB (Pydantic v2 compatible)
 
-# Validación y Serialización
+# ===== Validación y Serialización =====
 pydantic==2.5.0
-pydantic-settings==2.1.0
+pydantic-settings==2.1.0  # Settings desde .env
 email-validator==2.1.0
 
-# Autenticación y Seguridad
+# ===== Autenticación y Seguridad =====
 python-jose[cryptography]==3.3.0
 passlib[bcrypt]==1.7.4
 python-dotenv==1.0.0
 
-# Machine Learning
-tensorflow==2.15.0
-pillow==10.1.0
-numpy==1.26.2
+# ===== Machine Learning =====
+# TensorFlow para inferencia backend (opcional)
+# tensorflow==2.15.0  # Comentado por ahora (instalación pesada)
+pillow==10.1.0      # Procesamiento de imágenes
+numpy==1.26.2       # Operaciones numéricas
 
-# Utilidades
+# ===== Utilidades =====
 python-dateutil==2.8.2
 pytz==2023.3
 
-# Logging y Monitoreo
+# ===== Logging y Monitoreo =====
 python-json-logger==2.0.7
+loguru==0.7.2       # Logging estructurado
 
-# Testing
+# ===== Reportes (US-007 SENASAG) =====
+reportlab==4.0.7    # Generación de PDFs
+openpyxl==3.1.2     # Generación de Excel
+xmltodict==0.13.0   # Generación de XML
+
+# ===== Integraciones (US-008 Gran Paitití) =====
+httpx==0.25.2       # HTTP client async
+qrcode[pil]==7.4.2  # Códigos QR para GMAs
+
+# ===== Testing (Dev) =====
 pytest==7.4.3
 pytest-asyncio==0.21.1
 pytest-cov==4.1.0
-httpx==0.25.2
 
-# Code Quality
-black==23.11.0
-flake8==6.1.0
-mypy==1.7.1
-isort==5.12.0
+# ===== Code Quality (Dev) =====
+black==23.11.0      # Formatter
+flake8==6.1.0       # Linter
+mypy==1.7.1         # Type checker
+isort==5.12.0       # Import sorter
+ruff==0.1.6         # Fast linter/formatter alternativo
 
