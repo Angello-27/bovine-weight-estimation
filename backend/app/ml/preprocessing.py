@@ -6,12 +6,9 @@ Single Responsibility: Transformar imágenes a formato esperado por modelos
 """
 
 import io
-from typing import Tuple
 
 import numpy as np
 from PIL import Image
-
-from ..core.constants import SystemMetrics
 
 
 class ImagePreprocessor:
@@ -79,9 +76,8 @@ class ImagePreprocessor:
         img_array = cls._normalize(img_array)
 
         # Expandir dimensión de batch (1, 224, 224, 3)
-        img_array = np.expand_dims(img_array, axis=0)
+        return np.expand_dims(img_array, axis=0)
 
-        return img_array
 
     @classmethod
     def _normalize(cls, img_array: np.ndarray) -> np.ndarray:
@@ -98,9 +94,8 @@ class ImagePreprocessor:
         std = np.array(cls.NORMALIZATION_STD, dtype=np.float32)
 
         # Broadcasting: (224, 224, 3) - (3,) / (3,)
-        normalized = (img_array - mean) / std
+        return (img_array - mean) / std
 
-        return normalized
 
     @classmethod
     def validate_image_size(cls, image: Image.Image) -> bool:

@@ -3,16 +3,16 @@ Sync Routes - US-005: Sincronización Offline
 FastAPI endpoints para sincronización bidireccional
 """
 
-from fastapi import APIRouter, HTTPException, status, Depends
-from fastapi.responses import JSONResponse
 from typing import Annotated
+
+from fastapi import APIRouter, Depends, HTTPException, status
 
 from ...schemas.sync_schemas import (
     CattleSyncBatchRequest,
     CattleSyncBatchResponse,
+    HealthCheckResponse,
     WeightEstimationSyncBatchRequest,
     WeightEstimationSyncBatchResponse,
-    HealthCheckResponse,
 )
 from ...services.sync_service import SyncService
 
@@ -31,7 +31,7 @@ router = APIRouter(
 def get_sync_service() -> SyncService:
     """
     Dependency para inyectar SyncService.
-    
+
     TODO: Implementar como singleton en producción para mantener estado
     Por ahora retorna nueva instancia (MVP/testing)
     """
@@ -45,17 +45,17 @@ def get_sync_service() -> SyncService:
     summary="Sincronizar ganado (batch)",
     description="""
     Sincroniza un batch de hasta 100 animales desde el dispositivo móvil.
-    
+
     **Estrategia last-write-wins**:
     - Compara timestamps UTC de mobile vs backend
     - El dato más reciente prevalece automáticamente
     - Retorna conflictos para que mobile actualice su copia local si es necesario
-    
+
     **Casos de uso**:
     - CREATE: Animal no existe en backend
     - UPDATE: Animal existe, mobile tiene versión más reciente
     - CONFLICT: Animal existe, backend tiene versión más reciente (retorna datos)
-    
+
     **Performance**:
     - Batch size máximo: 100 items
     - Timeout recomendado: 30 segundos
@@ -69,14 +69,14 @@ async def sync_cattle_batch(
 ) -> CattleSyncBatchResponse:
     """
     Endpoint para sincronizar batch de ganado.
-    
+
     Args:
         request: Batch de animales a sincronizar
         sync_service: Servicio de sincronización (inyectado)
-        
+
     Returns:
         CattleSyncBatchResponse con resultados por item
-        
+
     Raises:
         HTTPException 400: Si el request es inválido
         HTTPException 500: Si hay error interno
@@ -91,12 +91,11 @@ async def sync_cattle_batch(
             )
 
         # Procesar sincronización
-        response = await sync_service.sync_cattle_batch(
+        return await sync_service.sync_cattle_batch(
             items=request.items,
             device_id=request.device_id,
         )
 
-        return response
 
     except HTTPException:
         # Re-raise HTTP exceptions
@@ -117,12 +116,12 @@ async def sync_cattle_batch(
     summary="Sincronizar estimaciones de peso (batch)",
     description="""
     Sincroniza un batch de hasta 100 estimaciones de peso desde mobile.
-    
+
     **Características**:
     - Estimaciones son típicamente inmutables (solo CREATE)
     - Si ya existe, se marca como ya sincronizado
     - Batch processing para optimizar red en zonas rurales
-    
+
     **Performance**:
     - Batch size máximo: 100 items
     - Timeout recomendado: 30 segundos
@@ -136,14 +135,14 @@ async def sync_weight_estimations_batch(
 ) -> WeightEstimationSyncBatchResponse:
     """
     Endpoint para sincronizar batch de estimaciones de peso.
-    
+
     Args:
         request: Batch de estimaciones a sincronizar
         sync_service: Servicio de sincronización (inyectado)
-        
+
     Returns:
         WeightEstimationSyncBatchResponse con resultados
-        
+
     Raises:
         HTTPException 400: Si el request es inválido
         HTTPException 500: Si hay error interno
@@ -158,12 +157,11 @@ async def sync_weight_estimations_batch(
             )
 
         # Procesar sincronización
-        response = await sync_service.sync_weight_estimations_batch(
+        return await sync_service.sync_weight_estimations_batch(
             items=request.items,
             device_id=request.device_id,
         )
 
-        return response
 
     except HTTPException:
         raise
@@ -182,7 +180,7 @@ async def sync_weight_estimations_batch(
     summary="Health check de sincronización",
     description="""
     Verifica que el servicio de sincronización está online y operativo.
-    
+
     **Uso móvil**:
     - Llamar antes de sync para verificar conectividad
     - Timeout corto (2-3 segundos) para detectar offline rápido
@@ -194,7 +192,7 @@ async def sync_health_check(
 ) -> HealthCheckResponse:
     """
     Health check del servicio de sincronización.
-    
+
     Returns:
         HealthCheckResponse con estado del servicio
     """
@@ -221,7 +219,7 @@ async def sync_stats(
 ):
     """
     Endpoint de estadísticas para desarrollo/testing.
-    
+
     WARNING: Deshabilitar en producción por seguridad
     """
     return {

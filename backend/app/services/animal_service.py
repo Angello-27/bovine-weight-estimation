@@ -3,11 +3,9 @@ Animal Service - Business Logic
 Lógica de negocio para gestión de animales
 """
 
-from datetime import datetime
-from typing import List, Optional
 from uuid import UUID
 
-from ..core.errors import AlreadyExistsException, NotFoundException, ValidationException
+from ..core.errors import AlreadyExistsException, NotFoundException
 from ..models import AnimalModel
 from ..schemas.animal_schemas import (
     AnimalCreateRequest,
@@ -97,8 +95,8 @@ class AnimalService:
         farm_id: UUID,
         skip: int = 0,
         limit: int = 50,
-        status: Optional[str] = None,
-    ) -> List[AnimalResponse]:
+        status: str | None = None,
+    ) -> list[AnimalResponse]:
         """
         Obtiene animales de una hacienda.
 

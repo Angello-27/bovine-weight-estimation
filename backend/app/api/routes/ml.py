@@ -5,7 +5,7 @@ Endpoints REST para inferencia ML
 US-002: Estimación de Peso por Raza con IA
 """
 
-from typing import Annotated, Optional
+from typing import Annotated
 from uuid import UUID
 
 from fastapi import (
@@ -45,7 +45,7 @@ def get_ml_service() -> MLService:
     summary="Predecir peso de bovino con IA",
     description="""
     Endpoint principal de inferencia ML.
-    
+
     **Proceso**:
     1. Recibe imagen del bovino (JPEG/PNG)
     2. Valida tamaño y formato
@@ -54,15 +54,15 @@ def get_ml_service() -> MLService:
     5. Valida métricas (confidence ≥80%, tiempo <3s)
     6. Guarda estimación en MongoDB
     7. Retorna peso estimado + confidence
-    
+
     **US-002**: Estimación de Peso por Raza con IA
-    
+
     **Métricas objetivo**:
     - Precisión: ≥95% (R² ≥0.95)
     - Error: <5 kg
     - Tiempo: <3 segundos
     - Confidence: ≥80%
-    
+
     **7 Razas soportadas**:
     - brahman, nelore, angus, cebuinas, criollo, pardo_suizo, jersey
     """,
@@ -70,8 +70,8 @@ def get_ml_service() -> MLService:
 async def predict_weight(
     image: UploadFile = File(..., description="Imagen del bovino (JPEG/PNG)"),
     breed: BreedType = Form(..., description="Raza del animal"),
-    animal_id: Optional[UUID] = Form(None, description="ID del animal (opcional)"),
-    device_id: Optional[str] = Form(None, description="ID del dispositivo"),
+    animal_id: UUID | None = Form(None, description="ID del animal (opcional)"),
+    device_id: str | None = Form(None, description="ID del dispositivo"),
     ml_service: Annotated[MLService, Depends(get_ml_service)] = Depends(),
 ):
     """
@@ -138,12 +138,12 @@ async def predict_weight(
     summary="Estado de modelos ML",
     description="""
     Obtiene información de modelos ML cargados.
-    
+
     **Información incluida**:
     - Total de modelos cargados
     - Razas con modelos disponibles
     - Razas faltantes
-    
+
     **Útil para**:
     - Verificar que los 7 modelos TFLite estén cargados
     - Diagnosticar problemas de carga

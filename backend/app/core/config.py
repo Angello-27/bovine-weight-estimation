@@ -4,7 +4,6 @@ Configuración centralizada usando Pydantic Settings
 """
 
 from functools import lru_cache
-from typing import List
 
 from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -33,13 +32,13 @@ class Settings(BaseSettings):
     OPENAPI_URL: str | None = "/api/openapi.json"
 
     # ===== CORS =====
-    CORS_ORIGINS: List[str] = Field(
+    CORS_ORIGINS: list[str] = Field(
         default=["http://localhost:3000", "http://localhost:8080"],
         description="Orígenes permitidos para CORS",
     )
     CORS_ALLOW_CREDENTIALS: bool = True
-    CORS_ALLOW_METHODS: List[str] = ["*"]
-    CORS_ALLOW_HEADERS: List[str] = ["*"]
+    CORS_ALLOW_METHODS: list[str] = ["*"]
+    CORS_ALLOW_HEADERS: list[str] = ["*"]
 
     # ===== MongoDB =====
     MONGODB_URL: str = Field(
@@ -130,7 +129,7 @@ class Settings(BaseSettings):
         return self.MONGODB_URL
 
 
-@lru_cache()
+@lru_cache
 def get_settings() -> Settings:
     """
     Obtiene instancia singleton de Settings.

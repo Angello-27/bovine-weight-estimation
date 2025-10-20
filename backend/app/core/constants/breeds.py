@@ -10,10 +10,10 @@ from typing import Literal
 class BreedType(str, Enum):
     """
     7 razas bovinas de Hacienda Gamelera.
-    
+
     IMPORTANTE: Estas son las ÚNICAS razas válidas en el sistema.
     """
-    
+
     BRAHMAN = "brahman"  # Bos indicus
     NELORE = "nelore"  # Bos indicus
     ANGUS = "angus"  # Bos taurus
@@ -52,7 +52,7 @@ class BreedType(str, Enum):
 
 class BovineSpecies(str, Enum):
     """Clasificación taxonómica de bovinos."""
-    
+
     BOS_INDICUS = "bos_indicus"  # Razas cebuinas
     BOS_TAURUS = "bos_taurus"  # Razas europeas
 

@@ -1,0 +1,68 @@
+[tool.ruff]
+# Configuración Ruff - Linter moderno para Python
+target-version = "py311"
+line-length = 88
+indent-width = 4
+
+# Directorios a excluir
+exclude = [
+    ".git",
+    ".venv",
+    "venv",
+    "__pycache__",
+    "*.egg-info",
+    "ml_models",
+]
+
+[tool.ruff.lint]
+# Reglas habilitadas (compatible con flake8, pylint, pep8)
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort (imports)
+    "N",   # pep8-naming
+    "UP",  # pyupgrade
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "SIM", # flake8-simplify
+    "RET", # flake8-return
+    "ARG", # flake8-unused-arguments
+]
+
+# Reglas ignoradas (ajustar según necesidad)
+ignore = [
+    "E501",   # Line too long (lo maneja el formatter)
+    "B008",   # Function calls in argument defaults (común en FastAPI)
+    "B904",   # Raise from exception (mejora opcional, no crítico)
+    "ARG001", # Unused function argument (FastAPI Depends los requiere)
+    "ARG002", # Unused method argument (común en interfaces)
+    "N818",   # Exception naming (DomainException es aceptable)
+]
+
+# Permitir arreglos automáticos
+fixable = ["ALL"]
+unfixable = []
+
+[tool.ruff.format]
+# Formateo compatible con Black
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
+
+[tool.mypy]
+# Type checking estricto
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+disallow_untyped_calls = false
+ignore_missing_imports = true
+strict_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+

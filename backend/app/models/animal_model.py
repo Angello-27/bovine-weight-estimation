@@ -4,13 +4,12 @@ Modelo de persistencia para animales bovinos en MongoDB
 """
 
 from datetime import datetime
-from typing import Optional
 from uuid import UUID, uuid4
 
 from beanie import Document, Indexed
 from pydantic import Field
 
-from ..core.constants import BreedType, AgeCategory
+from ..core.constants import AgeCategory, BreedType
 
 
 class AnimalModel(Document):
@@ -33,15 +32,15 @@ class AnimalModel(Document):
     gender: Indexed(str) = Field(..., description="Género: male o female")
 
     # Datos opcionales
-    name: Optional[str] = Field(None, description="Nombre del animal")
-    color: Optional[str] = Field(None, description="Color del pelaje")
-    birth_weight_kg: Optional[float] = Field(
+    name: str | None = Field(None, description="Nombre del animal")
+    color: str | None = Field(None, description="Color del pelaje")
+    birth_weight_kg: float | None = Field(
         None, description="Peso al nacer en kg", ge=0, le=100
     )
-    mother_id: Optional[UUID] = Field(None, description="ID de la madre")
-    father_id: Optional[UUID] = Field(None, description="ID del padre")
-    observations: Optional[str] = Field(None, description="Observaciones adicionales")
-    photo_url: Optional[str] = Field(None, description="URL de foto del animal")
+    mother_id: UUID | None = Field(None, description="ID de la madre")
+    father_id: UUID | None = Field(None, description="ID del padre")
+    observations: str | None = Field(None, description="Observaciones adicionales")
+    photo_url: str | None = Field(None, description="URL de foto del animal")
 
     # Estado
     status: Indexed(str) = Field(
@@ -58,10 +57,10 @@ class AnimalModel(Document):
     )
 
     # Sincronización (US-005)
-    device_id: Optional[str] = Field(
+    device_id: str | None = Field(
         None, description="ID del dispositivo que creó el registro"
     )
-    synced_at: Optional[datetime] = Field(
+    synced_at: datetime | None = Field(
         None, description="Timestamp de última sincronización"
     )
 

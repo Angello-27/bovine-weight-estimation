@@ -4,15 +4,14 @@ Age Categories Constants
 NO MODIFICAR sin autorización de Bruno Brito Macedo
 """
 
-from enum import Enum
 from datetime import datetime
-from typing import Dict, Tuple
+from enum import Enum
 
 
 class AgeCategory(str, Enum):
     """
     4 categorías de edad bovinas para Hacienda Gamelera.
-    
+
     Definidas por Bruno Brito Macedo según prácticas ganaderas locales.
     Usadas para: clasificación automática, reportes SENASAG, análisis GDP.
     """
@@ -44,12 +43,11 @@ class AgeCategory(str, Enum):
 
         if age_months < 8:
             return cls.TERNEROS
-        elif 6 <= age_months <= 18:
+        if 6 <= age_months <= 18:
             return cls.VAQUILLONAS_TORILLOS
-        elif 19 <= age_months <= 30:
+        if 19 <= age_months <= 30:
             return cls.VAQUILLONAS_TORETES
-        else:
-            return cls.VACAS_TOROS
+        return cls.VACAS_TOROS
 
     @classmethod
     def from_age_months(cls, age_months: int) -> "AgeCategory":
@@ -64,12 +62,11 @@ class AgeCategory(str, Enum):
         """
         if age_months < 8:
             return cls.TERNEROS
-        elif 6 <= age_months <= 18:
+        if 6 <= age_months <= 18:
             return cls.VAQUILLONAS_TORILLOS
-        elif 19 <= age_months <= 30:
+        if 19 <= age_months <= 30:
             return cls.VAQUILLONAS_TORETES
-        else:
-            return cls.VACAS_TOROS
+        return cls.VACAS_TOROS
 
     @property
     def display_name(self) -> str:
@@ -83,7 +80,7 @@ class AgeCategory(str, Enum):
 
 
 # Mapeos de categorías
-AGE_CATEGORY_DISPLAY_NAMES: Dict[AgeCategory, str] = {
+AGE_CATEGORY_DISPLAY_NAMES: dict[AgeCategory, str] = {
     AgeCategory.TERNEROS: "Terneros",
     AgeCategory.VAQUILLONAS_TORILLOS: "Vaquillonas/Torillos",
     AgeCategory.VAQUILLONAS_TORETES: "Vaquillonas/Toretes",
@@ -91,7 +88,7 @@ AGE_CATEGORY_DISPLAY_NAMES: Dict[AgeCategory, str] = {
 }
 
 # Rangos: (min_months, max_months, description)
-AGE_CATEGORY_RANGES: Dict[AgeCategory, Tuple[int, int | None, str]] = {
+AGE_CATEGORY_RANGES: dict[AgeCategory, tuple[int, int | None, str]] = {
     AgeCategory.TERNEROS: (0, 8, "<8 meses"),
     AgeCategory.VAQUILLONAS_TORILLOS: (6, 18, "6-18 meses"),
     AgeCategory.VAQUILLONAS_TORETES: (19, 30, "19-30 meses"),

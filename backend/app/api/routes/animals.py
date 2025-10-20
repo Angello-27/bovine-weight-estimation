@@ -3,23 +3,23 @@ Animals Routes - API Endpoints
 Endpoints REST para gestión de animales
 """
 
-from typing import Annotated, Optional
+from typing import Annotated
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 
-from ...schemas.animal_schemas import (
-    AnimalCreateRequest,
-    AnimalResponse,
-    AnimalUpdateRequest,
-    AnimalsListResponse,
-)
-from ...services import AnimalService
 from ...core.errors import (
     AlreadyExistsException,
     NotFoundException,
     ValidationException,
 )
+from ...schemas.animal_schemas import (
+    AnimalCreateRequest,
+    AnimalResponse,
+    AnimalsListResponse,
+    AnimalUpdateRequest,
+)
+from ...services import AnimalService
 
 # Router con prefijo /api/v1/animals
 router = APIRouter(
@@ -46,13 +46,13 @@ def get_animal_service() -> AnimalService:
     summary="Crear animal",
     description="""
     Crea un nuevo animal en el sistema.
-    
+
     **Validaciones**:
     - Caravana única por hacienda
     - Raza debe ser una de las 7 exactas
     - Fecha de nacimiento no puede ser futura
     - Género: male o female
-    
+
     **US-003**: Registro Automático de Animales
     """,
 )
@@ -111,10 +111,10 @@ async def get_animal(
     summary="Listar animales",
     description="""
     Lista animales de una hacienda con paginación y filtros.
-    
+
     **Filtros disponibles**:
     - status: active/inactive/sold/deceased
-    
+
     **Paginación**:
     - page: Número de página (default: 1)
     - page_size: Tamaño de página (default: 50, max: 100)
@@ -122,7 +122,7 @@ async def get_animal(
 )
 async def list_animals(
     farm_id: UUID = Query(..., description="ID de la hacienda"),
-    status: Optional[str] = Query(None, description="Filtro por estado"),
+    status: str | None = Query(None, description="Filtro por estado"),
     page: int = Query(1, ge=1, description="Número de página"),
     page_size: int = Query(50, ge=1, le=100, description="Tamaño de página"),
     service: Annotated[AnimalService, Depends(get_animal_service)] = Depends(),
@@ -192,7 +192,7 @@ async def delete_animal(
     """Elimina un animal (soft delete)."""
     try:
         await service.delete_animal(animal_id)
-        return None
+        return
     except NotFoundException as e:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,

@@ -6,11 +6,10 @@ Single Responsibility: Ejecutar inferencia con modelos ML
 """
 
 import time
-from typing import Dict, Tuple
 
 import numpy as np
 
-from ..core.constants import BreedType, SystemMetrics, WeightConstants
+from ..core.constants import BreedType, SystemMetrics
 from ..core.errors import MLModelException, ValidationException
 from .model_loader import MLModelLoader
 from .preprocessing import ImagePreprocessor
@@ -33,7 +32,7 @@ class MLInferenceResult:
         self.model_version = model_version
         self.breed = breed
 
-    def to_dict(self) -> Dict:
+    def to_dict(self) -> dict:
         """Convierte a diccionario."""
         return {
             "estimated_weight_kg": self.estimated_weight_kg,
@@ -129,7 +128,7 @@ class MLInferenceEngine:
 
     def _mock_inference(
         self, breed: BreedType, image: np.ndarray
-    ) -> Tuple[float, float]:
+    ) -> tuple[float, float]:
         """
         Inferencia mock (MVP - reemplazar con modelo real).
 
@@ -174,7 +173,7 @@ class MLInferenceEngine:
 
         return round(estimated_weight, 1), round(confidence, 4)
 
-    def get_loaded_models_info(self) -> Dict:
+    def get_loaded_models_info(self) -> dict:
         """
         Obtiene información de modelos cargados.
 

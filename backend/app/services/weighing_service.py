@@ -3,11 +3,9 @@ Weighing Service - Business Logic
 Lógica de negocio para gestión de pesajes/estimaciones
 """
 
-from datetime import datetime
-from typing import List, Optional
 from uuid import UUID
 
-from ..core.errors import NotFoundException, ValidationException
+from ..core.errors import NotFoundException
 from ..models import WeightEstimationModel
 from ..schemas.weighing_schemas import WeighingCreateRequest, WeighingResponse
 
@@ -88,7 +86,7 @@ class WeighingService:
         animal_id: UUID,
         skip: int = 0,
         limit: int = 100,
-    ) -> List[WeighingResponse]:
+    ) -> list[WeighingResponse]:
         """
         Obtiene historial de pesajes de un animal.
 
@@ -116,7 +114,7 @@ class WeighingService:
         self,
         skip: int = 0,
         limit: int = 50,
-    ) -> List[WeighingResponse]:
+    ) -> list[WeighingResponse]:
         """
         Obtiene todos los pesajes (admin).
 

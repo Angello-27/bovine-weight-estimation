@@ -3,27 +3,26 @@ Sync Service - US-005: Sincronización Offline
 Lógica de negocio para sincronización bidireccional con last-write-wins
 """
 
-from datetime import datetime
-from typing import List, Dict, Any, Optional
+from typing import Any
+
 from ..schemas.sync_schemas import (
+    CattleSyncBatchResponse,
     CattleSyncItemRequest,
     CattleSyncItemResponse,
-    CattleSyncBatchResponse,
+    SyncStatus,
+    WeightEstimationSyncBatchResponse,
     WeightEstimationSyncItemRequest,
     WeightEstimationSyncItemResponse,
-    WeightEstimationSyncBatchResponse,
-    SyncStatus,
-    SyncOperation,
 )
 
 
 class SyncService:
     """
     Servicio de sincronización con estrategia last-write-wins.
-    
+
     Single Responsibility: Sincronizar datos entre mobile y backend
     siguiendo estrategia de resolución de conflictos basada en timestamps UTC.
-    
+
     Estrategia US-005:
     - Last-Write-Wins: El dato con timestamp UTC más reciente prevalece
     - No se requiere intervención manual del usuario
@@ -33,31 +32,31 @@ class SyncService:
     def __init__(self):
         """
         Inicializa el servicio de sincronización.
-        
+
         TODO: En producción, inyectar MongoDB repository/client
         Para MVP/Sprint 2: Almacenamiento en memoria (dict)
         """
         # Almacenamiento temporal en memoria (MVP)
         # TODO: Reemplazar con MongoDB en producción
-        self._cattle_storage: Dict[str, Dict[str, Any]] = {}
-        self._weight_estimation_storage: Dict[str, Dict[str, Any]] = {}
+        self._cattle_storage: dict[str, dict[str, Any]] = {}
+        self._weight_estimation_storage: dict[str, dict[str, Any]] = {}
 
     async def sync_cattle_batch(
         self,
-        items: List[CattleSyncItemRequest],
+        items: list[CattleSyncItemRequest],
         device_id: str,
     ) -> CattleSyncBatchResponse:
         """
         Sincroniza un batch de animales con estrategia last-write-wins.
-        
+
         Args:
             items: Lista de items a sincronizar (max 100)
             device_id: ID del dispositivo móvil
-            
+
         Returns:
             CattleSyncBatchResponse con resultados por item
         """
-        results: List[CattleSyncItemResponse] = []
+        results: list[CattleSyncItemResponse] = []
         synced_count = 0
         failed_count = 0
         conflict_count = 0
@@ -107,7 +106,7 @@ class SyncService:
     ) -> CattleSyncItemResponse:
         """
         Sincroniza un item individual de ganado con last-write-wins.
-        
+
         Lógica:
         1. Si no existe en backend → CREATE
         2. Si existe → Comparar timestamps UTC
@@ -138,7 +137,7 @@ class SyncService:
                 status=SyncStatus.SYNCED,
                 message="Animal actualizado (mobile más reciente)",
             )
-        elif incoming_timestamp < existing_timestamp:
+        if incoming_timestamp < existing_timestamp:
             # Backend tiene versión más reciente → Retornar conflicto informativo
             # El mobile deberá actualizar su copia local
             return CattleSyncItemResponse(
@@ -147,13 +146,12 @@ class SyncService:
                 message="Backend tiene versión más reciente",
                 conflict_data=existing,  # Retornar datos del backend
             )
-        else:
-            # Timestamps iguales → Ya está sincronizado
-            return CattleSyncItemResponse(
-                id=item.id,
-                status=SyncStatus.SYNCED,
-                message="Ya sincronizado (timestamps iguales)",
-            )
+        # Timestamps iguales → Ya está sincronizado
+        return CattleSyncItemResponse(
+            id=item.id,
+            status=SyncStatus.SYNCED,
+            message="Ya sincronizado (timestamps iguales)",
+        )
 
     async def _create_cattle(self, item: CattleSyncItemRequest) -> None:
         """Crea un nuevo animal en el backend"""
@@ -165,20 +163,20 @@ class SyncService:
 
     async def sync_weight_estimations_batch(
         self,
-        items: List[WeightEstimationSyncItemRequest],
+        items: list[WeightEstimationSyncItemRequest],
         device_id: str,
     ) -> WeightEstimationSyncBatchResponse:
         """
         Sincroniza un batch de estimaciones de peso con last-write-wins.
-        
+
         Args:
             items: Lista de estimaciones a sincronizar (max 100)
             device_id: ID del dispositivo móvil
-            
+
         Returns:
             WeightEstimationSyncBatchResponse con resultados
         """
-        results: List[WeightEstimationSyncItemResponse] = []
+        results: list[WeightEstimationSyncItemResponse] = []
         synced_count = 0
         failed_count = 0
         conflict_count = 0
@@ -227,7 +225,7 @@ class SyncService:
     ) -> WeightEstimationSyncItemResponse:
         """
         Sincroniza una estimación individual con last-write-wins.
-        
+
         Nota: Las estimaciones típicamente son inmutables (solo CREATE),
         pero se mantiene lógica completa por consistencia.
         """
@@ -266,15 +264,14 @@ class SyncService:
         """Genera mensaje de resumen de sincronización"""
         if failed == 0 and conflicts == 0:
             return f"✓ {synced} de {total} items sincronizados exitosamente"
-        elif failed > 0 and conflicts == 0:
+        if failed > 0 and conflicts == 0:
             return f"⚠ {synced} sincronizados, {failed} errores de {total} items"
-        elif conflicts > 0:
+        if conflicts > 0:
             return (
                 f"⚠ {synced} sincronizados, {conflicts} conflictos, "
                 f"{failed} errores de {total} items"
             )
-        else:
-            return f"Sincronización completada: {synced}/{total}"
+        return f"Sincronización completada: {synced}/{total}"
 
     # ===== Métodos de utilidad =====
 
@@ -289,7 +286,7 @@ class SyncService:
     def clear_all_data(self) -> None:
         """
         Limpia todos los datos (solo para testing).
-        
+
         WARNING: No usar en producción
         """
         self._cattle_storage.clear()

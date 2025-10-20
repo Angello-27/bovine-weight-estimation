@@ -6,8 +6,8 @@ Data Transfer Objects para API Layer
 from .animal_schemas import (
     AnimalCreateRequest,
     AnimalResponse,
-    AnimalUpdateRequest,
     AnimalsListResponse,
+    AnimalUpdateRequest,
 )
 from .sync_schemas import (
     CattleSyncBatchRequest,

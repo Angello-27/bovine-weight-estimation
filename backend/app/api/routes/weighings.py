@@ -3,7 +3,7 @@ Weighings Routes - API Endpoints
 Endpoints REST para estimaciones de peso
 """
 
-from typing import Annotated, Optional
+from typing import Annotated
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
@@ -41,13 +41,13 @@ def get_weighing_service() -> WeighingService:
     summary="Crear estimación de peso",
     description="""
     Crea una nueva estimación de peso.
-    
+
     **Validaciones**:
     - Confidence ≥80% (mínimo aceptable)
     - Peso entre 0-1500 kg
     - Raza debe ser una de las 7 exactas
     - Animal debe existir (si se proporciona animal_id)
-    
+
     **US-002**: Estimación de Peso por Raza con IA
     **US-004**: Historial de Pesajes
     """,
@@ -107,9 +107,9 @@ async def get_weighing(
     summary="Historial de pesajes por animal",
     description="""
     Obtiene historial completo de pesajes de un animal.
-    
+
     Ordenado por fecha descendente (más reciente primero).
-    
+
     **US-004**: Historial de Pesajes con Gráficos
     """,
 )

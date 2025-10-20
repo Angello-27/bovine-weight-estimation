@@ -4,7 +4,6 @@ Request/Response models para API de animales
 """
 
 from datetime import datetime
-from typing import List, Optional
 from uuid import UUID
 
 from pydantic import BaseModel, Field, field_validator
@@ -21,13 +20,13 @@ class AnimalCreateRequest(BaseModel):
     gender: str = Field(..., description="Género: male o female")
 
     # Opcionales
-    name: Optional[str] = Field(None, description="Nombre del animal")
-    color: Optional[str] = None
-    birth_weight_kg: Optional[float] = Field(None, ge=0, le=100)
-    mother_id: Optional[UUID] = None
-    father_id: Optional[UUID] = None
-    observations: Optional[str] = None
-    photo_url: Optional[str] = None
+    name: str | None = Field(None, description="Nombre del animal")
+    color: str | None = None
+    birth_weight_kg: float | None = Field(None, ge=0, le=100)
+    mother_id: UUID | None = None
+    father_id: UUID | None = None
+    observations: str | None = None
+    photo_url: str | None = None
     farm_id: UUID = Field(..., description="ID de la hacienda")
 
     @field_validator("gender")
@@ -50,11 +49,11 @@ class AnimalCreateRequest(BaseModel):
 class AnimalUpdateRequest(BaseModel):
     """Request para actualizar un animal."""
 
-    name: Optional[str] = None
-    color: Optional[str] = None
-    observations: Optional[str] = None
-    status: Optional[str] = None
-    photo_url: Optional[str] = None
+    name: str | None = None
+    color: str | None = None
+    observations: str | None = None
+    status: str | None = None
+    photo_url: str | None = None
 
     @field_validator("status")
     @classmethod
@@ -75,9 +74,9 @@ class AnimalResponse(BaseModel):
     breed: BreedType
     birth_date: datetime
     gender: str
-    name: Optional[str] = None
-    color: Optional[str] = None
-    birth_weight_kg: Optional[float] = None
+    name: str | None = None
+    color: str | None = None
+    birth_weight_kg: float | None = None
     status: str
     farm_id: UUID
     registration_date: datetime
@@ -95,7 +94,7 @@ class AnimalsListResponse(BaseModel):
     """Response de lista de animales."""
 
     total: int
-    animals: List[AnimalResponse]
+    animals: list[AnimalResponse]
     page: int = 1
     page_size: int = 50
 

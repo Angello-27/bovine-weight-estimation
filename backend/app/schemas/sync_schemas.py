@@ -4,10 +4,10 @@ Pydantic v2 schemas para sincronización bidireccional
 """
 
 from datetime import datetime
-from typing import List, Optional, Dict, Any
-from uuid import UUID
-from pydantic import BaseModel, Field, field_validator
 from enum import Enum
+from typing import Any
+
+from pydantic import BaseModel, Field, field_validator
 
 
 class SyncStatus(str, Enum):
@@ -36,19 +36,19 @@ class CattleSyncItemRequest(BaseModel):
 
     id: str = Field(..., description="UUID del animal")
     ear_tag: str = Field(..., min_length=1, max_length=50, description="Caravana única")
-    name: Optional[str] = Field(None, max_length=100, description="Nombre del animal")
+    name: str | None = Field(None, max_length=100, description="Nombre del animal")
     breed: str = Field(..., description="Raza del animal (7 razas válidas)")
     birth_date: datetime = Field(..., description="Fecha de nacimiento")
     gender: str = Field(..., description="Género: male/female")
-    color: Optional[str] = Field(None, max_length=50)
-    birth_weight: Optional[float] = Field(None, gt=0, lt=100)
-    mother_id: Optional[str] = None
-    father_id: Optional[str] = None
-    observations: Optional[str] = Field(None, max_length=1000)
+    color: str | None = Field(None, max_length=50)
+    birth_weight: float | None = Field(None, gt=0, lt=100)
+    mother_id: str | None = None
+    father_id: str | None = None
+    observations: str | None = Field(None, max_length=1000)
     status: str = Field(default="active", description="Estado: active/sold/dead/inactive")
     registration_date: datetime = Field(..., description="Fecha de registro")
     last_updated: datetime = Field(..., description="Última modificación UTC")
-    photo_path: Optional[str] = None
+    photo_path: str | None = None
     operation: SyncOperation = Field(..., description="create/update/delete")
 
     @field_validator("breed")
@@ -78,7 +78,7 @@ class CattleSyncItemRequest(BaseModel):
 class CattleSyncBatchRequest(BaseModel):
     """Batch de animales a sincronizar"""
 
-    items: List[CattleSyncItemRequest] = Field(
+    items: list[CattleSyncItemRequest] = Field(
         ..., min_length=1, max_length=100, description="Máximo 100 items por batch"
     )
     device_id: str = Field(..., description="ID del dispositivo móvil")
@@ -92,8 +92,8 @@ class CattleSyncItemResponse(BaseModel):
 
     id: str
     status: SyncStatus
-    message: Optional[str] = None
-    conflict_data: Optional[Dict[str, Any]] = Field(
+    message: str | None = None
+    conflict_data: dict[str, Any] | None = Field(
         None, description="Datos del servidor si hay conflicto"
     )
     synced_at: datetime = Field(
@@ -109,7 +109,7 @@ class CattleSyncBatchResponse(BaseModel):
     synced_count: int
     failed_count: int
     conflict_count: int
-    results: List[CattleSyncItemResponse]
+    results: list[CattleSyncItemResponse]
     sync_timestamp: datetime = Field(default_factory=datetime.utcnow)
     message: str
 
@@ -121,14 +121,14 @@ class WeightEstimationSyncItemRequest(BaseModel):
     """Item de estimación de peso a sincronizar"""
 
     id: str = Field(..., description="UUID de la estimación")
-    cattle_id: Optional[str] = Field(None, description="ID del animal (puede ser null)")
+    cattle_id: str | None = Field(None, description="ID del animal (puede ser null)")
     breed: str = Field(..., description="Raza")
     estimated_weight: float = Field(..., gt=0, lt=1500, description="Peso estimado en kg")
     confidence_score: float = Field(..., ge=0, le=1, description="Confianza 0-1")
     frame_image_path: str = Field(..., description="Path del fotograma")
     timestamp: datetime = Field(..., description="Fecha/hora de la estimación")
-    gps_latitude: Optional[float] = Field(None, ge=-90, le=90)
-    gps_longitude: Optional[float] = Field(None, ge=-180, le=180)
+    gps_latitude: float | None = Field(None, ge=-90, le=90)
+    gps_longitude: float | None = Field(None, ge=-180, le=180)
     method: str = Field(default="tflite", description="Método de estimación")
     model_version: str = Field(default="1.0.0", description="Versión del modelo ML")
     processing_time_ms: int = Field(..., gt=0, description="Tiempo de procesamiento")
@@ -154,7 +154,7 @@ class WeightEstimationSyncItemRequest(BaseModel):
 class WeightEstimationSyncBatchRequest(BaseModel):
     """Batch de estimaciones a sincronizar"""
 
-    items: List[WeightEstimationSyncItemRequest] = Field(
+    items: list[WeightEstimationSyncItemRequest] = Field(
         ..., min_length=1, max_length=100, description="Máximo 100 items por batch"
     )
     device_id: str = Field(..., description="ID del dispositivo móvil")
@@ -168,8 +168,8 @@ class WeightEstimationSyncItemResponse(BaseModel):
 
     id: str
     status: SyncStatus
-    message: Optional[str] = None
-    conflict_data: Optional[Dict[str, Any]] = None
+    message: str | None = None
+    conflict_data: dict[str, Any] | None = None
     synced_at: datetime = Field(default_factory=datetime.utcnow)
 
 
@@ -181,7 +181,7 @@ class WeightEstimationSyncBatchResponse(BaseModel):
     synced_count: int
     failed_count: int
     conflict_count: int
-    results: List[WeightEstimationSyncItemResponse]
+    results: list[WeightEstimationSyncItemResponse]
     sync_timestamp: datetime = Field(default_factory=datetime.utcnow)
     message: str
 

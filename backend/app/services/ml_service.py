@@ -5,11 +5,10 @@ Lógica de negocio para inferencia ML
 Single Responsibility: Coordinar proceso de estimación de peso con IA
 """
 
-from typing import Dict, Optional
 from uuid import UUID
 
 from ..core.constants import BreedType
-from ..core.errors import MLModelException, ValidationException
+from ..core.errors import ValidationException
 from ..ml import MLInferenceEngine
 from ..models import WeightEstimationModel
 
@@ -29,8 +28,8 @@ class MLService:
         self,
         image_bytes: bytes,
         breed: BreedType,
-        animal_id: Optional[UUID] = None,
-        device_id: Optional[str] = None,
+        animal_id: UUID | None = None,
+        device_id: str | None = None,
     ) -> WeightEstimationModel:
         """
         Predice peso de un bovino desde imagen.
@@ -84,7 +83,7 @@ class MLService:
 
         return weight_estimation
 
-    async def get_models_status(self) -> Dict:
+    async def get_models_status(self) -> dict:
         """
         Obtiene estado de modelos ML cargados.
 

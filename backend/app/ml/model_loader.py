@@ -5,11 +5,8 @@ Carga y gestión de modelos TensorFlow/TFLite
 Single Responsibility: Cargar modelos ML en memoria
 """
 
-import os
 from pathlib import Path
-from typing import Dict, Optional
-
-import numpy as np
+from typing import Optional
 
 from ..core.constants import BreedType
 from ..core.errors import MLModelException
@@ -24,7 +21,7 @@ class MLModelLoader:
     """
 
     _instance: Optional["MLModelLoader"] = None
-    _models_cache: Dict[BreedType, any] = {}  # Cache de modelos cargados
+    _models_cache: dict[BreedType, any] = {}  # Cache de modelos cargados
 
     def __new__(cls):
         """Singleton pattern."""
@@ -91,7 +88,7 @@ class MLModelLoader:
                 f"Error al cargar modelo {breed.value}: {str(e)}"
             )
 
-    def load_all_models(self) -> Dict[BreedType, any]:
+    def load_all_models(self) -> dict[BreedType, any]:
         """
         Carga todos los 7 modelos TFLite.
 

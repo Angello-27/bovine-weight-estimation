@@ -4,7 +4,6 @@ Modelo de persistencia para estimaciones de peso en MongoDB
 """
 
 from datetime import datetime
-from typing import Optional
 from uuid import UUID, uuid4
 
 from beanie import Document, Indexed
@@ -24,7 +23,7 @@ class WeightEstimationModel(Document):
     id: UUID = Field(default_factory=uuid4, alias="_id")
 
     # Animal relacionado
-    animal_id: Optional[Indexed(UUID)] = Field(
+    animal_id: Indexed(UUID) | None = Field(
         None, description="ID del animal (si está vinculado)"
     )
 
@@ -48,8 +47,8 @@ class WeightEstimationModel(Document):
     frame_image_path: str = Field(..., description="Path del fotograma usado")
 
     # Datos de ubicación (opcional)
-    latitude: Optional[float] = Field(None, description="Latitud GPS", ge=-90, le=90)
-    longitude: Optional[float] = Field(
+    latitude: float | None = Field(None, description="Latitud GPS", ge=-90, le=90)
+    longitude: float | None = Field(
         None, description="Longitud GPS", ge=-180, le=180
     )
 
@@ -62,10 +61,10 @@ class WeightEstimationModel(Document):
     )
 
     # Sincronización (US-005)
-    device_id: Optional[str] = Field(
+    device_id: str | None = Field(
         None, description="ID del dispositivo que creó el registro"
     )
-    synced_at: Optional[datetime] = Field(
+    synced_at: datetime | None = Field(
         None, description="Timestamp de última sincronización"
     )
 
@@ -112,10 +111,9 @@ class WeightEstimationModel(Document):
         """
         if self.confidence >= 0.90:
             return "high"
-        elif self.confidence >= 0.80:
+        if self.confidence >= 0.80:
             return "medium"
-        else:
-            return "low"
+        return "low"
 
     @property
     def meets_quality_criteria(self) -> bool:

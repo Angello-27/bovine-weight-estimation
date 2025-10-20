@@ -4,7 +4,6 @@ Request/Response models para API de pesajes
 """
 
 from datetime import datetime
-from typing import List, Optional
 from uuid import UUID
 
 from pydantic import BaseModel, Field, field_validator
@@ -15,7 +14,7 @@ from ..core.constants import BreedType, SystemMetrics
 class WeighingCreateRequest(BaseModel):
     """Request para crear una estimación de peso."""
 
-    animal_id: Optional[UUID] = Field(None, description="ID del animal (opcional)")
+    animal_id: UUID | None = Field(None, description="ID del animal (opcional)")
     breed: BreedType = Field(..., description="Raza del animal")
     estimated_weight_kg: float = Field(
         ..., description="Peso estimado en kg", ge=0, le=1500
@@ -29,9 +28,9 @@ class WeighingCreateRequest(BaseModel):
     # Opcionales
     method: str = Field(default="tflite", description="Método de estimación")
     model_version: str = Field(default="1.0.0", description="Versión del modelo")
-    latitude: Optional[float] = Field(None, ge=-90, le=90)
-    longitude: Optional[float] = Field(None, ge=-180, le=180)
-    device_id: Optional[str] = None
+    latitude: float | None = Field(None, ge=-90, le=90)
+    longitude: float | None = Field(None, ge=-180, le=180)
+    device_id: str | None = None
 
     @field_validator("confidence")
     @classmethod
@@ -48,7 +47,7 @@ class WeighingResponse(BaseModel):
     """Response de una estimación de peso."""
 
     id: UUID
-    animal_id: Optional[UUID]
+    animal_id: UUID | None
     breed: BreedType
     estimated_weight_kg: float
     confidence: float
@@ -56,8 +55,8 @@ class WeighingResponse(BaseModel):
     method: str
     model_version: str
     processing_time_ms: int
-    latitude: Optional[float]
-    longitude: Optional[float]
+    latitude: float | None
+    longitude: float | None
     timestamp: datetime
     created_at: datetime
 
@@ -69,7 +68,7 @@ class WeighingsListResponse(BaseModel):
     """Response de lista de pesajes."""
 
     total: int
-    weighings: List[WeighingResponse]
+    weighings: list[WeighingResponse]
     page: int = 1
     page_size: int = 50
 
