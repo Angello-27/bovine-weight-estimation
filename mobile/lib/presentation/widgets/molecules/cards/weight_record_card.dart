@@ -93,7 +93,7 @@ class WeightRecordCard extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           Text(
-            '${weight.toStringAsFixed(1)}',
+            weight.toStringAsPrecision(1),
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
               color: Colors.white,
               fontWeight: FontWeight.bold,

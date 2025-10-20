@@ -79,13 +79,13 @@ class SyncStatusPage extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [AppColors.primary.withOpacity(0.1), Colors.white],
+          colors: [AppColors.primary.withValues(alpha: 0.1), Colors.white],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(AppSpacing.borderRadiusLarge),
         border: Border.all(
-          color: AppColors.primary.withOpacity(0.2),
+          color: AppColors.primary.withValues(alpha: 0.2),
           width: 1.0,
         ),
       ),
