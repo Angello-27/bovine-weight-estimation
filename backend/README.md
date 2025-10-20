@@ -174,22 +174,30 @@ pytest tests/unit/ -v
 
 ## 🔧 Desarrollo
 
-### Code Quality
+### Linting y Formateo (equivalente a `flutter analyze`)
 
 ```bash
-# Formatear código
-black app/
+# ✅ Análisis de código (como flutter analyze)
+python3 -m ruff check app/
 
-# Ordenar imports
-isort app/
+# 🔧 Corregir automáticamente
+python3 -m ruff check app/ --fix
 
-# Linting
-flake8 app/
-ruff check app/
+# 🎨 Formatear código (Black-compatible)
+python3 -m ruff format app/
 
-# Type checking
-mypy app/
+# 🚀 Todo en uno (check + fix + format)
+python3 -m ruff check app/ --fix && python3 -m ruff format app/
 ```
+
+**Configuración del IDE**:
+- ✅ `.vscode/settings.json` incluido
+- ✅ Python interpreter: `venv/bin/python`
+- ✅ Ruff linter habilitado
+- ✅ Format on save activado
+- ✅ Auto fix imports on save
+
+**Reinicia Cursor/VSCode** después de crear el venv para que detecte las dependencias.
 
 ---
 
