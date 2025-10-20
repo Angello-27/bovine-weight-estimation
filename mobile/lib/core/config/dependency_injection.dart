@@ -27,6 +27,8 @@ import '../../domain/repositories/sync_repository.dart';
 import '../../domain/usecases/capture_frames_usecase.dart';
 import '../../domain/usecases/check_connectivity_usecase.dart';
 import '../../domain/usecases/estimate_weight_usecase.dart';
+import '../../domain/usecases/export_csv_usecase.dart';
+import '../../domain/usecases/export_pdf_usecase.dart';
 import '../../domain/usecases/get_pending_count_usecase.dart';
 import '../../domain/usecases/get_weight_history_usecase.dart';
 import '../../domain/usecases/register_cattle_usecase.dart';
@@ -72,6 +74,8 @@ class DependencyInjection {
   late final EstimateWeightUseCase _estimateWeightUseCase;
   late final RegisterCattleUseCase _registerCattleUseCase;
   late final GetWeightHistoryUseCase _getWeightHistoryUseCase;
+  late final ExportPdfUseCase _exportPdfUseCase;
+  late final ExportCsvUseCase _exportCsvUseCase;
   late final SyncPendingItemsUseCase _syncPendingItemsUseCase;
   late final GetPendingCountUseCase _getPendingCountUseCase;
   late final TriggerManualSyncUseCase _triggerManualSyncUseCase;
@@ -146,6 +150,8 @@ class DependencyInjection {
     _getWeightHistoryUseCase = GetWeightHistoryUseCase(
       repository: _weightHistoryRepository,
     );
+    _exportPdfUseCase = ExportPdfUseCase(repository: _weightHistoryRepository);
+    _exportCsvUseCase = ExportCsvUseCase(repository: _weightHistoryRepository);
 
     // UseCases - US-005
     _syncPendingItemsUseCase = SyncPendingItemsUseCase(_syncRepository);
@@ -181,6 +187,8 @@ class DependencyInjection {
       _weightHistoryRepository;
   GetWeightHistoryUseCase get getWeightHistoryUseCase =>
       _getWeightHistoryUseCase;
+  ExportPdfUseCase get exportPdfUseCase => _exportPdfUseCase;
+  ExportCsvUseCase get exportCsvUseCase => _exportCsvUseCase;
 
   // Getters - US-005
   SyncRepository get syncRepository => _syncRepository;

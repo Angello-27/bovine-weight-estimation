@@ -131,6 +131,16 @@ dependencies:
   # Printing: Renderizado y compartir PDFs
   # Usado en: Compartir reportes generados, vista previa
   printing: ^5.11.1
+  
+  # CSV: Generación de archivos CSV
+  # Usado en: US-004 (exportación historial a Excel/CSV)
+  # Features: Convertir datos a formato CSV compatible con Excel
+  csv: ^5.1.1
+  
+  # Share Plus: Compartir archivos con otras apps
+  # Usado en: US-004 (compartir PDF/CSV generados)
+  # Features: Compartir archivos por WhatsApp, Email, etc.
+  share_plus: ^7.2.1
 
 dev_dependencies:
   flutter_test:
