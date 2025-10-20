@@ -88,4 +88,3 @@ BREED_MODEL_FILENAMES = {
     BreedType.PARDO_SUIZO: "pardo_suizo-v1.0.0.tflite",
     BreedType.JERSEY: "jersey-v1.0.0.tflite",
 }
-

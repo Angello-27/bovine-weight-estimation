@@ -19,9 +19,7 @@ class WeighingCreateRequest(BaseModel):
     estimated_weight_kg: float = Field(
         ..., description="Peso estimado en kg", ge=0, le=1500
     )
-    confidence: float = Field(
-        ..., description="Confidence score (0.0-1.0)", ge=0, le=1
-    )
+    confidence: float = Field(..., description="Confidence score (0.0-1.0)", ge=0, le=1)
     processing_time_ms: int = Field(..., description="Tiempo de procesamiento en ms")
     frame_image_path: str = Field(..., description="Path del fotograma")
 
@@ -71,4 +69,3 @@ class WeighingsListResponse(BaseModel):
     weighings: list[WeighingResponse]
     page: int = 1
     page_size: int = 50
-

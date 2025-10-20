@@ -172,4 +172,3 @@ async def list_weighings(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Error al listar estimaciones: {str(e)}",
         )
-

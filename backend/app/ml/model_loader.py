@@ -84,9 +84,7 @@ class MLModelLoader:
             return mock_model
 
         except Exception as e:
-            raise MLModelException(
-                f"Error al cargar modelo {breed.value}: {str(e)}"
-            )
+            raise MLModelException(f"Error al cargar modelo {breed.value}: {str(e)}")
 
     def load_all_models(self) -> dict[BreedType, any]:
         """
@@ -154,4 +152,3 @@ class MLModelLoader:
         self._models_cache.clear()
         self.model_loaded = False
         print("🗑️ Todos los modelos descargados")
-

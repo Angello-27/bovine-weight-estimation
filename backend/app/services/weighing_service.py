@@ -160,4 +160,3 @@ class WeighingService:
             timestamp=weighing.timestamp,
             created_at=weighing.created_at,
         )
-

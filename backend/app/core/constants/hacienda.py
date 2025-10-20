@@ -65,4 +65,3 @@ class HaciendaConstants:
         lon_diff = abs(longitude - HaciendaConstants.LONGITUDE)
 
         return lat_diff < 0.05 and lon_diff < 0.05
-

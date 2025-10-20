@@ -291,4 +291,3 @@ class SyncService:
         """
         self._cattle_storage.clear()
         self._weight_estimation_storage.clear()
-

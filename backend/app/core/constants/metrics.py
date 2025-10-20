@@ -90,4 +90,3 @@ class WeightConstants:
     MIN_WEIGHT_KG = 0.0
     MAX_WEIGHT_KG = 1500.0  # Peso máximo razonable
     MIN_GDP_KG_PER_DAY = 0.3  # GDP mínimo esperado
-

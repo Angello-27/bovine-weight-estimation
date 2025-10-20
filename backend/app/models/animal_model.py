@@ -121,4 +121,3 @@ class AnimalModel(Document):
                 "farm_id": "farm-001",
             }
         }
-

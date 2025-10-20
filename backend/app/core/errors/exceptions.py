@@ -71,4 +71,3 @@ class SyncConflictException(DomainException):
         self.item_id = item_id
         self.server_timestamp = server_timestamp
         self.client_timestamp = client_timestamp
-

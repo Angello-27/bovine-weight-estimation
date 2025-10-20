@@ -182,4 +182,3 @@ async def ml_health_check():
         "models": "mock (MVP)",
         "note": "Modelos TFLite reales pendientes de entrenamiento",
     }
-

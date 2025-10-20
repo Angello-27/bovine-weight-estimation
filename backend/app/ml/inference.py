@@ -40,8 +40,7 @@ class MLInferenceResult:
             "processing_time_ms": self.processing_time_ms,
             "model_version": self.model_version,
             "breed": self.breed.value,
-            "meets_quality_criteria": self.confidence
-            >= SystemMetrics.MIN_CONFIDENCE
+            "meets_quality_criteria": self.confidence >= SystemMetrics.MIN_CONFIDENCE
             and self.processing_time_ms < SystemMetrics.MAX_PROCESSING_TIME_MS,
         }
 
@@ -94,7 +93,9 @@ class MLInferenceEngine:
             # 4. Ejecutar inferencia
             # TODO: Implementar inferencia real con TFLite cuando tengamos modelos
             # Por ahora: estimación mock basada en raza
-            estimated_weight, confidence = self._mock_inference(breed, preprocessed_image)
+            estimated_weight, confidence = self._mock_inference(
+                breed, preprocessed_image
+            )
 
             # 5. Calcular tiempo de procesamiento
             processing_time_ms = int((time.time() - start_time) * 1000)
@@ -155,7 +156,8 @@ class MLInferenceEngine:
 
         # Obtener rango de la raza
         weight_min, weight_max = breed_weight_ranges.get(
-            breed, (400, 600)  # Default si no está en map
+            breed,
+            (400, 600),  # Default si no está en map
         )
 
         # Generar peso pseudo-aleatorio en el rango
@@ -187,9 +189,6 @@ class MLInferenceEngine:
             "breeds_loaded": [breed.value for breed in loaded_breeds],
             "all_breeds": [breed.value for breed in BreedType],
             "missing_breeds": [
-                breed.value
-                for breed in BreedType
-                if breed not in loaded_breeds
+                breed.value for breed in BreedType if breed not in loaded_breeds
             ],
         }
-

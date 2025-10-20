@@ -32,25 +32,17 @@ class WeightEstimationModel(Document):
     estimated_weight_kg: float = Field(
         ..., description="Peso estimado en kg", ge=0, le=1500
     )
-    confidence: float = Field(
-        ..., description="Confidence score (0.0-1.0)", ge=0, le=1
-    )
+    confidence: float = Field(..., description="Confidence score (0.0-1.0)", ge=0, le=1)
 
     # Metadata de procesamiento
-    method: str = Field(
-        default="tflite", description="Método: tflite/schaeffer/manual"
-    )
-    model_version: str = Field(
-        default="1.0.0", description="Versión del modelo usado"
-    )
+    method: str = Field(default="tflite", description="Método: tflite/schaeffer/manual")
+    model_version: str = Field(default="1.0.0", description="Versión del modelo usado")
     processing_time_ms: int = Field(..., description="Tiempo de procesamiento en ms")
     frame_image_path: str = Field(..., description="Path del fotograma usado")
 
     # Datos de ubicación (opcional)
     latitude: float | None = Field(None, description="Latitud GPS", ge=-90, le=90)
-    longitude: float | None = Field(
-        None, description="Longitud GPS", ge=-180, le=180
-    )
+    longitude: float | None = Field(None, description="Longitud GPS", ge=-180, le=180)
 
     # Timestamps
     timestamp: Indexed(datetime) = Field(
@@ -162,4 +154,3 @@ class WeightEstimationModel(Document):
                 "timestamp": "2024-10-20T14:30:00Z",
             }
         }
-

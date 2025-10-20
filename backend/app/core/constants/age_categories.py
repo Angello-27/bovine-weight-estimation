@@ -37,9 +37,7 @@ class AgeCategory(str, Enum):
             AgeCategory.TERNEROS
         """
         now = datetime.now()
-        age_months = (now.year - birth_date.year) * 12 + (
-            now.month - birth_date.month
-        )
+        age_months = (now.year - birth_date.year) * 12 + (now.month - birth_date.month)
 
         if age_months < 8:
             return cls.TERNEROS
@@ -94,4 +92,3 @@ AGE_CATEGORY_RANGES: dict[AgeCategory, tuple[int, int | None, str]] = {
     AgeCategory.VAQUILLONAS_TORETES: (19, 30, "19-30 meses"),
     AgeCategory.VACAS_TOROS: (30, None, ">30 meses"),
 }
-

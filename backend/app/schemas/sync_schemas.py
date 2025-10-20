@@ -45,7 +45,9 @@ class CattleSyncItemRequest(BaseModel):
     mother_id: str | None = None
     father_id: str | None = None
     observations: str | None = Field(None, max_length=1000)
-    status: str = Field(default="active", description="Estado: active/sold/dead/inactive")
+    status: str = Field(
+        default="active", description="Estado: active/sold/dead/inactive"
+    )
     registration_date: datetime = Field(..., description="Fecha de registro")
     last_updated: datetime = Field(..., description="Última modificación UTC")
     photo_path: str | None = None
@@ -123,7 +125,9 @@ class WeightEstimationSyncItemRequest(BaseModel):
     id: str = Field(..., description="UUID de la estimación")
     cattle_id: str | None = Field(None, description="ID del animal (puede ser null)")
     breed: str = Field(..., description="Raza")
-    estimated_weight: float = Field(..., gt=0, lt=1500, description="Peso estimado en kg")
+    estimated_weight: float = Field(
+        ..., gt=0, lt=1500, description="Peso estimado en kg"
+    )
     confidence_score: float = Field(..., ge=0, le=1, description="Confianza 0-1")
     frame_image_path: str = Field(..., description="Path del fotograma")
     timestamp: datetime = Field(..., description="Fecha/hora de la estimación")
@@ -196,4 +200,3 @@ class HealthCheckResponse(BaseModel):
     database: str = Field(..., description="Estado de MongoDB")
     timestamp: datetime = Field(default_factory=datetime.utcnow)
     version: str = "1.0.0"
-

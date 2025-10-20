@@ -78,7 +78,6 @@ class ImagePreprocessor:
         # Expandir dimensión de batch (1, 224, 224, 3)
         return np.expand_dims(img_array, axis=0)
 
-
     @classmethod
     def _normalize(cls, img_array: np.ndarray) -> np.ndarray:
         """
@@ -96,7 +95,6 @@ class ImagePreprocessor:
         # Broadcasting: (224, 224, 3) - (3,) / (3,)
         return (img_array - mean) / std
 
-
     @classmethod
     def validate_image_size(cls, image: Image.Image) -> bool:
         """
@@ -110,4 +108,3 @@ class ImagePreprocessor:
         """
         width, height = image.size
         return width >= cls.INPUT_SIZE[0] and height >= cls.INPUT_SIZE[1]
-

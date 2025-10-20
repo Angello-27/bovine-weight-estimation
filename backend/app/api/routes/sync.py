@@ -26,6 +26,7 @@ router = APIRouter(
     },
 )
 
+
 # Dependency injection del servicio
 # TODO: En producción, usar FastAPI Depends con singleton pattern
 def get_sync_service() -> SyncService:
@@ -96,7 +97,6 @@ async def sync_cattle_batch(
             device_id=request.device_id,
         )
 
-
     except HTTPException:
         # Re-raise HTTP exceptions
         raise
@@ -161,7 +161,6 @@ async def sync_weight_estimations_batch(
             items=request.items,
             device_id=request.device_id,
         )
-
 
     except HTTPException:
         raise
@@ -228,4 +227,3 @@ async def sync_stats(
         "storage": "memory (MVP)",
         "note": "Deshabilitar en producción",
     }
-

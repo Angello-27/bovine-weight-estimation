@@ -144,4 +144,3 @@ def get_settings() -> Settings:
 
 # Instancia global (singleton)
 settings = get_settings()
-

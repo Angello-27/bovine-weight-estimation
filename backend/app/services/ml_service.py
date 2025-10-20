@@ -55,7 +55,7 @@ class MLService:
         max_size_bytes = 10 * 1024 * 1024  # 10 MB
         if len(image_bytes) > max_size_bytes:
             raise ValidationException(
-                f"Imagen demasiado grande: {len(image_bytes)/1024/1024:.1f} MB "
+                f"Imagen demasiado grande: {len(image_bytes) / 1024 / 1024:.1f} MB "
                 f"(máximo: 10 MB)"
             )
 
@@ -91,4 +91,3 @@ class MLService:
             Diccionario con info de modelos
         """
         return self.inference_engine.get_loaded_models_info()
-

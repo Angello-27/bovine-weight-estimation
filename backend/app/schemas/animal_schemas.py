@@ -60,9 +60,7 @@ class AnimalUpdateRequest(BaseModel):
     def validate_status(cls, v: str | None) -> str | None:
         """Valida status."""
         if v is not None and v not in ["active", "inactive", "sold", "deceased"]:
-            raise ValueError(
-                "Status debe ser: active, inactive, sold o deceased"
-            )
+            raise ValueError("Status debe ser: active, inactive, sold o deceased")
         return v
 
 
@@ -97,4 +95,3 @@ class AnimalsListResponse(BaseModel):
     animals: list[AnimalResponse]
     page: int = 1
     page_size: int = 50
-

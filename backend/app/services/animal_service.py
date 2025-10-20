@@ -200,4 +200,3 @@ class AnimalService:
             age_months=animal.calculate_age_months(),
             age_category=animal.calculate_age_category().value,
         )
-
