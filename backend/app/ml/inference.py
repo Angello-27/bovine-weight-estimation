@@ -9,8 +9,8 @@ import time
 
 import numpy as np
 
-from ..core.constants import BreedType, SystemMetrics
-from ..core.errors import MLModelException, ValidationException
+from app.core.constants import BreedType, SystemMetrics
+from app.core.errors import MLModelException, ValidationException
 from .model_loader import MLModelLoader
 from .preprocessing import ImagePreprocessor
 from .strategy_context import WeightEstimationContext

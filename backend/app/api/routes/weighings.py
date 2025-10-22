@@ -114,10 +114,10 @@ async def get_weighing(
     """,
 )
 async def get_animal_weighings(
+    service: Annotated[WeighingService, Depends(get_weighing_service)],
     animal_id: UUID,
     page: int = Query(1, ge=1, description="Número de página"),
     page_size: int = Query(50, ge=1, le=100, description="Tamaño de página"),
-    service: Annotated[WeighingService, Depends(get_weighing_service)] = Depends(),
 ) -> WeighingsListResponse:
     """Obtiene historial de pesajes de un animal."""
     try:
@@ -150,9 +150,9 @@ async def get_animal_weighings(
     description="Lista todas las estimaciones con paginación (admin).",
 )
 async def list_weighings(
+    service: Annotated[WeighingService, Depends(get_weighing_service)],
     page: int = Query(1, ge=1),
     page_size: int = Query(50, ge=1, le=100),
-    service: Annotated[WeighingService, Depends(get_weighing_service)] = Depends(),
 ) -> WeighingsListResponse:
     """Lista todas las estimaciones."""
     try:

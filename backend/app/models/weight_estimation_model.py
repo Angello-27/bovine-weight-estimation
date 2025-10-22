@@ -23,12 +23,12 @@ class WeightEstimationModel(Document):
     id: UUID = Field(default_factory=uuid4, alias="_id")
 
     # Animal relacionado
-    animal_id: Indexed(UUID) | None = Field(
+    animal_id: Indexed(str) | None = Field(
         None, description="ID del animal (si está vinculado)"
     )
 
     # Datos de estimación
-    breed: Indexed(BreedType) = Field(..., description="Raza del animal")
+    breed: Indexed(str) = Field(..., description="Raza del animal")
     estimated_weight_kg: float = Field(
         ..., description="Peso estimado en kg", ge=0, le=1500
     )

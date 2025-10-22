@@ -7,7 +7,7 @@ import cv2
 import numpy as np
 from ultralytics import YOLO
 
-from ...core.constants import BreedType
+from app.core.constants import BreedType
 from .base_strategy import BaseWeightEstimationStrategy
 
 

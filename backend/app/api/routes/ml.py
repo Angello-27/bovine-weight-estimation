@@ -71,11 +71,11 @@ def get_ml_service() -> MLService:
     """,
 )
 async def predict_weight(
+    ml_service: Annotated[MLService, Depends(get_ml_service)],
     image: UploadFile = File(..., description="Imagen del bovino (JPEG/PNG)"),
     breed: BreedType = Form(..., description="Raza del animal"),
     animal_id: UUID | None = Form(None, description="ID del animal (opcional)"),
     device_id: str | None = Form(None, description="ID del dispositivo"),
-    ml_service: Annotated[MLService, Depends(get_ml_service)] = Depends(),
 ):
     """
     Predice peso de un bovino con IA.
@@ -155,7 +155,7 @@ async def predict_weight(
     """,
 )
 async def get_models_status(
-    ml_service: Annotated[MLService, Depends(get_ml_service)] = Depends(),
+    ml_service: Annotated[MLService, Depends(get_ml_service)],
 ):
     """Obtiene estado de modelos ML."""
     try:

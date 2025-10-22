@@ -5,10 +5,10 @@ Implementa Strategy Pattern con selección automática
 
 from typing import Dict, Any, List
 
-from ...core.constants import BreedType
-from .base_strategy import BaseWeightEstimationStrategy
-from .hybrid_strategy import HybridWeightEstimationStrategy
-from .ml_strategy import MLWeightEstimationStrategy
+from app.core.constants import BreedType
+from .strategies.base_strategy import BaseWeightEstimationStrategy
+from .strategies.hybrid_strategy import HybridWeightEstimationStrategy
+from .strategies.ml_strategy import MLWeightEstimationStrategy
 
 
 class WeightEstimationContext:

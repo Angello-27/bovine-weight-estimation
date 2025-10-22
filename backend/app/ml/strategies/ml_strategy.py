@@ -6,7 +6,7 @@ Implementa Strategy Pattern para método ML tradicional
 import numpy as np
 from typing import Dict, Any
 
-from ...core.constants import BreedType
+from app.core.constants import BreedType
 from .base_strategy import BaseWeightEstimationStrategy
 
 

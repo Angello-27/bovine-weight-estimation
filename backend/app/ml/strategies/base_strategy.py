@@ -6,7 +6,7 @@ Implementa Strategy Pattern siguiendo principios SOLID
 from abc import ABC, abstractmethod
 from typing import Dict, Any
 
-from ...core.constants import BreedType
+from app.core.constants import BreedType
 
 
 class BaseWeightEstimationStrategy(ABC):

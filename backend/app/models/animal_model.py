@@ -27,7 +27,7 @@ class AnimalModel(Document):
     ear_tag: Indexed(str, unique=True) = Field(
         ..., description="Número de caravana/arete (único)"
     )
-    breed: Indexed(BreedType) = Field(..., description="Raza del animal (una de las 7)")
+    breed: Indexed(str) = Field(..., description="Raza del animal (una de las 8)")
     birth_date: datetime = Field(..., description="Fecha de nacimiento")
     gender: Indexed(str) = Field(..., description="Género: male o female")
 
@@ -37,8 +37,8 @@ class AnimalModel(Document):
     birth_weight_kg: float | None = Field(
         None, description="Peso al nacer en kg", ge=0, le=100
     )
-    mother_id: UUID | None = Field(None, description="ID de la madre")
-    father_id: UUID | None = Field(None, description="ID del padre")
+    mother_id: str | None = Field(None, description="ID de la madre")
+    father_id: str | None = Field(None, description="ID del padre")
     observations: str | None = Field(None, description="Observaciones adicionales")
     photo_url: str | None = Field(None, description="URL de foto del animal")
 

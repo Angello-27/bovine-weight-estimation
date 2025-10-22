@@ -121,11 +121,11 @@ async def get_animal(
     """,
 )
 async def list_animals(
+    service: Annotated[AnimalService, Depends(get_animal_service)],
     farm_id: UUID = Query(..., description="ID de la hacienda"),
     status: str | None = Query(None, description="Filtro por estado"),
     page: int = Query(1, ge=1, description="Número de página"),
     page_size: int = Query(50, ge=1, le=100, description="Tamaño de página"),
-    service: Annotated[AnimalService, Depends(get_animal_service)] = Depends(),
 ) -> AnimalsListResponse:
     """Lista animales con paginación."""
     try:

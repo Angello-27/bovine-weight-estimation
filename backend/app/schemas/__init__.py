@@ -12,12 +12,13 @@ from .animal_schemas import (
 from .sync_schemas import (
     CattleSyncBatchRequest,
     CattleSyncBatchResponse,
-    CattleSyncItem,
+    CattleSyncItemRequest,
+    CattleSyncItemResponse,
     HealthCheckResponse,
-    SyncItemResponse,
     WeightEstimationSyncBatchRequest,
     WeightEstimationSyncBatchResponse,
-    WeightEstimationSyncItem,
+    WeightEstimationSyncItemRequest,
+    WeightEstimationSyncItemResponse,
 )
 from .weighing_schemas import (
     WeighingCreateRequest,
@@ -36,12 +37,13 @@ __all__ = [
     "WeighingResponse",
     "WeighingsListResponse",
     # Sync
-    "CattleSyncItem",
+    "CattleSyncItemRequest",
+    "CattleSyncItemResponse",
     "CattleSyncBatchRequest",
     "CattleSyncBatchResponse",
-    "WeightEstimationSyncItem",
+    "WeightEstimationSyncItemRequest",
+    "WeightEstimationSyncItemResponse",
     "WeightEstimationSyncBatchRequest",
     "WeightEstimationSyncBatchResponse",
-    "SyncItemResponse",
     "HealthCheckResponse",
 ]
