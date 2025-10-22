@@ -39,7 +39,8 @@ class HybridWeightEstimationStrategy(BaseWeightEstimationStrategy):
             BreedType.CEBUINAS: {'a': 0.51, 'b': 148, 'min': 290, 'max': 880},
             BreedType.CRIOLLO: {'a': 0.48, 'b': 155, 'min': 220, 'max': 650},
             BreedType.PARDO_SUIZO: {'a': 0.55, 'b': 140, 'min': 260, 'max': 800},
-            BreedType.JERSEY: {'a': 0.45, 'b': 130, 'min': 200, 'max': 600},
+            BreedType.GUZERAT: {'a': 0.47, 'b': 160, 'min': 300, 'max': 700},  # Lechero y carne
+            BreedType.HOLSTEIN: {'a': 0.45, 'b': 130, 'min': 200, 'max': 600},  # Lechera
         }
     
     def _get_detector(self) -> YOLO:

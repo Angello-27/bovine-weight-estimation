@@ -63,8 +63,11 @@ def get_ml_service() -> MLService:
     - Tiempo: <3 segundos
     - Confidence: ≥80%
 
-    **7 Razas soportadas**:
-    - brahman, nelore, angus, cebuinas, criollo, pardo_suizo, jersey
+    **8 Razas soportadas**:
+    - brahman, nelore, angus, cebuinas, criollo, pardo_suizo, guzerat, holstein
+    
+    **Razas prioritarias** (más datos disponibles):
+    - brahman, nelore, angus
     """,
 )
 async def predict_weight(

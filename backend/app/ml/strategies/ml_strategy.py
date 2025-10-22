@@ -68,15 +68,16 @@ class MLWeightEstimationStrategy(BaseWeightEstimationStrategy):
         Returns:
             (peso_estimado_kg, confidence)
         """
-        # Rangos típicos por raza
+        # Rangos típicos por raza (actualizados para 8 razas)
         breed_weight_ranges = {
-            BreedType.BRAHMAN: (400, 650),
-            BreedType.NELORE: (380, 620),
-            BreedType.ANGUS: (450, 700),
-            BreedType.CEBUINAS: (350, 600),
-            BreedType.CRIOLLO: (300, 550),
-            BreedType.PARDO_SUIZO: (500, 800),
-            BreedType.JERSEY: (350, 500),
+            BreedType.BRAHMAN: (400, 650),  # Bos indicus robusto
+            BreedType.NELORE: (380, 620),  # Bos indicus
+            BreedType.ANGUS: (450, 700),  # Bos taurus, buena carne
+            BreedType.CEBUINAS: (350, 600),  # Bos indicus general
+            BreedType.CRIOLLO: (300, 550),  # Adaptado local
+            BreedType.PARDO_SUIZO: (500, 800),  # Bos taurus grande
+            BreedType.GUZERAT: (350, 650),  # Lechero y carne
+            BreedType.HOLSTEIN: (300, 500),  # Lechera, menor tamaño
         }
         
         # Obtener rango de la raza

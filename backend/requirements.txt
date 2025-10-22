@@ -25,14 +25,22 @@ passlib[bcrypt]==1.7.4
 python-dotenv==1.0.0
 
 # ===== Machine Learning =====
-# TensorFlow para inferencia backend (opcional)
-# tensorflow==2.15.0  # Comentado por ahora (instalación pesada)
+# TensorFlow 2.19+ para entrenamiento e inferencia
+tensorflow==2.19.0  # Versión actualizada para compatibilidad
 pillow==10.1.0      # Procesamiento de imágenes
 numpy==1.26.2       # Operaciones numéricas
 opencv-python==4.8.1.78  # Procesamiento de imágenes (YOLO)
 ultralytics==8.0.196  # YOLOv8 para detección de ganado
 scipy==1.11.4       # Optimización para calibración
 requests==2.31.0    # HTTP requests para APIs de generación
+
+# ===== ML Training Dependencies =====
+mlflow==2.8.1       # Experiment tracking
+albumentations==1.3.1  # Data augmentation
+matplotlib==3.8.2   # Visualización
+seaborn==0.13.0     # Visualización estadística
+pandas==2.1.4       # Manipulación de datos
+scikit-learn==1.3.2  # Métricas y evaluación
 
 # ===== Strategy Pattern Dependencies =====
 # Las estrategias usan las dependencias ML existentes

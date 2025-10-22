@@ -1,6 +1,7 @@
 """
 Constantes de Razas Bovinas - Hacienda Gamelera
-7 razas exactas (NO MODIFICAR sin autorización de Bruno Brito Macedo)
+8 razas exactas (ACTUALIZADO según información de Bruno Brito Macedo)
+San Ignacio de Velasco, Santa Cruz, Bolivia
 """
 
 from enum import Enum
@@ -9,22 +10,24 @@ from typing import Literal
 
 class BreedType(str, Enum):
     """
-    7 razas bovinas de Hacienda Gamelera.
+    8 razas bovinas de Hacienda Gamelera.
 
     IMPORTANTE: Estas son las ÚNICAS razas válidas en el sistema.
+    Prioridad: Brahman, Nelore, Angus (más datos disponibles)
     """
 
-    BRAHMAN = "brahman"  # Bos indicus
-    NELORE = "nelore"  # Bos indicus
-    ANGUS = "angus"  # Bos taurus
-    CEBUINAS = "cebuinas"  # Bos indicus
-    CRIOLLO = "criollo"  # Bos taurus
-    PARDO_SUIZO = "pardo_suizo"  # Bos taurus
-    JERSEY = "jersey"  # Bos taurus
+    BRAHMAN = "brahman"  # Bos indicus, muy común en Chiquitanía
+    NELORE = "nelore"  # Bos indicus, 80% del Pantanal
+    ANGUS = "angus"  # Bos taurus, carne de calidad
+    CEBUINAS = "cebuinas"  # Bos indicus general (agrupa varias razas zebu)
+    CRIOLLO = "criollo"  # Criollo Chaqueño, adaptado local
+    PARDO_SUIZO = "pardo_suizo"  # Bos taurus grande
+    GUZERAT = "guzerat"  # Bos indicus, lechero y carne (reemplaza Jersey)
+    HOLSTEIN = "holstein"  # Lechera, común en región
 
     @classmethod
     def is_valid(cls, breed: str) -> bool:
-        """Valida si la raza es una de las 7 exactas."""
+        """Valida si la raza es una de las 8 exactas."""
         try:
             cls(breed)
             return True
@@ -39,9 +42,10 @@ class BreedType(str, Enum):
             cls.NELORE: "Nelore",
             cls.ANGUS: "Angus",
             cls.CEBUINAS: "Cebuinas (Bos indicus)",
-            cls.CRIOLLO: "Criollo (Bos taurus)",
+            cls.CRIOLLO: "Criollo Chaqueño",
             cls.PARDO_SUIZO: "Pardo Suizo",
-            cls.JERSEY: "Jersey",
+            cls.GUZERAT: "Guzerat",
+            cls.HOLSTEIN: "Holstein",
         }
         return display_names[breed]
 
@@ -65,7 +69,8 @@ BreedTypeLiteral = Literal[
     "cebuinas",
     "criollo",
     "pardo_suizo",
-    "jersey",
+    "guzerat",
+    "holstein",
 ]
 
 # Mapeos útiles
@@ -74,9 +79,10 @@ BREED_DISPLAY_NAMES = {
     BreedType.NELORE: "Nelore",
     BreedType.ANGUS: "Angus",
     BreedType.CEBUINAS: "Cebuinas (Bos indicus)",
-    BreedType.CRIOLLO: "Criollo (Bos taurus)",
+    BreedType.CRIOLLO: "Criollo Chaqueño",
     BreedType.PARDO_SUIZO: "Pardo Suizo",
-    BreedType.JERSEY: "Jersey",
+    BreedType.GUZERAT: "Guzerat",
+    BreedType.HOLSTEIN: "Holstein",
 }
 
 BREED_MODEL_FILENAMES = {
@@ -86,5 +92,28 @@ BREED_MODEL_FILENAMES = {
     BreedType.CEBUINAS: "cebuinas-v1.0.0.tflite",
     BreedType.CRIOLLO: "criollo-v1.0.0.tflite",
     BreedType.PARDO_SUIZO: "pardo_suizo-v1.0.0.tflite",
-    BreedType.JERSEY: "jersey-v1.0.0.tflite",
+    BreedType.GUZERAT: "guzerat-v1.0.0.tflite",
+    BreedType.HOLSTEIN: "holstein-v1.0.0.tflite",
 }
+
+# Razas prioritarias (más datos disponibles)
+PRIORITY_BREEDS = [
+    BreedType.BRAHMAN,
+    BreedType.NELORE,
+    BreedType.ANGUS,
+]
+
+# Clasificación por especie
+BOS_INDICUS_BREEDS = [
+    BreedType.BRAHMAN,
+    BreedType.NELORE,
+    BreedType.CEBUINAS,
+    BreedType.GUZERAT,
+]
+
+BOS_TAURUS_BREEDS = [
+    BreedType.ANGUS,
+    BreedType.CRIOLLO,
+    BreedType.PARDO_SUIZO,
+    BreedType.HOLSTEIN,
+]

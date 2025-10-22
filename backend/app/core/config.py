@@ -86,7 +86,10 @@ class Settings(BaseSettings):
     # ===== Hacienda Gamelera =====
     HACIENDA_NAME: str = "Hacienda Gamelera"
     HACIENDA_OWNER: str = "Bruno Brito Macedo"
-    HACIENDA_CAPACITY: int = 500  # 500 cabezas
+    HACIENDA_LOCATION: str = "San Ignacio de Velasco, Santa Cruz, Bolivia"
+    HACIENDA_CAPACITY: int = 500  # 500 cabezas de ganado bovino
+    PROJECT_TYPE: str = "Proyecto académico final de carrera"
+    PROJECT_DEADLINE: str = "Finales noviembre / inicio diciembre 2024"
 
     model_config = SettingsConfigDict(
         env_file=".env",
