@@ -1,6 +1,6 @@
 """
-Hybrid Strategy - Estimación híbrida YOLO + fórmulas morfométricas
-Implementa Strategy Pattern para método híbrido
+Morphometric Weight Estimation Strategy - Estimación basada en morfometría
+Implementa Strategy Pattern para método morfométrico con detección YOLO
 """
 
 import cv2
@@ -11,17 +11,20 @@ from app.core.constants import BreedType
 from .base_strategy import BaseWeightEstimationStrategy
 
 
-class HybridWeightEstimationStrategy(BaseWeightEstimationStrategy):
+class MorphometricWeightEstimationStrategy(BaseWeightEstimationStrategy):
     """
-    Estrategia híbrida que combina YOLO + fórmulas morfométricas.
+    Estrategia morfométrica que combina detección YOLO + fórmulas morfométricas.
     
-    Single Responsibility: Implementar estimación híbrida específica
+    Single Responsibility: Implementar estimación morfométrica específica
     Open/Closed: Extensible para nuevas fórmulas por raza
     Dependency Inversion: Depende de abstracción (BaseWeightEstimationStrategy)
+    
+    Método: Detección de ganado con YOLO + cálculo de peso usando fórmulas
+    morfométricas calibradas por raza (Schaeffer adaptada).
     """
     
     def __init__(self):
-        """Inicializa la estrategia híbrida."""
+        """Inicializa la estrategia morfométrica."""
         self._detector = None
         self._breed_params = self._initialize_breed_params()
     
@@ -162,7 +165,7 @@ class HybridWeightEstimationStrategy(BaseWeightEstimationStrategy):
     
     def get_strategy_name(self) -> str:
         """Retorna nombre de la estrategia."""
-        return "hybrid_yolo_morphometric"
+        return "morphometric_yolo_detection"
     
     def is_available(self) -> bool:
         """

@@ -7,8 +7,8 @@ from typing import Dict, Any, List
 
 from app.core.constants import BreedType
 from .strategies.base_strategy import BaseWeightEstimationStrategy
-from .strategies.hybrid_strategy import HybridWeightEstimationStrategy
-from .strategies.ml_strategy import MLWeightEstimationStrategy
+from .strategies.morphometric_strategy import MorphometricWeightEstimationStrategy
+from .strategies.deep_learning_strategy import DeepLearningWeightEstimationStrategy
 
 
 class WeightEstimationContext:
@@ -23,8 +23,8 @@ class WeightEstimationContext:
     def __init__(self):
         """Inicializa el contexto con estrategias disponibles."""
         self._strategies: List[BaseWeightEstimationStrategy] = [
-            MLWeightEstimationStrategy(),  # Prioridad alta: ML entrenado
-            HybridWeightEstimationStrategy(),  # Fallback: Híbrido
+            DeepLearningWeightEstimationStrategy(),  # Prioridad alta: Deep Learning entrenado
+            MorphometricWeightEstimationStrategy(),  # Fallback: Morfométrica con YOLO
         ]
     
     def estimate_weight(self, image_bytes: bytes, breed: BreedType) -> Dict[str, Any]:
@@ -98,14 +98,14 @@ class WeightEstimationContext:
         else:
             self._strategies.append(strategy)
     
-    def get_hybrid_strategy(self) -> HybridWeightEstimationStrategy | None:
+    def get_morphometric_strategy(self) -> MorphometricWeightEstimationStrategy | None:
         """
-        Obtiene la estrategia híbrida si está disponible.
+        Obtiene la estrategia morfométrica si está disponible.
         
         Returns:
-            Instancia de HybridWeightEstimationStrategy o None
+            Instancia de MorphometricWeightEstimationStrategy o None
         """
         for strategy in self._strategies:
-            if isinstance(strategy, HybridWeightEstimationStrategy):
+            if isinstance(strategy, MorphometricWeightEstimationStrategy):
                 return strategy
         return None

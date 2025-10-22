@@ -1,14 +1,16 @@
 """
-ML Strategies - Patrón Strategy para diferentes métodos de estimación
-Implementa Strategy Pattern para estimación de peso bovino
+Weight Estimation Strategies Package
+Paquete de estrategias para estimación de peso bovino
+
+Clean Architecture: Implementa Strategy Pattern para diferentes métodos de estimación
 """
 
 from .base_strategy import BaseWeightEstimationStrategy
-from .hybrid_strategy import HybridWeightEstimationStrategy
-from .ml_strategy import MLWeightEstimationStrategy
+from .morphometric_strategy import MorphometricWeightEstimationStrategy
+from .deep_learning_strategy import DeepLearningWeightEstimationStrategy
 
 __all__ = [
     "BaseWeightEstimationStrategy",
-    "HybridWeightEstimationStrategy", 
-    "MLWeightEstimationStrategy",
+    "MorphometricWeightEstimationStrategy",
+    "DeepLearningWeightEstimationStrategy",
 ]

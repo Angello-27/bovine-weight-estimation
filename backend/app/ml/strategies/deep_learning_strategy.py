@@ -1,6 +1,6 @@
 """
-ML Strategy - Estimación usando modelos ML entrenados
-Implementa Strategy Pattern para método ML tradicional
+Deep Learning Weight Estimation Strategy - Estimación usando modelos ML entrenados
+Implementa Strategy Pattern para método de Deep Learning
 """
 
 import numpy as np
@@ -10,17 +10,20 @@ from app.core.constants import BreedType
 from .base_strategy import BaseWeightEstimationStrategy
 
 
-class MLWeightEstimationStrategy(BaseWeightEstimationStrategy):
+class DeepLearningWeightEstimationStrategy(BaseWeightEstimationStrategy):
     """
-    Estrategia ML tradicional usando modelos entrenados.
+    Estrategia de Deep Learning usando modelos ML entrenados.
     
-    Single Responsibility: Implementar estimación ML específica
+    Single Responsibility: Implementar estimación de Deep Learning específica
     Open/Closed: Extensible para diferentes arquitecturas de modelo
     Dependency Inversion: Depende de abstracción (BaseWeightEstimationStrategy)
+    
+    Método: Modelos de Deep Learning entrenados con TensorFlow/Keras
+    para estimación directa de peso desde imágenes.
     """
     
     def __init__(self):
-        """Inicializa la estrategia ML."""
+        """Inicializa la estrategia de Deep Learning."""
         self._model_loader = None
         self._preprocessor = None
         self._loaded_models = {}
@@ -100,7 +103,7 @@ class MLWeightEstimationStrategy(BaseWeightEstimationStrategy):
     
     def get_strategy_name(self) -> str:
         """Retorna nombre de la estrategia."""
-        return "ml_trained_model"
+        return "deep_learning_model"
     
     def is_available(self) -> bool:
         """
