@@ -2,7 +2,7 @@
 ML Inference Engine
 Motor de inferencia para estimación de peso bovino
 
-Single Responsibility: Ejecutar inferencia con modelos ML
+Single Responsibility: Ejecutar inferencia con modelos ML usando Strategy Pattern
 """
 
 import time
@@ -13,6 +13,7 @@ from ..core.constants import BreedType, SystemMetrics
 from ..core.errors import MLModelException, ValidationException
 from .model_loader import MLModelLoader
 from .preprocessing import ImagePreprocessor
+from .strategy_context import WeightEstimationContext
 
 
 class MLInferenceResult:
@@ -56,6 +57,7 @@ class MLInferenceEngine:
         """Inicializa engine."""
         self.model_loader = MLModelLoader()
         self.preprocessor = ImagePreprocessor()
+        self.strategy_context = WeightEstimationContext()
 
     async def estimate_weight(
         self, image_bytes: bytes, breed: BreedType
@@ -84,23 +86,18 @@ class MLInferenceEngine:
                     f"Razas válidas: {[b.value for b in BreedType]}"
                 )
 
-            # 2. Preprocesar imagen
-            preprocessed_image = self.preprocessor.preprocess_from_bytes(image_bytes)
+            # 2. Usar contexto de estrategias para estimación
+            # Esto reemplaza el sistema híbrido anterior con Strategy Pattern
+            strategy_result = self.strategy_context.estimate_weight(image_bytes, breed)
+            
+            estimated_weight = strategy_result['weight']
+            confidence = strategy_result['confidence']
+            selected_strategy = strategy_result.get('selected_strategy', 'unknown')
 
-            # 3. Cargar modelo (o usar cache)
-            model = self.model_loader.load_model(breed)
-
-            # 4. Ejecutar inferencia
-            # TODO: Implementar inferencia real con TFLite cuando tengamos modelos
-            # Por ahora: estimación mock basada en raza
-            estimated_weight, confidence = self._mock_inference(
-                breed, preprocessed_image
-            )
-
-            # 5. Calcular tiempo de procesamiento
+            # 3. Calcular tiempo de procesamiento
             processing_time_ms = int((time.time() - start_time) * 1000)
 
-            # 6. Validar que cumpla métricas del sistema
+            # 4. Validar que cumpla métricas del sistema
             if processing_time_ms > SystemMetrics.MAX_PROCESSING_TIME_MS:
                 print(
                     f"⚠️ ADVERTENCIA: Procesamiento {processing_time_ms}ms > 3000ms objetivo"
@@ -109,12 +106,12 @@ class MLInferenceEngine:
             if confidence < SystemMetrics.MIN_CONFIDENCE:
                 print(f"⚠️ ADVERTENCIA: Confidence {confidence:.2%} < 80% mínimo")
 
-            # 7. Crear resultado
+            # 5. Crear resultado
             return MLInferenceResult(
                 estimated_weight_kg=estimated_weight,
                 confidence=confidence,
                 processing_time_ms=processing_time_ms,
-                model_version=model.get("version", "1.0.0-mock"),
+                model_version=f"1.0.0-{selected_strategy}",  # Indicar estrategia usada
                 breed=breed,
             )
 
@@ -180,9 +177,10 @@ class MLInferenceEngine:
         Obtiene información de modelos cargados.
 
         Returns:
-            Diccionario con info de modelos
+            Diccionario con info de modelos y estrategias
         """
         loaded_breeds = self.model_loader.get_loaded_breeds()
+        strategy_info = self.strategy_context.get_strategy_info()
 
         return {
             "total_loaded": len(loaded_breeds),
@@ -191,4 +189,6 @@ class MLInferenceEngine:
             "missing_breeds": [
                 breed.value for breed in BreedType if breed not in loaded_breeds
             ],
+            "strategies": strategy_info,
+            "available_strategies": self.strategy_context.get_available_strategies(),
         }

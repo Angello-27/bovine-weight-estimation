@@ -111,6 +111,7 @@ async def predict_weight(
             "confidence_level": weight_estimation.confidence_level,
             "processing_time_ms": weight_estimation.processing_time_ms,
             "model_version": weight_estimation.model_version,
+            "method": "strategy_based",  # Indicar que usa estrategias
             "meets_quality_criteria": weight_estimation.meets_quality_criteria,
             "timestamp": weight_estimation.timestamp.isoformat(),
         }
@@ -159,7 +160,8 @@ async def get_models_status(
         return {
             "status": "ok",
             **status_info,
-            "note": "Modelos en modo MVP (mock). Reemplazar con modelos reales entrenados.",
+            "note": "Sistema de estrategias activo: ML entrenado + híbrido YOLO como fallback",
+            "method": "strategy_based",
         }
     except Exception as e:
         raise HTTPException(
@@ -179,6 +181,7 @@ async def ml_health_check():
     return {
         "status": "healthy",
         "service": "ml_inference",
-        "models": "mock (MVP)",
-        "note": "Modelos TFLite reales pendientes de entrenamiento",
+        "method": "strategy_based",
+        "description": "Sistema de estrategias: ML entrenado + híbrido YOLO como fallback",
+        "note": "Sistema funcional con múltiples estrategias de estimación",
     }

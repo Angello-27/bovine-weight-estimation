@@ -71,7 +71,7 @@ class MLService:
             breed=breed,
             estimated_weight_kg=result.estimated_weight_kg,
             confidence=result.confidence,
-            method="tflite",
+            method="strategy_based",  # Indicar método basado en estrategias
             model_version=result.model_version,
             processing_time_ms=result.processing_time_ms,
             frame_image_path=f"temp/frame_{animal_id or 'unknown'}.jpg",  # TODO: S3
