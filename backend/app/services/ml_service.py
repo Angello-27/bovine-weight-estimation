@@ -66,9 +66,10 @@ class MLService:
 
         # 4. Crear modelo de peso
         # Nota: frame_image_path sería path real en producción
+        breed_value = breed.value if hasattr(breed, 'value') else breed
         weight_estimation = WeightEstimationModel(
-            animal_id=animal_id,
-            breed=breed,
+            animal_id=str(animal_id) if animal_id else None,
+            breed=breed_value,
             estimated_weight_kg=result.estimated_weight_kg,
             confidence=result.confidence,
             method="strategy_based",  # Indicar método basado en estrategias

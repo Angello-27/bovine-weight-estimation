@@ -80,15 +80,16 @@ class MLInferenceEngine:
 
         try:
             # 1. Validar raza
-            if not BreedType.is_valid(breed.value):
+            breed_value = breed.value if hasattr(breed, 'value') else breed
+            if not BreedType.is_valid(breed_value):
                 raise ValidationException(
-                    f"Raza inválida: {breed}. "
+                    f"Raza inválida: {breed_value}. "
                     f"Razas válidas: {[b.value for b in BreedType]}"
                 )
 
             # 2. Usar contexto de estrategias para estimación
             # Esto reemplaza el sistema híbrido anterior con Strategy Pattern
-            strategy_result = self.strategy_context.estimate_weight(image_bytes, breed)
+            strategy_result = self.strategy_context.estimate_weight(image_bytes, breed_value)
             
             estimated_weight = strategy_result['weight']
             confidence = strategy_result['confidence']
@@ -121,7 +122,7 @@ class MLInferenceEngine:
             raise
         except Exception as e:
             raise MLModelException(
-                f"Error inesperado en inferencia para {breed.value}: {str(e)}"
+                f"Error inesperado en inferencia para {breed_value}: {str(e)}"
             )
 
     def _mock_inference(
