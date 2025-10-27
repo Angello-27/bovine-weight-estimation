@@ -3,7 +3,7 @@
 /// Hacienda Gamelera - Bruno Brito Macedo
 /// Clean Architecture + Provider + Material Design 3
 ///
-/// Single Responsibility: Inicializar app y configurar providers
+/// Single Responsibility: Inicializar app
 library;
 
 import 'package:flutter/material.dart';
@@ -11,13 +11,9 @@ import 'package:provider/provider.dart';
 
 import 'core/config/app_config.dart';
 import 'core/config/dependency_injection.dart';
+import 'core/config/provider_configuration.dart';
 import 'core/routes/app_router.dart';
 import 'core/theme/app_theme.dart';
-import 'presentation/providers/capture_provider.dart';
-import 'presentation/providers/cattle_provider.dart';
-import 'presentation/providers/sync_provider.dart';
-import 'presentation/providers/weight_estimation_provider.dart';
-import 'presentation/providers/weight_history_provider.dart';
 
 void main() async {
   // Asegurar inicialización de Flutter
@@ -32,6 +28,9 @@ void main() async {
 }
 
 /// App principal
+///
+/// Single Responsibility: Construir el árbol de widgets de la app
+/// Dependency Inversion: Depende de abstracción (ProviderConfiguration)
 class MyApp extends StatelessWidget {
   final DependencyInjection di;
 
@@ -40,46 +39,9 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
-      providers: [
-        // Provider para captura de fotogramas (US-001)
-        ChangeNotifierProvider(
-          create: (_) =>
-              CaptureProvider(captureFramesUseCase: di.captureFramesUseCase),
-        ),
-
-        // Provider para estimación de peso (US-002)
-        ChangeNotifierProvider(
-          create: (_) => WeightEstimationProvider(
-            estimateWeightUseCase: di.estimateWeightUseCase,
-          ),
-        ),
-
-        // Provider para registro de ganado (US-003)
-        ChangeNotifierProvider(
-          create: (_) =>
-              CattleProvider(registerCattleUseCase: di.registerCattleUseCase),
-        ),
-
-        // Provider para historial de peso (US-004)
-        ChangeNotifierProvider(
-          create: (_) => WeightHistoryProvider(
-            getWeightHistoryUseCase: di.getWeightHistoryUseCase,
-          ),
-        ),
-
-        // Provider para sincronización (US-005)
-        ChangeNotifierProvider(
-          create: (_) => SyncProvider(
-            syncPendingItemsUseCase: di.syncPendingItemsUseCase,
-            getPendingCountUseCase: di.getPendingCountUseCase,
-            triggerManualSyncUseCase: di.triggerManualSyncUseCase,
-            checkConnectivityUseCase: di.checkConnectivityUseCase,
-          ),
-        ),
-
-        // TODO: Agregar más providers según se implementen US
-        // US-006: SearchProvider
-      ],
+      // Usa ProviderConfiguration para crear todos los providers
+      // Siguiendo principios SOLID: Open/Closed, Single Responsibility
+      providers: ProviderConfiguration.createProviders(di),
       child: MaterialApp(
         // Configuración básica
         title: AppConfig.appName,

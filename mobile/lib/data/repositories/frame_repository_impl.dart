@@ -1,11 +1,12 @@
 /// Repository Implementation: FrameRepositoryImpl
-/// 
+///
 /// Implementación del FrameRepository que coordina CameraDataSource y LocalDataSource.
 /// Maneja la lógica de almacenamiento offline-first.
 ///
 /// Data Layer - Clean Architecture
 library;
 
+import 'package:camera/camera.dart' as camera;
 import 'package:dartz/dartz.dart';
 import 'package:uuid/uuid.dart';
 
@@ -17,7 +18,6 @@ import '../../domain/repositories/frame_repository.dart';
 import '../datasources/camera_datasource.dart';
 import '../datasources/frame_local_datasource.dart';
 import '../models/capture_session_model.dart';
-import '../models/frame_model.dart';
 
 /// Implementación del repositorio de fotogramas
 class FrameRepositoryImpl implements FrameRepository {
@@ -27,6 +27,9 @@ class FrameRepositoryImpl implements FrameRepository {
 
   /// Sesión actual en memoria
   CaptureSessionModel? _currentSession;
+
+  /// Controller de la cámara (mantener en memoria durante la sesión)
+  camera.CameraController? _cameraController;
 
   FrameRepositoryImpl({
     required this.cameraDataSource,
@@ -41,16 +44,19 @@ class FrameRepositoryImpl implements FrameRepository {
     try {
       // Validar parámetros
       if (targetFps < 10 || targetFps > 15) {
-        return const Left(ValidationFailure(
-          message: 'FPS debe estar entre 10-15',
-        ));
+        return const Left(
+          ValidationFailure(message: 'FPS debe estar entre 10-15'),
+        );
       }
 
       if (durationSeconds < 3 || durationSeconds > 5) {
-        return const Left(ValidationFailure(
-          message: 'Duración debe estar entre 3-5 segundos',
-        ));
+        return const Left(
+          ValidationFailure(message: 'Duración debe estar entre 3-5 segundos'),
+        );
       }
+
+      // Inicializar cámara
+      _cameraController = await cameraDataSource.initializeCamera();
 
       // Crear nueva sesión
       final sessionId = _uuid.v4();
@@ -67,6 +73,8 @@ class FrameRepositoryImpl implements FrameRepository {
       _currentSession = session;
 
       return Right(session);
+    } on CameraException catch (e) {
+      return Left(CameraFailure(message: e.message));
     } on ValidationException catch (e) {
       return Left(ValidationFailure(message: e.message));
     } catch (e) {
@@ -79,32 +87,22 @@ class FrameRepositoryImpl implements FrameRepository {
     try {
       // Verificar que existe sesión activa
       if (_currentSession == null || _currentSession!.id != sessionId) {
-        return const Left(ValidationFailure(
-          message: 'No hay sesión activa con ese ID',
-        ));
+        return const Left(
+          ValidationFailure(message: 'No hay sesión activa con ese ID'),
+        );
       }
 
-      // TODO: Inicializar cámara si no está inicializada
-      // Por ahora, creamos fotograma mock para testing
-      // En producción, usar: cameraDataSource.captureFrame(controller)
+      // Verificar que la cámara está inicializada
+      if (_cameraController == null) {
+        return const Left(CameraFailure(message: 'Cámara no inicializada'));
+      }
 
-      // MOCK: Crear fotograma de prueba
-      final frame = FrameModel(
-        id: _uuid.v4(),
-        timestamp: DateTime.now(),
-        imagePath: '/tmp/mock_frame_${DateTime.now().millisecondsSinceEpoch}.jpg',
-        quality: const FrameQuality(
-          sharpness: 0.75,
-          brightness: 0.6,
-          contrast: 0.65,
-          silhouetteVisibility: 0.85,
-          angleScore: 0.7,
-        ),
-        globalScore: 0.75,
-      );
+      // Capturar fotograma real de la cámara
+      final frame = await cameraDataSource.captureFrame(_cameraController!);
 
       // Agregar fotograma a la sesión actual
-      final updatedFrames = List<Frame>.from(_currentSession!.frames)..add(frame);
+      final updatedFrames = List<Frame>.from(_currentSession!.frames)
+        ..add(frame);
       _currentSession = _currentSession!.copyWith(frames: updatedFrames);
 
       return Right(frame);
@@ -140,9 +138,9 @@ class FrameRepositoryImpl implements FrameRepository {
   ) async {
     try {
       if (_currentSession == null || _currentSession!.id != sessionId) {
-        return const Left(ValidationFailure(
-          message: 'No hay sesión activa con ese ID',
-        ));
+        return const Left(
+          ValidationFailure(message: 'No hay sesión activa con ese ID'),
+        );
       }
 
       // Marcar sesión como completada
@@ -153,6 +151,12 @@ class FrameRepositoryImpl implements FrameRepository {
 
       // Guardar sesión en SQLite
       await localDataSource.saveCaptureSession(completedSession);
+
+      // Liberar recursos de la cámara
+      if (_cameraController != null) {
+        await cameraDataSource.dispose(_cameraController!);
+        _cameraController = null;
+      }
 
       // Limpiar sesión actual
       _currentSession = null;
@@ -169,9 +173,9 @@ class FrameRepositoryImpl implements FrameRepository {
   Future<Either<Failure, void>> cancelCaptureSession(String sessionId) async {
     try {
       if (_currentSession == null || _currentSession!.id != sessionId) {
-        return const Left(ValidationFailure(
-          message: 'No hay sesión activa con ese ID',
-        ));
+        return const Left(
+          ValidationFailure(message: 'No hay sesión activa con ese ID'),
+        );
       }
 
       // Marcar sesión como cancelada
@@ -179,6 +183,12 @@ class FrameRepositoryImpl implements FrameRepository {
         endTime: DateTime.now(),
         status: CaptureSessionStatus.cancelled,
       );
+
+      // Liberar recursos de la cámara
+      if (_cameraController != null) {
+        await cameraDataSource.dispose(_cameraController!);
+        _cameraController = null;
+      }
 
       // Limpiar sesión actual (no guardar sesiones canceladas)
       _currentSession = null;
@@ -194,7 +204,9 @@ class FrameRepositoryImpl implements FrameRepository {
     try {
       return Right(_currentSession);
     } catch (e) {
-      return Left(UnknownFailure(message: 'Error al obtener sesión actual: $e'));
+      return Left(
+        UnknownFailure(message: 'Error al obtener sesión actual: $e'),
+      );
     }
   }
 
@@ -237,4 +249,3 @@ class FrameRepositoryImpl implements FrameRepository {
     }
   }
 }
-

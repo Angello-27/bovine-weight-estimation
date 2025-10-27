@@ -6,7 +6,8 @@
 /// Core Services Layer
 library;
 
-import 'package:permission_handler/permission_handler.dart';
+import 'package:permission_handler/permission_handler.dart'
+    as permission_handler;
 
 /// Servicio de gestión de permisos
 class PermissionService {
@@ -14,13 +15,13 @@ class PermissionService {
   ///
   /// NOTA: Solo cámara es crítica. Almacenamiento interno NO requiere permisos.
   Future<bool> hasAllRequiredPermissions() async {
-    final camera = await Permission.camera.isGranted;
+    final camera = await permission_handler.Permission.camera.isGranted;
     return camera;
   }
 
   /// Verifica si los permisos opcionales están otorgados
   Future<bool> hasOptionalPermissions() async {
-    final location = await Permission.location.isGranted;
+    final location = await permission_handler.Permission.location.isGranted;
     return location;
   }
 
@@ -31,50 +32,61 @@ class PermissionService {
   /// - SQLite en app-private storage no requiere permisos
   /// - No se guardan fotos en galería del usuario
   Future<bool> requestCameraPermission() async {
-    final cameraStatus = await Permission.camera.request();
+    final cameraStatus = await permission_handler.Permission.camera.request();
     return cameraStatus.isGranted;
   }
 
   /// Solicita permiso de ubicación (opcional para geolocalización)
   Future<bool> requestLocationPermission() async {
-    final locationStatus = await Permission.location.request();
+    final locationStatus = await permission_handler.Permission.location
+        .request();
     return locationStatus.isGranted;
   }
 
   /// Solicita un permiso específico
-  Future<PermissionStatus> requestPermission(Permission permission) async {
+  Future<permission_handler.PermissionStatus> requestPermission(
+    permission_handler.Permission permission,
+  ) async {
     return await permission.request();
   }
 
   /// Verifica si un permiso específico está otorgado
-  Future<bool> isPermissionGranted(Permission permission) async {
+  Future<bool> isPermissionGranted(
+    permission_handler.Permission permission,
+  ) async {
     return await permission.isGranted;
   }
 
   /// Verifica si un permiso fue denegado permanentemente
-  Future<bool> isPermissionPermanentlyDenied(Permission permission) async {
+  Future<bool> isPermissionPermanentlyDenied(
+    permission_handler.Permission permission,
+  ) async {
     return await permission.isPermanentlyDenied;
   }
 
   /// Abre la configuración de la app para que el usuario otorgue permisos
   Future<bool> openAppSettings() async {
-    return await openAppSettings();
+    return await permission_handler.openAppSettings();
   }
 
   /// Verifica estado de permiso de cámara
-  Future<PermissionStatus> getCameraPermissionStatus() async {
-    return await Permission.camera.status;
+  Future<permission_handler.PermissionStatus>
+  getCameraPermissionStatus() async {
+    return await permission_handler.Permission.camera.status;
   }
 
   /// Verifica estado de permiso de ubicación
-  Future<PermissionStatus> getLocationPermissionStatus() async {
-    return await Permission.location.status;
+  Future<permission_handler.PermissionStatus>
+  getLocationPermissionStatus() async {
+    return await permission_handler.Permission.location.status;
   }
 
   /// Verifica si se necesita mostrar rationale para un permiso
   ///
   /// Útil para mostrar diálogo explicativo antes de solicitar permiso
-  Future<bool> shouldShowRequestRationale(Permission permission) async {
+  Future<bool> shouldShowRequestRationale(
+    permission_handler.Permission permission,
+  ) async {
     final status = await permission.status;
     return status.isDenied && !status.isPermanentlyDenied;
   }

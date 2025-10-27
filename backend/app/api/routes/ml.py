@@ -108,7 +108,7 @@ async def predict_weight(
             "animal_id": str(weight_estimation.animal_id)
             if weight_estimation.animal_id
             else None,
-            "breed": weight_estimation.breed.value,
+            "breed": weight_estimation.breed,
             "estimated_weight_kg": weight_estimation.estimated_weight_kg,
             "confidence": weight_estimation.confidence,
             "confidence_level": weight_estimation.confidence_level,

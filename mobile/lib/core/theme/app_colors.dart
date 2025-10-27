@@ -70,6 +70,12 @@ class AppColors {
     end: Alignment.bottomRight,
   );
 
+  static const LinearGradient infoGradient = LinearGradient(
+    colors: [Color(0xFF3B82F6), Color(0xFF2563EB)],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+
   // Colores Neutros para UI
   static const Color grey50 = Color(0xFFFAFAFA);
   static const Color grey100 = Color(0xFFF5F5F5);

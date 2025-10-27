@@ -7,7 +7,8 @@
 library;
 
 import 'package:flutter/material.dart';
-import 'package:permission_handler/permission_handler.dart';
+import 'package:permission_handler/permission_handler.dart'
+    as permission_handler;
 
 import '../../../../core/config/dependency_injection.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -57,7 +58,7 @@ class CaptureActionButton extends StatelessWidget {
 
     // 1. Verificar si ya tiene permiso
     final hasPermission = await di.permissionService.isPermissionGranted(
-      Permission.camera,
+      permission_handler.Permission.camera,
     );
 
     if (hasPermission) {
@@ -80,7 +81,7 @@ class CaptureActionButton extends StatelessWidget {
 
     // 3. Solicitar permiso
     final status = await di.permissionService.requestPermission(
-      Permission.camera,
+      permission_handler.Permission.camera,
     );
 
     if (status.isGranted) {
