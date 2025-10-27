@@ -2,8 +2,8 @@
 # Python 3.11+
 
 # Machine Learning Core
-tensorflow==2.15.0
-keras==2.15.0
+tensorflow==2.19.0  # Última versión estable según estándares
+keras==2.19.0
 scikit-learn==1.3.2
 numpy==1.26.2
 pandas==2.1.3
@@ -11,7 +11,7 @@ pandas==2.1.3
 # Computer Vision
 opencv-python==4.8.1.78
 pillow==10.1.0
-albumentations==1.3.1
+albumentations==2.0.8  # Versión específica según estándares ML
 
 # Experiment Tracking
 mlflow==2.9.1
