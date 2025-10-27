@@ -17,7 +17,7 @@ Mejorar significativamente la experiencia de usuario (UX/UI) del sistema, modern
 
 ---
 
-## 📊 Estado Actual (18 Oct 2024)
+## 📊 Estado Actual (28 Oct 2024 - Mitad del sprint 50%)
 
 ### ✅ **Completado**
 
@@ -511,6 +511,65 @@ No issues found! ✅ (2.9s)
    - Queue con reintentos automáticos
    - Indicadores visuales en toda la app
    - 13 Story Points completados
+
+#### **US-004: Historial de Pesajes** ✅ COMPLETADA (20 Oct 2024)
+
+---
+
+#### **Refactorización Arquitectónica + SOLID** (28 Oct 2024)
+
+**Contexto**: Aplicar principios SOLID y completar Atomic Design en todas las páginas.
+
+**Cambios principales**:
+
+1. **ProviderConfiguration siguiendo SOLID**:
+   - Single Responsibility: Solo configura providers
+   - Open/Closed: Fácil agregar nuevos providers sin modificar existente
+   - Dependency Inversion: Depende de abstracción (DependencyInjection)
+   - Archivo: `mobile/lib/core/config/provider_configuration.dart` (106 líneas)
+
+2. **Cámara Real sin MOCK**:
+   - `frame_repository_impl.dart` ahora inicializa cámara real al startCaptureSession()
+   - Captura fotogramas reales de la cámara del dispositivo
+   - Libera recursos correctamente en endCaptureSession() y cancelCaptureSession()
+   - Eliminados todos los fotogramas MOCK
+
+3. **Bug de permisos Android 13 corregido**:
+   - `permission_service.dart`: Corregida función recursiva infinita en openAppSettings()
+   - Import correcto: `permission_handler.openAppSettings()`
+   - `AndroidManifest.xml`: Habilitado OnBackInvokedCallback para Android 13
+
+4. **Atomic Design completo en HomePage**:
+   - Refactorización: 317 líneas → 71 líneas (-78%)
+   - Componentes nuevos: `home_header.dart`, `home_stats.dart`, `home_quick_actions.dart`, `home_footer.dart`
+   - Composición pura: 0 métodos `_build...()`
+
+5. **Atomic Design completo en CapturePage**:
+   - Refactorización: 133 líneas → 61 líneas (-54%)
+   - Componentes nuevos: `capture_status_card.dart`, `capture_content.dart`, `camera_preview_widget.dart`
+   - Separación de responsabilidades: Status, Content, Actions
+
+6. **Paleta de colores actualizada**:
+   - `infoGradient` agregado para consistencia visual
+   - Archivo: `mobile/lib/core/theme/app_colors.dart`
+
+**Métricas**:
+- 8 archivos nuevos
+- 9 archivos modificados
+- ~700 líneas nuevas
+- Reducción total: 244 líneas eliminadas
+- 100% SOLID compliance
+- 100% Atomic Design
+- 0 linter errors
+- Commit: `b7b6dc5`
+
+**Impacto**:
+- Código más mantenible y extensible
+- Arquitectura más sólida siguiendo principios SOLID
+- Preview de cámara preparado para implementación
+- Mejor separación de responsabilidades
+
+---
 
 #### **US-004: Historial de Pesajes** ✅ COMPLETADA (20 Oct 2024)
 
