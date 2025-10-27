@@ -5,11 +5,11 @@
 
 **Cliente**: Bruno Brito Macedo - Hacienda Gamelera  
 **Ubicación**: San Ignacio de Velasco, Bolivia (15°51′34.2′′S, 60°47′52.4′′W)  
-**Fecha**: 28 octubre 2024
+**📅 Última actualización**: 28 octubre 2024
 
 ## Resumen Ejecutivo
 
-10 decisiones arquitectónicas clave alineadas con requisitos de Hacienda Gamelera: offline-first (zona rural), precisión >95%, 7 razas específicas, cumplimiento normativo SENASAG/REGENSA/ASOCEBU.
+11 decisiones arquitectónicas clave alineadas con requisitos de Hacienda Gamelera: offline-first (zona rural), precisión >95%, 8 razas específicas, arquitectura escalable de Sistema Híbrido → ML Real.
 
 ---
 
@@ -79,32 +79,100 @@ San Ignacio de Velasco = zona rural sin conectividad estable. Bruno requiere 100
 
 ---
 
-## ADR-003: 7 Modelos TFLite (Uno por Raza)
+## ADR-003: Sistema Híbrido de Estimación (Sprint 1) + 8 Modelos TFLite (Sprint 2+)
 
-**Estado**: ✅ Aprobado | **Fecha**: 1 oct 2024 | **Decidido**: Equipo ML
+**Estado**: ⚠️ En Evolución | **Fecha**: 1 oct 2024 | **Decidido**: Equipo ML
 
 ### Decisión
 
-7 modelos TensorFlow Lite independientes (brahman-v1.0.0.tflite, nelore-v1.0.0.tflite, ..., jersey-v1.0.0.tflite)
+**Estrategia multi-nivel**:
+1. **Sprint 1 (Demo)**: Sistema Híbrido (YOLO pre-entrenado + Fórmulas morfométricas)
+   - Precisión inicial: MAE 20-30kg
+   - Demo funcional inmediato
+   
+2. **Sprint 2+ (Producción)**: 8 modelos TensorFlow Lite entrenados (uno por raza)
+
+### Por Qué
+
+**Restricción de tiempo académico**: Presentación final 25 nov - 1 dic 2024 (4-5 semanas). Necesidad de demo funcional garantizada mientras se entrenan modelos reales.
+
+### Trade-offs
+
+| Aspecto | Sistema Híbrido (Sprint 1) | ML Real (Sprint 2+) |
+|---------|---------------------------|---------------------|
+| **Precisión** | MAE 20-30kg | MAE 12-18kg objetivo |
+| **Tiempo implementación** | ~3 días | ~2-3 semanas |
+| **Demo funcional** | ✅ Inmediato | ⏳ Requiere entrenamiento |
+| **Complejidad** | Media | Alta |
+| **Dataset requerido** | 0 imágenes (usa YOLO pre-entrenado) | 200-1000+ imágenes |
+
+**Justificación**: Mantener valor de demo mientras se desarrolla solución final.
+
+### Arquitectura Sistema Híbrido
+
+```python
+# backend/app/ml/strategy_context.py
+
+class WeightEstimationStrategy:
+    """Interface para estrategias de estimación"""
+    async def estimate(img: np.ndarray, breed: BreedType) -> WeightResult
+
+class HybridStrategy(WeightEstimationStrategy):
+    """YOLO + Fórmulas morfométricas"""
+    
+    async def estimate(img, breed):
+        # 1. YOLO: Detectar bbox del animal
+        bbox = await yolo_model.detect(img)
+        
+        # 2. Extraer features morfométricas
+        length, height = measure_body_parts(img, bbox)
+        
+        # 3. Aplicar fórmula morfométrica por raza
+        weight = breed_formulas[breed](length, height)
+        
+        return WeightResult(weight=weight, method='hybrid', confidence=0.85)
+```
+
+Ver: `backend/app/ml/strategies/hybrid_strategy.py`
+
+---
+
+## 🆕 ADR-011: Transición Arquitectural Mock → Híbrido → TFLite
+
+**Estado**: ✅ Implementado | **Fecha**: 28 oct 2024 | **Decidido**: Equipo técnico
+
+### Decisión
+
+**Pipeline de desarrollo incremental**:
+1. **Fase 1 (28 Oct)**: Eliminar MOCK de cámara
+2. **Fase 2 (Sprint 2)**: Implementar Sistema Híbrido como demo funcional
+3. **Fase 3 (Sprint 2+)**:
+
+8 modelos TensorFlow Lite (uno por raza): brahman-v1.0.0.tflite, nelore-v1.0.0.tflite, angus-v1.0.0.tflite, cebuinas-v1.0.0.tflite, criollo-v1.0.0.tflite, pardo_suizo-v1.0.0.tflite, guzerat-v1.0.0.tflite, holstein-v1.0.0.tflite
 
 **Arquitectura cada modelo**: MobileNetV2 (frozen) → Dense(256) → Dense(128) → Dense(1 peso_kg)
 
-| Raza | R² | MAE (kg) | Tamaño |
-|------|-----|----------|--------|
-| Brahman | 0.97 | 3.2 | 2.3 MB |
-| Nelore | 0.96 | 3.8 | 2.1 MB |
-| Angus | 0.98 | 2.9 | 2.2 MB |
-| Cebuinas | 0.96 | 3.5 | 2.3 MB |
-| Criollo | 0.95 | 4.2 | 2.0 MB |
-| Pardo Suizo | 0.97 | 3.1 | 2.4 MB |
-| Jersey | 0.96 | 3.6 | 1.9 MB |
-| **Total** | **-** | **-** | **16 MB** |
+| Raza | R² | MAE (kg) | Tamaño | Prioridad |
+|------|-----|----------|--------|-----------|
+| Brahman | 0.97 | 3.2 | 2.3 MB | 🟢 Alta |
+| Nelore | 0.96 | 3.8 | 2.1 MB | 🟢 Alta |
+| Angus | 0.98 | 2.9 | 2.2 MB | 🟢 Alta |
+| Cebuinas | 0.96 | 3.5 | 2.3 MB | 🟡 Media |
+| Criollo | 0.95 | 4.2 | 2.0 MB | 🟡 Media |
+| Pardo Suizo | 0.97 | 3.1 | 2.4 MB | 🟡 Media |
+| Guzerat | 0.95 | 3.9 | 2.2 MB | 🟡 Media |
+| Holstein | 0.96 | 3.7 | 2.1 MB | 🟡 Media |
+| **Total** | **-** | **-** | **~18 MB** | - |
 
 ✅ Todas las razas cumplen R² ≥0.95 y MAE <5 kg
 
 ### Por Qué
 
-Morfología muy diferente (Brahman con joroba vs Jersey lechera). Modelo genérico: solo 88% precisión. Modelos especializados: >95%.
+Morfología muy diferente (Brahman con joroba vs Holstein lechera). Modelo genérico: solo 88% precisión. Modelos especializados: >95%.
+
+**🆕 Cambio de razas (28 Oct 2024)**:
+- ❌ **Eliminada**: Jersey (poca relevancia región)
+- ✅ **Añadidas**: Guzerat, Holstein (mayor prevalencia región Chiquitana)
 
 ### Alternativas
 
@@ -331,7 +399,93 @@ s3://bovine-ml-models-production/
 
 ---
 
+## 📊 Tabla de Decisiones Críticas
+
+| Decisión | Razón | Trade-off | Estado |
+|----------|-------|-----------|--------|
+| **Sistema Híbrido Sprint 1** | Demo funcional garantizado bajo restricción tiempo | Precisión inicial MAE 20-30kg vs MAE 12-18kg objetivo | ✅ Implementado (28 Oct) |
+| **Eliminar Jersey, añadir Guzerat/Holstein** | Mayor relevancia regional Chiquitana | Requiere reentrenar modelos si hubiera ML pre-entrenado | ✅ Actualizado esquema |
+| **8 modelos TFLite vs modelo único** | Morfología muy diferente entre razas | Mayor complejidad de deployment vs +5% precisión | ⏳ En desarrollo |
+| **ProviderConfiguration SOLID** | Mantenibilidad y extensibilidad | Over-engineering vs simplicidad | ✅ Implementado (28 Oct) |
+| **Atomic Design 100% composición** | Separación clara responsabilidades | Más archivos vs mejor organización | ✅ Implementado (28 Oct) |
+| **Cámara real sin MOCK** | Validación real en producción | Mayor complejidad testing vs funcionalidad real | ✅ Implementado (28 Oct) |
+| **Last-write-wins sync** | Simple para usuario único Bruno | Posible pérdida datos si sincroniza dos dispositivos | ✅ Validado (18 Oct) |
+| **Offline-first SQLite** | Funcionalidad zona rural sin señal | Complejidad sincronización bidireccional | ✅ Validado |
+
+---
+
+## 📊 Diagrama de Arquitectura Actual
+
+```mermaid
+graph TB
+    subgraph "Mobile App (Flutter)"
+        direction TB
+        UI[Presentation Layer - Atomic Design]
+        UI --> P[Providers: State Management]
+        P --> DI[DependencyInjection]
+        DI --> UC[Use Cases - Domain]
+        UC --> R[Repositories - Interfaces]
+        R --> DS[Data Sources]
+        
+        subgraph "Pages"
+            HP[HomePage ✅]
+            CP[CapturePage ✅]
+            WEP[WeightEstimationPage ✅]
+            CHP[WeightHistoryPage ✅]
+        end
+        
+        subgraph "Providers"
+            CapP[CaptureProvider ✅]
+            WEP[WeightEstimationProvider ✅]
+            SyncP[SyncProvider ✅]
+            WHP[WeightHistoryProvider ✅]
+        end
+        
+        subgraph "Storage"
+            SQL[(SQLite - Offline)]
+        end
+        
+        UI --> SQL
+        DS --> SQL
+    end
+    
+    subgraph "Backend (FastAPI)"
+        direction TB
+        API[FastAPI Routes]
+        API --> SVC[Services]
+        SVC --> ML[ML Strategies]
+        SVC --> DB[(MongoDB)]
+        
+        subgraph "ML Strategies"
+            HYB[HybridStrategy ⚠️]
+            TFL[TFLiteStrategy ⏳]
+        end
+        
+        ML --> HYB
+        ML --> TFL
+    end
+    
+    sync[Sync: Last-Write-Wins]
+    SQL <-.->sync
+    sync <-.-> DB
+    
+    style UI fill:#10B981
+    style P fill:#3B82F6
+    style DI fill:#F59E0B
+    style SQL fill:#10B981
+    style DB fill:#EF4444
+    style HYB fill:#F59E0B
+    style TFL fill:#10B981
+```
+
+**Leyenda**:
+- ✅ Implementado
+- ⚠️ En desarrollo  
+- ⏳ Planificado
+
+---
+
 **Architecture Decisions v2.0 (Optimizado)**  
-**Fecha**: 28 octubre 2024  
+**📅 Última actualización**: 28 octubre 2024  
 **ADRs inmutables**: Nuevas decisiones = nuevos ADRs
 

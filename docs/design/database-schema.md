@@ -1,11 +1,12 @@
 # Esquema de Base de Datos
 
 > **VERSIÓN OPTIMIZADA** - Reducido de 1,267 líneas a ~700 líneas (~45% reducción)  
-> Mantiene: SQLite + MongoDB completos, 7 razas, índices, relaciones, sincronización
+> Mantiene: SQLite + MongoDB completos, 8 razas, índices, relaciones, sincronización
 
 **Cliente**: Hacienda Gamelera (Bruno Brito Macedo)  
 **Ubicación**: San Ignacio de Velasco, Bolivia  
-**Escala**: 500 animales, 7 razas, historial completo
+**Escala**: 500 animales, 8 razas, historial completo  
+**📅 Última actualización**: 28 octubre 2024
 
 ## Estrategia Dual Storage
 
@@ -27,7 +28,7 @@ CREATE TABLE animals (
     tag_number TEXT NOT NULL UNIQUE,           -- "HG-BRA-001"
     breed_type TEXT NOT NULL CHECK(breed_type IN (
         'brahman', 'nelore', 'angus', 'cebuinas',
-        'criollo', 'pardo_suizo', 'jersey'        -- 7 razas exactas
+        'criollo', 'pardo_suizo', 'guzerat', 'holstein'  -- 8 razas (🆕 actualizado 28 Oct)
     )),
     birth_date TEXT NOT NULL,                  -- ISO 8601
     gender TEXT NOT NULL CHECK(gender IN ('male', 'female')),
@@ -70,9 +71,9 @@ CREATE TABLE weighings (
         (confidence < 0.95 AND meets_precision = 0)
     ),
     
-    -- Contexto
-    method TEXT CHECK(method IN ('ia', 'manual', 'bascula')),
-    breed_model_version TEXT,              -- "v1.0.0"
+    -- Contexto de estimación
+    method TEXT CHECK(method IN ('hybrid', 'tflite', 'manual', 'bascula')),  -- 🆕 híbrido + ML
+    breed_model_version TEXT,              -- "v1.0.0" o "hybrid-v1.0.0"
     
     -- GPS
     latitude REAL,
@@ -169,8 +170,8 @@ db.animals.createIndex({"farm_id": 1, "breed_type": 1, "status": 1});
   "estimated_weight_kg": 487.3,
   "confidence": 0.97,                          // ≥0.95 ✅
   "processing_time_ms": 2543,                  // <3000ms ✅
-  "method": "ia",
-  "breed_model_version": "v1.0.0",
+  "method": "hybrid",                          // 🆕 'hybrid' o 'tflite'
+  "breed_model_version": "hybrid-v1.0.0",     // 🆕 versionado de método
   "location": {
     "type": "Point",
     "coordinates": [-60.797889, -15.859500]    // [lon, lat] Hacienda Gamelera
@@ -309,10 +310,10 @@ async def seed_hacienda_gamelera(db):
         "farm_id": str(farm_id),
     })
     
-    # 3. 500 animales (7 razas)
+    # 3. 500 animales (8 razas)
     breed_distribution = {
         BreedType.BRAHMAN: 150, NELORE: 120, ANGUS: 80,
-        CEBUINAS: 70, CRIOLLO: 40, PARDO_SUIZO: 30, JERSEY: 10
+        CEBUINAS: 70, CRIOLLO: 40, PARDO_SUIZO: 30, GUZERAT: 20, HOLSTEIN: 10
     }
     
     for breed, count in breed_distribution.items():
@@ -343,12 +344,13 @@ async def seed_hacienda_gamelera(db):
 
 **MANTENIDO** ✅:
 - Schemas completos SQLite + MongoDB
-- 7 razas validadas en CHECK constraints
+- 8 razas validadas en CHECK constraints (actualizado 28 Oct)
 - 4 categorías edad
 - Índices optimizados
 - Beanie models
 - Queries comunes
 - Seed data estructura
+- Campos method y model_version para tracking de métodos de estimación
 
 **ELIMINADO** ❌:
 - Datos seed extensos (500 animales → 7 ejemplo)
@@ -359,6 +361,6 @@ async def seed_hacienda_gamelera(db):
 ---
 
 **Database Schema v2.0 (Optimizado)**  
-**Fecha**: 28 octubre 2024  
-**Capacidad**: 500 animales, 7 razas, offline-first
+**📅 Última actualización**: 28 octubre 2024  
+**Capacidad**: 500 animales, 8 razas, offline-first
 

@@ -3,6 +3,7 @@
 **Cliente**: Hacienda Gamelera (Bruno Brito Macedo)  
 **Framework**: Flutter 3.x + Material Design 3  
 **Metodología**: Atomic Design  
+**📅 Última actualización**: 28 octubre 2024  
 
 ---
 
@@ -36,11 +37,13 @@ lib/presentation/widgets/atoms/
 │   ├── icon_button.dart              # Botón solo icono
 │   └── floating_action_button.dart   # FAB Material Design
 │
-├── animated_scale_button.dart        # ✨ NUEVO Sprint 2: Botón con animación bounce
-├── fade_in_widget.dart               # ✨ NUEVO Sprint 2: Fade-in + slide automático
+├── animated_scale_button.dart        # ✅ Sprint 2: Botón con animación bounce
+├── fade_in_widget.dart               # ✅ Sprint 2: Fade-in + slide automático
 │
-├── gradient_card.dart                # ✨ NUEVO Sprint 2: Card con gradiente configurable
-├── glass_card.dart                   # ✨ NUEVO Sprint 2: Glassmorphism con blur
+├── gradient_card.dart                # ✅ Sprint 2: Card con gradiente configurable
+├── glass_card.dart                   # ✅ Sprint 2: Glassmorphism con blur
+├── sync_button.dart                  # ✅ US-005: Botón de sincronización
+├── sync_status_indicator.dart        # ✅ US-005: Indicador de estado
 │
 ├── inputs/
 │   ├── text_input_field.dart         # Input de texto con validación
@@ -63,8 +66,12 @@ lib/presentation/widgets/atoms/
 
 ```
 lib/presentation/widgets/molecules/
-├── stat_card.dart                    # ✨ NUEVO Sprint 2: Card estadística con glass effect
-├── action_tile.dart                  # ✨ NUEVO Sprint 2: Tile de acción con gradiente
+├── stat_card.dart                    # ✅ Sprint 2: Card estadística con glass effect
+├── action_tile.dart                  # ✅ Sprint 2: Tile de acción con gradiente
+├── sync_progress_card.dart           # ✅ US-005: Card de progreso de sync
+├── empty_state_card.dart             # ✅ Mensajes de estado vacío
+├── error_state_card.dart             # ✅ Mensajes de error
+├── loading_state_card.dart           # ✅ Loading states
 │
 ├── cards/
 │   ├── cattle_card.dart              # Card de animal (foto + nombre + raza)
@@ -97,15 +104,13 @@ lib/presentation/widgets/molecules/
 ```
 lib/presentation/widgets/organisms/
 ├── forms/
-│   └── cattle_registration_form.dart # Formulario completo de registro (✅ Sprint 1)
+│   └── cattle_registration_form.dart # ✅ Formulario completo de registro
 │
 ├── breed/
-│   └── breed_selector_grid.dart      # Grid 3x3 de razas con animaciones (✅ Sprint 1)
+│   └── breed_selector_grid.dart      # ✅ Grid 3x3 de razas (8 razas actualizadas)
 │
 ├── capture/
-│   ├── capture_config_section.dart   # Configuración FPS + Duración (✅ Sprint 1)
-│   ├── camera_preview_widget.dart    # Vista previa de cámara (🔜 Sprint 2)
-│   └── frame_quality_overlay.dart    # Overlay de calidad (🔜 Sprint 2)
+│   └── capture_config_section.dart   # ✅ Configuración FPS + Duración
 │
 └── lists/
     ├── cattle_list.dart              # Lista de ganado (🔜 Sprint 2)
@@ -132,13 +137,28 @@ lib/core/ui/templates/
 
 ```
 lib/features/[feature]/presentation/pages/
-├── home_page.dart                    # Pantalla principal
-├── capture_page.dart                 # Pantalla de captura
-├── cattle_list_page.dart             # Lista de ganado
-├── cattle_detail_page.dart           # Detalle de animal
-├── weight_estimation_page.dart       # Estimación de peso
-├── analysis_page.dart                # Análisis histórico
-└── settings_page.dart                # Configuración
+Pages implementadas:
+├── home_page.dart                    # ✅ Dashboard principal con Atomic Design
+├── capture_page.dart                 # ✅ Captura de fotogramas con Atomic Design
+├── cattle_registration_page.dart     # ✅ Registro de animales
+├── weight_estimation_page.dart       # ✅ Estimación con IA
+├── weight_history_page.dart          # ✅ Historial y análisis (US-004)
+├── sync_status_page.dart            # ✅ Estado de sincronización (US-005)
+
+Widgets page-specific:
+home_page.dart:
+├── home_header.dart                  # ✅ Header con gradiente y stats
+├── home_stats.dart                   # ✅ Panel de estadísticas
+├── home_quick_actions.dart           # ✅ Grid 2x2 de acciones
+└── home_footer.dart                  # ✅ Footer institucional
+
+capture_page.dart:
+├── capture_status_card.dart          # ✅ Card de estado
+├── capture_content.dart              # ✅ Contenido dinámico por estado
+├── capture_action_button.dart        # ✅ Botón con permisos JIT
+├── capture_progress_indicator.dart   # ✅ Indicador de progreso
+├── capture_results_card.dart         # ✅ Resultados
+└── camera_preview_widget.dart        # ✅ Preview de cámara (preparado)
 ```
 
 ---
@@ -191,6 +211,12 @@ class AppColors {
   
   static const LinearGradient accentGradient = LinearGradient(
     colors: [Color(0xFFF59E0B), Color(0xFFD97706)],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+
+  static const LinearGradient infoGradient = LinearGradient(  // 🆕 Sprint 2 (28 Oct)
+    colors: [Color(0xFF3B82F6), Color(0xFF2563EB)],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
@@ -717,7 +743,44 @@ StatusCard(
 
 ---
 
-**Última actualización**: 17 Oct 2024 (Sprint 2 - Modernización UI/UX)  
-**Versión**: 2.0.0  
+## 🆕 Mejoras Sprint 2 (28 Oct 2024)
+
+### Arquitectura de Providers con SOLID
+
+```dart
+// mobile/lib/core/config/provider_configuration.dart
+
+class ProviderConfiguration {
+  /// Crea todos los providers siguiendo SOLID
+  static List<ChangeNotifierProvider> createProviders(DI di) {
+    return [
+      _createCaptureProvider(di),
+      _createWeightEstimationProvider(di),
+      // ... más providers
+    ];
+  }
+}
+
+// mobile/lib/main.dart ahora es ultra-limpo:
+MultiProvider(
+  providers: ProviderConfiguration.createProviders(di),  // ✅ SOLID
+  child: MaterialApp(...)
+)
+```
+
+### Reducción de Código
+
+| Archivo | Antes | Después | Reducción |
+|---------|-------|---------|-----------|
+| `main.dart` | 75 líneas | 58 líneas | -23% |
+| `home_page.dart` | 317 líneas | 71 líneas | -78% |
+| `capture_page.dart` | 133 líneas | 61 líneas | -54% |
+
+**Total**: 244 líneas eliminadas, mejor organización
+
+---
+
+**📅 Última actualización**: 28 Oct 2024 (Sprint 2 - Atomic Design + SOLID)  
+**Versión**: 2.1.0  
 **Autor**: Equipo de Desarrollo - Agrocom/UAGRM
 
