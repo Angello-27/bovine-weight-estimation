@@ -4,15 +4,85 @@
 > Mantiene: 7 modelos TFLite, métricas R²≥0.95, MAE<5kg, proceso entrenamiento
 
 **Cliente**: Hacienda Gamelera (Bruno Brito Macedo)  
-**Stack**: TensorFlow 2.13+ | MLflow | DVC | OpenCV
+**Stack**: TensorFlow 2.19+ | MLflow | DVC | Albumentations 2.0.8  
+**Platform**: Google Colab (GPU T4 gratuita)
+
+📅 **Última actualización**: 28 octubre 2024
+
+---
+
+## 🆕 Estrategia Multinivel de Entrenamiento por Escenario
+
+> **Decisión Sprint 1-2**: Adaptar estrategia según cantidad real de imágenes disponibles
+
+### Escenario A: >1000 imágenes por raza 🟢 IDEAL
+
+**Estrategia**:
+- Modelo base EfficientNetB1 pre-entrenado (todas las 8 razas)
+- Fine-tuning específico para Brahman, Nelore, Angus (prioridad alta)
+- Data augmentation 5x
+- **Target**: MAE 12-18kg, R² ≥0.95
+
+**Timeline**: 4-6 semanas  
+**Modelos**: 8 modelos específicos por raza  
+**Validación**: ≥50 animales por raza
+
+---
+
+### Escenario B: 500-1000 imágenes por raza 🟡 VIABLE
+
+**Estrategia**:
+- Modelo base único MobileNetV2 pre-entrenado
+- Fine-tuning 1 raza principal (Brahman o Nelore)
+- Data augmentation 10x  
+- **Target**: MAE 15-25kg, R² ≥0.85
+
+**Timeline**: 2-3 semanas  
+**Modelos**: 1-2 modelos priorizados  
+**Validación**: ≥30 animales total
+
+**Alternativa**: Sistema híbrido para razas con <500 imágenes
+
+---
+
+### Escenario C: 200-500 imágenes por raza ⚠️ MVP ACADÉMICO
+
+**Estrategia**:
+- Modelo base único MobileNetV2
+- Data augmentation 15-20x agresiva
+- **Target**: MAE 25-35kg, R² ≥0.75
+- Enfoque: **Proceso de entrenamiento > Precisión perfecta**
+
+**Timeline**: 1-2 semanas  
+**Modelos**: 1 modelo académico  
+**Validación**: ≥20 animales con báscula
+
+**Justificación académica**: Demostrar conocimiento de ML pipeline completo
+
+---
+
+### Escenario D: <200 imágenes por raza ❌ NO ENTRENAR
+
+**Estrategia**:
+- **NO entrenar modelo ML**
+- **Mantener sistema híbrido** (YOLO + fórmulas)
+- Calibrar mejores coeficientes con 20-30 fotos reales
+- **Target**: MAE <25kg con sistema híbrido
+
+**Timeline**: 2-3 días calibración  
+**Validación**: ≥20 animales con báscula
+
+**Justificación**: No hay suficiente data para ML confiable
+
+---
 
 ## Principios ML
 
-1. Un modelo por raza (7 modelos TFLite)
-2. Precisión ≥95% obligatoria (R² ≥0.95, MAE <5kg)
+1. Un modelo por raza (8 modelos TFLite objetivo)
+2. Precisión adaptada según escenario (Escenario A: MAE 12-18kg, Escenario C: MAE 25-35kg)
 3. MLflow tracking todos los experimentos
 4. DVC versionado datasets
-5. Validación campo ≥50 animales Hacienda Gamelera
+5. Validación campo ≥50 animales Hacienda Gamelera (Escenario A)
 
 ---
 
@@ -20,12 +90,12 @@
 
 | Propósito | Herramienta | Versión |
 |-----------|-------------|---------|
-| Framework ML | TensorFlow + Keras | 2.13+ |
+| Framework ML | TensorFlow + Keras | 2.19+ |
 | Tracking | MLflow | 2.8+ |
 | Versionado datos | DVC | 3.30+ |
 | Visualización | Matplotlib + Seaborn | 3.8+, 0.13+ |
 | Métricas | scikit-learn | 1.3+ |
-| Augmentation | albumentations | 1.3+ |
+| Augmentation | albumentations | 2.0.8 |
 | Preprocesamiento | OpenCV | 4.8+ |
 
 ---
@@ -264,11 +334,11 @@ print("\n✅ 7 modelos entrenados y exportados")
 
 ```txt
 # requirements.txt
-tensorflow==2.13.1
+tensorflow==2.19.0
 mlflow==2.8.1
 dvc==3.30.0
 opencv-python==4.8.1
-albumentations==1.3.1
+albumentations==2.0.8  # Versión específica por compatibilidad
 scikit-learn==1.3.2
 pandas==2.1.3
 matplotlib==3.8.2

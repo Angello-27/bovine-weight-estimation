@@ -19,14 +19,17 @@
 
 ### Datos Críticos del Dominio (INVARIANTES)
 
-#### 7 Razas Bovinas (EXACTAS - NO MODIFICAR)
+#### 8 Razas Bovinas (EXACTAS - NO MODIFICAR) 🆕 Actualizado 28 Oct 2024
 1. Brahman (Bos indicus)
 2. Nelore (Bos indicus)
 3. Angus (Bos taurus)
 4. Cebuinas (Bos indicus)
 5. Criollo (Bos taurus)
 6. Pardo Suizo (Bos taurus)
-7. Jersey (Bos taurus)
+7. Guzerat (Bos indicus) 🆕
+8. Holstein (Bos taurus) 🆕
+
+**Nota**: Jersey eliminada por baja prevalencia en región Chiquitana.
 
 #### 4 Categorías de Edad (EXACTAS - NO MODIFICAR)
 1. Terneros (<8 meses)
@@ -35,15 +38,29 @@
 4. Vacas/Toros (>30 meses)
 
 #### Métricas del Sistema (OBLIGATORIAS)
+
+**Sistema Híbrido (Sprint 1-2 - Implementado)**:
+- **Precisión**: MAE <25kg (vs objetivo ML: <5kg)
+- **Tiempo procesamiento**: <3 segundos
+- **Captura continua**: 10-15 FPS durante 3-5 segundos (30-75 fotogramas)
+- **Método**: YOLO pre-entrenado + Fórmulas morfométricas calibradas
+
+**ML Real (Sprint 3+ - Objetivo)**:
 - **Precisión ML**: ≥95% (R² ≥ 0.95)
 - **Error absoluto**: <5 kg
 - **Tiempo procesamiento**: <3 segundos
-- **Captura continua**: 10-15 FPS durante 3-5 segundos (30-75 fotogramas)
 
-#### Entidades Regulatorias Bolivianas
-- **SENASAG**: Trazabilidad ganadera (reportes automáticos PDF/CSV/XML)
-- **REGENSA**: Capítulos 3.10 y 7.1, sistema Gran Paitití, GMA (Guía Movimiento Animal)
-- **ASOCEBU**: Competencias ganaderas (exportación datos, 3ª Faena Técnica 2024)
+Ver: ADR-003 y ADR-011 en `docs/design/architecture-decisions.md`
+
+#### Entidades Regulatorias Bolivianas (⚠️ Fuera de Alcance Académico)
+
+**Nota (28 Oct 2024)**: Integraciones normativas eliminadas del backlog por restricción de tiempo académico.
+
+- ~~**SENASAG**: Trazabilidad ganadera (reportes automáticos PDF/CSV/XML)~~ ❌ Eliminado
+- ~~**REGENSA**: Capítulos 3.10 y 7.1, sistema Gran Paitití, GMA~~ ❌ Eliminado
+- ~~**ASOCEBU**: Competencias ganaderas (exportación datos)~~ ❌ Eliminado
+
+**Decisión**: Arquitectura preparada para futuras integraciones si requeridas por cliente post-académico.
 
 ---
 
@@ -1036,18 +1053,154 @@ Future<Either<Failure, WeightEstimationResult>> estimateWeight({
 
 ---
 
+## 🆕 Sistema Híbrido y Transición Arquitectural (Sprint 1-2)
+
+### Decisión Crítica: Sistema Híbrido Temporal
+
+**Contexto**: Restricción de tiempo académico requiere demo funcional inmediato mientras se entrenan modelos ML reales (Sprint 3+).
+
+**Implementación Sprint 1-2**:
+- YOLO pre-entrenado (ultralytics YOLOv8n) para detección de ganado
+- Fórmulas morfométricas calibradas por 8 razas
+- Pipeline completo backend → mobile operativo
+
+**Precisión**:
+- **Sistema híbrido**: MAE <25kg (implementado)
+- **ML real objetivo**: MAE <5kg, R² ≥0.95 (Sprint 3+)
+
+### Cuándo Usar Sistema Híbrido
+
+✅ **Usar híbrido**:
+- Demo académica con restricción de tiempo
+- Validación inicial del concepto
+- Testing de arquitectura sin modelos entrenados
+- MVP funcional para stakeholder
+
+⏳ **Migrar a ML real**:
+- >500 imágenes por raza disponibles
+- Tiempo para entrenamiento (4-8 semanas)
+- Requisito de precisión ≥95% obligatorio
+- Producción comercial
+
+### Documentación de Sistema Híbrido
+
+**Archivos clave**:
+- `backend/app/ml/hybrid_estimator.py` - Lógica híbrida
+- `backend/scripts/calibrate_hybrid.py` - Calibración con fotos
+- `mobile/lib/data/datasources/ml_data_source.dart` - Integración mobile
+
+**Ejemplo código**:
+```python
+# backend/app/ml/hybrid_estimator.py
+class HybridWeightEstimator:
+    """
+    Estimador de peso que combina YOLO + fórmulas morfométricas.
+    
+    ⚠️ Este es un sistema TEMPORAL para Sprint 1-2 que será reemplazado
+    por modelos TFLite reales en Sprint 3+.
+    
+    Justificación: Garantizar demo funcional bajo restricción de tiempo.
+    Trade-off: Precisión (MAE ~20kg) vs velocidad de implementación.
+    
+    Método:
+    1. YOLO detecta bbox del animal en imagen
+    2. Extrae área normalizada
+    3. Aplica fórmula: peso = a * (área * 10000) + b
+    4. Coeficientes a, b calibrados por raza
+    
+    Precisión: MAE <25kg (validado con 20 muestras)
+    Tiempo: <2 segundos por estimación
+    """
+    def __init__(self):
+        self.detector = YOLO('yolov8n.pt')  # 6MB, descarga automática
+        self.breed_params = {
+            'brahman': {'a': 0.52, 'b': 145, 'min': 300, 'max': 900},
+            'nelore': {'a': 0.50, 'b': 150, 'min': 280, 'max': 850},
+            # ... 8 razas calibradas
+        }
+```
+
+### Transición Arquitectural: Mock → Hybrid → ML Real
+
+**Fase 1: Mock (Sprint 0)** ❌
+```python
+# backend/app/api/routes/ml.py
+def mock_inference():
+    return random.uniform(300, 900)  # Obviamente fake
+```
+**Estado**: Eliminado completamente en Sprint 1
+
+**Fase 2: Hybrid (Sprint 1-2)** ✅ ACTUAL
+```python
+# backend/app/ml/hybrid_estimator.py
+def estimate_weight(image, breed):
+    bbox = yolo_model.detect(image)
+    area = calculate_normalized_area(bbox)
+    weight = breed_params[breed]['a'] * area + breed_params[breed]['b']
+    return WeightResult(weight=weight, method='hybrid', confidence=0.85)
+```
+**Estado**: Implementado y funcional (MAE <25kg)
+
+**Fase 3: ML Real (Sprint 3+)** ⏳ PLANIFICADO
+```python
+# backend/app/ml/tflite_inference.py
+def estimate_weight_tflite(image, breed):
+    model = tflite.load_model(f'{breed}-v1.0.0.tflite')
+    features = preprocess_image(image)
+    prediction = model.predict(features)
+    return WeightResult(weight=prediction, method='tflite', confidence=0.97)
+```
+**Estado**: Pendiente para Sprint 3+
+
+### Guía de Migración
+
+**Paso 1: Identificar sistema actual**
+```python
+# Verificar método en uso
+if ml_service.method == 'hybrid':
+    print("Sistema híbrido activo")
+else:
+    print("ML real activo")
+```
+
+**Paso 2: Calibrar co-existencia**
+```python
+# Permite migración gradual
+class WeightEstimationService:
+    def estimate(self, image, breed):
+        if self.ml_models_available(breed):
+            return self.tflite_estimate(image, breed)
+        else:
+            return self.hybrid_estimate(image, breed)
+```
+
+**Paso 3: Documentar decisiones**
+```markdown
+## Decision Log
+
+### ADR-011: Transición Mock → Hybrid → ML Real
+- **Fecha**: 28 Oct 2024
+- **Decisión**: Sistema híbrido como Plan A para Sprint 1-2
+- **Razón**: Demo funcional garantizada bajo restricción tiempo
+- **Trade-off**: Precisión (MAE <25kg) vs velocidad
+- **Estado**: Implementado en producción (desarrollo)
+```
+
+---
+
 ## Referencias
 
 - **Product Backlog**: `docs/product/product-backlog.md`
 - **Sprint Goals**: `docs/sprints/sprint-{1,2,3}-goal.md`
 - **Definition of Done**: `docs/product/definition-of-done.md`
+- **Architecture Decisions**: `docs/design/architecture-decisions.md` (ADR-003, ADR-011)
 - **Modelo de Dominio**: `docs/vision/04-domain-model.md`
 - **Áreas Funcionales**: `docs/vision/03-areas-funcionales.md`
 
 ---
 
-**Documento de Estándares de Arquitectura v1.0**  
-**Fecha**: 28 octubre 2024  
+**📅 Última actualización**: 28 octubre 2024  
+**Documento de Estándares de Arquitectura v2.0**  
 **Proyecto**: Sistema de Estimación de Peso Bovino con IA  
 **Cliente**: Hacienda Gamelera (Bruno Brito Macedo)  
 **Product Owner**: Miguel Angel Escobar Lazcano  

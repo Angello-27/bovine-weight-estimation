@@ -4,15 +4,44 @@
 > Mantiene: 7 razas, 4 categorías, métricas, Clean Architecture, Provider pattern
 
 **Cliente**: Hacienda Gamelera (Bruno Brito Macedo)  
-**Stack**: Flutter 3.x / Dart 3.x | Android + iOS
+**Stack**: Flutter 3.35+ / Dart 3.9+ | Android + iOS  
+**State Management**: Provider (no Riverpod/Bloc)  
+**📅 Última actualización**: 28 octubre 2024
 
 ## Principios
 
 1. Offline-first (SQLite primario)
 2. Clean Architecture (presentation → domain → data)
-3. Provider (estado reactivo)
+3. Provider (estado reactivo) - **No Riverpod ni Bloc**
 4. Atomic Design (atoms → molecules → organisms)
 5. Material Design 3
+
+## 🆕 Naming Conventions para Providers
+
+### ✅ CORRECTO
+```dart
+class CaptureProvider extends ChangeNotifier {
+  CaptureState _state = CaptureState.idle;
+  // ...
+}
+
+class WeightEstimationProvider extends ChangeNotifier {
+  WeightEstimationState _state = WeightEstimationState.initial;
+  // ...
+}
+
+class CattleProvider extends ChangeNotifier {
+  List<Cattle> _cattleList = [];
+  // ...
+}
+```
+
+### ❌ INCORRECTO
+```dart
+class CaptureNotifier extends ChangeNotifier {}  // ❌ Use -Provider
+class CaptureState extends ChangeNotifier {}     // ❌ Confusión con State
+class CaptureManager extends ChangeNotifier {}   // ❌ No use -Manager
+```
 
 ---
 

@@ -4,7 +4,9 @@
 > Mantiene: 7 razas, 4 categorías, métricas sistema, contexto Hacienda Gamelera
 
 **Cliente**: Bruno Brito Macedo - Hacienda Gamelera, San Ignacio de Velasco, Bolivia  
-**Stack**: Python 3.11+ | FastAPI 0.110+ | MongoDB | Pydantic v2
+**Stack**: Python 3.11+ | FastAPI 0.110+ | MongoDB | Pydantic v2  
+**Linter**: Ruff (reemplaza Flake8)  
+**📅 Última actualización**: 28 octubre 2024
 
 ## Principios
 
