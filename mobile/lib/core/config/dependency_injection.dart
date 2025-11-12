@@ -6,6 +6,7 @@
 /// Core Config Layer
 library;
 
+import 'api_config.dart';
 import '../services/permission_service.dart';
 import '../../data/datasources/camera_datasource.dart';
 import '../../data/datasources/cattle_local_datasource.dart';
@@ -100,8 +101,7 @@ class DependencyInjection {
     // DataSources - US-005
     _syncQueueLocalDataSource = SyncQueueLocalDataSourceImpl();
     _syncRemoteDataSource = SyncRemoteDataSourceFactory.create(
-      // TODO: Cargar baseUrl desde .env en producción
-      baseUrl: 'http://localhost:8000',
+      baseUrl: ApiConfig.getBaseUrlForEnvironment(),
     );
 
     // Repositories - US-001

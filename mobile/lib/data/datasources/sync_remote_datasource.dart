@@ -203,9 +203,10 @@ class SyncRemoteDataSourceFactory {
   static SyncRemoteDataSource create({String? baseUrl}) {
     final dio = Dio();
 
-    // URL del backend (en producción viene de .env)
-    // Para desarrollo local:
-    final url = baseUrl ?? 'http://localhost:8000';
+    // URL del backend desde configuración centralizada
+    // Si no se proporciona, usa la configuración por defecto
+    final url =
+        baseUrl ?? 'http://192.168.0.12:8000'; // Default: emulador Android
 
     return SyncRemoteDataSourceImpl(dio: dio, baseUrl: url);
   }
