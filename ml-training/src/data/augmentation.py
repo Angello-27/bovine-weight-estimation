@@ -6,6 +6,7 @@ Simula condiciones reales de Hacienda Gamelera
 import albumentations as A
 from typing import Tuple, List
 import numpy as np
+import cv2
 
 def get_training_transform(image_size: Tuple[int, int] = (224, 224)) -> A.Compose:
     """
@@ -76,7 +77,7 @@ def get_aggressive_augmentation(image_size: Tuple[int, int] = (224, 224)) -> A.C
             shift_limit=0.1, 
             scale_limit=0.15, 
             rotate_limit=15, 
-            border_mode=A.BORDER_REFLECT, 
+            border_mode=cv2.BORDER_REFLECT, 
             p=0.5
         ),
         
