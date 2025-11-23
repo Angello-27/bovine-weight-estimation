@@ -19,16 +19,17 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../providers/capture_provider.dart';
 import '../../widgets/molecules/dialogs/permission_rationale_dialog.dart';
+import '../../widgets/organisms/capture/camera_preview_section.dart';
 import 'widgets/capture_action_button.dart';
 import 'widgets/capture_content.dart';
 import 'widgets/capture_status_card.dart';
-import 'widgets/camera_preview_widget.dart';
 
 /// Pantalla de captura de fotogramas
 ///
 /// Usa composición de componentes siguiendo Atomic Design:
-/// - Organisms: CaptureStatusCard, CaptureContent
+/// - Organisms: CaptureStatusCard, CaptureContent, CameraPreviewSection
 /// - Molecules: CaptureActionButton
+/// - Atoms: (usados internamente por los organisms)
 class CapturePage extends StatefulWidget {
   const CapturePage({super.key});
 
@@ -199,78 +200,13 @@ class _CapturePageState extends State<CapturePage> {
 
                   const SizedBox(height: AppSpacing.lg),
 
-                  // Preview de cámara o mensaje de error/permiso
-                  if (_isInitializing)
-                    Container(
-                      height: 300,
-                      decoration: BoxDecoration(
-                        color: Colors.black,
-                        borderRadius: BorderRadius.circular(
-                          AppSpacing.borderRadiusLarge,
-                        ),
-                      ),
-                      child: const Center(
-                        child: CircularProgressIndicator(color: Colors.white),
-                      ),
-                    )
-                  else if (_cameraController != null &&
-                      _cameraController!.value.isInitialized)
-                    CameraPreviewWidget(controller: _cameraController!)
-                  else if (_errorMessage != null)
-                    Card(
-                      color: AppColors.error.withValues(alpha: 0.1),
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Column(
-                          children: [
-                            Icon(
-                              Icons.error_outline,
-                              color: AppColors.error,
-                              size: 48,
-                            ),
-                            const SizedBox(height: 12),
-                            Text(
-                              _errorMessage!,
-                              textAlign: TextAlign.center,
-                              style: TextStyle(color: AppColors.error),
-                            ),
-                            const SizedBox(height: 12),
-                            ElevatedButton.icon(
-                              onPressed: _requestPermissionManually,
-                              icon: const Icon(Icons.settings),
-                              label: const Text('Solicitar Permiso'),
-                            ),
-                          ],
-                        ),
-                      ),
-                    )
-                  else
-                    Card(
-                      color: Colors.blue.shade50,
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Column(
-                          children: [
-                            Icon(
-                              Icons.camera_alt,
-                              color: Colors.blue.shade700,
-                              size: 48,
-                            ),
-                            const SizedBox(height: 12),
-                            const Text(
-                              'Se necesita permiso de cámara para mostrar el preview.',
-                              textAlign: TextAlign.center,
-                            ),
-                            const SizedBox(height: 12),
-                            ElevatedButton.icon(
-                              onPressed: _requestPermissionManually,
-                              icon: const Icon(Icons.camera_alt),
-                              label: const Text('Solicitar Permiso'),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
+                  // Preview de cámara con manejo de estados (Organism)
+                  CameraPreviewSection(
+                    cameraController: _cameraController,
+                    isInitializing: _isInitializing,
+                    errorMessage: _errorMessage,
+                    onRequestPermission: _requestPermissionManually,
+                  ),
 
                   const SizedBox(height: AppSpacing.lg),
 
