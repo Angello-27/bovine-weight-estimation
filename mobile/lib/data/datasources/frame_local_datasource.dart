@@ -43,7 +43,7 @@ class FrameLocalDataSourceImpl implements FrameLocalDataSource {
 
   /// Nombre de la base de datos
   static const String _databaseName = 'bovine_weight.db';
-  static const int _databaseVersion = 1;
+  static const int _databaseVersion = 2; // Actualizado para coincidir con otros DataSources
 
   /// Nombres de tablas
   static const String _tableSessions = 'capture_sessions';
@@ -62,12 +62,17 @@ class FrameLocalDataSourceImpl implements FrameLocalDataSource {
       final databasesPath = await sqflite.getDatabasesPath();
       final path = join(databasesPath, _databaseName);
 
-      return await sqflite.openDatabase(
+      final db = await sqflite.openDatabase(
         path,
         version: _databaseVersion,
         onCreate: _onCreate,
         onUpgrade: _onUpgrade,
       );
+
+      // Asegurar que las tablas existan (por si otro DataSource creó la DB primero)
+      await _ensureTablesExist(db);
+
+      return db;
     } catch (e) {
       throw DatabaseException(
         message: 'Error al inicializar base de datos: $e',
@@ -75,11 +80,58 @@ class FrameLocalDataSourceImpl implements FrameLocalDataSource {
     }
   }
 
+  /// Verifica y crea las tablas si no existen
+  Future<void> _ensureTablesExist(sqflite.Database db) async {
+    // Verificar si la tabla de sesiones existe
+    final sessionsTable = await db.rawQuery(
+      "SELECT name FROM sqlite_master WHERE type='table' AND name='$_tableSessions'",
+    );
+    if (sessionsTable.isEmpty) {
+      await _createTables(db);
+    } else {
+      // Si la tabla existe, verificar que la tabla de frames también existe
+      final framesTable = await db.rawQuery(
+        "SELECT name FROM sqlite_master WHERE type='table' AND name='$_tableFrames'",
+      );
+      if (framesTable.isEmpty) {
+        // Solo crear la tabla de frames si no existe
+        await db.execute('''
+          CREATE TABLE IF NOT EXISTS $_tableFrames (
+            id TEXT PRIMARY KEY,
+            session_id TEXT NOT NULL,
+            timestamp INTEGER NOT NULL,
+            image_path TEXT NOT NULL,
+            sharpness REAL NOT NULL,
+            brightness REAL NOT NULL,
+            contrast REAL NOT NULL,
+            silhouette_visibility REAL NOT NULL,
+            angle_score REAL NOT NULL,
+            global_score REAL NOT NULL,
+            created_at INTEGER NOT NULL DEFAULT (strftime('%s', 'now')),
+            FOREIGN KEY (session_id) REFERENCES $_tableSessions (id) ON DELETE CASCADE
+          )
+        ''');
+        // Crear índices si no existen
+        await db.execute('''
+          CREATE INDEX IF NOT EXISTS idx_frames_session_id ON $_tableFrames (session_id)
+        ''');
+        await db.execute('''
+          CREATE INDEX IF NOT EXISTS idx_frames_global_score ON $_tableFrames (global_score DESC)
+        ''');
+      }
+    }
+  }
+
   /// Crea las tablas de la base de datos
   Future<void> _onCreate(sqflite.Database db, int version) async {
-    // Tabla de sesiones de captura
+    await _createTables(db);
+  }
+
+  /// Crea las tablas (reutilizable para onCreate y onUpgrade)
+  Future<void> _createTables(sqflite.Database db) async {
+    // Tabla de sesiones de captura (IF NOT EXISTS para evitar errores)
     await db.execute('''
-      CREATE TABLE $_tableSessions (
+      CREATE TABLE IF NOT EXISTS $_tableSessions (
         id TEXT PRIMARY KEY,
         start_time INTEGER NOT NULL,
         end_time INTEGER,
@@ -92,9 +144,9 @@ class FrameLocalDataSourceImpl implements FrameLocalDataSource {
       )
     ''');
 
-    // Tabla de fotogramas
+    // Tabla de fotogramas (IF NOT EXISTS para evitar errores)
     await db.execute('''
-      CREATE TABLE $_tableFrames (
+      CREATE TABLE IF NOT EXISTS $_tableFrames (
         id TEXT PRIMARY KEY,
         session_id TEXT NOT NULL,
         timestamp INTEGER NOT NULL,
@@ -110,17 +162,17 @@ class FrameLocalDataSourceImpl implements FrameLocalDataSource {
       )
     ''');
 
-    // Índices para mejorar performance
+    // Índices para mejorar performance (IF NOT EXISTS para evitar errores)
     await db.execute('''
-      CREATE INDEX idx_frames_session_id ON $_tableFrames (session_id)
+      CREATE INDEX IF NOT EXISTS idx_frames_session_id ON $_tableFrames (session_id)
     ''');
 
     await db.execute('''
-      CREATE INDEX idx_sessions_status ON $_tableSessions (status)
+      CREATE INDEX IF NOT EXISTS idx_sessions_status ON $_tableSessions (status)
     ''');
 
     await db.execute('''
-      CREATE INDEX idx_frames_global_score ON $_tableFrames (global_score DESC)
+      CREATE INDEX IF NOT EXISTS idx_frames_global_score ON $_tableFrames (global_score DESC)
     ''');
   }
 
@@ -130,9 +182,11 @@ class FrameLocalDataSourceImpl implements FrameLocalDataSource {
     int oldVersion,
     int newVersion,
   ) async {
-    // TODO: Implementar migraciones si cambia el esquema
+    // Si la versión es menor, crear las tablas si no existen
+    // Esto asegura que las tablas se creen incluso si otro DataSource
+    // inicializó la base de datos primero
     if (oldVersion < newVersion) {
-      // Ejemplo: ALTER TABLE, CREATE INDEX, etc.
+      await _createTables(db);
     }
   }
 
