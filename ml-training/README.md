@@ -137,19 +137,25 @@ print(f"MAE: {metrics.mae_kg:.2f} kg")
 
 ---
 
-## 📦 Datasets Requeridos
+## 📦 Datasets Utilizados
 
-Ver `dataset-strategy.md` para detalles completos de datasets disponibles.
+**Estrategia B - Combinación de Datasets**:
 
-**Principales**:
-- CID Dataset (17,899 imágenes)
-- CattleEyeView (30,703 frames - solicitar acceso)
-- Mendeley Cattle Weight (20 animales)
-- Aberdeen Angus RGB-D (121 animales)
+1. **CID Dataset** (17,899 imágenes)
+   - Fuente: https://github.com/bhuiyanmobasshir94/CID
+   - Descarga automática desde S3 en BLOQUE 7
+   - Proporciona diversidad y calidad
 
-**Recolección propia requerida**:
-- Criollo: 3,000+ imágenes (Hacienda Gamelera)
-- Pardo Suizo: 3,000+ imágenes (ganaderías asociadas)
+2. **Nuestras Imágenes** (~1,400+ imágenes)
+   - Scraping automático en BLOQUE 6 (200+ por raza)
+   - Razas bolivianas: Brahman, Nelore, Angus, Cebuinas, Criollo, Pardo Suizo, Jersey
+   - Proporciona especificidad local y contexto real
+
+3. **Imágenes Locales** (opcional)
+   - Fotos manuales o descargadas
+   - Se combinan automáticamente en BLOQUE 8
+
+**Total combinado**: ~19,299+ imágenes para entrenamiento
 
 ---
 
@@ -211,15 +217,49 @@ TFLiteExporter.convert_to_tflite(
 
 ---
 
-## 📝 Próximos Pasos
+## 📓 Notebook de Setup: `colab_setup_ml.ipynb`
 
-1. **Setup Google Colab** con GPU T4
-2. **Descargar datasets** (CID, CattleEyeView, etc.)
-3. **Preprocesar datos** (split train/val/test)
-4. **Entrenar modelo base** genérico (Escenario A/B/C según datos disponibles)
-5. **Fine-tuning por raza** (5 razas con datasets públicos)
-6. **Recolección propia** para Criollo y Pardo Suizo
-7. **Exportación e integración** en app móvil
+El notebook está diseñado para ejecutarse en Google Colab Pro y prepara todo el entorno de entrenamiento de forma secuencial.
+
+### Estructura del Notebook (16 Bloques)
+
+**Día 1: Setup (Bloques 1-5)**
+- BLOQUE 1: Clonar repositorio en Google Drive
+- BLOQUE 2: Verificar dependencias base
+- BLOQUE 3: Instalar dependencias críticas (TensorFlow 2.19.0, MLflow, DVC)
+- BLOQUE 4: Instalar complementos (Albumentations, OpenCV)
+- BLOQUE 5: Configurar proyecto y estructura de carpetas
+
+**Día 2-3: Datasets (Bloques 6-9) - Estrategia B**
+- BLOQUE 6: Descargar nuestras imágenes (scraping - razas bolivianas)
+- BLOQUE 7: Descargar CID Dataset desde S3 (complementario - 17,899+ imágenes)
+- BLOQUE 8: Preparar dataset combinado (Estrategia B: CID + nuestras imágenes)
+- BLOQUE 9: Resumen de datasets disponibles
+
+**Día 4: Verificación (Bloque 10) - OPCIONAL**
+- BLOQUE 10: Verificación rápida de datos (puede saltarse para entrenar más rápido)
+
+**Día 5-6: Pipeline y Modelo (Bloques 11-16)**
+- BLOQUE 11: Pipeline de datos con augmentation (usa dataset combinado - Estrategia B)
+- BLOQUE 12: Arquitectura del modelo (EfficientNetB1)
+- BLOQUE 13: Configurar entrenamiento (callbacks, MLflow)
+- BLOQUE 14: Entrenar modelo (2-4 horas con GPU T4)
+- BLOQUE 15: Evaluación del modelo
+- BLOQUE 16: Exportar a TFLite
+
+### 🎯 Estrategia B - Dataset Combinado
+
+El notebook implementa la **Estrategia B** que combina:
+- **CID Dataset**: ~17,899 imágenes (diversidad y calidad)
+- **Nuestras Imágenes**: ~1,400+ imágenes (especificidad local - razas bolivianas)
+- **Total**: ~19,299+ imágenes para mejor generalización y precisión
+
+### Uso del Notebook
+
+1. Abrir `notebooks/colab_setup_ml.ipynb` en Google Colab Pro
+2. Ejecutar bloques secuencialmente (1-16)
+3. El BLOQUE 10 es opcional y puede saltarse
+4. El entrenamiento (BLOQUE 14) requiere GPU T4 y tarda 2-4 horas
 
 ---
 
@@ -248,6 +288,6 @@ mlflow.set_experiment("bovine-weight-estimation")
 
 ---
 
-**Última actualización**: 28 octubre 2024  
+**Última actualización**: Diciembre 2024  
 **Versión**: 1.0.0  
-**Estado**: ✅ Estructura completada, pendiente entrenamiento
+**Estado**: ✅ Notebook optimizado y listo para entrenamiento con Estrategia B
