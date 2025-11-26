@@ -6,15 +6,21 @@
 // tree, read text, and verify that the values of widget properties are correct.
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:bovine_weight_mobile/core/config/dependency_injection.dart';
 import 'package:bovine_weight_mobile/main.dart';
 
 void main() {
   testWidgets('App smoke test', (WidgetTester tester) async {
+    // Inicializar SharedPreferences para tests
+    TestWidgetsFlutterBinding.ensureInitialized();
+    SharedPreferences.setMockInitialValues({});
+    final prefs = await SharedPreferences.getInstance();
+
     // Inicializar DI
     final di = DependencyInjection();
-    di.init();
+    di.init(prefs: prefs);
 
     // Build our app and trigger a frame.
     await tester.pumpWidget(MyApp(di: di));
