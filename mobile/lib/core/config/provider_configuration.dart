@@ -11,6 +11,7 @@ import 'package:provider/provider.dart';
 
 import '../../presentation/providers/capture_provider.dart';
 import '../../presentation/providers/cattle_provider.dart';
+import '../../presentation/providers/settings_provider.dart';
 import '../../presentation/providers/sync_provider.dart';
 import '../../presentation/providers/weight_estimation_provider.dart';
 import '../../presentation/providers/weight_history_provider.dart';
@@ -42,6 +43,9 @@ class ProviderConfiguration {
 
       // US-005: Sincronización
       _createSyncProvider(di),
+
+      // Settings
+      _createSettingsProvider(di),
 
       // Agregar más providers aquí según se implementen nuevas US
       // US-006: SearchProvider
@@ -99,6 +103,18 @@ class ProviderConfiguration {
         getPendingCountUseCase: di.getPendingCountUseCase,
         triggerManualSyncUseCase: di.triggerManualSyncUseCase,
         checkConnectivityUseCase: di.checkConnectivityUseCase,
+      ),
+    );
+  }
+
+  /// Crea el provider de configuración
+  static ChangeNotifierProvider<SettingsProvider> _createSettingsProvider(
+    DependencyInjection di,
+  ) {
+    return ChangeNotifierProvider(
+      create: (_) => SettingsProvider(
+        getSettingsUseCase: di.getSettingsUseCase,
+        saveSettingsUseCase: di.saveSettingsUseCase,
       ),
     );
   }

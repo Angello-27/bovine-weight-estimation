@@ -11,6 +11,7 @@ import 'package:flutter/material.dart';
 import '../../presentation/pages/capture/capture_page.dart';
 import '../../presentation/pages/cattle_registration/cattle_registration_page.dart';
 import '../../presentation/pages/home/home_page.dart';
+import '../../presentation/pages/settings/settings_page.dart';
 import '../../presentation/pages/sync/sync_status_page.dart';
 import '../../presentation/pages/weight_estimation/weight_estimation_page.dart';
 import '../../presentation/pages/weight_history/weight_history_page.dart';
@@ -23,11 +24,11 @@ class AppRoutes {
   static const String cattleRegistration = '/cattle-registration';
   static const String weightHistory = '/weight-history';
   static const String sync = '/sync'; // US-005
+  static const String settings = '/settings';
 
   // TODO: Agregar rutas para US-006, etc.
   // static const String cattleList = '/cattle-list';
   // static const String cattleDetail = '/cattle-detail';
-  // static const String settings = '/settings';
 }
 
 /// Router de la aplicación
@@ -80,6 +81,12 @@ class AppRouter {
       case AppRoutes.sync:
         return MaterialPageRoute(
           builder: (_) => const SyncStatusPage(),
+          settings: settings,
+        );
+
+      case AppRoutes.settings:
+        return MaterialPageRoute(
+          builder: (_) => const SettingsPage(),
           settings: settings,
         );
 
