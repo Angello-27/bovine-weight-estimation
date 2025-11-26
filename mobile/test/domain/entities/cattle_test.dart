@@ -1,5 +1,5 @@
 /// Unit Test: Cattle Entity
-/// 
+///
 /// Tests unitarios para la entidad Cattle.
 /// Validación de lógica de negocio (edad, categoría, etc.)
 ///
@@ -14,7 +14,7 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   group('Cattle Entity', () {
     final now = DateTime.now();
-    
+
     final testCattle = Cattle(
       id: '1',
       earTag: 'A-001',
@@ -29,7 +29,7 @@ void main() {
 
     test('debe calcular edad en meses correctamente', () {
       final ageInMonths = testCattle.ageInMonths;
-      
+
       // Verificar que la edad sea razonable (>24 meses para 2022)
       expect(ageInMonths, greaterThan(24));
     });
@@ -39,13 +39,15 @@ void main() {
       final ternero = Cattle(
         id: '2',
         earTag: 'T-001',
-        breed: BreedType.angus,
-        birthDate: DateTime.now().subtract(const Duration(days: 180)), // ~6 meses
+        breed: BreedType.senepol,
+        birthDate: DateTime.now().subtract(
+          const Duration(days: 180),
+        ), // ~6 meses
         gender: Gender.male,
         registrationDate: now,
         lastUpdated: now,
       );
-      
+
       expect(ternero.ageCategory, AgeCategory.terneros);
 
       // Vaca (>30 meses)
@@ -53,34 +55,36 @@ void main() {
         id: '3',
         earTag: 'V-001',
         breed: BreedType.nelore,
-        birthDate: DateTime.now().subtract(const Duration(days: 1000)), // ~33 meses
+        birthDate: DateTime.now().subtract(
+          const Duration(days: 1000),
+        ), // ~33 meses
         gender: Gender.female,
         registrationDate: now,
         lastUpdated: now,
       );
-      
+
       expect(vaca.ageCategory, AgeCategory.vacasToros);
     });
 
     test('debe retornar displayName correcto', () {
       expect(testCattle.displayName, 'A-001 - Brownie');
-      
+
       final sinNombre = Cattle(
         id: '4',
         earTag: 'A-002',
-        breed: BreedType.criollo,
+        breed: BreedType.guzerat,
         birthDate: DateTime(2023, 1, 1),
         gender: Gender.male,
         registrationDate: now,
         lastUpdated: now,
       );
-      
+
       expect(sinNombre.displayName, 'A-002');
     });
 
     test('debe identificar si está activo', () {
       expect(testCattle.isActive, true);
-      
+
       final inactivo = testCattle.copyWith(status: CattleStatus.sold);
       expect(inactivo.isActive, false);
     });
@@ -90,7 +94,7 @@ void main() {
         name: 'New Name',
         status: CattleStatus.inactive,
       );
-      
+
       expect(updated.name, 'New Name');
       expect(updated.status, CattleStatus.inactive);
       expect(updated.earTag, 'A-001'); // No cambiado
@@ -123,4 +127,3 @@ void main() {
     });
   });
 }
-

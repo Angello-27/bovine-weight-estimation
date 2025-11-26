@@ -131,14 +131,16 @@ flutter build ios --release
 
 ## 📊 Datos del Sistema
 
-**7 Razas Soportadas**:
-- Brahman (Bos indicus)
-- Nelore (Bos indicus)
-- Angus (Bos taurus)
-- Cebuinas (Híbrido)
-- Criollo (Bos taurus)
-- Pardo Suizo (Bos taurus)
-- Jersey (Bos taurus)
+**7 Razas Soportadas** (Tropicales Priorizadas):
+- **Nelore** – Carne tropical dominante en Santa Cruz (≈42% del hato)
+- **Brahman** – Cebuino versátil para cruzamientos y climas extremos
+- **Guzerat** – Doble propósito (carne/leche) con gran rusticidad materna
+- **Senepol** – Carne premium adaptada al calor, ideal para "steer" de alta calidad
+- **Girolando** – Lechera tropical (Holstein × Gyr) muy difundida en sistemas semi-intensivos
+- **Gyr lechero** – Lechera pura clave para genética tropical y sólidos altos
+- **Sindi** – Lechera tropical compacta, de alta fertilidad y leche rica en sólidos
+
+> Estas razas están alineadas con el modelo ML entrenado en Colab y cubren el portafolio real de Santa Cruz (carne tropical + lecheras adaptadas).
 
 **4 Categorías de Edad**:
 - Terneros (0-6 meses)

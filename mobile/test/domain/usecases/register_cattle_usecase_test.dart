@@ -1,5 +1,5 @@
 /// Unit Test: RegisterCattleUseCase
-/// 
+///
 /// Tests unitarios para el caso de uso de registro de ganado.
 /// Validación de reglas de negocio.
 ///
@@ -51,12 +51,12 @@ void main() {
 
     test('debe registrar ganado exitosamente', () async {
       // Arrange
-      when(mockRepository.earTagExists(any)).thenAnswer(
-        (_) async => const Right(false),
-      );
-      when(mockRepository.registerCattle(any)).thenAnswer(
-        (_) async => Right(tCattle),
-      );
+      when(
+        mockRepository.earTagExists(any),
+      ).thenAnswer((_) async => const Right(false));
+      when(
+        mockRepository.registerCattle(any),
+      ).thenAnswer((_) async => Right(tCattle));
 
       // Act
       final result = await useCase.call(tParams);
@@ -78,20 +78,17 @@ void main() {
 
       // Assert
       expect(result.isLeft(), true);
-      result.fold(
-        (failure) {
-          expect(failure, isA<ValidationFailure>());
-          expect(failure.message, contains('caravana ya existe'));
-        },
-        (_) => fail('Should return failure'),
-      );
+      result.fold((failure) {
+        expect(failure, isA<ValidationFailure>());
+        expect(failure.message, contains('caravana ya existe'));
+      }, (_) => fail('Should return failure'));
     });
 
     test('debe retornar ValidationFailure si caravana está vacía', () async {
       // Arrange
       final invalidParams = RegisterCattleParams(
         earTag: '',
-        breed: BreedType.angus,
+        breed: BreedType.senepol,
         birthDate: DateTime(2023, 1, 1),
         gender: Gender.male,
       );
@@ -101,13 +98,10 @@ void main() {
 
       // Assert
       expect(result.isLeft(), true);
-      result.fold(
-        (failure) {
-          expect(failure, isA<ValidationFailure>());
-          expect(failure.message, contains('obligatoria'));
-        },
-        (_) => fail('Should return failure'),
-      );
+      result.fold((failure) {
+        expect(failure, isA<ValidationFailure>());
+        expect(failure.message, contains('obligatoria'));
+      }, (_) => fail('Should return failure'));
     });
 
     test('debe retornar ValidationFailure si fecha es futura', () async {
@@ -124,38 +118,34 @@ void main() {
 
       // Assert
       expect(result.isLeft(), true);
-      result.fold(
-        (failure) {
-          expect(failure, isA<ValidationFailure>());
-          expect(failure.message, contains('futura'));
-        },
-        (_) => fail('Should return failure'),
-      );
+      result.fold((failure) {
+        expect(failure, isA<ValidationFailure>());
+        expect(failure.message, contains('futura'));
+      }, (_) => fail('Should return failure'));
     });
 
-    test('debe retornar ValidationFailure si peso al nacer es inválido', () async {
-      // Arrange
-      final invalidParams = RegisterCattleParams(
-        earTag: 'A-003',
-        breed: BreedType.pardoSuizo,
-        birthDate: DateTime(2023, 1, 1),
-        gender: Gender.male,
-        birthWeight: 5.0, // Muy bajo (debe ser 10-100 kg)
-      );
+    test(
+      'debe retornar ValidationFailure si peso al nacer es inválido',
+      () async {
+        // Arrange
+        final invalidParams = RegisterCattleParams(
+          earTag: 'A-003',
+          breed: BreedType.girolando,
+          birthDate: DateTime(2023, 1, 1),
+          gender: Gender.male,
+          birthWeight: 5.0, // Muy bajo (debe ser 10-100 kg)
+        );
 
-      // Act
-      final result = await useCase.call(invalidParams);
+        // Act
+        final result = await useCase.call(invalidParams);
 
-      // Assert
-      expect(result.isLeft(), true);
-      result.fold(
-        (failure) {
+        // Assert
+        expect(result.isLeft(), true);
+        result.fold((failure) {
           expect(failure, isA<ValidationFailure>());
           expect(failure.message, contains('10-100'));
-        },
-        (_) => fail('Should return failure'),
-      );
-    });
+        }, (_) => fail('Should return failure'));
+      },
+    );
   });
 }
-
