@@ -23,12 +23,19 @@ class HomeHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: const BoxDecoration(
-        gradient: AppColors.primaryGradient,
-        borderRadius: BorderRadius.only(
+      decoration: BoxDecoration(
+        color: AppColors.primary,
+        borderRadius: const BorderRadius.only(
           bottomLeft: Radius.circular(AppSpacing.borderRadiusXLarge),
           bottomRight: Radius.circular(AppSpacing.borderRadiusXLarge),
         ),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.primary.withValues(alpha: 0.3),
+            blurRadius: 20,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       padding: const EdgeInsets.all(AppSpacing.lg),
       child: Column(
@@ -56,15 +63,22 @@ class HomeHeader extends StatelessWidget {
   /// Logo de la aplicación
   Widget _buildLogo() {
     return Container(
-      padding: const EdgeInsets.all(AppSpacing.sm),
+      padding: const EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.2),
-        borderRadius: BorderRadius.circular(AppSpacing.borderRadiusMedium),
+        color: AppColors.accent,
+        borderRadius: BorderRadius.circular(AppSpacing.borderRadiusLarge),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.2),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: const Icon(
         Icons.pets,
-        color: Colors.white,
-        size: AppSpacing.iconSizeLarge,
+        color: AppColors.onAccent,
+        size: AppSpacing.iconSizeXLarge,
       ),
     );
   }
@@ -97,46 +111,64 @@ class HomeHeader extends StatelessWidget {
   Widget _buildSyncIndicator(BuildContext context) {
     return Consumer<SyncProvider>(
       builder: (context, syncProvider, _) {
+        final isOnline = !syncProvider.isOffline;
+        final hasPending = syncProvider.hasPendingItems;
+        final isSyncing = syncProvider.isSyncing;
+
         return GestureDetector(
           onTap: () => AppRouter.push(context, AppRoutes.sync),
           child: Container(
             padding: const EdgeInsets.symmetric(
-              horizontal: AppSpacing.sm,
-              vertical: AppSpacing.xs,
+              horizontal: AppSpacing.md,
+              vertical: AppSpacing.sm,
             ),
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.2),
+              color: isOnline
+                  ? AppColors.success.withValues(alpha: 0.2)
+                  : AppColors.error.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(AppSpacing.borderRadiusLarge),
+              border: Border.all(
+                color: isOnline ? AppColors.success : AppColors.error,
+                width: 1.5,
+              ),
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(
-                  syncProvider.isSyncing
-                      ? Icons.sync_rounded
-                      : syncProvider.isOffline
-                      ? Icons.cloud_off_rounded
-                      : Icons.cloud_done_rounded,
-                  color: Colors.white,
-                  size: 16,
-                ),
-                if (syncProvider.hasPendingItems) ...[
-                  const SizedBox(width: 4),
+                if (isSyncing)
+                  const SizedBox(
+                    width: 16,
+                    height: 16,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                    ),
+                  )
+                else
+                  Icon(
+                    isOnline
+                        ? Icons.cloud_done_rounded
+                        : Icons.cloud_off_rounded,
+                    color: Colors.white,
+                    size: 18,
+                  ),
+                if (hasPending) ...[
+                  const SizedBox(width: AppSpacing.xs),
                   Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 6,
                       vertical: 2,
                     ),
                     decoration: BoxDecoration(
-                      color: Colors.amber.shade600,
+                      color: AppColors.accent,
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Text(
                       '${syncProvider.pendingCount}',
                       style: const TextStyle(
-                        color: Colors.white,
+                        color: AppColors.onAccent,
                         fontSize: 10,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
                   ),

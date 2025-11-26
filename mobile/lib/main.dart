@@ -49,7 +49,8 @@ class MyApp extends StatelessWidget {
 
         // Tema Material Design 3
         theme: AppTheme.lightTheme,
-
+        darkTheme: AppTheme.darkTheme,
+        themeMode: ThemeMode.system, // Sigue la preferencia del sistema
         // Sistema de rutas
         initialRoute: AppRoutes.home,
         onGenerateRoute: AppRouter.generateRoute,

@@ -58,9 +58,7 @@ class _WeightHistoryPageState extends State<WeightHistoryPage> {
       appBar: AppBar(
         title: Text('Historial - ${widget.cattleName}'),
         flexibleSpace: Container(
-          decoration: const BoxDecoration(
-            gradient: AppColors.secondaryGradient,
-          ),
+          decoration: const BoxDecoration(color: AppColors.primary),
         ),
         actions: [
           // Botón de exportación

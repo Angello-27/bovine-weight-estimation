@@ -18,6 +18,8 @@ import '../../../domain/entities/cattle.dart';
 import '../../widgets/atoms/buttons/primary_button.dart';
 import '../../widgets/organisms/forms/cattle_registration_form.dart';
 import '../../providers/cattle_provider.dart';
+import 'widgets/registration_header_card.dart';
+import 'widgets/registration_snackbar_handler.dart';
 
 /// Pantalla de registro de ganado
 class CattleRegistrationPage extends StatefulWidget {
@@ -59,62 +61,17 @@ class _CattleRegistrationPageState extends State<CattleRegistrationPage> {
       appBar: AppBar(
         title: const Text('Registrar Animal'),
         flexibleSpace: Container(
-          decoration: const BoxDecoration(gradient: AppColors.accentGradient),
+          decoration: const BoxDecoration(color: AppColors.accent),
         ),
       ),
       body: Consumer<CattleProvider>(
         builder: (context, provider, child) {
-          // Mostrar snackbar en éxito
-          if (provider.state == CattleState.success &&
-              provider.successMessage != null) {
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Row(
-                    children: [
-                      const Icon(Icons.check_circle, color: Colors.white),
-                      const SizedBox(width: AppSpacing.sm),
-                      Expanded(child: Text(provider.successMessage!)),
-                    ],
-                  ),
-                  backgroundColor: AppColors.success,
-                  behavior: SnackBarBehavior.floating,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(
-                      AppSpacing.borderRadiusMedium,
-                    ),
-                  ),
-                ),
-              );
-              provider.clearMessages();
-              _clearForm();
-            });
-          }
-
-          // Mostrar snackbar en error
-          if (provider.hasError && provider.errorMessage != null) {
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Row(
-                    children: [
-                      const Icon(Icons.error, color: Colors.white),
-                      const SizedBox(width: AppSpacing.sm),
-                      Expanded(child: Text(provider.errorMessage!)),
-                    ],
-                  ),
-                  backgroundColor: AppColors.error,
-                  behavior: SnackBarBehavior.floating,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(
-                      AppSpacing.borderRadiusMedium,
-                    ),
-                  ),
-                ),
-              );
-              provider.clearMessages();
-            });
-          }
+          // Manejar snackbars según estado del provider
+          RegistrationSnackbarHandler.handleProviderState(
+            context,
+            provider,
+            _clearForm, // Limpiar formulario en éxito
+          );
 
           return SafeArea(
             child: SingleChildScrollView(
@@ -123,66 +80,7 @@ class _CattleRegistrationPageState extends State<CattleRegistrationPage> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   // Header informativo
-                  Container(
-                    padding: const EdgeInsets.all(AppSpacing.lg),
-                    decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [AppColors.accentLight, Colors.white],
-                      ),
-                      borderRadius: BorderRadius.circular(
-                        AppSpacing.borderRadiusLarge,
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppColors.accent.withValues(alpha: 0.1),
-                          blurRadius: AppSpacing.elevationMedium,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(AppSpacing.md),
-                          decoration: BoxDecoration(
-                            color: AppColors.accent.withValues(alpha: 0.15),
-                            borderRadius: BorderRadius.circular(
-                              AppSpacing.borderRadiusMedium,
-                            ),
-                          ),
-                          child: const Icon(
-                            Icons.add_circle,
-                            color: AppColors.accent,
-                            size: AppSpacing.iconSizeXLarge,
-                          ),
-                        ),
-                        const SizedBox(width: AppSpacing.md),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Nuevo Animal',
-                                style: Theme.of(context).textTheme.titleLarge
-                                    ?.copyWith(
-                                      fontWeight: FontWeight.bold,
-                                      color: AppColors.grey900,
-                                    ),
-                              ),
-                              const SizedBox(height: AppSpacing.xs),
-                              Text(
-                                'Completa los datos del animal',
-                                style: Theme.of(context).textTheme.bodyMedium
-                                    ?.copyWith(color: AppColors.grey600),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+                  const RegistrationHeaderCard(),
 
                   const SizedBox(height: AppSpacing.lg),
 

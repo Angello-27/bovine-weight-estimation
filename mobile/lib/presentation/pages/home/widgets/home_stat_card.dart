@@ -33,30 +33,49 @@ class HomeStatCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.2),
-        borderRadius: BorderRadius.circular(AppSpacing.borderRadiusMedium),
+        color: Colors.white.withValues(alpha: 0.15),
+        borderRadius: BorderRadius.circular(AppSpacing.borderRadiusLarge),
         border: Border.all(
           color: Colors.white.withValues(alpha: 0.3),
-          width: 1,
+          width: 1.5,
         ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.1),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(icon, color: Colors.white, size: AppSpacing.iconSize),
-          const SizedBox(height: AppSpacing.xs),
+          Container(
+            padding: const EdgeInsets.all(AppSpacing.xs),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.2),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(icon, color: Colors.white, size: AppSpacing.iconSize),
+          ),
+          const SizedBox(height: AppSpacing.sm),
           Text(
             value,
             style: const TextStyle(
               color: Colors.white,
-              fontSize: AppSpacing.fontSizeLarge,
+              fontSize: AppSpacing.fontSizeTitle,
               fontWeight: FontWeight.bold,
+              height: 1.2,
             ),
           ),
+          const SizedBox(height: AppSpacing.xs),
           Text(
             label,
+            textAlign: TextAlign.center,
             style: TextStyle(
-              color: Colors.white.withValues(alpha: 0.8),
+              color: Colors.white.withValues(alpha: 0.9),
               fontSize: AppSpacing.fontSizeSmall,
+              fontWeight: FontWeight.w500,
             ),
           ),
         ],
