@@ -48,28 +48,39 @@ class HomeFooter extends StatelessWidget {
   Widget _buildUniversityBadge() {
     return Container(
       padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.md,
-        vertical: AppSpacing.sm,
+        horizontal: AppSpacing.lg,
+        vertical: AppSpacing.md,
       ),
       decoration: BoxDecoration(
-        color: AppColors.infoLight,
+        color: AppColors.primary.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(AppSpacing.borderRadiusLarge),
+        border: Border.all(
+          color: AppColors.primary.withValues(alpha: 0.2),
+          width: 1.5,
+        ),
       ),
-      child: const Row(
+      child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
-            Icons.school,
-            size: AppSpacing.iconSizeSmall,
-            color: AppColors.info,
+          Container(
+            padding: const EdgeInsets.all(AppSpacing.xs),
+            decoration: BoxDecoration(
+              color: AppColors.primary,
+              borderRadius: BorderRadius.circular(AppSpacing.borderRadiusSmall),
+            ),
+            child: const Icon(
+              Icons.school,
+              size: AppSpacing.iconSizeSmall,
+              color: Colors.white,
+            ),
           ),
-          SizedBox(width: AppSpacing.sm),
+          const SizedBox(width: AppSpacing.sm),
           Text(
             'Taller de Grado - UAGRM',
             style: TextStyle(
               fontSize: AppSpacing.fontSizeSmall,
-              color: AppColors.info,
-              fontWeight: FontWeight.w500,
+              color: AppColors.primary,
+              fontWeight: FontWeight.w600,
             ),
           ),
         ],
@@ -77,4 +88,3 @@ class HomeFooter extends StatelessWidget {
     );
   }
 }
-

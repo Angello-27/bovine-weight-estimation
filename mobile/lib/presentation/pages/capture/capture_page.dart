@@ -19,17 +19,23 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../providers/capture_provider.dart';
 import '../../widgets/molecules/dialogs/permission_rationale_dialog.dart';
-import '../../widgets/organisms/capture/camera_preview_section.dart';
-import 'widgets/capture_action_button.dart';
-import 'widgets/capture_content.dart';
-import 'widgets/capture_status_card.dart';
+import 'widgets/fullscreen_camera_preview.dart';
+import 'widgets/capture_overlay.dart';
+import 'widgets/capture_floating_controls.dart';
+import 'widgets/best_frame_thumbnail.dart';
+import 'widgets/camera_framing_guides.dart';
 
-/// Pantalla de captura de fotogramas
+/// Pantalla de captura de fotogramas a pantalla completa
 ///
-/// Usa composición de componentes siguiendo Atomic Design:
-/// - Organisms: CaptureStatusCard, CaptureContent, CameraPreviewSection
-/// - Molecules: CaptureActionButton
-/// - Atoms: (usados internamente por los organisms)
+/// Vista principal: Cámara a pantalla completa con overlay y controles flotantes
+/// Vista fallback: Mensaje simple cuando la cámara no está lista
+///
+/// Componentes principales:
+/// - FullScreenCameraPreview: Cámara a pantalla completa
+/// - CameraFramingGuides: Guías de encuadre
+/// - CaptureOverlay: Overlay con estadísticas
+/// - BestFrameThumbnail: Miniatura del mejor frame
+/// - CaptureFloatingControls: Controles flotantes
 class CapturePage extends StatefulWidget {
   const CapturePage({super.key});
 
@@ -185,43 +191,105 @@ class _CapturePageState extends State<CapturePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Captura de Fotogramas')),
-      body: Consumer<CaptureProvider>(
+    // Si la cámara está inicializada, mostrar vista a pantalla completa
+    if (_cameraController != null && _cameraController!.value.isInitialized) {
+      return Consumer<CaptureProvider>(
         builder: (context, provider, child) {
-          return SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.all(AppSpacing.screenPadding),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  // Estado actual
-                  CaptureStatusCard(provider: provider),
+          return Scaffold(
+            backgroundColor: Colors.black,
+            // Sin AppBar para pantalla completa
+            body: Stack(
+              children: [
+                // Cámara a pantalla completa
+                FullScreenCameraPreview(controller: _cameraController!),
 
-                  const SizedBox(height: AppSpacing.lg),
+                // Guías de encuadre
+                const CameraFramingGuides(),
 
-                  // Preview de cámara con manejo de estados (Organism)
-                  CameraPreviewSection(
-                    cameraController: _cameraController,
-                    isInitializing: _isInitializing,
-                    errorMessage: _errorMessage,
-                    onRequestPermission: _requestPermissionManually,
-                  ),
+                // Overlay con información
+                CaptureOverlay(),
 
-                  const SizedBox(height: AppSpacing.lg),
+                // Miniatura del mejor frame
+                const BestFrameThumbnail(),
 
-                  // Contenido principal (scrollable)
-                  Expanded(child: CaptureContent(provider: provider)),
-
-                  const SizedBox(height: AppSpacing.md),
-
-                  // Botón de acción
-                  CaptureActionButton(provider: provider),
-                ],
-              ),
+                // Controles flotantes
+                Align(
+                  alignment: Alignment.bottomCenter,
+                  child: CaptureFloatingControls(),
+                ),
+              ],
             ),
           );
         },
+      );
+    }
+
+    // Vista de fallback mientras se inicializa o hay error
+    return Scaffold(
+      appBar: AppBar(title: const Text('Captura de Fotogramas')),
+      body: SafeArea(
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(AppSpacing.screenPadding),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // Indicador de estado
+                if (_isInitializing)
+                  const Column(
+                    children: [
+                      CircularProgressIndicator(),
+                      SizedBox(height: AppSpacing.lg),
+                      Text(
+                        'Inicializando cámara...',
+                        style: TextStyle(fontSize: 16),
+                      ),
+                    ],
+                  )
+                else if (_errorMessage != null)
+                  Column(
+                    children: [
+                      const Icon(
+                        Icons.error_outline,
+                        size: 64,
+                        color: AppColors.error,
+                      ),
+                      const SizedBox(height: AppSpacing.md),
+                      Text(
+                        _errorMessage!,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          color: AppColors.error,
+                        ),
+                      ),
+                      const SizedBox(height: AppSpacing.lg),
+                      ElevatedButton.icon(
+                        onPressed: _requestPermissionManually,
+                        icon: const Icon(Icons.settings),
+                        label: const Text('Configurar Permisos'),
+                      ),
+                    ],
+                  )
+                else
+                  const Column(
+                    children: [
+                      Icon(
+                        Icons.camera_alt,
+                        size: 64,
+                        color: AppColors.primary,
+                      ),
+                      SizedBox(height: AppSpacing.md),
+                      Text(
+                        'Preparando cámara...',
+                        style: TextStyle(fontSize: 16),
+                      ),
+                    ],
+                  ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }

@@ -32,7 +32,7 @@ class HomeQuickActions extends StatelessWidget {
           icon: Icons.camera_alt,
           title: 'Capturar',
           subtitle: 'Fotogramas',
-          gradient: AppColors.primaryGradient,
+          color: AppColors.primary,
           onTap: () => AppRouter.push(context, AppRoutes.capture),
         ),
 
@@ -41,14 +41,11 @@ class HomeQuickActions extends StatelessWidget {
           icon: Icons.monitor_weight,
           title: 'Estimar',
           subtitle: 'Peso IA',
-          gradient: AppColors.secondaryGradient,
+          color: AppColors.secondary,
           onTap: () => AppRouter.push(
             context,
             AppRoutes.weightEstimation,
-            arguments: {
-              'framePath': '/mock/frame.jpg',
-              'cattleId': null,
-            },
+            arguments: {'framePath': '/mock/frame.jpg', 'cattleId': null},
           ),
         ),
 
@@ -57,7 +54,7 @@ class HomeQuickActions extends StatelessWidget {
           icon: Icons.add_circle,
           title: 'Registrar',
           subtitle: 'Animal',
-          gradient: AppColors.accentGradient,
+          color: AppColors.accent,
           onTap: () => AppRouter.push(context, AppRoutes.cattleRegistration),
         ),
 
@@ -66,11 +63,10 @@ class HomeQuickActions extends StatelessWidget {
           icon: Icons.history,
           title: 'Historial',
           subtitle: 'Pesajes',
-          gradient: AppColors.infoGradient,
+          color: AppColors.info,
           onTap: () => AppRouter.push(context, AppRoutes.weightHistory),
         ),
       ],
     );
   }
 }
-

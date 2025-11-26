@@ -6,6 +6,8 @@
 /// Presentation Layer - Clean Architecture + Provider Pattern
 library;
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../../core/theme/app_colors.dart';
@@ -108,6 +110,12 @@ class CaptureProvider with ChangeNotifier {
 
   /// Duración objetivo en segundos (3-5)
   int _targetDurationSeconds = 4;
+
+  /// Timer para captura continua
+  Timer? _continuousCaptureTimer;
+
+  /// Timestamp de inicio de captura continua
+  DateTime? _continuousCaptureStartTime;
 
   CaptureProvider({required this.captureFramesUseCase});
 
@@ -220,9 +228,91 @@ class CaptureProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  /// Inicia captura continua ilimitada (hasta que se detenga manualmente)
+  Future<void> startContinuousCapture() async {
+    if (_state == CaptureState.capturing) {
+      return; // Ya está capturando
+    }
+
+    try {
+      _state = CaptureState.capturing;
+      _errorMessage = null;
+      _frames = [];
+      _continuousCaptureStartTime = DateTime.now();
+      notifyListeners();
+
+      // Iniciar timer para captura continua
+      final msPerFrame = (1000 / _targetFps).round();
+      _continuousCaptureTimer = Timer.periodic(
+        Duration(milliseconds: msPerFrame),
+        (timer) async {
+          // Capturar frame
+          await _captureSingleFrame();
+        },
+      );
+    } catch (e) {
+      _state = CaptureState.error;
+      _errorMessage = 'Error iniciando captura continua: $e';
+      notifyListeners();
+    }
+  }
+
+  /// Detiene la captura continua
+  void stopContinuousCapture() {
+    _continuousCaptureTimer?.cancel();
+    _continuousCaptureTimer = null;
+
+    if (_frames.isNotEmpty) {
+      _state = CaptureState.completed;
+    } else {
+      _state = CaptureState.idle;
+    }
+
+    _continuousCaptureStartTime = null;
+    notifyListeners();
+  }
+
+  /// Captura un solo frame (usado en captura continua)
+  Future<void> _captureSingleFrame() async {
+    try {
+      // Crear parámetros para un solo frame
+      final params = CaptureParams(
+        targetFps: _targetFps,
+        durationSeconds: 1, // Solo necesitamos 1 segundo para 1 frame
+      );
+
+      // Ejecutar caso de uso (capturará 1 frame)
+      final result = await captureFramesUseCase.call(params);
+
+      result.fold(
+        (failure) {
+          // Error en frame individual, continuar con siguiente
+          debugPrint('Error capturando frame: ${failure.message}');
+        },
+        (session) {
+          // Agregar frames a la lista
+          if (session.frames.isNotEmpty) {
+            _frames.addAll(session.frames);
+            notifyListeners();
+          }
+        },
+      );
+    } catch (e) {
+      debugPrint('Error capturando frame: $e');
+      // Continuar capturando aunque haya error en un frame
+    }
+  }
+
+  /// Duración de captura continua (en segundos)
+  Duration? get continuousCaptureDuration {
+    if (_continuousCaptureStartTime == null) return null;
+    return DateTime.now().difference(_continuousCaptureStartTime!);
+  }
+
   /// Libera recursos
   @override
   void dispose() {
+    _continuousCaptureTimer?.cancel();
     _frames = [];
     _session = null;
     super.dispose();

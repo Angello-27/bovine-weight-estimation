@@ -34,6 +34,10 @@ dependencies:
   # Path Provider: Acceso a directorios del sistema
   # Usado en: Obtener directorios temporales para fotogramas capturados
   path_provider: ^2.1.1
+  
+  # Shared Preferences: Almacenamiento de preferencias del usuario
+  # Usado en: Settings - persistencia de configuraciones (tema, texto, flash, unidades, etc.)
+  shared_preferences: ^2.2.2
 
   # ========================================
   # PERMISSIONS

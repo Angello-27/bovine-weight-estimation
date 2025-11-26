@@ -8,6 +8,7 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'core/config/app_config.dart';
 import 'core/config/dependency_injection.dart';
@@ -19,9 +20,12 @@ void main() async {
   // Asegurar inicialización de Flutter
   WidgetsFlutterBinding.ensureInitialized();
 
+  // Inicializar SharedPreferences para settings
+  final prefs = await SharedPreferences.getInstance();
+
   // Inicializar Dependency Injection
   final di = DependencyInjection();
-  di.init();
+  di.init(prefs: prefs);
 
   // Ejecutar app (permisos se solicitan just-in-time en cada feature)
   runApp(MyApp(di: di));
@@ -49,7 +53,8 @@ class MyApp extends StatelessWidget {
 
         // Tema Material Design 3
         theme: AppTheme.lightTheme,
-
+        darkTheme: AppTheme.darkTheme,
+        themeMode: ThemeMode.system, // Sigue la preferencia del sistema
         // Sistema de rutas
         initialRoute: AppRoutes.home,
         onGenerateRoute: AppRouter.generateRoute,

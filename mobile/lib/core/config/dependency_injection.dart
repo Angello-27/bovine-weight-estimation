@@ -35,6 +35,12 @@ import '../../domain/usecases/get_weight_history_usecase.dart';
 import '../../domain/usecases/register_cattle_usecase.dart';
 import '../../domain/usecases/sync_pending_items_usecase.dart';
 import '../../domain/usecases/trigger_manual_sync_usecase.dart';
+import '../../domain/usecases/get_settings_usecase.dart';
+import '../../domain/usecases/save_settings_usecase.dart';
+import '../../data/datasources/settings_local_datasource.dart';
+import '../../data/repositories/settings_repository_impl.dart';
+import '../../domain/repositories/settings_repository.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 /// Contenedor de dependencias
 ///
@@ -82,8 +88,14 @@ class DependencyInjection {
   late final TriggerManualSyncUseCase _triggerManualSyncUseCase;
   late final CheckConnectivityUseCase _checkConnectivityUseCase;
 
+  // Settings
+  late final SettingsLocalDataSource _settingsLocalDataSource;
+  late final SettingsRepository _settingsRepository;
+  late final GetSettingsUseCase _getSettingsUseCase;
+  late final SaveSettingsUseCase _saveSettingsUseCase;
+
   /// Inicializa todas las dependencias
-  void init() {
+  void init({required SharedPreferences prefs}) {
     // Services
     _permissionService = PermissionService();
 
@@ -158,6 +170,14 @@ class DependencyInjection {
     _getPendingCountUseCase = GetPendingCountUseCase(_syncRepository);
     _triggerManualSyncUseCase = TriggerManualSyncUseCase(_syncRepository);
     _checkConnectivityUseCase = CheckConnectivityUseCase(_syncRepository);
+
+    // Settings
+    _settingsLocalDataSource = SettingsLocalDataSourceImpl(prefs: prefs);
+    _settingsRepository = SettingsRepositoryImpl(
+      localDataSource: _settingsLocalDataSource,
+    );
+    _getSettingsUseCase = GetSettingsUseCase(_settingsRepository);
+    _saveSettingsUseCase = SaveSettingsUseCase(_settingsRepository);
   }
 
   // Getters - Services
@@ -199,6 +219,10 @@ class DependencyInjection {
       _triggerManualSyncUseCase;
   CheckConnectivityUseCase get checkConnectivityUseCase =>
       _checkConnectivityUseCase;
+
+  // Getters - Settings
+  GetSettingsUseCase get getSettingsUseCase => _getSettingsUseCase;
+  SaveSettingsUseCase get saveSettingsUseCase => _saveSettingsUseCase;
 
   /// Libera recursos
   Future<void> dispose() async {
