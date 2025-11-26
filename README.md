@@ -49,17 +49,19 @@ Este sistema revoluciona la estimación de peso bovino en la ganadería bolivian
 
 ### 🐮 Razas Soportadas
 
-El sistema está optimizado para las **7 razas específicas** presentes en la Hacienda Gamelera:
+El sistema está optimizado para las **7 razas tropicales priorizadas** presentes en la Hacienda Gamelera y alineadas con el modelo ML entrenado:
 
-| Raza | Nombre Científico | Categoría |
-|------|------------------|-----------|
-| Brahman | Bos indicus | Cebuino |
-| Nelore | Bos indicus | Cebuino |
-| Angus | Bos taurus | Europeo |
-| Cebuinas | Bos indicus | Cebuino |
-| Criollo | Bos taurus | Europeo |
-| Pardo Suizo | Bos taurus | Europeo |
-| Jersey | Bos taurus | Europeo |
+| Raza | Descripción | Categoría |
+|------|-------------|-----------|
+| **Nelore** | Carne tropical dominante en Santa Cruz (≈42% del hato) | Cebuino (Carne) |
+| **Brahman** | Cebuino versátil para cruzamientos y climas extremos | Cebuino (Carne) |
+| **Guzerat** | Doble propósito (carne/leche) con gran rusticidad materna | Cebuino (Doble) |
+| **Senepol** | Carne premium adaptada al calor, ideal para "steer" de alta calidad | Europeo (Carne) |
+| **Girolando** | Lechera tropical (Holstein × Gyr) muy difundida en sistemas semi-intensivos | Europeo (Leche) |
+| **Gyr lechero** | Lechera pura clave para genética tropical y sólidos altos | Cebuino (Leche) |
+| **Sindi** | Lechera tropical compacta, de alta fertilidad y leche rica en sólidos | Cebuino (Leche) |
+
+> **Nota**: Estas razas cubren el portafolio real de Santa Cruz (carne tropical + lecheras adaptadas) y están alineadas con el modelo ML genérico entrenado en Colab.
 
 ### 📅 Categorías de Edad
 
@@ -115,7 +117,7 @@ Donde:
   - Visibilidad de silueta (silhouette_visibility > 0.8)
   - Ángulo apropiado (angle_score > 0.6)
 - **Selección automática**: Score ponderado (Silueta 40%, Nitidez 30%, Iluminación 20%, Ángulo 10%)
-- **Modelos específicos**: TensorFlow Lite optimizado para cada raza bovina
+- **Modelo genérico**: TensorFlow Lite optimizado para todas las razas bovinas (7 razas tropicales)
 
 ### 🎯 Resultados Esperados
 
@@ -136,7 +138,7 @@ Donde:
 |------------|------------|-----------------|
 | **Mobile App** | Flutter 3.x + SQLite + TFLite | Captura, procesamiento local, UI |
 | **Backend API** | FastAPI + Python 3.11+ | Lógica de negocio, integraciones |
-| **ML Engine** | TensorFlow Lite | Inferencia de peso por raza |
+| **ML Engine** | TensorFlow Lite | Inferencia de peso (modelo genérico multi-raza) |
 | **Database** | MongoDB | Almacenamiento de datos |
 | **Cloud Storage** | AWS S3 | Modelos ML y archivos |
 | **Local DB** | SQLite | Funcionalidad offline |
@@ -145,7 +147,7 @@ Donde:
 
 1. **Mobile App**: Captura continua, procesamiento local, UI intuitiva, sincronización
 2. **Backend API**: Lógica de negocio, integraciones normativas, gestión de datos
-3. **ML Engine**: 7 modelos específicos por raza, inferencia optimizada
+3. **ML Engine**: Modelo genérico TensorFlow Lite para todas las razas, inferencia optimizada
 4. **Database**: MongoDB (cloud) + SQLite (local offline)
 5. **Cloud Storage**: AWS S3 para modelos ML y manifest.json
 
