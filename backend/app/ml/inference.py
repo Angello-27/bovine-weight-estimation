@@ -141,15 +141,15 @@ class MLInferenceEngine:
         Returns:
             (peso_estimado_kg, confidence)
         """
-        # Rangos típicos por raza (promedios Hacienda Gamelera)
+        # Rangos típicos por raza (alineados con entrenamiento ML)
         breed_weight_ranges = {
-            BreedType.BRAHMAN: (400, 650),  # Bos indicus robusto
-            BreedType.NELORE: (380, 620),  # Bos indicus
-            BreedType.ANGUS: (450, 700),  # Bos taurus, buena carne
-            BreedType.CEBUINAS: (350, 600),  # Bos indicus general
-            BreedType.CRIOLLO: (300, 550),  # Adaptado local
-            BreedType.PARDO_SUIZO: (500, 800),  # Bos taurus grande
-            BreedType.JERSEY: (350, 500),  # Lechera, menor tamaño
+            BreedType.NELORE: (250, 650),
+            BreedType.BRAHMAN: (260, 680),
+            BreedType.GUZERAT: (240, 650),
+            BreedType.SENEPOL: (280, 620),
+            BreedType.GIROLANDO: (240, 640),
+            BreedType.GYR_LECHERO: (220, 620),
+            BreedType.SINDI: (150, 380),
         }
 
         # Obtener rango de la raza

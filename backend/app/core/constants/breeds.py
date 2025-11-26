@@ -1,7 +1,9 @@
 """
 Constantes de Razas Bovinas - Hacienda Gamelera
-8 razas exactas (ACTUALIZADO según información de Bruno Brito Macedo)
+7 razas tropicales priorizadas (ACTUALIZADO según entrenamiento ML)
 San Ignacio de Velasco, Santa Cruz, Bolivia
+
+Razas alineadas con el modelo ML entrenado en Colab.
 """
 
 from enum import Enum
@@ -10,24 +12,25 @@ from typing import Literal
 
 class BreedType(str, Enum):
     """
-    8 razas bovinas de Hacienda Gamelera.
+    7 razas bovinas tropicales priorizadas para Santa Cruz.
 
     IMPORTANTE: Estas son las ÚNICAS razas válidas en el sistema.
-    Prioridad: Brahman, Nelore, Angus (más datos disponibles)
+    Alineadas con el modelo ML entrenado en Colab (BLOQUE 0-16).
+
+    Prioridad: Nelore (42% del hato), Brahman, Guzerat
     """
 
-    BRAHMAN = "brahman"  # Bos indicus, muy común en Chiquitanía
-    NELORE = "nelore"  # Bos indicus, 80% del Pantanal
-    ANGUS = "angus"  # Bos taurus, carne de calidad
-    CEBUINAS = "cebuinas"  # Bos indicus general (agrupa varias razas zebu)
-    CRIOLLO = "criollo"  # Criollo Chaqueño, adaptado local
-    PARDO_SUIZO = "pardo_suizo"  # Bos taurus grande
-    GUZERAT = "guzerat"  # Bos indicus, lechero y carne (reemplaza Jersey)
-    HOLSTEIN = "holstein"  # Lechera, común en región
+    NELORE = "nelore"  # Carne tropical dominante en Santa Cruz (≈42% del hato)
+    BRAHMAN = "brahman"  # Cebuino versátil para cruzamientos y climas extremos
+    GUZERAT = "guzerat"  # Doble propósito (carne/leche) con gran rusticidad materna
+    SENEPOL = "senepol"  # Carne premium adaptada al calor, ideal para "steer" de alta calidad
+    GIROLANDO = "girolando"  # Lechera tropical (Holstein × Gyr) muy difundida en sistemas semi-intensivos
+    GYR_LECHERO = "gyr_lechero"  # Lechera pura clave para genética tropical y sólidos altos
+    SINDI = "sindi"  # Lechera tropical compacta, de alta fertilidad y leche rica en sólidos
 
     @classmethod
     def is_valid(cls, breed: str) -> bool:
-        """Valida si la raza es una de las 8 exactas."""
+        """Valida si la raza es una de las 7 exactas."""
         try:
             cls(breed)
             return True
@@ -38,14 +41,13 @@ class BreedType(str, Enum):
     def get_display_name(cls, breed: "BreedType") -> str:
         """Retorna nombre para mostrar en UI (español)."""
         display_names = {
-            cls.BRAHMAN: "Brahman",
             cls.NELORE: "Nelore",
-            cls.ANGUS: "Angus",
-            cls.CEBUINAS: "Cebuinas (Bos indicus)",
-            cls.CRIOLLO: "Criollo Chaqueño",
-            cls.PARDO_SUIZO: "Pardo Suizo",
+            cls.BRAHMAN: "Brahman",
             cls.GUZERAT: "Guzerat",
-            cls.HOLSTEIN: "Holstein",
+            cls.SENEPOL: "Senepol",
+            cls.GIROLANDO: "Girolando",
+            cls.GYR_LECHERO: "Gyr Lechero",
+            cls.SINDI: "Sindi",
         }
         return display_names[breed]
 
@@ -63,57 +65,60 @@ class BovineSpecies(str, Enum):
 
 # Type alias para validación
 BreedTypeLiteral = Literal[
-    "brahman",
     "nelore",
-    "angus",
-    "cebuinas",
-    "criollo",
-    "pardo_suizo",
+    "brahman",
     "guzerat",
-    "holstein",
+    "senepol",
+    "girolando",
+    "gyr_lechero",
+    "sindi",
 ]
 
 # Mapeos útiles
 BREED_DISPLAY_NAMES = {
-    BreedType.BRAHMAN: "Brahman",
     BreedType.NELORE: "Nelore",
-    BreedType.ANGUS: "Angus",
-    BreedType.CEBUINAS: "Cebuinas (Bos indicus)",
-    BreedType.CRIOLLO: "Criollo Chaqueño",
-    BreedType.PARDO_SUIZO: "Pardo Suizo",
+    BreedType.BRAHMAN: "Brahman",
     BreedType.GUZERAT: "Guzerat",
-    BreedType.HOLSTEIN: "Holstein",
+    BreedType.SENEPOL: "Senepol",
+    BreedType.GIROLANDO: "Girolando",
+    BreedType.GYR_LECHERO: "Gyr Lechero",
+    BreedType.SINDI: "Sindi",
 }
 
+# Mapeo de nombres de archivos de modelos TFLite por raza
+# NOTA: Actualmente usamos un modelo genérico (generic-cattle-v1.0.0.tflite)
+# que funciona para todas las razas. Este diccionario es para uso futuro
+# cuando se implementen modelos específicos por raza (fine-tuning).
 BREED_MODEL_FILENAMES = {
-    BreedType.BRAHMAN: "brahman-v1.0.0.tflite",
     BreedType.NELORE: "nelore-v1.0.0.tflite",
-    BreedType.ANGUS: "angus-v1.0.0.tflite",
-    BreedType.CEBUINAS: "cebuinas-v1.0.0.tflite",
-    BreedType.CRIOLLO: "criollo-v1.0.0.tflite",
-    BreedType.PARDO_SUIZO: "pardo_suizo-v1.0.0.tflite",
+    BreedType.BRAHMAN: "brahman-v1.0.0.tflite",
     BreedType.GUZERAT: "guzerat-v1.0.0.tflite",
-    BreedType.HOLSTEIN: "holstein-v1.0.0.tflite",
+    BreedType.SENEPOL: "senepol-v1.0.0.tflite",
+    BreedType.GIROLANDO: "girolando-v1.0.0.tflite",
+    BreedType.GYR_LECHERO: "gyr_lechero-v1.0.0.tflite",
+    BreedType.SINDI: "sindi-v1.0.0.tflite",
 }
 
-# Razas prioritarias (más datos disponibles)
+# Razas prioritarias (más datos disponibles - según distribución en Santa Cruz)
 PRIORITY_BREEDS = [
-    BreedType.BRAHMAN,
-    BreedType.NELORE,
-    BreedType.ANGUS,
+    BreedType.NELORE,  # 42% del hato
+    BreedType.BRAHMAN,  # Versátil para cruzamientos
+    BreedType.GUZERAT,  # Doble propósito
 ]
 
-# Clasificación por especie
-BOS_INDICUS_BREEDS = [
-    BreedType.BRAHMAN,
+# Clasificación por propósito
+MEAT_BREEDS = [
     BreedType.NELORE,
-    BreedType.CEBUINAS,
-    BreedType.GUZERAT,
+    BreedType.BRAHMAN,
+    BreedType.SENEPOL,
 ]
 
-BOS_TAURUS_BREEDS = [
-    BreedType.ANGUS,
-    BreedType.CRIOLLO,
-    BreedType.PARDO_SUIZO,
-    BreedType.HOLSTEIN,
+DAIRY_BREEDS = [
+    BreedType.GIROLANDO,
+    BreedType.GYR_LECHERO,
+    BreedType.SINDI,
+]
+
+DUAL_PURPOSE_BREEDS = [
+    BreedType.GUZERAT,  # Doble propósito (carne/leche)
 ]

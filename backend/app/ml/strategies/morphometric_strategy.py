@@ -30,20 +30,19 @@ class MorphometricWeightEstimationStrategy(BaseWeightEstimationStrategy):
     
     def _initialize_breed_params(self) -> dict:
         """
-        Inicializa parámetros calibrados por raza.
+        Inicializa parámetros calibrados por raza (alineados con entrenamiento ML).
         
         Returns:
             Dict con coeficientes para cada raza
         """
         return {
-            BreedType.BRAHMAN: {'a': 0.52, 'b': 145, 'min': 300, 'max': 900},
-            BreedType.NELORE: {'a': 0.50, 'b': 150, 'min': 280, 'max': 850},
-            BreedType.ANGUS: {'a': 0.58, 'b': 135, 'min': 250, 'max': 850},
-            BreedType.CEBUINAS: {'a': 0.51, 'b': 148, 'min': 290, 'max': 880},
-            BreedType.CRIOLLO: {'a': 0.48, 'b': 155, 'min': 220, 'max': 650},
-            BreedType.PARDO_SUIZO: {'a': 0.55, 'b': 140, 'min': 260, 'max': 800},
-            BreedType.GUZERAT: {'a': 0.47, 'b': 160, 'min': 300, 'max': 700},  # Lechero y carne
-            BreedType.HOLSTEIN: {'a': 0.45, 'b': 130, 'min': 200, 'max': 600},  # Lechera
+            BreedType.NELORE: {'a': 0.50, 'b': 150, 'min': 250, 'max': 650},  # Carne tropical dominante
+            BreedType.BRAHMAN: {'a': 0.52, 'b': 145, 'min': 260, 'max': 680},  # Cebuino versátil
+            BreedType.GUZERAT: {'a': 0.47, 'b': 160, 'min': 240, 'max': 650},  # Doble propósito
+            BreedType.SENEPOL: {'a': 0.53, 'b': 140, 'min': 280, 'max': 620},  # Carne premium
+            BreedType.GIROLANDO: {'a': 0.48, 'b': 155, 'min': 240, 'max': 640},  # Lechera tropical
+            BreedType.GYR_LECHERO: {'a': 0.46, 'b': 158, 'min': 220, 'max': 620},  # Lechera pura
+            BreedType.SINDI: {'a': 0.44, 'b': 130, 'min': 150, 'max': 380},  # Lechera compacta
         }
     
     def _get_detector(self) -> YOLO:
