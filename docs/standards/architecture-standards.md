@@ -19,17 +19,16 @@
 
 ### Datos Críticos del Dominio (INVARIANTES)
 
-#### 8 Razas Bovinas (EXACTAS - NO MODIFICAR) 🆕 Actualizado 28 Oct 2024
-1. Brahman (Bos indicus)
-2. Nelore (Bos indicus)
-3. Angus (Bos taurus)
-4. Cebuinas (Bos indicus)
-5. Criollo (Bos taurus)
-6. Pardo Suizo (Bos taurus)
-7. Guzerat (Bos indicus) 🆕
-8. Holstein (Bos taurus) 🆕
+#### 7 Razas Bovinas Tropicales (EXACTAS - NO MODIFICAR) 🆕 Actualizado Dic 2024
+1. **Nelore** (Bos indicus) - Carne tropical dominante en Santa Cruz (≈42% del hato)
+2. **Brahman** (Bos indicus) - Cebuino versátil para cruzamientos y climas extremos
+3. **Guzerat** (Bos indicus) - Doble propósito (carne/leche) con gran rusticidad materna
+4. **Senepol** (Bos taurus) - Carne premium adaptada al calor, ideal para "steer" de alta calidad
+5. **Girolando** (Bos taurus) - Lechera tropical (Holstein × Gyr) muy difundida en sistemas semi-intensivos
+6. **Gyr lechero** (Bos indicus) - Lechera pura clave para genética tropical y sólidos altos
+7. **Sindi** (Bos indicus) - Lechera tropical compacta, de alta fertilidad y leche rica en sólidos
 
-**Nota**: Jersey eliminada por baja prevalencia en región Chiquitana.
+**Nota**: Estas razas están alineadas con el modelo ML entrenado en Colab y cubren el portafolio real de Santa Cruz (carne tropical + lecheras adaptadas).
 
 #### 4 Categorías de Edad (EXACTAS - NO MODIFICAR)
 1. Terneros (<8 meses)

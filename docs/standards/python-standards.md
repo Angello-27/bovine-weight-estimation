@@ -60,14 +60,14 @@ backend/app/
 from enum import Enum
 
 class BreedType(str, Enum):
-    """7 razas Hacienda Gamelera (Bruno Brito Macedo)."""
-    BRAHMAN = "brahman"         # Bos indicus
-    NELORE = "nelore"           # Bos indicus
-    ANGUS = "angus"             # Bos taurus
-    CEBUINAS = "cebuinas"       # Bos indicus
-    CRIOLLO = "criollo"         # Bos taurus
-    PARDO_SUIZO = "pardo_suizo" # Bos taurus
-    JERSEY = "jersey"           # Bos taurus
+    """7 razas tropicales priorizadas - Hacienda Gamelera (Bruno Brito Macedo)."""
+    NELORE = "nelore"           # Carne tropical dominante en Santa Cruz (≈42% del hato)
+    BRAHMAN = "brahman"         # Cebuino versátil para cruzamientos y climas extremos
+    GUZERAT = "guzerat"         # Doble propósito (carne/leche) con gran rusticidad materna
+    SENEPOL = "senepol"         # Carne premium adaptada al calor
+    GIROLANDO = "girolando"     # Lechera tropical (Holstein × Gyr)
+    GYR_LECHERO = "gyr_lechero" # Lechera pura clave para genética tropical
+    SINDI = "sindi"             # Lechera tropical compacta
     
     @classmethod
     def is_valid(cls, breed: str) -> bool:

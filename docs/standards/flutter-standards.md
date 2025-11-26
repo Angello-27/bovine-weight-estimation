@@ -72,19 +72,19 @@ lib/
 
 ```dart
 enum BreedType {
-  brahman, nelore, angus, cebuinas, criollo, pardoSuizo, jersey
+  nelore, brahman, guzerat, senepol, girolando, gyrLechero, sindi
 }
 
 extension BreedTypeExtension on BreedType {
   String get displayName {
     const names = {
-      BreedType.brahman: 'Brahman',
       BreedType.nelore: 'Nelore',
-      BreedType.angus: 'Angus',
-      BreedType.cebuinas: 'Cebuinas (Bos indicus)',
-      BreedType.criollo: 'Criollo (Bos taurus)',
-      BreedType.pardoSuizo: 'Pardo Suizo',
-      BreedType.jersey: 'Jersey',
+      BreedType.brahman: 'Brahman',
+      BreedType.guzerat: 'Guzerat',
+      BreedType.senepol: 'Senepol',
+      BreedType.girolando: 'Girolando',
+      BreedType.gyrLechero: 'Gyr Lechero',
+      BreedType.sindi: 'Sindi',
     };
     return names[this]!;
   }
