@@ -63,11 +63,11 @@ def get_ml_service() -> MLService:
     - Tiempo: <3 segundos
     - Confidence: ≥80%
 
-    **8 Razas soportadas**:
-    - brahman, nelore, angus, cebuinas, criollo, pardo_suizo, guzerat, holstein
+    **7 Razas soportadas** (tropicales priorizadas):
+    - nelore, brahman, guzerat, senepol, girolando, gyr_lechero, sindi
     
-    **Razas prioritarias** (más datos disponibles):
-    - brahman, nelore, angus
+    **Razas prioritarias** (más datos disponibles en Santa Cruz):
+    - nelore (42% del hato), brahman, guzerat
     """,
 )
 async def predict_weight(

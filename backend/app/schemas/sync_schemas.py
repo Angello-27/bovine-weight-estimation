@@ -57,13 +57,13 @@ class CattleSyncItemRequest(BaseModel):
     @classmethod
     def validate_breed(cls, v: str) -> str:
         valid_breeds = [
-            "brahman",
             "nelore",
-            "angus",
-            "cebuinas",
-            "criollo",
-            "pardo_suizo",
-            "jersey",
+            "brahman",
+            "guzerat",
+            "senepol",
+            "girolando",
+            "gyr_lechero",
+            "sindi",
         ]
         if v.lower() not in valid_breeds:
             raise ValueError(f"Raza inválida. Válidas: {valid_breeds}")
@@ -142,13 +142,13 @@ class WeightEstimationSyncItemRequest(BaseModel):
     @classmethod
     def validate_breed(cls, v: str) -> str:
         valid_breeds = [
-            "brahman",
             "nelore",
-            "angus",
-            "cebuinas",
-            "criollo",
-            "pardo_suizo",
-            "jersey",
+            "brahman",
+            "guzerat",
+            "senepol",
+            "girolando",
+            "gyr_lechero",
+            "sindi",
         ]
         if v.lower() not in valid_breeds:
             raise ValueError(f"Raza inválida. Válidas: {valid_breeds}")

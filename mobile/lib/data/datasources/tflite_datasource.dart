@@ -180,15 +180,15 @@ class TFLiteDataSourceImpl implements TFLiteDataSource {
     // Simular delay de procesamiento (<3s)
     await Future.delayed(const Duration(milliseconds: 500));
 
-    // Pesos simulados por raza (para testing)
+    // Pesos simulados por raza (alineados con entrenamiento ML)
     final Map<BreedType, double> mockWeights = {
-      BreedType.brahman: 450.0,
-      BreedType.nelore: 420.0,
-      BreedType.angus: 480.0,
-      BreedType.cebuinas: 410.0,
-      BreedType.criollo: 380.0,
-      BreedType.pardoSuizo: 520.0,
-      BreedType.jersey: 350.0,
+      BreedType.nelore: 420.0, // Carne tropical dominante
+      BreedType.brahman: 450.0, // Cebuino versátil
+      BreedType.guzerat: 400.0, // Doble propósito
+      BreedType.senepol: 380.0, // Carne premium
+      BreedType.girolando: 380.0, // Lechera tropical
+      BreedType.gyrLechero: 350.0, // Lechera pura
+      BreedType.sindi: 280.0, // Lechera compacta
     };
 
     // Agregar variación aleatoria ±20kg

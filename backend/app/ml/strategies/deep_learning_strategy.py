@@ -7,12 +7,14 @@ import numpy as np
 from typing import Dict, Any
 
 from app.core.constants import BreedType
+from app.ml.model_loader import MLModelLoader
+from app.ml.preprocessing import ImagePreprocessor
 from .base_strategy import BaseWeightEstimationStrategy
 
 
 class DeepLearningWeightEstimationStrategy(BaseWeightEstimationStrategy):
     """
-    Estrategia de Deep Learning usando modelos ML entrenados.
+    Estrategia de Deep Learning usando modelos TFLite entrenados.
     
     Single Responsibility: Implementar estimación de Deep Learning específica
     Open/Closed: Extensible para diferentes arquitecturas de modelo
@@ -24,17 +26,22 @@ class DeepLearningWeightEstimationStrategy(BaseWeightEstimationStrategy):
     
     def __init__(self):
         """Inicializa la estrategia de Deep Learning."""
-        self._model_loader = None
-        self._preprocessor = None
-        self._loaded_models = {}
+        self.model_loader = MLModelLoader()
+        self.preprocessor = ImagePreprocessor()
+        self._model = None
+    
+    def _ensure_model_loaded(self):
+        """Asegura que el modelo TFLite esté cargado."""
+        if self._model is None:
+            self._model = self.model_loader.load_generic_model()
     
     def estimate_weight(self, image_bytes: bytes, breed: BreedType) -> dict:
         """
-        Estima peso usando modelo ML entrenado.
+        Estima peso usando modelo TFLite entrenado.
         
         Args:
             image_bytes: Bytes de imagen (JPEG/PNG)
-            breed: Raza del animal
+            breed: Raza del animal (usado para validación, modelo es genérico)
             
         Returns:
             Dict con peso estimado, confianza, método y metadatos
@@ -42,23 +49,54 @@ class DeepLearningWeightEstimationStrategy(BaseWeightEstimationStrategy):
         Raises:
             ValueError: Si no se puede estimar el peso
         """
-        # TODO: Implementar carga de modelo específico por raza
-        # Por ahora, usar estimación mock realista
-        
-        # Simular carga de modelo
-        model_version = f"{breed.value}-v1.0.0"
-        
-        # Generar estimación mock basada en rangos típicos por raza
-        weight_kg, confidence = self._mock_ml_inference(breed, image_bytes)
-        
-        return {
-            'weight': weight_kg,
-            'confidence': confidence,
-            'method': 'ml_model',
-            'model_version': model_version,
-            'strategy': self.get_strategy_name(),
-            'detection_quality': 'good' if confidence > 0.85 else 'acceptable',
-        }
+        try:
+            # 1. Cargar modelo si no está cargado
+            self._ensure_model_loaded()
+            
+            # 2. Preprocesar imagen
+            preprocessed_image = self.preprocessor.preprocess_from_bytes(image_bytes)
+            
+            # 3. Ejecutar inferencia TFLite
+            interpreter = self._model["interpreter"]
+            input_details = self._model["input_details"]
+            output_details = self._model["output_details"]
+            
+            # Preparar input (ya viene con batch dimension del preprocessor)
+            input_data = preprocessed_image.astype(np.float32)
+            
+            # Ejecutar inferencia
+            interpreter.set_tensor(input_details[0]['index'], input_data)
+            interpreter.invoke()
+            
+            # Obtener output
+            output_data = interpreter.get_tensor(output_details[0]['index'])
+            estimated_weight = float(output_data[0][0])  # Modelo retorna peso directamente
+            
+            # 4. Calcular confidence basado en peso y rango típico de la raza
+            confidence = self._calculate_confidence(estimated_weight, breed)
+            
+            return {
+                'weight': round(estimated_weight, 2),
+                'confidence': confidence,
+                'method': 'tflite_model',
+                'model_version': self._model["version"],
+                'strategy': self.get_strategy_name(),
+                'detection_quality': 'good' if confidence > 0.85 else 'acceptable',
+            }
+            
+        except Exception as e:
+            # Fallback a mock si hay error (para desarrollo)
+            print(f"⚠️ Error en inferencia TFLite: {str(e)}")
+            print("   Usando estimación mock como fallback")
+            weight_kg, confidence = self._mock_ml_inference(breed, image_bytes)
+            return {
+                'weight': weight_kg,
+                'confidence': confidence,
+                'method': 'ml_model_mock',
+                'model_version': '1.0.0-mock',
+                'strategy': self.get_strategy_name(),
+                'detection_quality': 'acceptable',
+            }
     
     def _mock_ml_inference(self, breed: BreedType, image_bytes: bytes) -> tuple[float, float]:
         """
@@ -71,16 +109,15 @@ class DeepLearningWeightEstimationStrategy(BaseWeightEstimationStrategy):
         Returns:
             (peso_estimado_kg, confidence)
         """
-        # Rangos típicos por raza (actualizados para 8 razas)
+        # Rangos típicos por raza (alineados con entrenamiento ML)
         breed_weight_ranges = {
-            BreedType.BRAHMAN: (400, 650),  # Bos indicus robusto
-            BreedType.NELORE: (380, 620),  # Bos indicus
-            BreedType.ANGUS: (450, 700),  # Bos taurus, buena carne
-            BreedType.CEBUINAS: (350, 600),  # Bos indicus general
-            BreedType.CRIOLLO: (300, 550),  # Adaptado local
-            BreedType.PARDO_SUIZO: (500, 800),  # Bos taurus grande
-            BreedType.GUZERAT: (350, 650),  # Lechero y carne
-            BreedType.HOLSTEIN: (300, 500),  # Lechera, menor tamaño
+            BreedType.NELORE: (250, 650),
+            BreedType.BRAHMAN: (260, 680),
+            BreedType.GUZERAT: (240, 650),
+            BreedType.SENEPOL: (280, 620),
+            BreedType.GIROLANDO: (240, 640),
+            BreedType.GYR_LECHERO: (220, 620),
+            BreedType.SINDI: (150, 380),
         }
         
         # Obtener rango de la raza
@@ -101,19 +138,50 @@ class DeepLearningWeightEstimationStrategy(BaseWeightEstimationStrategy):
         
         return round(estimated_weight, 1), round(confidence, 4)
     
+    def _calculate_confidence(self, weight: float, breed: BreedType) -> float:
+        """
+        Calcula confidence basado en peso estimado y rango típico de la raza.
+        
+        TODO: Mejorar con confidence real del modelo si está disponible.
+        """
+        # Rangos típicos por raza (alineados con entrenamiento ML)
+        # Basados en LIFESTAGE_WEIGHT_RANGES del notebook Colab
+        breed_ranges = {
+            BreedType.NELORE: (250, 650),  # novillo: 250-380, vaca: 380-520, toro: 480-650
+            BreedType.BRAHMAN: (260, 680),  # novillo: 260-400, vaca: 390-540, toro: 500-680
+            BreedType.GUZERAT: (240, 650),  # novillo: 240-360, vaca: 360-520, toro: 480-650
+            BreedType.SENEPOL: (280, 620),  # novillo: 280-400, vaca: 360-480, toro: 500-620
+            BreedType.GIROLANDO: (240, 640),  # novilla: 240-340, vaca: 420-580, toro: 500-640
+            BreedType.GYR_LECHERO: (220, 620),  # novilla: 220-320, vaca: 380-520, toro: 470-620
+            BreedType.SINDI: (150, 380),  # novilla: 150-230, vaca: 260-380
+        }
+        
+        weight_min, weight_max = breed_ranges.get(breed, (300, 700))
+        
+        # Si está en rango típico, confidence alto
+        if weight_min <= weight <= weight_max:
+            return 0.92
+        elif weight < weight_min * 0.8 or weight > weight_max * 1.2:
+            return 0.75  # Fuera de rango, confidence menor
+        else:
+            return 0.85  # Cerca del rango
+    
     def get_strategy_name(self) -> str:
         """Retorna nombre de la estrategia."""
-        return "deep_learning_model"
+        return "deep_learning_tflite"
     
     def is_available(self) -> bool:
         """
         Verifica si la estrategia está disponible.
         
         Returns:
-            True si hay modelos ML cargados
+            True si hay modelo TFLite disponible
         """
-        # TODO: Verificar que hay modelos ML disponibles
-        return len(self._loaded_models) > 0
+        try:
+            self._ensure_model_loaded()
+            return True
+        except:
+            return False
     
     def get_loaded_models(self) -> dict:
         """
@@ -123,7 +191,7 @@ class DeepLearningWeightEstimationStrategy(BaseWeightEstimationStrategy):
             Dict con info de modelos ML
         """
         return {
-            "total_loaded": len(self._loaded_models),
-            "models": list(self._loaded_models.keys()),
+            "total_loaded": 1 if self._model is not None else 0,
+            "models": ["generic"] if self._model is not None else [],
             "strategy": self.get_strategy_name()
         }

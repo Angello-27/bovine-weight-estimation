@@ -27,8 +27,8 @@ CREATE TABLE animals (
     id TEXT PRIMARY KEY,
     tag_number TEXT NOT NULL UNIQUE,           -- "HG-BRA-001"
     breed_type TEXT NOT NULL CHECK(breed_type IN (
-        'brahman', 'nelore', 'angus', 'cebuinas',
-        'criollo', 'pardo_suizo', 'guzerat', 'holstein'  -- 8 razas (🆕 actualizado 28 Oct)
+        'nelore', 'brahman', 'guzerat', 'senepol',
+        'girolando', 'gyr_lechero', 'sindi'  -- 7 razas tropicales (🆕 actualizado Dic 2024)
     )),
     birth_date TEXT NOT NULL,                  -- ISO 8601
     gender TEXT NOT NULL CHECK(gender IN ('male', 'female')),

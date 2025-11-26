@@ -25,8 +25,8 @@ passlib[bcrypt]==1.7.4
 python-dotenv==1.0.0
 
 # ===== Machine Learning =====
-# TensorFlow 2.16+ para entrenamiento e inferencia (versión más reciente disponible)
-tensorflow==2.16.2  # Versión estable más reciente
+# TensorFlow Lite Runtime (ligero, ~10MB vs TensorFlow completo ~500MB)
+tensorflow-lite-runtime==2.16.0  # Runtime para inferencia TFLite (sin TensorFlow completo)
 pillow==10.1.0      # Procesamiento de imágenes
 numpy==1.26.2       # Operaciones numéricas
 opencv-python==4.8.1.78  # Procesamiento de imágenes (YOLO)

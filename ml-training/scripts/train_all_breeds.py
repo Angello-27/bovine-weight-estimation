@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """
-Entrena los 8 modelos TFLite para las razas de Hacienda Gamelera.
+Entrena los 7 modelos TFLite para las razas tropicales priorizadas.
 Basado en ml-training-standards.md
 
-Razas: Brahman, Nelore, Angus, Cebuinas, Criollo, Pardo Suizo, Jersey, Guzerat, Holstein
+Razas: Nelore, Brahman, Guzerat, Senepol, Girolando, Gyr lechero, Sindi
+(Alineadas con modelo ML entrenado en Colab)
 """
 
 import sys
@@ -31,7 +32,7 @@ def train_all_breeds():
     print("🐄 SISTEMA DE ESTIMACIÓN DE PESO BOVINO - ENTRENAMIENTO")
     print("="*70)
     print("📅 Proyecto: Hacienda Gamelera - Bruno Brito Macedo")
-    print("🎯 Objetivo: 8 modelos TFLite, R²≥0.85, MAE<22kg\n")
+    print("🎯 Objetivo: 7 modelos TFLite (razas tropicales), R²≥0.95, MAE<5kg\n")
     
     # Directorio base
     BASE_DIR = Path(__file__).parent.parent
@@ -116,7 +117,7 @@ def train_all_breeds():
     print(f"\n{'#'*70}")
     print(f"✅ ENTRENAMIENTO COMPLETADO")
     print(f"{'#'*70}")
-    print(f"📊 Modelos entrenados: {len(BREED_CONFIGS)} (8 razas)")
+    print(f"📊 Modelos entrenados: {len(BREED_CONFIGS)} (7 razas tropicales)")
     print(f"📁 Ubicación: {MODELS_DIR}")
     print(f"📋 Manifest: {manifest_path}\n")
 
@@ -147,7 +148,7 @@ def determine_training_strategy(breed_name: str) -> str:
 
 def generate_manifest(models_dir: Path) -> dict:
     """
-    Genera manifest.json con los 8 modelos (una por raza).
+    Genera manifest.json con los 7 modelos (una por raza tropical).
     
     Args:
         models_dir: Directorio de modelos
@@ -180,7 +181,7 @@ def generate_manifest(models_dir: Path) -> dict:
                 "metrics": metrics,
             })
     
-    assert len(manifest["models"]) == 8, f"Deben ser 8 modelos, se encontraron {len(manifest['models'])}"
+    assert len(manifest["models"]) == 7, f"Deben ser 7 modelos (razas tropicales), se encontraron {len(manifest['models'])}"
     
     return manifest
 

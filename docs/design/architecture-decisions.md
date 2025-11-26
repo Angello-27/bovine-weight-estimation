@@ -79,7 +79,7 @@ San Ignacio de Velasco = zona rural sin conectividad estable. Bruno requiere 100
 
 ---
 
-## ADR-003: Sistema Híbrido de Estimación (Sprint 1) + 8 Modelos TFLite (Sprint 2+)
+## ADR-003: Sistema Híbrido de Estimación (Sprint 1) + Modelo Genérico TFLite (Sprint 2+)
 
 **Estado**: ⚠️ En Evolución | **Fecha**: 1 oct 2024 | **Decidido**: Equipo ML
 
@@ -90,7 +90,7 @@ San Ignacio de Velasco = zona rural sin conectividad estable. Bruno requiere 100
    - Precisión inicial: MAE 20-30kg
    - Demo funcional inmediato
    
-2. **Sprint 2+ (Producción)**: 8 modelos TensorFlow Lite entrenados (uno por raza)
+2. **Sprint 2+ (Producción)**: Modelo genérico TensorFlow Lite entrenado (funciona para todas las razas)
 
 ### Por Qué
 
@@ -148,31 +148,36 @@ Ver: `backend/app/ml/strategies/hybrid_strategy.py`
 2. **Fase 2 (Sprint 2)**: Implementar Sistema Híbrido como demo funcional
 3. **Fase 3 (Sprint 2+)**:
 
-8 modelos TensorFlow Lite (uno por raza): brahman-v1.0.0.tflite, nelore-v1.0.0.tflite, angus-v1.0.0.tflite, cebuinas-v1.0.0.tflite, criollo-v1.0.0.tflite, pardo_suizo-v1.0.0.tflite, guzerat-v1.0.0.tflite, holstein-v1.0.0.tflite
+**Modelo genérico TensorFlow Lite**: `generic-cattle-v1.0.0.tflite`
 
-**Arquitectura cada modelo**: MobileNetV2 (frozen) → Dense(256) → Dense(128) → Dense(1 peso_kg)
+**Arquitectura**: EfficientNetB1 (frozen) → GlobalAvgPooling2D → Dense(256) → Dense(128) → Dense(1 peso_kg)
 
-| Raza | R² | MAE (kg) | Tamaño | Prioridad |
-|------|-----|----------|--------|-----------|
-| Brahman | 0.97 | 3.2 | 2.3 MB | 🟢 Alta |
-| Nelore | 0.96 | 3.8 | 2.1 MB | 🟢 Alta |
-| Angus | 0.98 | 2.9 | 2.2 MB | 🟢 Alta |
-| Cebuinas | 0.96 | 3.5 | 2.3 MB | 🟡 Media |
-| Criollo | 0.95 | 4.2 | 2.0 MB | 🟡 Media |
-| Pardo Suizo | 0.97 | 3.1 | 2.4 MB | 🟡 Media |
-| Guzerat | 0.95 | 3.9 | 2.2 MB | 🟡 Media |
-| Holstein | 0.96 | 3.7 | 2.1 MB | 🟡 Media |
-| **Total** | **-** | **-** | **~18 MB** | - |
+**Razas soportadas** (7 razas tropicales priorizadas):
+- Nelore, Brahman, Guzerat, Senepol, Girolando, Gyr lechero, Sindi
 
-✅ Todas las razas cumplen R² ≥0.95 y MAE <5 kg
+**Métricas esperadas**:
+- R² ≥ 0.95 (correlación con báscula)
+- MAE < 5 kg (error absoluto medio)
+- Tamaño: ~50 MB (un solo modelo vs 7 modelos separados)
+
+✅ El modelo genérico funciona para todas las razas con validación post-inferencia por rango de peso específico de cada raza.
 
 ### Por Qué
 
-Morfología muy diferente (Brahman con joroba vs Holstein lechera). Modelo genérico: solo 88% precisión. Modelos especializados: >95%.
+**Decisión actual (Dic 2024)**: Modelo genérico para MVP rápido
+- ✅ Más rápido de entrenar (1 modelo vs 7 modelos = 7x menos tiempo)
+- ✅ Menos complejidad de deployment (1 archivo vs 7 archivos)
+- ✅ Funciona para todas las razas con validación post-inferencia
+- ✅ Backend ya preparado para modelo genérico
 
-**🆕 Cambio de razas (28 Oct 2024)**:
-- ❌ **Eliminada**: Jersey (poca relevancia región)
-- ✅ **Añadidas**: Guzerat, Holstein (mayor prevalencia región Chiquitana)
+**Futuro (opcional)**: Fine-tuning por raza si es necesario
+- 🔄 Usar modelo genérico como base (transfer learning)
+- 🔄 Fine-tuning solo para razas con baja precisión
+- 🔄 Más rápido que entrenar desde cero
+
+**🆕 Cambio de razas (Dic 2024)**:
+- ✅ **Actualizado**: 7 razas tropicales priorizadas (Nelore, Brahman, Guzerat, Senepol, Girolando, Gyr lechero, Sindi)
+- ✅ **Alineado**: Con modelo ML entrenado en Colab
 
 ### Alternativas
 

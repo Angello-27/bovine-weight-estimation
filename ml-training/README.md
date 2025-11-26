@@ -7,10 +7,17 @@
 
 ---
 
-## 🎯 Razas (8 totales)
+## 🎯 Razas (7 razas tropicales priorizadas)
 
-1. Brahman | 2. Nelore | 3. Angus | 4. Cebuinas  
-5. Criollo | 6. Pardo Suizo | 7. Jersey | 8. Guzerat | 9. Holstein
+1. **Nelore** – Carne tropical dominante en Santa Cruz (≈42% del hato)
+2. **Brahman** – Cebuino versátil para cruzamientos y climas extremos
+3. **Guzerat** – Doble propósito (carne/leche) con gran rusticidad materna
+4. **Senepol** – Carne premium adaptada al calor, ideal para "steer" de alta calidad
+5. **Girolando** – Lechera tropical (Holstein × Gyr) muy difundida en sistemas semi-intensivos
+6. **Gyr lechero** – Lechera pura clave para genética tropical y sólidos altos
+7. **Sindi** – Lechera tropical compacta, de alta fertilidad y leche rica en sólidos
+
+> Estas razas están alineadas con el modelo ML entrenado en Colab y cubren el portafolio real de Santa Cruz (carne tropical + lecheras adaptadas).
 
 ---
 

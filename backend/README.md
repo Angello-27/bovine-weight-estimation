@@ -55,6 +55,8 @@ source venv/bin/activate  # Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
+> **📋 Integración con Modelo TFLite**: Después de que Colab exporte el modelo, sigue la [Guía de Integración](INTEGRATION_GUIDE.md) para configurar el backend con el modelo real.
+
 ### 2. Configuración MongoDB
 
 **Opción A - MongoDB Local (Desarrollo):**
@@ -131,15 +133,19 @@ uvicorn app.main:app --reload
 
 ## 🎯 Constantes del Dominio
 
-### 7 Razas Bovinas (NO MODIFICAR)
+### 7 Razas Bovinas Tropicales (NO MODIFICAR)
 
-1. Brahman (Bos indicus)
-2. Nelore (Bos indicus)
-3. Angus (Bos taurus)
-4. Cebuinas (Bos indicus)
-5. Criollo (Bos taurus)
-6. Pardo Suizo (Bos taurus)
-7. Jersey (Bos taurus)
+Alineadas con el modelo ML entrenado en Colab:
+
+1. **Nelore** – Carne tropical dominante en Santa Cruz (≈42% del hato)
+2. **Brahman** – Cebuino versátil para cruzamientos y climas extremos
+3. **Guzerat** – Doble propósito (carne/leche) con gran rusticidad materna
+4. **Senepol** – Carne premium adaptada al calor, ideal para "steer" de alta calidad
+5. **Girolando** – Lechera tropical (Holstein × Gyr) muy difundida en sistemas semi-intensivos
+6. **Gyr lechero** – Lechera pura clave para genética tropical y sólidos altos
+7. **Sindi** – Lechera tropical compacta, de alta fertilidad y leche rica en sólidos
+
+> Estas razas cubren el portafolio real de Santa Cruz (carne tropical + lecheras adaptadas).
 
 ### 4 Categorías de Edad
 
@@ -198,6 +204,22 @@ python3 -m ruff check app/ --fix && python3 -m ruff format app/
 - ✅ Auto fix imports on save
 
 **Reinicia Cursor/VSCode** después de crear el venv para que detecte las dependencias.
+
+---
+
+---
+
+## 🔗 Integración con Modelo ML
+
+Después de entrenar y exportar el modelo TFLite desde Colab (BLOQUE 16), sigue la guía de integración:
+
+📖 **[Guía de Integración TFLite](INTEGRATION_GUIDE.md)**
+
+**Pasos principales**:
+1. Descargar modelo desde Google Drive/Colab
+2. Copiar a `backend/ml_models/`
+3. Instalar `tensorflow-lite-runtime`
+4. Verificar que el backend carga el modelo correctamente
 
 ---
 

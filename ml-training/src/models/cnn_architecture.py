@@ -157,43 +157,35 @@ class BreedWeightEstimatorCNN:
         return model
 
 
-# Configuraciones por raza (8 razas de Hacienda Gamelera)
+# Configuraciones por raza (7 razas tropicales priorizadas - alineadas con entrenamiento)
 BREED_CONFIGS = {
-    'brahman': BreedModelConfig(
-        breed_type='brahman',
-        expected_weight_range_kg=(200.0, 800.0),
-    ),
     'nelore': BreedModelConfig(
         breed_type='nelore',
-        expected_weight_range_kg=(200.0, 750.0),
+        expected_weight_range_kg=(250.0, 650.0),  # novillo: 250-380, vaca: 380-520, toro: 480-650
     ),
-    'angus': BreedModelConfig(
-        breed_type='angus',
-        expected_weight_range_kg=(250.0, 850.0),
-    ),
-    'cebuinas': BreedModelConfig(
-        breed_type='cebuinas',
-        expected_weight_range_kg=(200.0, 700.0),
-    ),
-    'criollo': BreedModelConfig(
-        breed_type='criollo',
-        expected_weight_range_kg=(180.0, 600.0),
-    ),
-    'pardo_suizo': BreedModelConfig(
-        breed_type='pardo_suizo',
-        expected_weight_range_kg=(300.0, 900.0),
-    ),
-    'jersey': BreedModelConfig(
-        breed_type='jersey',
-        expected_weight_range_kg=(200.0, 550.0),
+    'brahman': BreedModelConfig(
+        breed_type='brahman',
+        expected_weight_range_kg=(260.0, 680.0),  # novillo: 260-400, vaca: 390-540, toro: 500-680
     ),
     'guzerat': BreedModelConfig(
         breed_type='guzerat',
-        expected_weight_range_kg=(250.0, 750.0),
+        expected_weight_range_kg=(240.0, 650.0),  # novillo: 240-360, vaca: 360-520, toro: 480-650
     ),
-    'holstein': BreedModelConfig(
-        breed_type='holstein',
-        expected_weight_range_kg=(220.0, 600.0),
+    'senepol': BreedModelConfig(
+        breed_type='senepol',
+        expected_weight_range_kg=(280.0, 620.0),  # novillo: 280-400, vaca: 360-480, toro: 500-620
+    ),
+    'girolando': BreedModelConfig(
+        breed_type='girolando',
+        expected_weight_range_kg=(240.0, 640.0),  # novilla: 240-340, vaca: 420-580, toro: 500-640
+    ),
+    'gyr_lechero': BreedModelConfig(
+        breed_type='gyr_lechero',
+        expected_weight_range_kg=(220.0, 620.0),  # novilla: 220-320, vaca: 380-520, toro: 470-620
+    ),
+    'sindi': BreedModelConfig(
+        breed_type='sindi',
+        expected_weight_range_kg=(150.0, 380.0),  # novilla: 150-230, vaca: 260-380
     ),
 }
 
