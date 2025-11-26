@@ -7,15 +7,15 @@ project:
   hacienda: "Gamelera"
   owner: "Bruno Brito Macedo"
 
-# Razas exactas (7 razas de Hacienda Gamelera)
+# Razas exactas (7 razas tropicales priorizadas - alineadas con entrenamiento)
 breeds:
-  - brahman
   - nelore
-  - angus
-  - cebuinas
-  - criollo
-  - pardo_suizo
-  - jersey
+  - brahman
+  - guzerat
+  - senepol
+  - girolando
+  - gyr_lechero
+  - sindi
 
 # Categorías de edad exactas (4 categorías)
 age_categories:
