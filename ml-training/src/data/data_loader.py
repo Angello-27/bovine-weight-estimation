@@ -104,8 +104,8 @@ class CattleDataGenerator(Sequence):
                 y_batch.append(row['weight_kg'])
                 
             except Exception as e:
-                print(f"⚠️ Error cargando imagen {row['image_filename']}: {e}")
-                # Si hay error, usar imagen cero o saltar
+                # Si hay error, saltar esta imagen silenciosamente
+                # (evitar logs excesivos durante entrenamiento)
                 continue
         
         # Convertir a numpy arrays
