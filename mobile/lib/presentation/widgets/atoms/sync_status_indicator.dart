@@ -71,8 +71,7 @@ class SyncStatusIndicator extends StatelessWidget {
         const SizedBox(width: 8.0),
         Text(
           label,
-          style: TextStyle(
-            fontSize: 13.0,
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
             fontWeight: FontWeight.w500,
             color: color,
           ),

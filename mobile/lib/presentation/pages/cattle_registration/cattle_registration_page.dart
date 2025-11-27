@@ -57,11 +57,14 @@ class _CattleRegistrationPageState extends State<CattleRegistrationPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.grey50,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        title: const Text('Registrar Animal'),
+        title: Text(
+          'Registrar Animal',
+          style: Theme.of(context).textTheme.titleLarge,
+        ),
         flexibleSpace: Container(
-          decoration: const BoxDecoration(color: AppColors.accent),
+          decoration: BoxDecoration(gradient: AppColors.primaryGradient),
         ),
       ),
       body: Consumer<CattleProvider>(

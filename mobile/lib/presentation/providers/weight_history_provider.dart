@@ -123,11 +123,35 @@ class WeightHistoryProvider with ChangeNotifier {
       );
 
       _history = await getWeightHistoryUseCase(params);
-      _state = WeightHistoryState.loaded;
+
+      // Si el historial está vacío, no es un error, es un estado normal
+      if (_history != null && _history!.weighings.isEmpty) {
+        _state = WeightHistoryState.loaded;
+        _errorMessage = null;
+      } else {
+        _state = WeightHistoryState.loaded;
+        _errorMessage = null;
+      }
       notifyListeners();
     } catch (e) {
-      _errorMessage = e.toString();
-      _state = WeightHistoryState.error;
+      // Convertir errores técnicos en mensajes amigables
+      final errorString = e.toString().toLowerCase();
+      if (errorString.contains('no such table') ||
+          errorString.contains('table') && errorString.contains('not exist')) {
+        // Si la tabla no existe, mostrar como historial vacío
+        _state = WeightHistoryState.loaded;
+        _errorMessage = null;
+        _history = null; // Se mostrará el estado vacío
+      } else if (errorString.contains('animal no encontrado') ||
+          errorString.contains('no encontrado')) {
+        _errorMessage = 'Animal no encontrado. Por favor, regístralo primero.';
+        _state = WeightHistoryState.error;
+      } else {
+        // Mensaje genérico amigable
+        _errorMessage =
+            'No se pudo cargar el historial. Por favor, intenta nuevamente.';
+        _state = WeightHistoryState.error;
+      }
       notifyListeners();
     }
   }

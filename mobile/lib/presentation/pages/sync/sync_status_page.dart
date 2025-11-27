@@ -27,7 +27,10 @@ class SyncStatusPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Estado de Sincronización'),
+        title: Text(
+          'Estado de Sincronización',
+          style: Theme.of(context).textTheme.titleLarge,
+        ),
         flexibleSpace: Container(
           decoration: const BoxDecoration(color: AppColors.primary),
         ),

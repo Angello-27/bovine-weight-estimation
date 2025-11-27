@@ -18,6 +18,7 @@ import '../../../core/config/dependency_injection.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../providers/capture_provider.dart';
+import '../../providers/settings_provider.dart';
 import '../../widgets/molecules/dialogs/permission_rationale_dialog.dart';
 import 'widgets/fullscreen_camera_preview.dart';
 import 'widgets/capture_overlay.dart';
@@ -114,7 +115,15 @@ class _CapturePageState extends State<CapturePage> {
 
     try {
       final di = DependencyInjection();
-      final controller = await di.cameraDataSource.initializeCamera();
+      // Obtener configuración de flash desde settings
+      final settingsProvider = Provider.of<SettingsProvider>(
+        context,
+        listen: false,
+      );
+      final enableFlash = settingsProvider.settings.flashEnabled;
+      final controller = await di.cameraDataSource.initializeCamera(
+        enableFlash: enableFlash,
+      );
 
       if (!mounted) {
         await di.cameraDataSource.dispose(controller);

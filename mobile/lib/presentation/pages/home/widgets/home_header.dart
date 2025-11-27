@@ -41,13 +41,15 @@ class HomeHeader extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Título con logo + indicador de sincronización
+          // Título con logo + indicadores de sincronización y settings
           Row(
             children: [
               _buildLogo(),
               const SizedBox(width: AppSpacing.md),
-              Expanded(child: _buildTitle()),
+              Expanded(child: _buildTitle(context)),
               _buildSyncIndicator(context),
+              const SizedBox(width: AppSpacing.sm),
+              _buildSettingsButton(context),
             ],
           ),
 
@@ -84,23 +86,21 @@ class HomeHeader extends StatelessWidget {
   }
 
   /// Título y subtítulo
-  Widget _buildTitle() {
+  Widget _buildTitle(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        Text(
           'Agrocom',
-          style: TextStyle(
+          style: Theme.of(context).textTheme.titleLarge?.copyWith(
             color: Colors.white,
-            fontSize: AppSpacing.fontSizeLarge,
             fontWeight: FontWeight.bold,
           ),
         ),
         Text(
           AppConfig.haciendaName,
-          style: TextStyle(
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
             color: Colors.white.withValues(alpha: 0.9),
-            fontSize: AppSpacing.fontSizeMedium,
           ),
         ),
       ],
@@ -165,9 +165,8 @@ class HomeHeader extends StatelessWidget {
                     ),
                     child: Text(
                       '${syncProvider.pendingCount}',
-                      style: const TextStyle(
+                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
                         color: AppColors.onAccent,
-                        fontSize: 10,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -178,6 +177,29 @@ class HomeHeader extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+
+  /// Botón de configuración
+  Widget _buildSettingsButton(BuildContext context) {
+    return GestureDetector(
+      onTap: () => AppRouter.push(context, AppRoutes.settings),
+      child: Container(
+        padding: const EdgeInsets.all(AppSpacing.sm),
+        decoration: BoxDecoration(
+          color: Colors.white.withValues(alpha: 0.2),
+          borderRadius: BorderRadius.circular(AppSpacing.borderRadiusLarge),
+          border: Border.all(
+            color: Colors.white.withValues(alpha: 0.3),
+            width: 1.5,
+          ),
+        ),
+        child: const Icon(
+          Icons.settings_rounded,
+          color: Colors.white,
+          size: 20,
+        ),
+      ),
     );
   }
 }

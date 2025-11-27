@@ -47,8 +47,14 @@ class ExportOptionsBottomSheet extends StatelessWidget {
           const SizedBox(height: AppSpacing.md),
           ListTile(
             leading: const Icon(Icons.picture_as_pdf, color: AppColors.error),
-            title: const Text('Exportar como PDF'),
-            subtitle: const Text('Documento profesional con gráficos'),
+            title: Text(
+              'Exportar como PDF',
+              style: Theme.of(context).textTheme.bodyLarge,
+            ),
+            subtitle: Text(
+              'Documento profesional con gráficos',
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
             onTap: () {
               Navigator.pop(context);
               _exportPdf(context);
@@ -56,8 +62,14 @@ class ExportOptionsBottomSheet extends StatelessWidget {
           ),
           ListTile(
             leading: const Icon(Icons.table_chart, color: AppColors.success),
-            title: const Text('Exportar como CSV'),
-            subtitle: const Text('Para análisis en Excel'),
+            title: Text(
+              'Exportar como CSV',
+              style: Theme.of(context).textTheme.bodyLarge,
+            ),
+            subtitle: Text(
+              'Para análisis en Excel',
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
             onTap: () {
               Navigator.pop(context);
               _exportCsv(context);
@@ -209,8 +221,14 @@ class ExportOptionsBottomSheet extends StatelessWidget {
             const SizedBox(height: AppSpacing.md),
             ListTile(
               leading: const Icon(Icons.share, color: AppColors.info),
-              title: const Text('Compartir'),
-              subtitle: const Text('Enviar por WhatsApp, Email, etc.'),
+              title: Text(
+                'Compartir',
+                style: Theme.of(context).textTheme.bodyLarge,
+              ),
+              subtitle: Text(
+                'Enviar por WhatsApp, Email, etc.',
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
               onTap: () async {
                 Navigator.pop(context);
                 await _sharePdfFile(context, pdfBytes);
@@ -218,8 +236,14 @@ class ExportOptionsBottomSheet extends StatelessWidget {
             ),
             ListTile(
               leading: const Icon(Icons.print, color: AppColors.secondary),
-              title: const Text('Imprimir'),
-              subtitle: const Text('Enviar a impresora'),
+              title: Text(
+                'Imprimir',
+                style: Theme.of(context).textTheme.bodyLarge,
+              ),
+              subtitle: Text(
+                'Enviar a impresora',
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
               onTap: () async {
                 Navigator.pop(context);
                 await _printPdf(context, pdfBytes);
@@ -227,8 +251,14 @@ class ExportOptionsBottomSheet extends StatelessWidget {
             ),
             ListTile(
               leading: const Icon(Icons.preview, color: AppColors.primary),
-              title: const Text('Vista Previa'),
-              subtitle: const Text('Ver antes de compartir'),
+              title: Text(
+                'Vista Previa',
+                style: Theme.of(context).textTheme.bodyLarge,
+              ),
+              subtitle: Text(
+                'Ver antes de compartir',
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
               onTap: () {
                 Navigator.pop(context);
                 _previewPdf(context, pdfBytes);

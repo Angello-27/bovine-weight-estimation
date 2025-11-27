@@ -69,10 +69,9 @@ class WeightHistoryList extends StatelessWidget {
                     const SizedBox(width: AppSpacing.xs),
                     Text(
                       dateFormatter.format(weighing.timestamp),
-                      style: const TextStyle(
-                        fontSize: AppSpacing.fontSizeSmall,
-                        color: AppColors.grey700,
-                      ),
+                      style: Theme.of(
+                        context,
+                      ).textTheme.bodySmall?.copyWith(color: AppColors.grey700),
                     ),
                   ],
                 ),
@@ -87,8 +86,7 @@ class WeightHistoryList extends StatelessWidget {
                     const SizedBox(width: AppSpacing.xs),
                     Text(
                       'Confianza: ${(weighing.confidenceScore * 100).toStringAsFixed(0)}%',
-                      style: TextStyle(
-                        fontSize: AppSpacing.fontSizeSmall,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: _getConfidenceColor(weighing.confidenceLevel),
                         fontWeight: FontWeight.w500,
                       ),
@@ -110,8 +108,7 @@ class WeightHistoryList extends StatelessWidget {
               ),
               child: Text(
                 weighing.method.name.toUpperCase(),
-                style: const TextStyle(
-                  fontSize: AppSpacing.fontSizeSmall,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: AppColors.info,
                   fontWeight: FontWeight.bold,
                 ),

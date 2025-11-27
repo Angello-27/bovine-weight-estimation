@@ -7,10 +7,14 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/utils/weight_converter.dart';
+import '../../../../domain/entities/app_settings.dart';
 import '../../../../domain/entities/weight_estimation.dart';
+import '../../../providers/settings_provider.dart';
 
 /// Card de resultado de estimación
 class WeightEstimationResultCard extends StatelessWidget {
@@ -21,6 +25,11 @@ class WeightEstimationResultCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final confidenceColor = _getConfidenceColor(estimation.confidenceLevel);
+    final settingsProvider = Provider.of<SettingsProvider>(
+      context,
+      listen: false,
+    );
+    final weightUnit = settingsProvider.settings.weightUnit;
 
     return Card(
       elevation: AppSpacing.elevationHigh,
@@ -32,7 +41,10 @@ class WeightEstimationResultCard extends StatelessWidget {
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [AppColors.successLight, Colors.white],
+            colors: [
+              Theme.of(context).colorScheme.primaryContainer,
+              Theme.of(context).colorScheme.surface,
+            ],
           ),
           borderRadius: BorderRadius.circular(AppSpacing.borderRadiusXLarge),
         ),
@@ -44,13 +56,15 @@ class WeightEstimationResultCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(AppSpacing.md),
                 decoration: BoxDecoration(
-                  color: AppColors.success.withValues(alpha: 0.15),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.primary.withValues(alpha: 0.15),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.check_circle,
                   size: AppSpacing.iconSizeXXLarge,
-                  color: AppColors.success,
+                  color: Theme.of(context).colorScheme.primary,
                 ),
               ),
 
@@ -60,7 +74,7 @@ class WeightEstimationResultCard extends StatelessWidget {
               Text(
                 '¡Estimación Completada!',
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  color: AppColors.success,
+                  color: Theme.of(context).colorScheme.primary,
                   fontWeight: FontWeight.bold,
                 ),
                 textAlign: TextAlign.center,
@@ -75,13 +89,22 @@ class WeightEstimationResultCard extends StatelessWidget {
                   vertical: AppSpacing.lg,
                 ),
                 decoration: BoxDecoration(
-                  gradient: AppColors.primaryGradient,
+                  gradient: LinearGradient(
+                    colors: [
+                      Theme.of(context).colorScheme.primary,
+                      Theme.of(context).colorScheme.primaryContainer,
+                    ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
                   borderRadius: BorderRadius.circular(
                     AppSpacing.borderRadiusLarge,
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: AppColors.primary.withValues(alpha: 0.3),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.primary.withValues(alpha: 0.3),
                       blurRadius: AppSpacing.elevationHigh,
                       offset: const Offset(0, 4),
                     ),
@@ -93,19 +116,22 @@ class WeightEstimationResultCard extends StatelessWidget {
                   textBaseline: TextBaseline.alphabetic,
                   children: [
                     Text(
-                      estimation.estimatedWeight.toStringAsFixed(1),
-                      style: const TextStyle(
+                      WeightConverter.getWeightInUnit(
+                        estimation.estimatedWeight,
+                        weightUnit,
+                      ).toStringAsFixed(1),
+                      style: TextStyle(
                         fontSize: 56,
-                        color: Colors.white,
+                        color: Theme.of(context).colorScheme.onPrimary,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                     const SizedBox(width: AppSpacing.sm),
-                    const Text(
-                      'kg',
+                    Text(
+                      weightUnit == WeightUnit.kilograms ? 'kg' : 'lb',
                       style: TextStyle(
                         fontSize: 28,
-                        color: Colors.white,
+                        color: Theme.of(context).colorScheme.onPrimary,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -214,14 +240,14 @@ class WeightEstimationResultCard extends StatelessWidget {
             Icon(
               icon,
               size: AppSpacing.iconSizeSmall,
-              color: AppColors.grey600,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
             const SizedBox(width: AppSpacing.sm),
             Text(
               label,
-              style: Theme.of(
-                context,
-              ).textTheme.bodyMedium?.copyWith(color: AppColors.grey700),
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
             ),
           ],
         ),

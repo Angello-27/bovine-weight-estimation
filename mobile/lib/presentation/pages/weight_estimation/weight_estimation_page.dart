@@ -36,7 +36,12 @@ class WeightEstimationPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Estimación de Peso')),
+      appBar: AppBar(
+        title: const Text('Estimación de Peso'),
+        flexibleSpace: Container(
+          decoration: BoxDecoration(gradient: AppColors.primaryGradient),
+        ),
+      ),
       body: Consumer<WeightEstimationProvider>(
         builder: (context, provider, child) {
           // Establecer imagen al iniciar
@@ -67,42 +72,51 @@ class WeightEstimationPage extends StatelessWidget {
                   // Indicador de progreso (si está estimando)
                   if (provider.isEstimating)
                     Center(
-                      child: Container(
-                        padding: const EdgeInsets.all(AppSpacing.xl),
-                        decoration: BoxDecoration(
-                          color: AppColors.primary.withValues(alpha: 0.05),
-                          borderRadius: BorderRadius.circular(
-                            AppSpacing.borderRadiusLarge,
+                      child: Card(
+                        child: Container(
+                          padding: const EdgeInsets.all(AppSpacing.xl),
+                          decoration: BoxDecoration(
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.primary.withValues(alpha: 0.05),
+                            borderRadius: BorderRadius.circular(
+                              AppSpacing.borderRadiusLarge,
+                            ),
                           ),
-                        ),
-                        child: const Column(
-                          children: [
-                            SizedBox(
-                              width: 60,
-                              height: 60,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 6,
-                                color: AppColors.primary,
+                          child: Column(
+                            children: [
+                              SizedBox(
+                                width: 60,
+                                height: 60,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 6,
+                                  color: Theme.of(context).colorScheme.primary,
+                                ),
                               ),
-                            ),
-                            SizedBox(height: AppSpacing.lg),
-                            Text(
-                              'Estimando peso con IA...',
-                              style: TextStyle(
-                                fontSize: AppSpacing.fontSizeNormal,
-                                fontWeight: FontWeight.w500,
-                                color: AppColors.grey800,
+                              const SizedBox(height: AppSpacing.lg),
+                              Text(
+                                'Estimando peso con IA...',
+                                style: Theme.of(context).textTheme.titleMedium
+                                    ?.copyWith(
+                                      fontWeight: FontWeight.w500,
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.onSurface,
+                                    ),
                               ),
-                            ),
-                            SizedBox(height: AppSpacing.sm),
-                            Text(
-                              'Analizando características del animal',
-                              style: TextStyle(
-                                fontSize: AppSpacing.fontSizeSmall,
-                                color: AppColors.grey600,
+                              const SizedBox(height: AppSpacing.sm),
+                              Text(
+                                'Analizando características del animal',
+                                style: Theme.of(context).textTheme.bodyMedium
+                                    ?.copyWith(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onSurface
+                                          .withValues(alpha: 0.7),
+                                    ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
                     ),
@@ -116,12 +130,27 @@ class WeightEstimationPage extends StatelessWidget {
                   // Error (si hay error)
                   if (provider.hasError)
                     Card(
-                      color: AppColors.errorLight,
+                      color: Theme.of(context).colorScheme.errorContainer,
                       child: Padding(
                         padding: const EdgeInsets.all(AppSpacing.cardPadding),
-                        child: Text(
-                          provider.errorMessage ?? 'Error desconocido',
-                          style: const TextStyle(color: AppColors.error),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.error_outline_rounded,
+                              color: Theme.of(context).colorScheme.error,
+                            ),
+                            const SizedBox(width: AppSpacing.md),
+                            Expanded(
+                              child: Text(
+                                provider.errorMessage ?? 'Error desconocido',
+                                style: TextStyle(
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onErrorContainer,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ),

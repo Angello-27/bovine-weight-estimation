@@ -55,7 +55,7 @@ class BestFrameThumbnail extends StatelessWidget {
                 border: Border.all(color: AppColors.success, width: 3),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.5),
+                    color: Colors.black.withValues(alpha: 0.5),
                     blurRadius: 10,
                     spreadRadius: 2,
                   ),
@@ -100,8 +100,8 @@ class BestFrameThumbnail extends StatelessWidget {
                               borderRadius: BorderRadius.circular(4),
                               boxShadow: [
                                 BoxShadow(
-                                  color: AppColors.success.withOpacity(
-                                    0.5 * value,
+                                  color: AppColors.success.withValues(
+                                    alpha: 0.5 * value,
                                   ),
                                   blurRadius: 8,
                                   spreadRadius: 2,
@@ -130,7 +130,7 @@ class BestFrameThumbnail extends StatelessWidget {
                     child: Container(
                       padding: const EdgeInsets.symmetric(vertical: 2),
                       decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.7),
+                        color: Colors.black.withValues(alpha: 0.7),
                         borderRadius: const BorderRadius.only(
                           bottomLeft: Radius.circular(
                             AppSpacing.borderRadiusMedium - 3,

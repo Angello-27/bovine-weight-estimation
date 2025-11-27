@@ -84,14 +84,30 @@ class CattleLocalDataSourceImpl implements CattleLocalDataSource {
       final databasesPath = await sqflite.getDatabasesPath();
       final path = join(databasesPath, _databaseName);
 
-      return await sqflite.openDatabase(
+      final db = await sqflite.openDatabase(
         path,
         version: _databaseVersion,
         onCreate: _onCreate,
         onUpgrade: _onUpgrade,
       );
+
+      // Asegurar que las tablas existan (por si otro DataSource creó la DB primero)
+      await _ensureTablesExist(db);
+
+      return db;
     } catch (e) {
       throw DatabaseException(message: 'Error al inicializar DB: $e');
+    }
+  }
+
+  /// Verifica y crea las tablas si no existen
+  Future<void> _ensureTablesExist(sqflite.Database db) async {
+    // Verificar si la tabla de cattle existe
+    final cattleTable = await db.rawQuery(
+      "SELECT name FROM sqlite_master WHERE type='table' AND name='$_tableCattle'",
+    );
+    if (cattleTable.isEmpty) {
+      await _onCreate(db, _databaseVersion);
     }
   }
 

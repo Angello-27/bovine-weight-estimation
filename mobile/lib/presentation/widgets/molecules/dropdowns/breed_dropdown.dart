@@ -9,6 +9,7 @@ library;
 import 'package:flutter/material.dart';
 
 import '../../../../core/constants/breeds.dart';
+import '../../../../core/theme/app_spacing.dart';
 
 /// Dropdown de selección de raza
 class BreedDropdown extends StatelessWidget {
@@ -25,32 +26,61 @@ class BreedDropdown extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return DropdownButtonFormField<BreedType>(
-      initialValue: selectedBreed,
-      decoration: const InputDecoration(
-        labelText: 'Raza *',
-        hintText: 'Selecciona la raza',
-        prefixIcon: Icon(Icons.pets),
+    return Container(
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        borderRadius: BorderRadius.circular(AppSpacing.borderRadiusMedium),
+        border: Border.all(
+          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
+          width: 1,
+        ),
       ),
-      items: allBreeds.map((breed) {
-        return DropdownMenuItem<BreedType>(
-          value: breed,
-          child: Text(breed.displayName),
-        );
-      }).toList(),
-      onChanged: enabled
-          ? (breed) {
-              if (breed != null) {
-                onChanged(breed);
+      child: DropdownButtonFormField<BreedType>(
+        key: ValueKey(selectedBreed),
+        initialValue: selectedBreed,
+        decoration: InputDecoration(
+          labelText: 'Raza *',
+          hintText: 'Selecciona la raza',
+          prefixIcon: Icon(
+            Icons.pets_rounded,
+            color: Theme.of(context).colorScheme.primary,
+          ),
+          border: InputBorder.none,
+          enabledBorder: InputBorder.none,
+          focusedBorder: InputBorder.none,
+          errorBorder: InputBorder.none,
+          focusedErrorBorder: InputBorder.none,
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.md,
+            vertical: AppSpacing.sm,
+          ),
+        ),
+        items: allBreeds.map((breed) {
+          return DropdownMenuItem<BreedType>(
+            value: breed,
+            child: Text(
+              breed.displayName,
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+          );
+        }).toList(),
+        onChanged: enabled
+            ? (breed) {
+                if (breed != null) {
+                  onChanged(breed);
+                }
               }
-            }
-          : null,
-      validator: (value) {
-        if (value == null) {
-          return 'La raza es obligatoria';
-        }
-        return null;
-      },
+            : null,
+        validator: (value) {
+          if (value == null) {
+            return 'La raza es obligatoria';
+          }
+          return null;
+        },
+        style: Theme.of(context).textTheme.bodyMedium,
+        dropdownColor: Theme.of(context).colorScheme.surface,
+        borderRadius: BorderRadius.circular(AppSpacing.borderRadiusMedium),
+      ),
     );
   }
 }

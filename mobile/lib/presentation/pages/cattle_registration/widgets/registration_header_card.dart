@@ -20,16 +20,23 @@ class RegistrationHeaderCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
-        color: AppColors.warningLight, // Fondo dorado claro
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            AppColors.accent.withValues(alpha: 0.15),
+            AppColors.accent.withValues(alpha: 0.05),
+          ],
+        ),
         borderRadius: BorderRadius.circular(AppSpacing.borderRadiusLarge),
         border: Border.all(
           color: AppColors.accent.withValues(alpha: 0.3),
-          width: 1.5,
+          width: 2,
         ),
         boxShadow: [
           BoxShadow(
-            color: AppColors.accent.withValues(alpha: 0.15),
-            blurRadius: AppSpacing.elevationMedium,
+            color: AppColors.accent.withValues(alpha: 0.2),
+            blurRadius: 20,
             offset: const Offset(0, 4),
           ),
         ],
@@ -39,13 +46,27 @@ class RegistrationHeaderCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(AppSpacing.md),
             decoration: BoxDecoration(
-              color: AppColors.accent,
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  AppColors.accent,
+                  AppColors.accent.withValues(alpha: 0.8),
+                ],
+              ),
               borderRadius: BorderRadius.circular(
                 AppSpacing.borderRadiusMedium,
               ),
+              boxShadow: [
+                BoxShadow(
+                  color: AppColors.accent.withValues(alpha: 0.4),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
             ),
             child: const Icon(
-              Icons.add_circle,
+              Icons.add_circle_rounded,
               color: AppColors.onAccent,
               size: AppSpacing.iconSizeXLarge,
             ),
@@ -59,15 +80,17 @@ class RegistrationHeaderCard extends StatelessWidget {
                   'Nuevo Animal',
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.bold,
-                    color: AppColors.grey900,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
                 const SizedBox(height: AppSpacing.xs),
                 Text(
                   'Completa los datos del animal',
-                  style: Theme.of(
-                    context,
-                  ).textTheme.bodyMedium?.copyWith(color: AppColors.grey600),
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.7),
+                  ),
                 ),
               ],
             ),

@@ -23,8 +23,7 @@ class HomeFooter extends StatelessWidget {
         children: [
           Text(
             AppConfig.ownerName,
-            style: TextStyle(
-              fontSize: AppSpacing.fontSizeSmall,
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
               color: AppColors.grey600,
               fontWeight: FontWeight.w500,
             ),
@@ -33,19 +32,18 @@ class HomeFooter extends StatelessWidget {
           Text(
             AppConfig.location,
             textAlign: TextAlign.center,
-            style: const TextStyle(
-              fontSize: AppSpacing.fontSizeSmall,
-              color: AppColors.grey500,
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.bodySmall?.copyWith(color: AppColors.grey500),
           ),
           const SizedBox(height: AppSpacing.md),
-          _buildUniversityBadge(),
+          _buildUniversityBadge(context),
         ],
       ),
     );
   }
 
-  Widget _buildUniversityBadge() {
+  Widget _buildUniversityBadge(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(
         horizontal: AppSpacing.lg,
@@ -77,8 +75,7 @@ class HomeFooter extends StatelessWidget {
           const SizedBox(width: AppSpacing.sm),
           Text(
             'Taller de Grado - UAGRM',
-            style: TextStyle(
-              fontSize: AppSpacing.fontSizeSmall,
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
               color: AppColors.primary,
               fontWeight: FontWeight.w600,
             ),

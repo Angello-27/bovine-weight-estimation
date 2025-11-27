@@ -242,15 +242,25 @@ class WeightHistoryChart extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        _buildLegendItem('Peso Real', AppColors.primary, solid: true),
+        _buildLegendItem(context, 'Peso Real', AppColors.primary, solid: true),
         const SizedBox(width: AppSpacing.md),
-        _buildLegendItem('Tendencia', AppColors.secondary, solid: false),
+        _buildLegendItem(
+          context,
+          'Tendencia',
+          AppColors.secondary,
+          solid: false,
+        ),
       ],
     );
   }
 
   /// Item de leyenda
-  Widget _buildLegendItem(String label, Color color, {required bool solid}) {
+  Widget _buildLegendItem(
+    BuildContext context,
+    String label,
+    Color color, {
+    required bool solid,
+  }) {
     return Row(
       children: [
         Container(
@@ -267,10 +277,9 @@ class WeightHistoryChart extends StatelessWidget {
         const SizedBox(width: AppSpacing.xs),
         Text(
           label,
-          style: const TextStyle(
-            fontSize: AppSpacing.fontSizeSmall,
-            color: AppColors.grey700,
-          ),
+          style: Theme.of(
+            context,
+          ).textTheme.bodySmall?.copyWith(color: AppColors.grey700),
         ),
       ],
     );

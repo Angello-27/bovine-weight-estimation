@@ -9,6 +9,7 @@ library;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../core/routes/app_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../providers/capture_provider.dart';
@@ -47,23 +48,23 @@ class CaptureOverlay extends StatelessWidget {
         vertical: AppSpacing.sm,
       ),
       decoration: BoxDecoration(
-        color: Colors.black.withOpacity(0.7),
+        color: Colors.black.withValues(alpha: 0.7),
         borderRadius: BorderRadius.circular(AppSpacing.borderRadiusLarge),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          // Botón de configuración/volver
+          // Botón de configuración
           IconButton(
             icon: const Icon(Icons.settings, color: Colors.white),
             onPressed: () {
-              // TODO: Mostrar diálogo de configuración o volver
-              Navigator.of(context).pop();
+              // Navegar a la página de configuración
+              AppRouter.push(context, AppRoutes.settings);
             },
           ),
 
           // Estado y contador de frames
-          _buildStatusSection(provider),
+          _buildStatusSection(context, provider),
 
           // Estadísticas adicionales
           if (provider.isCapturing) _buildStatsSection(provider),
@@ -73,7 +74,7 @@ class CaptureOverlay extends StatelessWidget {
   }
 
   /// Sección de estado y contador
-  Widget _buildStatusSection(CaptureProvider provider) {
+  Widget _buildStatusSection(BuildContext context, CaptureProvider provider) {
     return Row(
       children: [
         // Indicador de estado
@@ -90,9 +91,8 @@ class CaptureOverlay extends StatelessWidget {
         // Contador de frames
         Text(
           '${provider.frameCount} frames',
-          style: const TextStyle(
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
             color: Colors.white,
-            fontSize: 14,
             fontWeight: FontWeight.w600,
           ),
         ),
@@ -149,7 +149,7 @@ class CaptureOverlay extends StatelessWidget {
         vertical: AppSpacing.md,
       ),
       decoration: BoxDecoration(
-        color: AppColors.error.withOpacity(0.9),
+        color: AppColors.error.withValues(alpha: 0.9),
         borderRadius: BorderRadius.circular(AppSpacing.borderRadiusLarge),
       ),
       child: Row(
@@ -165,7 +165,7 @@ class CaptureOverlay extends StatelessWidget {
                 height: 12,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: Colors.white.withOpacity(0.8 + (value * 0.2)),
+                  color: Colors.white.withValues(alpha: 0.8 + (value * 0.2)),
                 ),
               );
             },

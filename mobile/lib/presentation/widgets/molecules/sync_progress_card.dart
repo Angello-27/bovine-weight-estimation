@@ -68,6 +68,7 @@ class SyncProgressCard extends StatelessWidget {
             // Estadísticas
             if (hasResult) ...[
               _buildStatRow(
+                context: context,
                 icon: Icons.check_circle_outline_rounded,
                 label: 'Sincronizados',
                 value: '${syncResult!.syncedCount}',
@@ -75,6 +76,7 @@ class SyncProgressCard extends StatelessWidget {
               ),
               const SizedBox(height: AppSpacing.sm),
               _buildStatRow(
+                context: context,
                 icon: Icons.schedule_rounded,
                 label: 'Pendientes',
                 value: '$pendingCount',
@@ -83,6 +85,7 @@ class SyncProgressCard extends StatelessWidget {
               if (syncResult!.failedCount > 0) ...[
                 const SizedBox(height: AppSpacing.sm),
                 _buildStatRow(
+                  context: context,
                   icon: Icons.error_outline_rounded,
                   label: 'Errores',
                   value: '${syncResult!.failedCount}',
@@ -92,6 +95,7 @@ class SyncProgressCard extends StatelessWidget {
               if (syncResult!.conflictCount > 0) ...[
                 const SizedBox(height: AppSpacing.sm),
                 _buildStatRow(
+                  context: context,
                   icon: Icons.warning_amber_rounded,
                   label: 'Conflictos',
                   value: '${syncResult!.conflictCount}',
@@ -160,6 +164,7 @@ class SyncProgressCard extends StatelessWidget {
     required String label,
     required String value,
     required Color color,
+    required BuildContext context,
   }) {
     return Row(
       children: [
@@ -167,13 +172,14 @@ class SyncProgressCard extends StatelessWidget {
         const SizedBox(width: AppSpacing.sm),
         Text(
           label,
-          style: TextStyle(fontSize: 14, color: Colors.grey.shade700),
+          style: Theme.of(
+            context,
+          ).textTheme.bodyMedium?.copyWith(color: Colors.grey.shade700),
         ),
         const Spacer(),
         Text(
           value,
-          style: TextStyle(
-            fontSize: 16,
+          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
             fontWeight: FontWeight.w600,
             color: color,
           ),

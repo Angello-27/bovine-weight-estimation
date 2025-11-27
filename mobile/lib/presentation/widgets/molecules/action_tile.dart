@@ -69,9 +69,8 @@ class ActionTile extends StatelessWidget {
               // Título
               Text(
                 title,
-                style: const TextStyle(
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: Colors.white,
-                  fontSize: AppSpacing.fontSizeMedium,
                   fontWeight: FontWeight.bold,
                 ),
                 textAlign: TextAlign.center,
@@ -84,9 +83,8 @@ class ActionTile extends StatelessWidget {
                 const SizedBox(height: 2),
                 Text(
                   subtitle!,
-                  style: TextStyle(
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: Colors.white.withValues(alpha: 0.9),
-                    fontSize: AppSpacing.fontSizeSmall,
                   ),
                   textAlign: TextAlign.center,
                   maxLines: 1,

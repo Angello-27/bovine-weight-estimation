@@ -15,6 +15,8 @@ import 'core/config/dependency_injection.dart';
 import 'core/config/provider_configuration.dart';
 import 'core/routes/app_router.dart';
 import 'core/theme/app_theme.dart';
+import 'domain/entities/app_settings.dart';
+import 'presentation/providers/settings_provider.dart';
 
 void main() async {
   // Asegurar inicialización de Flutter
@@ -46,18 +48,33 @@ class MyApp extends StatelessWidget {
       // Usa ProviderConfiguration para crear todos los providers
       // Siguiendo principios SOLID: Open/Closed, Single Responsibility
       providers: ProviderConfiguration.createProviders(di),
-      child: MaterialApp(
-        // Configuración básica
-        title: AppConfig.appName,
-        debugShowCheckedModeBanner: AppConfig.showDebugBanner,
+      child: Consumer<SettingsProvider>(
+        builder: (context, settingsProvider, _) {
+          // Obtener ThemeMode desde settings
+          final themeMode = switch (settingsProvider.settings.themeMode) {
+            AppThemeMode.light => ThemeMode.light,
+            AppThemeMode.dark => ThemeMode.dark,
+            AppThemeMode.system => ThemeMode.system,
+          };
 
-        // Tema Material Design 3
-        theme: AppTheme.lightTheme,
-        darkTheme: AppTheme.darkTheme,
-        themeMode: ThemeMode.system, // Sigue la preferencia del sistema
-        // Sistema de rutas
-        initialRoute: AppRoutes.home,
-        onGenerateRoute: AppRouter.generateRoute,
+          return MaterialApp(
+            // Configuración básica
+            title: AppConfig.appName,
+            debugShowCheckedModeBanner: AppConfig.showDebugBanner,
+
+            // Tema Material Design 3 con tamaño de texto
+            theme: AppTheme.lightTheme(
+              textSize: settingsProvider.settings.textSize,
+            ),
+            darkTheme: AppTheme.darkTheme(
+              textSize: settingsProvider.settings.textSize,
+            ),
+            themeMode: themeMode, // Usa la preferencia del usuario
+            // Sistema de rutas
+            initialRoute: AppRoutes.home,
+            onGenerateRoute: AppRouter.generateRoute,
+          );
+        },
       ),
     );
   }

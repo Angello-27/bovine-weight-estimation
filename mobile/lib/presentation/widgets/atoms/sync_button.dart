@@ -70,7 +70,9 @@ class SyncButton extends StatelessWidget {
           : const SizedBox.shrink(),
       label: Text(
         isLoading ? 'Sincronizando...' : label,
-        style: const TextStyle(fontSize: 14.0, fontWeight: FontWeight.w600),
+        style: Theme.of(
+          context,
+        ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
       ),
       style: ElevatedButton.styleFrom(
         backgroundColor: AppColors.primary,

@@ -27,7 +27,7 @@ class FramingGuidesPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = AppColors.primary.withOpacity(0.6)
+      ..color = AppColors.primary.withValues(alpha: 0.6)
       ..strokeWidth = 2
       ..style = PaintingStyle.stroke;
 
@@ -69,7 +69,7 @@ class FramingGuidesPainter extends CustomPainter {
     );
 
     final centerPaint = Paint()
-      ..color = AppColors.success.withOpacity(0.3)
+      ..color = AppColors.success.withValues(alpha: 0.3)
       ..strokeWidth = 3
       ..style = PaintingStyle.stroke;
 
@@ -77,7 +77,7 @@ class FramingGuidesPainter extends CustomPainter {
 
     // Indicadores de esquinas (para alineación)
     final cornerPaint = Paint()
-      ..color = AppColors.accent.withOpacity(0.8)
+      ..color = AppColors.accent.withValues(alpha: 0.8)
       ..strokeWidth = 3
       ..style = PaintingStyle.stroke;
 

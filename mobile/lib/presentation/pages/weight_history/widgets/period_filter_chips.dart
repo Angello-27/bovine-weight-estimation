@@ -67,7 +67,7 @@ class PeriodFilterChips extends StatelessWidget {
         color: isSelected ? AppColors.secondary : AppColors.grey300,
         width: isSelected ? 2 : 1,
       ),
-      labelStyle: TextStyle(
+      labelStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
         color: isSelected ? AppColors.secondary : AppColors.grey700,
         fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
       ),

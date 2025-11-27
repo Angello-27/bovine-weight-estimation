@@ -40,23 +40,37 @@ class EmptyStateCard extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(AppSpacing.xl),
               decoration: BoxDecoration(
-                color: AppColors.grey200,
+                color: AppColors.accent.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(
                   AppSpacing.borderRadiusLarge,
+                ),
+                border: Border.all(
+                  color: AppColors.accent.withValues(alpha: 0.2),
+                  width: 2,
                 ),
               ),
               child: Icon(
                 icon,
                 size: AppSpacing.iconSizeXXLarge * 1.5,
-                color: AppColors.grey500,
+                color: AppColors.accent,
               ),
             ),
             const SizedBox(height: AppSpacing.lg),
-            Text(title, style: Theme.of(context).textTheme.titleLarge),
+            Text(
+              title,
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
+            ),
             const SizedBox(height: AppSpacing.sm),
             Text(
               message,
-              style: const TextStyle(color: AppColors.grey600),
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.7),
+              ),
               textAlign: TextAlign.center,
             ),
           ],

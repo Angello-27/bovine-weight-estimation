@@ -2,7 +2,7 @@ name: bovine_weight_mobile
 description: "Sistema de Estimación de Peso Bovino con IA - Agrocom (Taller de Grado UAGRM)"
 publish_to: 'none'
 
-version: 1.1.0+2
+version: 1.1.0+3
 
 environment:
   sdk: ^3.9.2

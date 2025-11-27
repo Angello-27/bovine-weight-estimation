@@ -7,8 +7,11 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/theme/app_theme.dart';
+import '../../../providers/settings_provider.dart';
 
 /// Card de estadística en header con efecto glass
 class HomeStatCard extends StatelessWidget {
@@ -30,55 +33,84 @@ class HomeStatCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(AppSpacing.md),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.15),
-        borderRadius: BorderRadius.circular(AppSpacing.borderRadiusLarge),
-        border: Border.all(
-          color: Colors.white.withValues(alpha: 0.3),
-          width: 1.5,
+    // Obtener el tamaño de fuente actual desde el provider
+    final settingsProvider = Provider.of<SettingsProvider>(
+      context,
+      listen: false,
+    );
+    final textSize = settingsProvider.settings.textSize;
+    // Usar la función pública de AppTheme para mantener consistencia
+    final scaleFactor = AppTheme.getTextScaleFactor(textSize);
+
+    // Altura base que se escala según el tamaño de fuente
+    const double baseHeight = 120.0;
+    const double baseMinHeight = 100.0;
+    final double maxHeight = baseHeight * scaleFactor;
+    final double minHeight = baseMinHeight * scaleFactor;
+
+    return ConstrainedBox(
+      constraints: BoxConstraints(maxHeight: maxHeight, minHeight: minHeight),
+      child: Container(
+        padding: const EdgeInsets.all(AppSpacing.md),
+        decoration: BoxDecoration(
+          color: Colors.white.withValues(alpha: 0.15),
+          borderRadius: BorderRadius.circular(AppSpacing.borderRadiusLarge),
+          border: Border.all(
+            color: Colors.white.withValues(alpha: 0.3),
+            width: 1.5,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.1),
+              blurRadius: 4,
+              offset: const Offset(0, 2),
+            ),
+          ],
         ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.1),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(AppSpacing.xs),
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.2),
-              shape: BoxShape.circle,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Ícono con tamaño fijo
+            Container(
+              padding: const EdgeInsets.all(AppSpacing.xs),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.2),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(icon, color: Colors.white, size: AppSpacing.iconSize),
             ),
-            child: Icon(icon, color: Colors.white, size: AppSpacing.iconSize),
-          ),
-          const SizedBox(height: AppSpacing.sm),
-          Text(
-            value,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: AppSpacing.fontSizeTitle,
-              fontWeight: FontWeight.bold,
-              height: 1.2,
+            const SizedBox(height: AppSpacing.sm),
+            // Valor - usa el tema pero se ajusta dentro del espacio
+            Flexible(
+              child: Text(
+                value,
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  height: 1.2,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.center,
+              ),
             ),
-          ),
-          const SizedBox(height: AppSpacing.xs),
-          Text(
-            label,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              color: Colors.white.withValues(alpha: 0.9),
-              fontSize: AppSpacing.fontSizeSmall,
-              fontWeight: FontWeight.w500,
+            const SizedBox(height: AppSpacing.xs),
+            // Etiqueta - usa el tema pero se ajusta dentro del espacio
+            Flexible(
+              child: Text(
+                label,
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Colors.white.withValues(alpha: 0.9),
+                  fontWeight: FontWeight.w500,
+                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

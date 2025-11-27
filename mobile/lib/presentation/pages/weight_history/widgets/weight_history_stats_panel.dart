@@ -214,18 +214,16 @@ class WeightHistoryStatsPanel extends StatelessWidget {
           const SizedBox(height: AppSpacing.xs),
           Text(
             value,
-            style: TextStyle(
-              fontSize: AppSpacing.fontSizeLarge,
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
               fontWeight: FontWeight.bold,
               color: color,
             ),
           ),
           Text(
             label,
-            style: const TextStyle(
-              fontSize: AppSpacing.fontSizeSmall,
-              color: AppColors.grey600,
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.bodySmall?.copyWith(color: AppColors.grey600),
             textAlign: TextAlign.center,
           ),
         ],

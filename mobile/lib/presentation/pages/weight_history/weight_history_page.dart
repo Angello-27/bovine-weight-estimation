@@ -54,9 +54,12 @@ class _WeightHistoryPageState extends State<WeightHistoryPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.grey50,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        title: Text('Historial - ${widget.cattleName}'),
+        title: Text(
+          'Historial - ${widget.cattleName}',
+          style: Theme.of(context).textTheme.titleLarge,
+        ),
         flexibleSpace: Container(
           decoration: const BoxDecoration(color: AppColors.primary),
         ),

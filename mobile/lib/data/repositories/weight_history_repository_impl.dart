@@ -12,6 +12,7 @@ import 'package:intl/intl.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 
+import '../../core/constants/breeds.dart';
 import '../../core/errors/exceptions.dart';
 import '../../domain/entities/cattle.dart';
 import '../../domain/entities/weight_history.dart';
@@ -37,8 +38,23 @@ class WeightHistoryRepositoryImpl implements WeightHistoryRepository {
       final cattleModel = await cattleDataSource.getCattleById(cattleId);
 
       if (cattleModel == null) {
-        throw DatabaseException(
-          message: 'Animal no encontrado con ID: $cattleId',
+        // Si no existe el animal, retornar historial vacío en lugar de error
+        // Esto puede pasar si es la primera vez que se usa la app
+        return WeightHistory(
+          cattleId: cattleId,
+          cattle: Cattle(
+            id: cattleId,
+            earTag: 'N/A',
+            breed: BreedType.nelore, // Valor por defecto
+            birthDate: DateTime.now(),
+            gender: Gender.male,
+            registrationDate: DateTime.now(),
+            lastUpdated: DateTime.now(),
+          ),
+          weighings: [],
+          totalGain: 0.0,
+          averageDailyGain: 0.0,
+          anomalies: [],
         );
       }
 
@@ -52,10 +68,56 @@ class WeightHistoryRepositoryImpl implements WeightHistoryRepository {
 
       // 4. Calcular análisis
       return _calculateAnalysis(cattleModel, weighings);
-    } on DatabaseException {
+    } on DatabaseException catch (e) {
+      // Detectar errores específicos y convertirlos en mensajes amigables
+      final errorMessage = e.message.toLowerCase();
+      if (errorMessage.contains('no such table') ||
+          errorMessage.contains('table') &&
+              errorMessage.contains('not exist')) {
+        // Si la tabla no existe, retornar historial vacío
+        debugPrint('Tabla no encontrada, retornando historial vacío: $e');
+        return WeightHistory(
+          cattleId: cattleId,
+          cattle: Cattle(
+            id: cattleId,
+            earTag: 'N/A',
+            breed: BreedType.nelore, // Valor por defecto
+            birthDate: DateTime.now(),
+            gender: Gender.male,
+            registrationDate: DateTime.now(),
+            lastUpdated: DateTime.now(),
+          ),
+          weighings: [],
+          totalGain: 0.0,
+          averageDailyGain: 0.0,
+          anomalies: [],
+        );
+      }
       rethrow;
     } catch (e) {
       debugPrint('Error al obtener historial: $e');
+      // Si es un error desconocido, retornar historial vacío en lugar de lanzar error
+      final errorMessage = e.toString().toLowerCase();
+      if (errorMessage.contains('no such table') ||
+          errorMessage.contains('table') &&
+              errorMessage.contains('not exist')) {
+        return WeightHistory(
+          cattleId: cattleId,
+          cattle: Cattle(
+            id: cattleId,
+            earTag: 'N/A',
+            breed: BreedType.nelore, // Valor por defecto
+            birthDate: DateTime.now(),
+            gender: Gender.male,
+            registrationDate: DateTime.now(),
+            lastUpdated: DateTime.now(),
+          ),
+          weighings: [],
+          totalGain: 0.0,
+          averageDailyGain: 0.0,
+          anomalies: [],
+        );
+      }
       throw DatabaseException(message: 'Error al cargar historial de peso');
     }
   }

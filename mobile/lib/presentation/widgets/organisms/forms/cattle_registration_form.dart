@@ -10,7 +10,6 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/constants/age_categories.dart';
 import '../../../../core/constants/breeds.dart';
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../domain/entities/cattle.dart';
 import '../../atoms/inputs/text_input_field.dart';
@@ -61,36 +60,11 @@ class _CattleRegistrationFormState extends State<CattleRegistrationForm> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           // Sección: Datos Obligatorios
-          Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: AppSpacing.md,
-              vertical: AppSpacing.sm,
-            ),
-            decoration: BoxDecoration(
-              color: AppColors.primary.withValues(alpha: 0.05),
-              borderRadius: BorderRadius.circular(
-                AppSpacing.borderRadiusMedium,
-              ),
-              border: Border(
-                left: BorderSide(color: AppColors.primary, width: 4),
-              ),
-            ),
-            child: Row(
-              children: [
-                const Icon(
-                  Icons.star,
-                  color: AppColors.primary,
-                  size: AppSpacing.iconSizeSmall,
-                ),
-                const SizedBox(width: AppSpacing.sm),
-                Text(
-                  'Datos Obligatorios',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.primary,
-                  ),
-                ),
-              ],
+          Text(
+            'Datos Obligatorios',
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.bold,
+              color: Theme.of(context).colorScheme.onSurface,
             ),
           ),
 
@@ -159,36 +133,11 @@ class _CattleRegistrationFormState extends State<CattleRegistrationForm> {
           const SizedBox(height: AppSpacing.lg),
 
           // Sección: Datos Opcionales
-          Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: AppSpacing.md,
-              vertical: AppSpacing.sm,
-            ),
-            decoration: BoxDecoration(
-              color: AppColors.grey200,
-              borderRadius: BorderRadius.circular(
-                AppSpacing.borderRadiusMedium,
-              ),
-              border: Border(
-                left: BorderSide(color: AppColors.grey500, width: 4),
-              ),
-            ),
-            child: Row(
-              children: [
-                const Icon(
-                  Icons.info_outline,
-                  color: AppColors.grey600,
-                  size: AppSpacing.iconSizeSmall,
-                ),
-                const SizedBox(width: AppSpacing.sm),
-                Text(
-                  'Datos Opcionales',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.grey700,
-                  ),
-                ),
-              ],
+          Text(
+            'Datos Opcionales',
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.bold,
+              color: Theme.of(context).colorScheme.onSurface,
             ),
           ),
 
@@ -252,28 +201,42 @@ class _CattleRegistrationFormState extends State<CattleRegistrationForm> {
     return Container(
       padding: const EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
+        gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [AppColors.infoLight, Colors.white],
+          colors: [
+            Theme.of(
+              context,
+            ).colorScheme.tertiaryContainer.withValues(alpha: 0.5),
+            Theme.of(context).colorScheme.surface,
+          ],
         ),
         borderRadius: BorderRadius.circular(AppSpacing.borderRadiusMedium),
         border: Border.all(
-          color: AppColors.info.withValues(alpha: 0.3),
+          color: Theme.of(context).colorScheme.tertiary.withValues(alpha: 0.3),
           width: 1.5,
         ),
+        boxShadow: [
+          BoxShadow(
+            color: Theme.of(
+              context,
+            ).colorScheme.tertiary.withValues(alpha: 0.1),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Row(
         children: [
           Container(
             padding: const EdgeInsets.all(AppSpacing.sm),
             decoration: BoxDecoration(
-              color: AppColors.info.withValues(alpha: 0.15),
+              color: Theme.of(context).colorScheme.tertiaryContainer,
               borderRadius: BorderRadius.circular(AppSpacing.borderRadiusSmall),
             ),
-            child: const Icon(
-              Icons.cake,
-              color: AppColors.info,
+            child: Icon(
+              Icons.cake_rounded,
+              color: Theme.of(context).colorScheme.onTertiaryContainer,
               size: AppSpacing.iconSize,
             ),
           ),
@@ -285,7 +248,7 @@ class _CattleRegistrationFormState extends State<CattleRegistrationForm> {
                 Text(
                   'Categoría Automática',
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: AppColors.grey600,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -293,7 +256,7 @@ class _CattleRegistrationFormState extends State<CattleRegistrationForm> {
                 Text(
                   '${category.displayName} ($ageInMonths meses)',
                   style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                    color: AppColors.info,
+                    color: Theme.of(context).colorScheme.tertiary,
                     fontWeight: FontWeight.bold,
                   ),
                 ),

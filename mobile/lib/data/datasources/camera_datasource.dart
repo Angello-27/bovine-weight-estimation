@@ -21,7 +21,8 @@ import '../models/frame_model.dart';
 /// DataSource para operaciones de cámara
 abstract class CameraDataSource {
   /// Inicializa la cámara
-  Future<camera.CameraController> initializeCamera();
+  /// [enableFlash] indica si el flash debe estar activado
+  Future<camera.CameraController> initializeCamera({bool enableFlash = false});
 
   /// Captura un fotograma desde el stream de la cámara
   Future<FrameModel> captureFrame(camera.CameraController controller);
@@ -38,7 +39,9 @@ class CameraDataSourceImpl implements CameraDataSource {
   final Uuid _uuid = const Uuid();
 
   @override
-  Future<camera.CameraController> initializeCamera() async {
+  Future<camera.CameraController> initializeCamera({
+    bool enableFlash = false,
+  }) async {
     try {
       // Obtener cámaras disponibles
       final cameras = await camera.availableCameras();
@@ -61,6 +64,11 @@ class CameraDataSourceImpl implements CameraDataSource {
 
       // Inicializar controller
       await controller.initialize();
+
+      // Configurar flash si está habilitado
+      if (enableFlash) {
+        await controller.setFlashMode(camera.FlashMode.always);
+      }
 
       return controller;
     } on camera.CameraException catch (e) {

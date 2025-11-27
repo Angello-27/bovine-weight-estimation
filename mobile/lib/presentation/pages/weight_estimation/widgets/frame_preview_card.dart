@@ -6,9 +6,10 @@
 /// Page-specific Widget (Weight Estimation)
 library;
 
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 
 /// Card de preview de fotograma
@@ -28,26 +29,25 @@ class FramePreviewCard extends StatelessWidget {
       ),
       child: AspectRatio(
         aspectRatio: 16 / 9,
-        child: Image.asset(
-          imagePath,
+        child: Image.file(
+          File(imagePath),
           fit: BoxFit.cover,
           errorBuilder: (context, error, stackTrace) {
             return Container(
-              color: AppColors.grey300,
-              child: const Column(
+              color: Theme.of(context).colorScheme.surfaceContainerHighest,
+              child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Icon(
-                    Icons.image,
+                    Icons.image_not_supported_rounded,
                     size: AppSpacing.iconSizeXXLarge,
-                    color: AppColors.grey500,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
-                  SizedBox(height: AppSpacing.sm),
+                  const SizedBox(height: AppSpacing.sm),
                   Text(
                     'Fotograma seleccionado',
-                    style: TextStyle(
-                      color: AppColors.grey600,
-                      fontSize: AppSpacing.fontSizeMedium,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
                   ),
                 ],
