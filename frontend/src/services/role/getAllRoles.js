@@ -1,0 +1,19 @@
+// frontend\src\services\role\getAllRoles.js
+
+import apiClient from '../../api/axiosClient';
+
+const getAllRoles = async (credentials) => {
+    try {
+        const response = await apiClient.get('/role', credentials);
+        return response.data;
+    } catch (error) {
+        if (error.response && error.response.status === 400) {
+            throw new Error('Los datos proporcionados son incorrectos. Por favor verifica e intenta de nuevo.');
+        } else {
+            throw new Error('Ocurrió un error al intentar iniciar sesión. Por favor intenta de nuevo más tarde.');
+        }
+    }
+};
+
+export { getAllRoles };
+

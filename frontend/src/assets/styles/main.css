@@ -1,0 +1,31 @@
+/* styles.css */
+:root {
+  --color-primary: #255946;
+  --color-secondary: #49a760;
+  --color-tertiary: #1F4E3D;
+  --color-accent: #efb443;
+  --color-light: #f8f9fa;
+  --color-dark: #27282A;
+}
+
+body.light-theme {
+  background-color: var(--color-light);
+  color: var(--color-primary);
+}
+
+body.dark-theme {
+  background-color: var(--color-dark);
+  color: white;
+}
+
+.MuiButtonBase-root {
+  height: 50px;
+}
+
+/* SignInHeader.css */
+.centeredBox {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
