@@ -1,9 +1,9 @@
-// frontend/src/containers/user/GetAllUsers.js
+// frontend/src/containers/farm/GetAllFarms.js
 
 import { useState, useEffect } from 'react';
-import { getAllUsers } from '../../services/user/getAllUsers';
+import { getAllFarms } from '../../services/farm/getAllFarms';
 
-function GetAllUsers() {
+function GetAllFarms() {
     const [items, setItems] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -11,9 +11,9 @@ function GetAllUsers() {
     useEffect(() => {
         async function fetchData() {
             try {
-                const data = await getAllUsers({ page: 1, page_size: 100 });
-                // El backend devuelve { total, users, page, page_size }
-                setItems(data.users || data);
+                const data = await getAllFarms({ page: 1, page_size: 100 });
+                // El backend devuelve { total, farms, page, page_size }
+                setItems(data.farms || data);
             } catch (err) {
                 setError(err.message);
             } finally {
@@ -26,5 +26,5 @@ function GetAllUsers() {
     return { items, loading, error };
 }
 
-export default GetAllUsers;
+export default GetAllFarms;
 

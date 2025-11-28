@@ -23,11 +23,12 @@ class ValidationException(DomainException):
 class NotFoundException(DomainException):
     """Excepción cuando un recurso no se encuentra."""
 
-    def __init__(self, resource: str, identifier: str):
-        message = f"{resource} con ID '{identifier}' no encontrado"
+    def __init__(self, resource: str, field: str, value: str):
+        message = f"{resource} con {field}='{value}' no encontrado"
         super().__init__(message, code="NOT_FOUND")
         self.resource = resource
-        self.identifier = identifier
+        self.field = field
+        self.value = value
 
 
 class AlreadyExistsException(DomainException):
@@ -71,3 +72,10 @@ class SyncConflictException(DomainException):
         self.item_id = item_id
         self.server_timestamp = server_timestamp
         self.client_timestamp = client_timestamp
+
+
+class AuthenticationException(DomainException):
+    """Excepción de autenticación."""
+
+    def __init__(self, message: str):
+        super().__init__(message, code="AUTHENTICATION_ERROR")

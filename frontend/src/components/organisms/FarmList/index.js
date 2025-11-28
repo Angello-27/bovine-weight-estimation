@@ -1,4 +1,4 @@
-// frontend/src/components/organisms/UserList/index.js
+// frontend/src/components/organisms/FarmList/index.js
 
 import DataTable from '../../molecules/DataTable';
 import ActionButton from '../../molecules/ActionButton';
@@ -6,46 +6,31 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import Chip from '@mui/material/Chip';
 
-function UserList({ items, roles, farms, onEditClick, onDeleteClick }) {
-    const getRoleName = (roleId) => {
-        if (!roles || !roleId) return '-';
-        const role = roles.find(r => r.id === roleId);
-        return role ? role.name : '-';
-    };
-
-    const getFarmName = (farmId) => {
-        if (!farms || !farmId) return '-';
-        const farm = farms.find(f => f.id === farmId);
-        return farm ? farm.name : '-';
+function FarmList({ items, owners, onEditClick, onDeleteClick }) {
+    const getOwnerName = (ownerId) => {
+        if (!owners || !ownerId) return '-';
+        const owner = owners.find(o => o.id === ownerId);
+        return owner ? owner.username : '-';
     };
 
     const columns = [
-        { label: 'Usuario', field: 'username' },
-        { label: 'Email', field: 'email' },
+        { label: 'Nombre', field: 'name' },
         {
-            label: 'Rol',
-            field: 'role_id',
+            label: 'Propietario',
+            field: 'owner_id',
             render: (value) => (
                 <Chip
-                    label={getRoleName(value)}
+                    label={getOwnerName(value)}
                     size="small"
                     color="primary"
                     variant="outlined"
                 />
             )
         },
-        {
-            label: 'Finca',
-            field: 'farm_id',
-            render: (value) => (
-                <Chip
-                    label={getFarmName(value) || '-'}
-                    size="small"
-                    color="secondary"
-                    variant="outlined"
-                />
-            )
-        },
+        { label: 'Latitud', field: 'latitude' },
+        { label: 'Longitud', field: 'longitude' },
+        { label: 'Capacidad', field: 'capacity' },
+        { label: 'Animales', field: 'total_animals' },
         {
             label: 'Acciones',
             field: 'id',
@@ -82,10 +67,10 @@ function UserList({ items, roles, farms, onEditClick, onDeleteClick }) {
         <DataTable
             columns={columns}
             rows={items}
-            emptyMessage="No hay usuarios registrados."
+            emptyMessage="No hay fincas registradas."
         />
     );
 }
 
-export default UserList;
+export default FarmList;
 

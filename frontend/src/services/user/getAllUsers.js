@@ -4,11 +4,12 @@ import apiClient from '../../api/axiosClient';
 
 /**
  * Obtiene todos los usuarios del sistema
- * @returns {Promise<Array>} Lista de usuarios
+ * @param {Object} params - Parámetros opcionales (page, page_size)
+ * @returns {Promise<Object>} Objeto con total, users, page, page_size
  */
-const getAllUsers = async () => {
+const getAllUsers = async (params = {}) => {
     try {
-        const response = await apiClient.get('/users');
+        const response = await apiClient.get('/user', { params });
         return response.data;
     } catch (error) {
         if (error.response && error.response.status === 400) {

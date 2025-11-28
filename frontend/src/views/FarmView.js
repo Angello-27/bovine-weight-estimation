@@ -1,25 +1,22 @@
 import React from 'react';
 import PanelTemplate from '../templates/PanelTemplate';
-import Content from '../templates/UserTemplate';
-import GetAllRoles from '../containers/role/GetAllRoles';
-import GetAllUsers from '../containers/user/GetAllUsers';
+import Content from '../templates/FarmTemplate';
 import GetAllFarms from '../containers/farm/GetAllFarms';
-import CreateNewUser from '../containers/user/CreateNewUser';
-import ManageUserForm from '../containers/user/ManageUserForm';
+import GetAllUsers from '../containers/user/GetAllUsers';
+import CreateNewFarm from '../containers/farm/CreateNewFarm';
+import ManageFarmForm from '../containers/farm/ManageFarmForm';
 
-function UserView() {
-    const rolesProps = GetAllRoles();
-    const usersProps = GetAllUsers();
+function FarmView() {
     const farmsProps = GetAllFarms();
-    const formProps = CreateNewUser();
-    const formActions = ManageUserForm(formProps);
+    const usersProps = GetAllUsers();
+    const formProps = CreateNewFarm();
+    const formActions = ManageFarmForm(formProps);
 
     return (
         <PanelTemplate content={
             <Content
-                {...usersProps}
-                roles={rolesProps}
-                farms={farmsProps}
+                {...farmsProps}
+                owners={usersProps}
                 formData={formProps.formData}
                 handleChange={formProps.handleChange}
                 handleSubmit={formProps.handleSubmit}
@@ -34,4 +31,5 @@ function UserView() {
     );
 }
 
-export default UserView;
+export default FarmView;
+

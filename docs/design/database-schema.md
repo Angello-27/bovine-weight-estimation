@@ -86,42 +86,6 @@ CREATE TABLE weighings (
 CREATE INDEX idx_weighings_animal ON weighings(animal_id, weighing_date DESC);
 ```
 
-### Tabla: senasag_reports (US-007)
-
-```sql
-CREATE TABLE senasag_reports (
-    id TEXT PRIMARY KEY,
-    report_type TEXT CHECK(report_type IN ('inventario_mensual', 'movimientos', 'trazabilidad')),
-    period_start TEXT,
-    period_end TEXT,
-    format TEXT CHECK(format IN ('pdf', 'csv', 'xml')),
-    file_path TEXT,
-    total_animals INTEGER,
-    generated_at TEXT DEFAULT (datetime('now')),
-    sent_to_email TEXT,
-    status TEXT DEFAULT 'generated'
-);
-```
-
-### Tabla: gmas (US-008)
-
-```sql
-CREATE TABLE gmas (
-    id TEXT PRIMARY KEY,
-    gma_number TEXT UNIQUE,                    -- "GMA-2024-001234"
-    origin_farm_id TEXT,
-    origin_lat REAL,
-    origin_lon REAL,
-    destination_name TEXT,
-    movement_reason TEXT CHECK(movement_reason IN ('venta', 'traslado', 'sacrificio')),
-    movement_date TEXT,
-    animal_ids TEXT,                           -- JSON array IDs
-    qr_code_data TEXT,
-    status TEXT DEFAULT 'pending' CHECK(status IN ('pending', 'approved', 'completed')),
-    synced_to_gran_paititi INTEGER DEFAULT 0
-);
-```
-
 ---
 
 ## MongoDB Schema (Backend)
@@ -184,27 +148,6 @@ db.weighings.createIndex({"animal_id": 1, "weighing_date": -1});
 db.weighings.createIndex({"location": "2dsphere"});
 ```
 
-### Collection: gmas (US-008)
-
-```javascript
-{
-  "_id": "uuid",
-  "gma_number": "GMA-2024-001234",
-  "origin": {
-    "farm_id": "farm-gamelera",
-    "location": {"type": "Point", "coordinates": [-60.797889, -15.859500]}
-  },
-  "destination": {...},
-  "animals": [{animal_id, tag_number, breed_type, weight_kg}, ...],
-  "regensa_compliance": {
-    "chapter_3_10": {compliant: true, ramp_width_m: 1.8},
-    "chapter_7_1": {compliant: true, veterinarian: "Dr. José Pérez"}
-  },
-  "qr_code": {data: "...", image_url: "s3://..."},
-  "status": "approved"
-}
-```
-
 ---
 
 ## Beanie Models
@@ -250,7 +193,7 @@ weighings = await WeighingModel.find(
     WeighingModel.animal_id == animal_id
 ).sort(-WeighingModel.weighing_date).limit(100).to_list()
 
-# Inventario SENASAG (US-007)
+# Inventario por raza
 pipeline = [
     {"$match": {"farm_id": farm_id, "status": "active"}},
     {"$group": {"_id": "$breed_type", "count": {"$sum": 1}}}
@@ -332,7 +275,7 @@ async def seed_hacienda_gamelera(db):
 
 - 📐 Architecture: `../standards/architecture-standards.md`
 - 🎯 ADRs: `architecture-decisions.md` (ADR-002, ADR-006, ADR-007)
-- US-005: Sincronización, US-006: Búsqueda, US-007: SENASAG
+- US-005: Sincronización, US-006: Búsqueda
 
 ---
 

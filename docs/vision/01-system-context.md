@@ -125,58 +125,6 @@ El **Sistema de Estimación de Peso Bovino con IA** es una solución tecnológic
   - Funcionalidad offline completa
   - Optimización para 500 cabezas de ganado
 
-#### 3. SENASAG (Servicio Nacional de Sanidad Agropecuaria e Inocuidad Alimentaria)
-
-- **Rol**: Entidad reguladora principal de Bolivia
-- **Responsabilidades**:
-  - Establecer estándares de trazabilidad ganadera
-  - Requerir reportes de inventario ganadero
-  - Validar datos de peso y crecimiento
-  - Auditar registros de producción
-- **Interacciones con el sistema**:
-  - Recepción de reportes exportados automáticamente
-  - Validación de datos de trazabilidad
-  - Cumplimiento de normativas bolivianas
-
-#### 4. REGENSA (Registro General de Sanidad Agropecuaria)
-
-- **Rol**: Entidad reguladora sanitaria de Bolivia
-- **Marco normativo**: Reglamento General de Sanidad Animal, particularmente capítulos 3.10 y 7.1
-- **Responsabilidades**:
-  - Aplicar capítulos 3.10 y 7.1 sobre centros de concentración animal
-  - Requerir Guía de Movimiento Animal (GMA) digital
-  - Integración obligatoria con sistema Gran Paitití
-  - Validar certificaciones de salud animal
-  - Controlar movilización ganadera entre fincas
-- **Requisitos técnicos específicos para centros de pesaje**:
-  - Rampas antideslizantes y pasillos de mínimo 1.6m
-  - Al menos 2m² por animal en corrales
-  - Sistemas de desinfección de vehículos
-  - Corrales de cuarentena
-  - Prohibición de instrumentos que provoquen dolor durante manejo
-- **Requisitos para el sistema**:
-  - Registro digital obligatorio de todos los pesajes
-  - Trazabilidad completa de movimientos
-  - Generación automática de GMA
-  - Integración con sistema Gran Paitití
-
-#### 5. ASOCEBU (Asociación de Criadores de Cebuinos)
-
-- **Rol**: Asociación ganadera organizadora de competencias
-- **Responsabilidades**:
-  - Organizar competencias y ferias ganaderas
-  - Establecer estándares de calidad por categoría
-  - Certificar animales para competencias
-  - Validar datos de peso y crecimiento para eventos
-- **Interacciones con el sistema**:
-  - Recepción de datos históricos de crecimiento
-  - Reportes de rendimiento por categoría
-  - Certificaciones de peso para competencias
-  - Historial de participación en eventos (ej: 3a Faena Técnica 2024)
-- **Relevancia para Hacienda Gamelera**:
-  - Medalla de bronce en "Mejor lote de carcasas de hembras en confinamiento" (3a Faena Técnica 2024)
-  - Preparación para competencias requiere mediciones precisas
-  - Sistema facilita ajustes nutricionales pre-competencia
 
 ### Relaciones Externas
 
@@ -189,58 +137,6 @@ El **Sistema de Estimación de Peso Bovino con IA** es una solución tecnológic
 - **Protocolos**: HTTPS, JSON, imágenes optimizadas
 - **Frecuencia**: Diaria/semanal según necesidades operativas
 
-#### Sistema ↔ SENASAG
-
-- **Flujo de datos**:
-  - Sistema exporta reportes de inventario automáticamente
-  - Sistema genera certificados de trazabilidad
-  - SENASAG valida y audita datos según normativas
-- **Protocolos**: PDF, CSV, XML estandarizados
-- **Frecuencia**: Mensual/trimestral según normativa boliviana
-
-#### Sistema ↔ REGENSA
-
-- **Flujo de datos**:
-  - Sistema integra registros de sanidad animal
-  - Sistema exporta certificaciones de movilización
-  - REGENSA valida registros de salud
-- **Protocolos**: PDF, CSV, integración API
-- **Frecuencia**: Según movilización y controles sanitarios
-
-#### Sistema ↔ ASOCEBU
-
-- **Flujo de datos**:
-  - Sistema exporta historial de crecimiento de animales
-  - Sistema genera certificaciones de peso
-  - ASOCEBU valida datos para competencias
-- **Protocolos**: PDF, Excel, reportes personalizados
-- **Frecuencia**: Pre-competencias y eventos ganaderos
-
-### Integración con Normativa Boliviana
-
-El sistema debe cumplir con requisitos específicos de las entidades regulatorias:
-
-#### SENASAG (Trazabilidad Ganadera)
-
-- Exportación automática de reportes de inventario (PDF/CSV/XML)
-- Certificados digitales de trazabilidad ganadera
-- Datos de peso para auditorías sanitarias
-- Frecuencia: Mensual/trimestral según normativa
-
-#### REGENSA (Capítulos 3.10 y 7.1)
-
-- **Integración con sistema Gran Paitití**: Plataforma gubernamental de registro
-- **Generación automática de GMA**: Guía de Movimiento Animal digital
-- **Registro digital obligatorio**: Todos los pesajes con timestamp y ubicación GPS
-- **Validación de cumplimiento**: Verificación de requisitos de capítulos 3.10 y 7.1
-- **Infraestructura conforme**: Datos de instalaciones (rampas, corrales, desinfección)
-
-#### ASOCEBU (Competencias Ganaderas)
-
-- Exportación de datos históricos de crecimiento
-- Reportes de rendimiento por categoría de edad y raza
-- Certificaciones de peso para participación en ferias
-- Historial de eventos y resultados
 
 ### Contexto Tecnológico
 
@@ -299,15 +195,8 @@ El sistema debe cumplir con requisitos específicos de las entidades regulatoria
 - **Mayor precisión**: >95% vs 5-20 kg de error actual
 - **Mejor trazabilidad**: Registros digitales automáticos
 - **Toma de decisiones**: Datos históricos y análisis de crecimiento
-- **Cumplimiento normativo**: Reportes automáticos para SENASAG y REGENSA
+- **Trazabilidad digital**: Registros históricos completos
 
-#### Para las Entidades Regulatorias (SENASAG/REGENSA)
-
-- **Mejor calidad de datos**: Información digitalizada y estandarizada
-- **Reportes automáticos**: Reducción de errores manuales
-- **Mayor eficiencia**: Auditorías más rápidas y precisas
-- **Trazabilidad mejorada**: Registros históricos completos
-- **Cumplimiento normativo**: Adherencia automática a regulaciones bolivianas
 
 ### Métricas de Éxito
 
@@ -333,8 +222,7 @@ El sistema debe cumplir con requisitos específicos de las entidades regulatoria
 - **Cobertura de razas**: 7 razas bovinas soportadas
 - **Validación en campo**: 50 animales mínimo en condiciones reales
 - **Satisfacción del usuario**: >90% (a validar en pruebas de campo)
-- **Cumplimiento normativo**: 100% de reportes SENASAG/REGENSA automatizados
-- **Preparación para competencias**: Reducción de tiempo de preparación para eventos ASOCEBU
+- **Trazabilidad digital**: 100% de registros históricos completos
 
 ## Decisiones Técnicas Validadas
 
@@ -343,7 +231,6 @@ El sistema debe cumplir con requisitos específicos de las entidades regulatoria
 - **Precisión >95%** (POR VALIDAR en Sprint 1)
 - **Captura continua** (CONFIRMADO: 10-15 FPS durante 3-5 segundos)
 - **7 razas bovinas** (CONFIRMADO: Brahman, Nelore, Angus, Cebuinas, Criollo, Pardo Suizo, Jersey)
-- **Integración normativa** (CONFIRMADO: SENASAG, REGENSA, ASOCEBU)
 
 ## Decisiones Técnicas Pendientes
 

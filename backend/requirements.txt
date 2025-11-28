@@ -54,14 +54,13 @@ pytz==2023.3
 python-json-logger==2.0.7
 loguru==0.7.2       # Logging estructurado
 
-# ===== Reportes (US-007 SENASAG) =====
+# ===== Reportes =====
 reportlab==4.0.7    # Generación de PDFs
 openpyxl==3.1.2     # Generación de Excel
 xmltodict==0.13.0   # Generación de XML
 
-# ===== Integraciones (US-008 Gran Paitití) =====
+# ===== Utilidades HTTP =====
 httpx==0.25.2       # HTTP client async
-qrcode[pil]==7.4.2  # Códigos QR para GMAs
 
 # ===== Testing (Dev) =====
 pytest==7.4.3

@@ -9,6 +9,23 @@ from .animal_schemas import (
     AnimalsListResponse,
     AnimalUpdateRequest,
 )
+from .auth_schemas import (
+    LoginRequest,
+    LoginResponse,
+    TokenData,
+)
+from .farm_schemas import (
+    FarmCreateRequest,
+    FarmResponse,
+    FarmsListResponse,
+    FarmUpdateRequest,
+)
+from .role_schemas import (
+    RoleCreateRequest,
+    RoleResponse,
+    RolesListResponse,
+    RoleUpdateRequest,
+)
 from .sync_schemas import (
     CattleSyncBatchRequest,
     CattleSyncBatchResponse,
@@ -19,6 +36,12 @@ from .sync_schemas import (
     WeightEstimationSyncBatchResponse,
     WeightEstimationSyncItemRequest,
     WeightEstimationSyncItemResponse,
+)
+from .user_schemas import (
+    UserCreateRequest,
+    UserResponse,
+    UsersListResponse,
+    UserUpdateRequest,
 )
 from .weighing_schemas import (
     WeighingCreateRequest,
@@ -32,6 +55,25 @@ __all__ = [
     "AnimalUpdateRequest",
     "AnimalResponse",
     "AnimalsListResponse",
+    # Auth
+    "LoginRequest",
+    "LoginResponse",
+    "TokenData",
+    # Farms
+    "FarmCreateRequest",
+    "FarmUpdateRequest",
+    "FarmResponse",
+    "FarmsListResponse",
+    # Roles
+    "RoleCreateRequest",
+    "RoleUpdateRequest",
+    "RoleResponse",
+    "RolesListResponse",
+    # Users
+    "UserCreateRequest",
+    "UserUpdateRequest",
+    "UserResponse",
+    "UsersListResponse",
     # Weighings
     "WeighingCreateRequest",
     "WeighingResponse",

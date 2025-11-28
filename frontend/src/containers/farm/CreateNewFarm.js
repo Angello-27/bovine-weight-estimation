@@ -1,18 +1,18 @@
-// frontend/src/containers/user/CreateNewUser.js
+// frontend/src/containers/farm/CreateNewFarm.js
 
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { createUser } from '../../services/user/createUser';
+import { createFarm } from '../../services/farm/createFarm';
 
-function CreateNewUser() {
+function CreateNewFarm() {
     const navigate = useNavigate();
 
     const [formData, setFormData] = useState({
-        username: "",
-        email: "",
-        password: "",
-        roleId: "",
-        farmId: "",
+        name: "",
+        owner_id: "",
+        latitude: "",
+        longitude: "",
+        capacity: "",
     });
 
     const handleChange = (event) => {
@@ -34,15 +34,22 @@ function CreateNewUser() {
         event.preventDefault();
 
         try {
-            const data = await createUser(formData);
-            console.log('Nuevo usuario creado: ', data);
+            const payload = {
+                name: formData.name,
+                owner_id: formData.owner_id,
+                latitude: parseFloat(formData.latitude),
+                longitude: parseFloat(formData.longitude),
+                capacity: parseInt(formData.capacity, 10),
+            };
+            const data = await createFarm(payload);
+            console.log('Nueva finca creada: ', data);
             // Resetear formulario después de crear
             setFormData({
-                username: "",
-                email: "",
-                password: "",
-                roleId: "",
-                farmId: "",
+                name: "",
+                owner_id: "",
+                latitude: "",
+                longitude: "",
+                capacity: "",
             });
             navigate('/home');
         } catch (error) {
@@ -59,4 +66,5 @@ function CreateNewUser() {
     };
 }
 
-export default CreateNewUser;
+export default CreateNewFarm;
+

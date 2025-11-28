@@ -1,9 +1,9 @@
-// frontend\src\templates\UserTemplate.js
+// frontend/src/templates/FarmTemplate.js
 
 import Grid from "@mui/material/Grid";
 import Container from "@mui/material/Container";
-import CreateUser from '../components/organisms/CreateUser';
-import UserList from '../components/organisms/UserList';
+import CreateFarm from '../components/organisms/CreateFarm';
+import FarmList from '../components/organisms/FarmList';
 import ActionButton from '../components/molecules/ActionButton';
 import LoadingState from '../components/molecules/LoadingState';
 import ErrorState from '../components/molecules/ErrorState';
@@ -12,24 +12,22 @@ import AddIcon from '@mui/icons-material/Add';
 import Dialog from '@mui/material/Dialog';
 import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
-import { roleToComboBox } from '../utils/transformers/roleToComboBox.js';
-import { farmToComboBox } from '../utils/transformers/farmToComboBox.js';
+import { userToComboBox } from '../utils/transformers/userToComboBox.js';
 
-function UserTemplate({ items, loading, error, roles, farms, formData, handleChange, handleSubmit, handleComboBoxChange, showForm, onCloseForm, onCreateClick, onEditClick, onDeleteClick }) {
-    const transformedRole = roleToComboBox(roles?.items || []);
-    const transformedFarms = farmToComboBox(farms?.items || []);
+function FarmTemplate({ items, loading, error, owners, formData, handleChange, handleSubmit, handleComboBoxChange, showForm, onCloseForm, onCreateClick, onEditClick, onDeleteClick }) {
+    const transformedOwners = userToComboBox(owners?.items || []);
 
     return (
         <Grid component="section" py={12}>
             <Container>
                 <PageHeader
-                    title="Usuarios"
-                    description="Gestión de usuarios del sistema"
+                    title="Fincas"
+                    description="Gestión de fincas del sistema"
                     action={
                         <ActionButton
                             icon={<AddIcon />}
-                            label="Crear Usuario"
-                            onClick={handleCreateClick}
+                            label="Crear Finca"
+                            onClick={onCreateClick}
                         />
                     }
                 />
@@ -40,10 +38,9 @@ function UserTemplate({ items, loading, error, roles, farms, formData, handleCha
                     {!error && (
                         <Grid container spacing={3}>
                             <Grid item xs={12}>
-                                <UserList
+                                <FarmList
                                     items={items}
-                                    roles={roles?.items || []}
-                                    farms={farms?.items || []}
+                                    owners={owners?.items || []}
                                     onEditClick={onEditClick}
                                     onDeleteClick={onDeleteClick}
                                 />
@@ -52,20 +49,19 @@ function UserTemplate({ items, loading, error, roles, farms, formData, handleCha
                     )}
                 </LoadingState>
 
-                {/* Dialog para crear/editar usuario */}
+                {/* Dialog para crear/editar finca */}
                 <Dialog open={showForm} onClose={onCloseForm} maxWidth="md" fullWidth>
-                    <DialogTitle>{formData.id ? 'Editar Usuario' : 'Crear Usuario'}</DialogTitle>
+                    <DialogTitle>{formData.id ? 'Editar Finca' : 'Crear Finca'}</DialogTitle>
                     <DialogContent>
                         <Grid container item xs={12} sx={{ mt: 2 }}>
-                            <CreateUser
+                            <CreateFarm
                                 formData={formData}
                                 onInputChange={handleChange}
                                 onSubmit={(e) => {
                                     handleSubmit(e);
                                     onCloseForm();
                                 }}
-                                roles={transformedRole}
-                                farms={transformedFarms}
+                                owners={transformedOwners}
                                 onComboBoxChange={handleComboBoxChange}
                             />
                         </Grid>
@@ -76,4 +72,5 @@ function UserTemplate({ items, loading, error, roles, farms, formData, handleCha
     );
 }
 
-export default UserTemplate;
+export default FarmTemplate;
+

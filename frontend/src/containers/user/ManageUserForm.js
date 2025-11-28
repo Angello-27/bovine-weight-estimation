@@ -12,8 +12,10 @@ function ManageUserForm(formProps) {
 
     const resetForm = () => {
         formProps.handleChange({ target: { name: 'username', value: '' } });
+        formProps.handleChange({ target: { name: 'email', value: '' } });
         formProps.handleChange({ target: { name: 'password', value: '' } });
         formProps.handleChange({ target: { name: 'roleId', value: '' } });
+        formProps.handleChange({ target: { name: 'farmId', value: '' } });
     };
 
     const handleCreateClick = () => {
@@ -24,8 +26,10 @@ function ManageUserForm(formProps) {
     const handleEditClick = (userId, user) => {
         // Cargar datos del usuario en el formulario
         formProps.handleChange({ target: { name: 'username', value: user.username || '' } });
+        formProps.handleChange({ target: { name: 'email', value: user.email || '' } });
         formProps.handleChange({ target: { name: 'password', value: '' } }); // No mostrar contraseña
-        formProps.handleChange({ target: { name: 'roleId', value: user.roleId || '' } });
+        formProps.handleChange({ target: { name: 'roleId', value: user.role_id || user.roleId || '' } });
+        formProps.handleChange({ target: { name: 'farmId', value: user.farm_id || user.farmId || '' } });
         setShowForm(true);
     };
 

@@ -242,7 +242,7 @@ const generateCattleTraceabilityReport = async (
             { align: 'center' }
         );
         doc.text(
-            'Cumple normativas SENASAG - Sistema de Trazabilidad Ganadera',
+            'Sistema de Trazabilidad Ganadera',
             pageWidth / 2,
             pageHeight - 5,
             { align: 'center' }

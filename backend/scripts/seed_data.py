@@ -4,6 +4,9 @@ Seed Data Script - Cargar datos iniciales en MongoDB
 Ejecutar: python -m scripts.seed_data
 
 Carga datos de ejemplo para desarrollo y testing con TRAZABILIDAD COMPLETA:
+- Roles iniciales (Administrador, Usuario, Invitado)
+- Usuario principal: Bruno Brito Macedo
+- Finca: Hacienda Gamelera
 - 200 animales de las 7 razas tropicales
 - Evolución temporal de peso (múltiples pesajes por animal)
 - Relaciones familiares (madre/padre)
@@ -26,13 +29,21 @@ from beanie import init_beanie
 from motor.motor_asyncio import AsyncIOMotorClient
 
 from app.core.config import settings
-from app.core.constants import AgeCategory
-from app.core.constants import BreedType
-from app.models import AnimalModel
-from app.models import WeightEstimationModel
+from app.core.constants import AgeCategory, BreedType
+from app.models import (
+    AnimalModel,
+    FarmModel,
+    RoleModel,
+    UserModel,
+    WeightEstimationModel,
+)
+from app.services import AuthService
 
-
-# ID de la hacienda (usar el mismo para todos los animales)
+# IDs fijos para datos de seed (para reproducibilidad)
+ADMIN_ROLE_ID = UUID("110e8400-e29b-41d4-a716-446655440000")
+USER_ROLE_ID = UUID("220e8400-e29b-41d4-a716-446655440000")
+GUEST_ROLE_ID = UUID("330e8400-e29b-41d4-a716-446655440000")
+BRUNO_USER_ID = UUID("440e8400-e29b-41d4-a716-446655440000")
 FARM_ID = UUID("550e8400-e29b-41d4-a716-446655440000")
 
 # Referencias a imágenes en Drive (el usuario las descargará manualmente)
@@ -49,13 +60,13 @@ IMAGE_REFERENCES = {
 # Distribución realista de razas (basada en Hacienda Gamelera)
 # Nelore: 42%, Brahman: 25%, Guzerat: 15%, Senepol: 8%, Girolando: 5%, Gyr Lechero: 3%, Sindi: 2%
 BREED_DISTRIBUTION = {
-    BreedType.NELORE: 84,      # 42% de 200
-    BreedType.BRAHMAN: 50,     # 25% de 200
-    BreedType.GUZERAT: 30,     # 15% de 200
-    BreedType.SENEPOL: 16,     # 8% de 200
-    BreedType.GIROLANDO: 10,   # 5% de 200
+    BreedType.NELORE: 84,  # 42% de 200
+    BreedType.BRAHMAN: 50,  # 25% de 200
+    BreedType.GUZERAT: 30,  # 15% de 200
+    BreedType.SENEPOL: 16,  # 8% de 200
+    BreedType.GIROLANDO: 10,  # 5% de 200
     BreedType.GYR_LECHERO: 6,  # 3% de 200
-    BreedType.SINDI: 4,        # 2% de 200
+    BreedType.SINDI: 4,  # 2% de 200
 }
 
 # Rangos de peso por raza y edad (en kg)
@@ -128,7 +139,137 @@ BREED_COLORS = {
 }
 
 
-def generate_animals() -> list[AnimalModel]:
+async def create_roles() -> dict[str, RoleModel]:
+    """
+    Crea roles iniciales del sistema.
+
+    Returns:
+        Dict con roles creados: {"admin": RoleModel, "user": RoleModel, "guest": RoleModel}
+    """
+    roles = {}
+
+    # Rol Administrador
+    admin_role = RoleModel(
+        id=ADMIN_ROLE_ID,
+        name="Administrador",
+        description="Rol con acceso completo al sistema",
+        priority="Administrador",
+        permissions=["read", "write", "delete", "admin"],
+    )
+    await admin_role.insert()
+    roles["admin"] = admin_role
+    print(f"   ✅ Rol creado: {admin_role.name}")
+
+    # Rol Usuario
+    user_role = RoleModel(
+        id=USER_ROLE_ID,
+        name="Usuario",
+        description="Rol estándar para usuarios del sistema",
+        priority="Usuario",
+        permissions=["read", "write"],
+    )
+    await user_role.insert()
+    roles["user"] = user_role
+    print(f"   ✅ Rol creado: {user_role.name}")
+
+    # Rol Invitado
+    guest_role = RoleModel(
+        id=GUEST_ROLE_ID,
+        name="Invitado",
+        description="Rol con acceso limitado de solo lectura",
+        priority="Invitado",
+        permissions=["read"],
+    )
+    await guest_role.insert()
+    roles["guest"] = guest_role
+    print(f"   ✅ Rol creado: {guest_role.name}")
+
+    return roles
+
+
+async def create_users(admin_role: RoleModel) -> UserModel:
+    """
+    Crea usuarios iniciales del sistema.
+
+    Args:
+        admin_role: Rol de administrador
+
+    Returns:
+        UserModel de Bruno Brito Macedo
+    """
+    auth_service = AuthService()
+
+    # Usuario principal: Bruno Brito Macedo
+    bruno = UserModel(
+        id=BRUNO_USER_ID,
+        username="bruno_brito",
+        email="bruno@haciendagamelera.com",
+        hashed_password=auth_service.get_password_hash(
+            "password123"
+        ),  # Cambiar en producción
+        role_id=admin_role.id,
+        farm_id=None,  # Se asignará después de crear la finca
+        is_active=True,
+        is_superuser=True,
+    )
+    await bruno.insert()
+    print(f"   ✅ Usuario creado: {bruno.username} ({bruno.email})")
+
+    # Usuario de ejemplo (no superusuario)
+    example_user = UserModel(
+        username="usuario_ejemplo",
+        email="usuario@haciendagamelera.com",
+        hashed_password=auth_service.get_password_hash("password123"),
+        role_id=admin_role.id,  # Usar admin_role por ahora
+        farm_id=None,
+        is_active=True,
+        is_superuser=False,
+    )
+    await example_user.insert()
+    print(f"   ✅ Usuario creado: {example_user.username}")
+
+    return bruno
+
+
+async def create_farm(owner: UserModel) -> FarmModel:
+    """
+    Crea la finca Hacienda Gamelera.
+
+    Args:
+        owner: Usuario propietario (Bruno)
+
+    Returns:
+        FarmModel de Hacienda Gamelera
+    """
+    farm = FarmModel(
+        id=FARM_ID,
+        name=settings.HACIENDA_NAME,
+        owner_id=owner.id,
+        location={
+            "type": "Point",
+            "coordinates": [
+                -60.797889,
+                -15.859500,
+            ],  # [lon, lat] San Ignacio de Velasco
+        },
+        capacity=settings.HACIENDA_CAPACITY,
+        total_animals=0,  # Se actualizará después de insertar animales
+    )
+    await farm.insert()
+    print(f"   ✅ Finca creada: {farm.name}")
+    print(f"      📍 Ubicación: {settings.HACIENDA_LOCATION}")
+    print(f"      👤 Propietario: {settings.HACIENDA_OWNER}")
+    print(f"      📊 Capacidad: {farm.capacity} animales")
+
+    # Actualizar usuario con farm_id
+    owner.farm_id = farm.id
+    await owner.save()
+    print(f"   ✅ Usuario {owner.username} asociado a finca {farm.name}")
+
+    return farm
+
+
+def generate_animals(farm_id: UUID) -> list[AnimalModel]:
     """
     Genera 200 animales con trazabilidad completa.
 
@@ -161,15 +302,13 @@ def generate_animals() -> list[AnimalModel]:
             gender=gender,
             name=f"{'Vaca' if gender == 'female' else 'Toro'} Base {base_counter}",
             color=random.choice(BREED_COLORS[breed]),
-            birth_weight_kg=round(
-                random.uniform(*BIRTH_WEIGHTS[breed]), 1
-            ),
+            birth_weight_kg=round(random.uniform(*BIRTH_WEIGHTS[breed]), 1),
             status="active",
-            farm_id=FARM_ID,
+            farm_id=farm_id,
             registration_date=birth_date + timedelta(days=random.randint(1, 30)),
             last_updated=now - timedelta(days=random.randint(0, 30)),
             photo_url=IMAGE_REFERENCES.get(breed.value),
-            observations=f"Animal base para reproducción. Raza {BreedType.get_display_name(breed)}.",
+            observations=f"Animal base para reproducción. Raza {BreedType.get_display_name(BreedType(breed))}.",
         )
         base_animals.append(animal)
         base_counter += 1
@@ -185,9 +324,7 @@ def generate_animals() -> list[AnimalModel]:
                 [2020, 2021, 2022, 2023, 2024],
                 weights=[10, 15, 20, 30, 25],  # Más probabilidad en años recientes
             )[0]
-            birth_date = datetime(year, 1, 1) + timedelta(
-                days=random.randint(0, 364)
-            )
+            birth_date = datetime(year, 1, 1) + timedelta(days=random.randint(0, 364))
 
             gender = "female" if random.random() < 0.55 else "male"  # 55% hembras
 
@@ -227,19 +364,17 @@ def generate_animals() -> list[AnimalModel]:
                 breed=breed.value,
                 birth_date=birth_date,
                 gender=gender,
-                name=f"{BreedType.get_display_name(breed)} {ear_tag_counter}",
+                name=f"{BreedType.get_display_name(BreedType(breed))} {ear_tag_counter}",
                 color=random.choice(BREED_COLORS[breed]),
-                birth_weight_kg=round(
-                    random.uniform(*BIRTH_WEIGHTS[breed]), 1
-                ),
+                birth_weight_kg=round(random.uniform(*BIRTH_WEIGHTS[breed]), 1),
                 mother_id=mother_id,
                 father_id=father_id,
                 status=status,
-                farm_id=FARM_ID,
+                farm_id=farm_id,
                 registration_date=birth_date + timedelta(days=random.randint(1, 30)),
                 last_updated=last_updated,
                 photo_url=IMAGE_REFERENCES.get(breed.value),
-                observations=f"Animal de raza {BreedType.get_display_name(breed)}. "
+                observations=f"Animal de raza {BreedType.get_display_name(BreedType(breed))}. "
                 f"Registrado para trazabilidad completa.",
             )
             animals.append(animal)
@@ -326,9 +461,7 @@ def generate_weight_estimations(
             num_weighings = random.randint(10, 15)
 
         breed = BreedType(animal.breed)
-        birth_weight = animal.birth_weight_kg or random.uniform(
-            *BIRTH_WEIGHTS[breed]
-        )
+        birth_weight = animal.birth_weight_kg or random.uniform(*BIRTH_WEIGHTS[breed])
 
         # Generar pesajes distribuidos a lo largo de la vida del animal
         weighing_dates = []
@@ -336,13 +469,18 @@ def generate_weight_estimations(
 
         if (end_date - start_date).days < 30:
             # Si el período es muy corto, solo un pesaje
-            weighing_dates = [start_date + timedelta(days=random.randint(0, (end_date - start_date).days))]
+            weighing_dates = [
+                start_date
+                + timedelta(days=random.randint(0, (end_date - start_date).days))
+            ]
         else:
             # Distribuir pesajes uniformemente
             days_span = (end_date - start_date).days
             interval = days_span / max(num_weighings, 1)
             for i in range(num_weighings):
-                date = start_date + timedelta(days=int(i * interval) + random.randint(-7, 7))
+                date = start_date + timedelta(
+                    days=int(i * interval) + random.randint(-7, 7)
+                )
                 if date <= end_date:
                     weighing_dates.append(date)
 
@@ -408,6 +546,9 @@ async def seed_database():
             database=client[settings.MONGODB_DB_NAME],
             document_models=[
                 AnimalModel,
+                FarmModel,
+                RoleModel,
+                UserModel,
                 WeightEstimationModel,
             ],
         )
@@ -417,16 +558,40 @@ async def seed_database():
         print("🗑️  Limpiando datos existentes...")
         await AnimalModel.delete_all()
         await WeightEstimationModel.delete_all()
+        await FarmModel.delete_all()
+        await UserModel.delete_all()
+        await RoleModel.delete_all()
         print("✅ Datos limpiados\n")
+
+        # Crear roles
+        print("👥 Creando roles iniciales...")
+        roles = await create_roles()
+        print(f"✅ {len(roles)} roles creados\n")
+
+        # Crear usuarios
+        print("👤 Creando usuarios iniciales...")
+        bruno = await create_users(roles["admin"])
+        print("✅ Usuarios creados\n")
+
+        # Crear finca
+        print("🏢 Creando finca Hacienda Gamelera...")
+        farm = await create_farm(bruno)
+        farm_id = farm.id
+        print("✅ Finca creada\n")
 
         # Generar animales
         print("🐄 Generando 200 animales con trazabilidad completa...")
-        animals = generate_animals()
+        animals = generate_animals(farm_id)
         print(f"   📝 {len(animals)} animales generados")
 
         # Insertar animales
         await AnimalModel.insert_many(animals)
         print(f"✅ {len(animals)} animales insertados en MongoDB\n")
+
+        # Actualizar contador de animales en la finca
+        farm.total_animals = len(animals)
+        await farm.save()
+        print(f"✅ Contador de animales actualizado en finca: {farm.total_animals}\n")
 
         # Generar estimaciones de peso con evolución temporal
         print("⚖️  Generando estimaciones de peso con evolución temporal...")
@@ -441,10 +606,15 @@ async def seed_database():
         print("=" * 70)
         print("📊 RESUMEN DE DATOS CARGADOS - TRAZABILIDAD COMPLETA")
         print("=" * 70)
+        print(f"👥 Roles creados: {len(roles)}")
+        print("👤 Usuarios creados: 2 (Bruno + Ejemplo)")
+        print(f"🏢 Finca: {farm.name}")
         print(f"🐄 Animales totales: {len(animals)}")
         print(f"⚖️  Estimaciones totales: {len(estimations)}")
-        print(f"📈 Promedio de pesajes por animal: {len(estimations) / len(animals):.1f}")
-        print(f"🏢 Hacienda ID: {FARM_ID}\n")
+        print(
+            f"📈 Promedio de pesajes por animal: {len(estimations) / len(animals):.1f}"
+        )
+        print(f"🏢 Hacienda ID: {farm_id}\n")
 
         # Distribución por raza
         print("📋 Distribución por raza:")
@@ -473,9 +643,7 @@ async def seed_database():
             print(f"   - {category}: {count} animales ({percentage:.1f}%)")
 
         # Animales con relaciones familiares
-        animals_with_parents = sum(
-            1 for a in animals if a.mother_id or a.father_id
-        )
+        animals_with_parents = sum(1 for a in animals if a.mother_id or a.father_id)
         print(
             f"\n👨‍👩‍👧 Animales con padre/madre registrados: "
             f"{animals_with_parents} ({(animals_with_parents/len(animals)*100):.1f}%)"
@@ -501,9 +669,16 @@ async def seed_database():
 
         print("\n" + "=" * 70)
         print("✅ Seed data completado exitosamente!")
+        print("\n🔐 CREDENCIALES DE ACCESO:")
+        print("   Usuario: bruno_brito")
+        print("   Email: bruno@haciendagamelera.com")
+        print("   Contraseña: password123")
+        print("   ⚠️  CAMBIAR EN PRODUCCIÓN")
         print("\n📸 NOTA: Las referencias a imágenes están en IMAGE_REFERENCES")
         print("   Descarga las imágenes de Drive y actualiza los IDs en el script.")
         print("\n🔍 TRAZABILIDAD:")
+        print("   - Roles y usuarios configurados")
+        print("   - Finca Hacienda Gamelera creada")
         print("   - Cada animal tiene historial completo de pesajes")
         print("   - Relaciones familiares (madre/padre) registradas")
         print("   - Estados variados (active/sold/deceased)")

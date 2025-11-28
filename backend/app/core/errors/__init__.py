@@ -4,6 +4,7 @@ Core Errors Module
 
 from .exceptions import (
     AlreadyExistsException,
+    AuthenticationException,
     DatabaseException,
     DomainException,
     MLModelException,
@@ -20,4 +21,5 @@ __all__ = [
     "DatabaseException",
     "MLModelException",
     "SyncConflictException",
+    "AuthenticationException",
 ]

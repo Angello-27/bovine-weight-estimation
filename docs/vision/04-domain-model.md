@@ -55,38 +55,9 @@
 
 **NOTA**: Preferencias de UI/UX emergerán según feedback de Bruno
 
-### Entidades Normativas (Requeridas por ley)
+### Entidades de Soporte
 
-#### 4. SENASAGReport
-
-**Descripción**: Reportes obligatorios para SENASAG
-
-**Atributos críticos**:
-
-- `id`: Identificador único
-- `farm_id`: Referencia a la finca
-- `report_type`: Tipo de reporte
-- `period_start/end`: Período del reporte
-- `status`: Estado (Pendiente/Generado/Enviado)
-
-**NOTA**: Formato específico se definirá según normativa SENASAG
-
-#### 5. GMA (Guía de Movimiento Animal)
-
-**Descripción**: Guía para REGENSA
-
-**Atributos críticos**:
-
-- `id`: Identificador único
-- `gma_number`: Número único de GMA
-- `animal_ids`: Referencias a animales
-- `origin_farm_id`: Finca de origen
-- `destination`: Destino del movimiento
-- `status`: Estado (Pendiente/Aprobada/Completada)
-
-**NOTA**: Integración con Gran Paitití se implementará cuando sea necesario
-
-#### 6. Farm
+#### 4. Farm
 
 **Descripción**: Registro de finca/hacienda
 
@@ -174,11 +145,6 @@
 2. **CaptureSession → Image** (1:N): Una sesión puede tener múltiples imágenes
 3. **Image → Weighing** (1:1): Una imagen puede generar un pesaje
 
-### Relaciones Normativas
-
-1. **Farm → SENASAGReport** (1:N): Una finca puede tener múltiples reportes
-2. **Farm → GMA** (1:N): Una finca puede tener múltiples GMA
-3. **GMA → Animal** (N:N): Un GMA puede incluir múltiples animales
 
 ## Validaciones por Entidad
 
@@ -247,17 +213,9 @@
 }
 ```
 
-### Sprint 3: Integración Normativa
+### Sprint 3: Funcionalidades Avanzadas
 
 ```javascript
-// Agregar a Animal
-{
-  // ... campos Sprint 2
-  asocebu_registered: Boolean,
-  asocebu_id: String,
-  competition_history: Array
-}
-
 // Agregar a Weighing
 {
   // ... campos Sprint 2

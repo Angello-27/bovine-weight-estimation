@@ -12,9 +12,24 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
 
-from app.api.routes import animals_router, ml_router, sync_router, weighings_router
+from app.api.routes import (
+    animals_router,
+    auth_router,
+    farm_router,
+    ml_router,
+    role_router,
+    sync_router,
+    user_router,
+    weighings_router,
+)
 from app.core.config import settings
-from app.models import AnimalModel, WeightEstimationModel
+from app.models import (
+    AnimalModel,
+    FarmModel,
+    RoleModel,
+    UserModel,
+    WeightEstimationModel,
+)
 
 
 @asynccontextmanager
@@ -37,6 +52,9 @@ async def lifespan(app: FastAPI):
         database=client[settings.MONGODB_DB_NAME],
         document_models=[
             AnimalModel,
+            FarmModel,
+            RoleModel,
+            UserModel,
             WeightEstimationModel,
         ],
     )
@@ -71,6 +89,10 @@ app.add_middleware(
 )
 
 # Include Routers (separados por dominio)
+app.include_router(auth_router)  # Autenticación y autorización
+app.include_router(user_router)  # Gestión de usuarios
+app.include_router(role_router)  # Gestión de roles
+app.include_router(farm_router)  # Gestión de fincas
 app.include_router(animals_router)  # US-003: Registro de Animales
 app.include_router(weighings_router)  # US-002/US-004: Estimación y Historial
 app.include_router(ml_router)  # US-002: Inferencia ML (Core del proyecto)

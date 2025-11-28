@@ -13,7 +13,7 @@ class AgeCategory(str, Enum):
     4 categorías de edad bovinas para Hacienda Gamelera.
 
     Definidas por Bruno Brito Macedo según prácticas ganaderas locales.
-    Usadas para: clasificación automática, reportes SENASAG, análisis GDP.
+    Usadas para: clasificación automática, análisis GDP.
     """
 
     TERNEROS = "terneros"  # <8 meses
