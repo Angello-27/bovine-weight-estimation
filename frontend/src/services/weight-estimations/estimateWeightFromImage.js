@@ -23,7 +23,7 @@ const estimateWeightFromImage = async (imageFile, cattleId = null, breed = null)
       formData.append('breed', breed);
     }
 
-    const response = await apiClient.post('/ml/estimate', formData, {
+    const response = await apiClient.post('/api/v1/ml/estimate', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },

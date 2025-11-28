@@ -1,9 +1,7 @@
-// frontend\src\templates\UserTemplate.js
-
 import Grid from "@mui/material/Grid";
 import Container from "@mui/material/Container";
-import CreateUser from '../components/organisms/CreateUser';
-import UserList from '../components/organisms/UserList';
+import CattleList from '../components/organisms/CattleList';
+import CreateCattle from '../components/organisms/CreateCattle';
 import ActionButton from '../components/molecules/ActionButton';
 import LoadingState from '../components/molecules/LoadingState';
 import ErrorState from '../components/molecules/ErrorState';
@@ -12,22 +10,19 @@ import AddIcon from '@mui/icons-material/Add';
 import Dialog from '@mui/material/Dialog';
 import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
-import { roleToComboBox } from '../utils/transformers/roleToComboBox.js';
 
-function UserTemplate({ items, loading, error, roles, formData, handleChange, handleSubmit, handleComboBoxChange, showForm, onCloseForm, onCreateClick, onEditClick, onDeleteClick }) {
-    const transformedRole = roleToComboBox(roles?.items || []);
-
+function CattleTemplate({ items, loading, error, formData, handleChange, handleComboBoxChange, handleSubmit, showForm, onCloseForm, onViewClick, onCreateClick }) {
     return (
         <Grid component="section" py={12}>
             <Container>
                 <PageHeader
-                    title="Usuarios"
-                    description="Gestión de usuarios del sistema"
+                    title="Ganado"
+                    description="Gestión de animales registrados"
                     action={
                         <ActionButton
                             icon={<AddIcon />}
-                            label="Crear Usuario"
-                            onClick={handleCreateClick}
+                            label="Registrar Animal"
+                            onClick={onCreateClick}
                         />
                     }
                 />
@@ -38,31 +33,25 @@ function UserTemplate({ items, loading, error, roles, formData, handleChange, ha
                     {!error && (
                         <Grid container spacing={3}>
                             <Grid item xs={12}>
-                                <UserList
-                                    items={items}
-                                    roles={roles?.items || []}
-                                    onEditClick={onEditClick}
-                                    onDeleteClick={onDeleteClick}
-                                />
+                                <CattleList items={items} onViewClick={onViewClick} />
                             </Grid>
                         </Grid>
                     )}
                 </LoadingState>
 
-                {/* Dialog para crear/editar usuario */}
+                {/* Dialog para crear/editar animal */}
                 <Dialog open={showForm} onClose={onCloseForm} maxWidth="md" fullWidth>
-                    <DialogTitle>{formData.id ? 'Editar Usuario' : 'Crear Usuario'}</DialogTitle>
+                    <DialogTitle>{formData?.id ? 'Editar Animal' : 'Registrar Animal'}</DialogTitle>
                     <DialogContent>
                         <Grid container item xs={12} sx={{ mt: 2 }}>
-                            <CreateUser
+                            <CreateCattle
                                 formData={formData}
                                 onInputChange={handleChange}
+                                onComboBoxChange={handleComboBoxChange}
                                 onSubmit={(e) => {
                                     handleSubmit(e);
                                     onCloseForm();
                                 }}
-                                roles={transformedRole}
-                                onComboBoxChange={handleComboBoxChange}
                             />
                         </Grid>
                     </DialogContent>
@@ -72,4 +61,5 @@ function UserTemplate({ items, loading, error, roles, formData, handleChange, ha
     );
 }
 
-export default UserTemplate;
+export default CattleTemplate;
+

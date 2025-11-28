@@ -252,18 +252,19 @@ Adaptar el frontend React existente (sistema de empresas/propiedades) para el pr
 
 ## 📝 Orden de Implementación Recomendado
 
-1. ✅ **Actualizar configuración** (constants, routes, axiosClient)
-2. ✅ **Crear servicios API** (cattle, weight-estimations, sync - solo lectura)
-3. ⏳ **Eliminar archivos obsoletos** (company, property) - Ver CLEANUP_PLAN.md
-4. ✅ **Decidir sobre estimación de peso en web** → Estimación desde web
-5. ✅ **Decidir sobre gestión de usuarios** → Mantener gestión
-6. ⏳ **Adaptar gestión de usuarios** (eliminar referencias a Company)
-7. ⏳ **Crear servicio de estimación desde web** (`estimateWeightFromImage.js`)
-8. ⏳ **Crear vistas básicas** (Dashboard, Cattle, WeightEstimations, SyncStatus, WeightEstimationFromWeb)
-7. ⏳ **Crear templates** correspondientes
-8. ⏳ **Crear organisms** (formularios, listas)
-9. ⏳ **Crear containers** (lógica de negocio)
-10. ⏳ **Testing y ajustes**
+1. ✅ **Actualizar configuración** (constants, routes, axiosClient) - **COMPLETADO**
+2. ✅ **Crear servicios API** (cattle, weight-estimations, sync - solo lectura) - **COMPLETADO**
+3. ✅ **Eliminar archivos obsoletos** (company, property) - **COMPLETADO**
+4. ✅ **Decidir sobre estimación de peso en web** → Estimación desde web - **COMPLETADO**
+5. ✅ **Decidir sobre gestión de usuarios** → Mantener gestión - **COMPLETADO**
+6. ✅ **Adaptar gestión de usuarios** (eliminar referencias a Company) - **COMPLETADO**
+7. ✅ **Crear servicio de estimación desde web** (`estimateWeightFromImage.js`) - **COMPLETADO**
+8. ⏳ **Crear vistas básicas** (Dashboard, Cattle, WeightEstimations, SyncStatus, WeightEstimationFromWeb) - **EN PROGRESO**
+9. ⏳ **Crear templates** correspondientes
+10. ⏳ **Crear organisms** (formularios, listas)
+11. ⏳ **Crear containers** (lógica de negocio)
+12. ⏳ **Crear transformers** (breedToComboBox, etc.)
+13. ⏳ **Testing y ajustes**
 
 ---
 
@@ -328,29 +329,40 @@ Adaptar el frontend React existente (sistema de empresas/propiedades) para el pr
 - [x] Crear servicios API para Sync (solo lectura) ✅
 
 ### Limpieza
-- [ ] Eliminar referencias a Company/Property
-- [ ] Eliminar servicios obsoletos (company, property)
-- [ ] Eliminar vistas obsoletas (CompanyView, PropertyView, etc.)
-- [ ] Eliminar templates obsoletos
-- [ ] Eliminar containers obsoletos
-- [ ] Eliminar organisms obsoletos
-- [ ] Eliminar transformers obsoletos
+- [x] Eliminar referencias a Company/Property ✅
+- [x] Eliminar servicios obsoletos (company, property) ✅
+- [x] Eliminar vistas obsoletas (CompanyView, PropertyView, MapView) ✅
+- [x] Eliminar templates obsoletos ✅
+- [x] Eliminar containers obsoletos ✅
+- [x] Eliminar organisms obsoletos ✅
+- [x] Eliminar transformers obsoletos ✅
+- [x] Adaptar gestión de usuarios (eliminar referencias a Company) ✅
+- [x] Crear servicio de estimación desde web (`estimateWeightFromImage.js`) ✅
 
 ### Desarrollo
-- [ ] Crear vistas (Dashboard, Cattle, WeightEstimations, SyncStatus)
-- [ ] Crear templates
-- [ ] Crear organisms (CreateCattle, CattleList, WeightEstimationList, etc.)
-- [ ] Crear containers
-- [ ] Crear transformers (breedToComboBox, etc.)
+- [x] Crear vistas básicas (Dashboard, Cattle, WeightEstimations, SyncStatus) ✅
+- [x] Crear templates básicos (DashboardTemplate, CattleTemplate, WeightEstimationTemplate, SyncStatusTemplate) ✅
+- [x] Crear organisms básicos (CattleList, WeightEstimationList, StatisticsCards, SyncStatusCard) ✅
+- [x] Crear containers básicos (GetAllCattle, GetAllWeightEstimations, DashboardStatsContainer, SyncStatusContainer) ✅
+- [x] Crear atoms y molecules reutilizables (Card, DataTable, StatCard, ActionButton, LoadingState, ErrorState, PageHeader) ✅
+- [x] Adaptar vistas antiguas (RoleView, UserView) con listas siguiendo patrón de Cattle ✅
+- [x] Crear organisms para listas (RoleList, UserList) ✅
+- [x] Crear servicio y container para usuarios (getAllUsers, GetAllUsers) ✅
+- [ ] Crear organisms adicionales (CreateCattle, CattleTraceabilityTimeline, LineageTree, WeightChart)
+- [ ] Crear containers adicionales (GetCattleById, GetCattleLineage, GetCattleTimeline, etc.)
+- [ ] Crear transformers (breedToComboBox, cattleToTimelineEvents, etc.)
+- [ ] Crear vista de detalle (CattleDetailView, WeightEstimationDetailView)
+- [ ] Crear vista de estimación desde web (WeightEstimationFromWebView)
 - [ ] Testing
 
-## 📌 Decisiones Pendientes
+## ✅ Decisiones Completadas
 
-1. **Gestión de Usuarios/Roles**: ¿Se necesita en el panel web?
-   - Si SÍ: Mantener `UserView.js`, `RoleView.js`, `CreateUser/`, `CreateRole/`
-   - Si NO: Eliminar todo lo relacionado
+1. ✅ **Gestión de Usuarios/Roles**: Mantener gestión
+   - ✅ Mantener `UserView.js`, `RoleView.js`, `CreateUser/`, `CreateRole/`
+   - ✅ Adaptado para eliminar referencias a Company
 
-2. **Estimación de Peso en Web**: 
-   - **Opción A**: Solo visualizar estimaciones del móvil (más simple)
-   - **Opción B**: Permitir subir imágenes y estimar desde backend (requiere modelo ML en backend)
+2. ✅ **Estimación de Peso en Web**: Opción B - Estimación desde web
+   - ✅ Permitir subir imágenes y estimar desde backend
+   - ✅ Servicio `estimateWeightFromImage.js` creado
+   - ⏳ Pendiente: Endpoint backend `/api/v1/ml/estimate`
 

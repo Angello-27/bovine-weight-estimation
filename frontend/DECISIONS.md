@@ -30,12 +30,13 @@ El panel web:
 
 **El panel web permitirá hacer estimaciones subiendo imágenes.**
 
-**Implementación requerida:**
-- ✅ Backend: Endpoint `/api/v1/ml/estimate` que reciba imagen
-- ✅ Backend: Cargar modelo ML (TensorFlow/PyTorch, no TFLite)
-- ✅ Frontend: Componente de upload de imágenes
-- ✅ Frontend: Vista/formulario para estimación desde web
-- ✅ Frontend: Mostrar resultado de estimación (peso, confianza, etc.)
+**Implementación:**
+- ⏳ Backend: Endpoint `/api/v1/ml/estimate` que reciba imagen - **PENDIENTE BACKEND**
+- ⏳ Backend: Cargar modelo ML (TensorFlow/PyTorch, no TFLite) - **PENDIENTE BACKEND**
+- ✅ Frontend: Servicio `estimateWeightFromImage.js` creado - **COMPLETADO**
+- ⏳ Frontend: Componente de upload de imágenes - **PENDIENTE**
+- ⏳ Frontend: Vista/formulario para estimación desde web - **PENDIENTE**
+- ⏳ Frontend: Mostrar resultado de estimación (peso, confianza, etc.) - **PENDIENTE**
 
 **Consideraciones:**
 - El modelo ML debe estar disponible en el backend
@@ -60,9 +61,9 @@ Este proyecto es para **una sola hacienda** (Hacienda Gamelera), por lo tanto:
 - ❌ No hay múltiples propiedades
 - ✅ Solo hay ganado y estimaciones
 
-**Archivos a eliminar:**
-- Todas las vistas/templates/servicios de `company` y `property`
-- Ver `CLEANUP_PLAN.md` para lista completa
+**Archivos eliminados:**
+- ✅ Todas las vistas/templates/servicios de `company` y `property` - **COMPLETADO**
+- ✅ Ver historial de commits para detalles de eliminación
 
 ---
 
@@ -79,10 +80,10 @@ Este proyecto es para **una sola hacienda** (Hacienda Gamelera), por lo tanto:
 - ✅ `CreateRole/` - Formulario para crear/editar roles
 - ✅ Servicios de `user/` y `role/`
 
-**Adaptaciones necesarias:**
-- ⚠️ Eliminar referencias a `Company` en `UserView.js` (actualmente usa `GetAllCompanies`)
-- ⚠️ Adaptar `UserTemplate.js` para no depender de compañías
-- ⚠️ Actualizar servicios de usuario para trabajar sin compañías
+**Adaptaciones completadas:**
+- ✅ Eliminar referencias a `Company` en `UserView.js` - **COMPLETADO**
+- ✅ Adaptar `UserTemplate.js` para no depender de compañías - **COMPLETADO**
+- ✅ Actualizar servicios de usuario para trabajar sin compañías - **COMPLETADO**
 - ✅ Mantener sistema de roles: Administrador, Usuario, Invitado
 - ✅ Mantener control de acceso basado en roles en sidebar
 
@@ -121,12 +122,29 @@ Este proyecto es para **una sola hacienda** (Hacienda Gamelera), por lo tanto:
 
 ---
 
-## 🎯 Próximos Pasos
+## ✅ Estado de Implementación
 
+### Decisiones Completadas
 1. ✅ **Decidir sobre estimación de peso en web** → Estimación desde web
 2. ✅ **Decidir sobre gestión de usuarios** → Mantener gestión
-3. ⏳ **Eliminar archivos obsoletos** (company, property)
-4. ⏳ **Adaptar gestión de usuarios** (eliminar referencias a Company)
-5. ⏳ **Crear servicio de estimación desde web** (upload de imágenes)
-6. ⏳ **Crear vistas básicas** según decisiones
+3. ✅ **Eliminar archivos obsoletos** (company, property) - **COMPLETADO**
+4. ✅ **Adaptar gestión de usuarios** (eliminar referencias a Company) - **COMPLETADO**
+5. ✅ **Crear servicio de estimación desde web** (`estimateWeightFromImage.js`) - **COMPLETADO**
+
+### Próximos Pasos
+6. ⏳ **Crear vistas básicas** (Dashboard, Cattle, WeightEstimations, SyncStatus)
+7. ⏳ **Crear vista de estimación desde web** (`WeightEstimationFromWebView.js`)
+8. ⏳ **Crear componentes de trazabilidad** (Timeline, LineageTree, WeightChart)
+9. ⏳ **Implementar backend para estimación desde web** (endpoint `/api/v1/ml/estimate`)
+
+---
+
+## 📌 Nota sobre este Documento
+
+**Este documento NO debe eliminarse.** Es documentación de diseño que registra las decisiones arquitectónicas tomadas para el panel web. Debe mantenerse como referencia para:
+- Futuros desarrolladores
+- Documentación del proyecto
+- Referencia de decisiones de diseño
+
+Las decisiones aquí documentadas son parte de la arquitectura del sistema y deben preservarse.
 
