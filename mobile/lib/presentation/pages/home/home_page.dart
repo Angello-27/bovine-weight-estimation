@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
+import '../../../l10n/app_localizations.dart';
 import 'widgets/home_footer.dart';
 import 'widgets/home_header.dart';
 import 'widgets/home_quick_actions.dart';
@@ -39,7 +40,10 @@ class HomePage extends StatelessWidget {
                   const SizedBox(height: AppSpacing.md),
 
                   // Título de sección
-                  _buildSectionTitle(context, 'Accesos Rápidos'),
+                  _buildSectionTitle(
+                    context,
+                    AppLocalizations.of(context)!.quickAccess,
+                  ),
 
                   const SizedBox(height: AppSpacing.md),
 

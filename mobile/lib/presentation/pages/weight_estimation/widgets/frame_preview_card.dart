@@ -11,6 +11,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_spacing.dart';
+import '../../../../l10n/app_localizations.dart';
 
 /// Card de preview de fotograma
 class FramePreviewCard extends StatelessWidget {
@@ -45,7 +46,7 @@ class FramePreviewCard extends StatelessWidget {
                   ),
                   const SizedBox(height: AppSpacing.sm),
                   Text(
-                    'Fotograma seleccionado',
+                    AppLocalizations.of(context)!.selectedFrame,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: Theme.of(context).colorScheme.onSurface,
                     ),

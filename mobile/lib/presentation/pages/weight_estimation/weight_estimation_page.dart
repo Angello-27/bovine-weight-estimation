@@ -11,9 +11,10 @@ library;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../providers/weight_estimation_provider.dart';
+import '../../widgets/molecules/app_bar_gradient.dart';
 import '../../widgets/organisms/breed/breed_selector_grid.dart';
 import 'widgets/estimation_action_button.dart';
 import 'widgets/frame_preview_card.dart';
@@ -36,11 +37,8 @@ class WeightEstimationPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Estimación de Peso'),
-        flexibleSpace: Container(
-          decoration: BoxDecoration(gradient: AppColors.primaryGradient),
-        ),
+      appBar: AppBarGradient(
+        title: AppLocalizations.of(context)!.weightEstimation,
       ),
       body: Consumer<WeightEstimationProvider>(
         builder: (context, provider, child) {
@@ -95,7 +93,9 @@ class WeightEstimationPage extends StatelessWidget {
                               ),
                               const SizedBox(height: AppSpacing.lg),
                               Text(
-                                'Estimando peso con IA...',
+                                AppLocalizations.of(
+                                  context,
+                                )!.estimatingWeightWithAI,
                                 style: Theme.of(context).textTheme.titleMedium
                                     ?.copyWith(
                                       fontWeight: FontWeight.w500,
@@ -106,7 +106,9 @@ class WeightEstimationPage extends StatelessWidget {
                               ),
                               const SizedBox(height: AppSpacing.sm),
                               Text(
-                                'Analizando características del animal',
+                                AppLocalizations.of(
+                                  context,
+                                )!.analyzingAnimalFeatures,
                                 style: Theme.of(context).textTheme.bodyMedium
                                     ?.copyWith(
                                       color: Theme.of(context)
@@ -142,7 +144,8 @@ class WeightEstimationPage extends StatelessWidget {
                             const SizedBox(width: AppSpacing.md),
                             Expanded(
                               child: Text(
-                                provider.errorMessage ?? 'Error desconocido',
+                                provider.errorMessage ??
+                                    AppLocalizations.of(context)!.unknownError,
                                 style: TextStyle(
                                   color: Theme.of(
                                     context,

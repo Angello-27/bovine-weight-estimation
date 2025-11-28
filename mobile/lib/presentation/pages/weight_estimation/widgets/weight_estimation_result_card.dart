@@ -14,6 +14,7 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/utils/weight_converter.dart';
 import '../../../../domain/entities/app_settings.dart';
 import '../../../../domain/entities/weight_estimation.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../../providers/settings_provider.dart';
 
 /// Card de resultado de estimación
@@ -72,7 +73,7 @@ class WeightEstimationResultCard extends StatelessWidget {
 
               // Título
               Text(
-                '¡Estimación Completada!',
+                AppLocalizations.of(context)!.estimationCompleted,
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
                   color: Theme.of(context).colorScheme.primary,
                   fontWeight: FontWeight.bold,
@@ -167,7 +168,9 @@ class WeightEstimationResultCard extends StatelessWidget {
                     ),
                     const SizedBox(width: AppSpacing.sm),
                     Text(
-                      'Confianza: ${(estimation.confidenceScore * 100).toStringAsFixed(0)}%',
+                      AppLocalizations.of(context)!.confidence(
+                        (estimation.confidenceScore * 100).toStringAsFixed(0),
+                      ),
                       style: TextStyle(
                         fontSize: AppSpacing.fontSizeNormal,
                         fontWeight: FontWeight.bold,
@@ -187,7 +190,7 @@ class WeightEstimationResultCard extends StatelessWidget {
               // Metadatos
               _buildMetadataRow(
                 context,
-                'Raza',
+                AppLocalizations.of(context)!.breed,
                 estimation.breed.displayName,
                 Icons.category,
               ),
@@ -196,7 +199,7 @@ class WeightEstimationResultCard extends StatelessWidget {
 
               _buildMetadataRow(
                 context,
-                'Método',
+                AppLocalizations.of(context)!.method,
                 estimation.method.name.toUpperCase(),
                 Icons.psychology,
               ),
@@ -205,7 +208,7 @@ class WeightEstimationResultCard extends StatelessWidget {
 
               _buildMetadataRow(
                 context,
-                'Tiempo procesamiento',
+                AppLocalizations.of(context)!.processingTime,
                 '${(estimation.processingTimeMs / 1000).toStringAsFixed(2)}s',
                 Icons.timer,
               ),
@@ -214,7 +217,7 @@ class WeightEstimationResultCard extends StatelessWidget {
 
               _buildMetadataRow(
                 context,
-                'Modelo',
+                AppLocalizations.of(context)!.model,
                 'v${estimation.modelVersion}',
                 Icons.model_training,
               ),

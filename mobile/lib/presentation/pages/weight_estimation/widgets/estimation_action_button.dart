@@ -9,6 +9,7 @@ library;
 import 'package:flutter/material.dart';
 
 import '../../../../core/constants/breeds.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../../providers/weight_estimation_provider.dart';
 import '../../../widgets/atoms/buttons/primary_button.dart';
 
@@ -37,10 +38,12 @@ class EstimationActionButton extends StatelessWidget {
       return const SizedBox.shrink();
     }
 
+    final l10n = AppLocalizations.of(context)!;
+
     // Si ya tiene resultado, mostrar botón de reinicio
     if (provider.hasResult) {
       return PrimaryButton(
-        text: 'Estimar Otra Vez',
+        text: l10n.estimateAgain,
         icon: Icons.refresh,
         onPressed: provider.reset,
       );
@@ -48,7 +51,7 @@ class EstimationActionButton extends StatelessWidget {
 
     // Botón de estimar (deshabilitado si no hay raza seleccionada)
     return PrimaryButton(
-      text: 'Estimar Peso',
+      text: l10n.estimateWeight,
       icon: Icons.calculate,
       onPressed: provider.selectedBreed != null
           ? () => _onEstimatePressed(provider.selectedBreed!)

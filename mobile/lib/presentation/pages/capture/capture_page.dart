@@ -17,8 +17,10 @@ import 'package:camera/camera.dart' as camera;
 import '../../../core/config/dependency_injection.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../providers/capture_provider.dart';
 import '../../providers/settings_provider.dart';
+import '../../widgets/molecules/app_bar_gradient.dart';
 import '../../widgets/molecules/dialogs/permission_rationale_dialog.dart';
 import 'widgets/fullscreen_camera_preview.dart';
 import 'widgets/capture_overlay.dart';
@@ -91,15 +93,13 @@ class _CapturePageState extends State<CapturePage> {
       // Permiso denegado permanentemente - mostrar mensaje
       if (!mounted) return;
       setState(() {
-        _errorMessage =
-            'Permiso de cámara denegado. Por favor, habilítalo en configuración.';
+        _errorMessage = AppLocalizations.of(context)!.cameraPermissionDenied;
       });
     } else {
       // Permiso denegado temporalmente
       if (!mounted) return;
       setState(() {
-        _errorMessage =
-            'Se necesita permiso de cámara para mostrar el preview.';
+        _errorMessage = AppLocalizations.of(context)!.cameraPermissionRequired;
       });
     }
   }
@@ -235,7 +235,9 @@ class _CapturePageState extends State<CapturePage> {
 
     // Vista de fallback mientras se inicializa o hay error
     return Scaffold(
-      appBar: AppBar(title: const Text('Captura de Fotogramas')),
+      appBar: AppBarGradient(
+        title: AppLocalizations.of(context)!.captureFrames,
+      ),
       body: SafeArea(
         child: Center(
           child: Padding(
@@ -276,7 +278,9 @@ class _CapturePageState extends State<CapturePage> {
                       ElevatedButton.icon(
                         onPressed: _requestPermissionManually,
                         icon: const Icon(Icons.settings),
-                        label: const Text('Configurar Permisos'),
+                        label: Text(
+                          AppLocalizations.of(context)!.configurePermissions,
+                        ),
                       ),
                     ],
                   )

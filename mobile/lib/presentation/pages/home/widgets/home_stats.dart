@@ -9,6 +9,7 @@ library;
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_spacing.dart';
+import '../../../../l10n/app_localizations.dart';
 import 'home_stat_card.dart';
 
 /// Panel de estadísticas rápidas
@@ -17,33 +18,33 @@ class HomeStats extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Row(
+    final l10n = AppLocalizations.of(context)!;
+    return Row(
       children: [
         Expanded(
           child: HomeStatCard(
             icon: Icons.pets,
             value: '500',
-            label: 'Animales',
+            label: l10n.animals,
           ),
         ),
-        SizedBox(width: AppSpacing.sm),
+        const SizedBox(width: AppSpacing.sm),
         Expanded(
           child: HomeStatCard(
             icon: Icons.monitor_weight,
             value: '450 kg',
-            label: 'Peso Prom.',
+            label: l10n.averageWeight,
           ),
         ),
-        SizedBox(width: AppSpacing.sm),
+        const SizedBox(width: AppSpacing.sm),
         Expanded(
           child: HomeStatCard(
             icon: Icons.category,
             value: '7',
-            label: 'Razas',
+            label: l10n.breeds,
           ),
         ),
       ],
     );
   }
 }
-

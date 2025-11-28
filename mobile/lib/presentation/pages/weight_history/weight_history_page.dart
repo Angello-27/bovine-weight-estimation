@@ -13,7 +13,9 @@ import 'package:provider/provider.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../providers/weight_history_provider.dart';
+import '../../widgets/molecules/app_bar_gradient.dart';
 import '../../widgets/molecules/empty_state_card.dart';
 import '../../widgets/molecules/error_state_card.dart';
 import '../../widgets/molecules/loading_state_card.dart';
@@ -55,14 +57,8 @@ class _WeightHistoryPageState extends State<WeightHistoryPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      appBar: AppBar(
-        title: Text(
-          'Historial - ${widget.cattleName}',
-          style: Theme.of(context).textTheme.titleLarge,
-        ),
-        flexibleSpace: Container(
-          decoration: const BoxDecoration(color: AppColors.primary),
-        ),
+      appBar: AppBarGradient(
+        title: AppLocalizations.of(context)!.historyTitle(widget.cattleName),
         actions: [
           // Botón de exportación
           IconButton(
@@ -81,7 +77,7 @@ class _WeightHistoryPageState extends State<WeightHistoryPage> {
                 ),
               );
             },
-            tooltip: 'Exportar',
+            tooltip: AppLocalizations.of(context)!.export,
           ),
         ],
       ),
@@ -89,8 +85,8 @@ class _WeightHistoryPageState extends State<WeightHistoryPage> {
         builder: (context, provider, child) {
           // Loading state
           if (provider.isLoading) {
-            return const LoadingStateCard(
-              message: 'Cargando historial...',
+            return LoadingStateCard(
+              message: AppLocalizations.of(context)!.loadingHistory,
               color: AppColors.secondary,
             );
           }
@@ -98,8 +94,10 @@ class _WeightHistoryPageState extends State<WeightHistoryPage> {
           // Error state
           if (provider.hasError) {
             return ErrorStateCard(
-              title: 'Error al cargar historial',
-              message: provider.errorMessage ?? 'Error desconocido',
+              title: AppLocalizations.of(context)!.errorLoadingHistory,
+              message:
+                  provider.errorMessage ??
+                  AppLocalizations.of(context)!.unknownError,
               onRetry: () => provider.loadHistory(widget.cattleId),
             );
           }
@@ -108,9 +106,10 @@ class _WeightHistoryPageState extends State<WeightHistoryPage> {
           if (!provider.hasHistory) {
             return EmptyStateCard(
               icon: Icons.history,
-              title: 'Sin pesajes registrados',
-              message:
-                  'Realiza la primera estimación de peso\npara ver el historial de ${widget.cattleName}',
+              title: AppLocalizations.of(context)!.noWeighingsRegistered,
+              message: AppLocalizations.of(
+                context,
+              )!.performFirstEstimation(widget.cattleName),
             );
           }
 
@@ -167,7 +166,7 @@ class _WeightHistoryPageState extends State<WeightHistoryPage> {
                       horizontal: AppSpacing.screenPadding,
                     ),
                     child: Text(
-                      'Historial Detallado',
+                      AppLocalizations.of(context)!.detailedHistory,
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),

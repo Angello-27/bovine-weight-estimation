@@ -11,6 +11,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/constants/breeds.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../atoms/animated_scale_button.dart';
 
 /// Grid de selección de raza
@@ -30,7 +31,7 @@ class BreedSelectorGrid extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Selecciona la raza',
+          AppLocalizations.of(context)!.selectBreed,
           style: Theme.of(context).textTheme.titleMedium,
         ),
 

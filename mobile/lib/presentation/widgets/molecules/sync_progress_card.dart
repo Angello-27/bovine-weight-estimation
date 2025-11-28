@@ -11,6 +11,8 @@ import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../domain/entities/sync_result.dart';
+import '../../../l10n/app_localizations.dart';
+import '../../pages/sync/utils/sync_result_localizer.dart';
 
 /// Card de progreso de sincronización
 class SyncProgressCard extends StatelessWidget {
@@ -49,14 +51,14 @@ class SyncProgressCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Estado de Sincronización',
+                  AppLocalizations.of(context)!.syncStatusTitle,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.w600,
                   ),
                 ),
                 if (lastSyncTime != null)
                   Text(
-                    _formatLastSyncTime(lastSyncTime!),
+                    _formatLastSyncTime(context, lastSyncTime!),
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       color: Colors.grey.shade600,
                     ),
@@ -70,7 +72,7 @@ class SyncProgressCard extends StatelessWidget {
               _buildStatRow(
                 context: context,
                 icon: Icons.check_circle_outline_rounded,
-                label: 'Sincronizados',
+                label: AppLocalizations.of(context)!.synced,
                 value: '${syncResult!.syncedCount}',
                 color: AppColors.primary,
               ),
@@ -78,7 +80,7 @@ class SyncProgressCard extends StatelessWidget {
               _buildStatRow(
                 context: context,
                 icon: Icons.schedule_rounded,
-                label: 'Pendientes',
+                label: AppLocalizations.of(context)!.pending,
                 value: '$pendingCount',
                 color: Colors.grey.shade600,
               ),
@@ -87,7 +89,7 @@ class SyncProgressCard extends StatelessWidget {
                 _buildStatRow(
                   context: context,
                   icon: Icons.error_outline_rounded,
-                  label: 'Errores',
+                  label: AppLocalizations.of(context)!.errors,
                   value: '${syncResult!.failedCount}',
                   color: Colors.orange.shade700,
                 ),
@@ -97,7 +99,7 @@ class SyncProgressCard extends StatelessWidget {
                 _buildStatRow(
                   context: context,
                   icon: Icons.warning_amber_rounded,
-                  label: 'Conflictos',
+                  label: AppLocalizations.of(context)!.conflicts,
                   value: '${syncResult!.conflictCount}',
                   color: Colors.amber.shade700,
                 ),
@@ -122,9 +124,9 @@ class SyncProgressCard extends StatelessWidget {
               ),
               const SizedBox(height: AppSpacing.sm),
 
-              // Mensaje
+              // Mensaje localizado
               Text(
-                syncResult!.message ?? syncResult!.shortSummary,
+                SyncResultLocalizer.getLocalizedMessage(context, syncResult!),
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: Colors.grey.shade700,
                   fontStyle: FontStyle.italic,
@@ -143,7 +145,7 @@ class SyncProgressCard extends StatelessWidget {
                       ),
                       const SizedBox(height: AppSpacing.sm),
                       Text(
-                        'No hay historial de sincronización',
+                        AppLocalizations.of(context)!.noSyncHistory,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           color: Colors.grey.shade600,
                         ),
@@ -188,18 +190,19 @@ class SyncProgressCard extends StatelessWidget {
     );
   }
 
-  String _formatLastSyncTime(DateTime time) {
+  String _formatLastSyncTime(BuildContext context, DateTime time) {
     final now = DateTime.now();
     final diff = now.difference(time);
+    final localizations = AppLocalizations.of(context)!;
 
     if (diff.inMinutes < 1) {
-      return 'Hace unos segundos';
+      return localizations.agoSeconds;
     } else if (diff.inMinutes < 60) {
-      return 'Hace ${diff.inMinutes}m';
+      return localizations.agoMinutes(diff.inMinutes);
     } else if (diff.inHours < 24) {
-      return 'Hace ${diff.inHours}h';
+      return localizations.agoHours(diff.inHours);
     } else {
-      return 'Hace ${diff.inDays}d';
+      return localizations.agoDays(diff.inDays);
     }
   }
 }

@@ -9,10 +9,11 @@ library;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../domain/entities/app_settings.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../providers/settings_provider.dart';
+import '../../widgets/molecules/app_bar_gradient.dart';
 import 'widgets/settings_list_tile.dart';
 import 'widgets/settings_section.dart';
 import 'widgets/settings_switch_tile.dart';
@@ -26,15 +27,7 @@ class SettingsPage extends StatelessWidget {
     return Consumer<SettingsProvider>(
       builder: (context, provider, _) {
         return Scaffold(
-          appBar: AppBar(
-            title: Text(
-              'Configuración',
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
-            flexibleSpace: Container(
-              decoration: const BoxDecoration(color: AppColors.primary),
-            ),
-          ),
+          appBar: AppBarGradient(title: AppLocalizations.of(context)!.settings),
           body:
               provider.isLoading &&
                   provider.settings == AppSettings.defaultSettings
@@ -84,19 +77,20 @@ class SettingsPage extends StatelessWidget {
     BuildContext context,
     SettingsProvider provider,
   ) {
+    final l10n = AppLocalizations.of(context)!;
     return SettingsSection(
-      title: 'Apariencia',
+      title: l10n.appearance,
       icon: Icons.palette_rounded,
       children: [
         SettingsListTile(
-          title: 'Tema',
-          subtitle: _getThemeModeLabel(provider.settings.themeMode),
+          title: l10n.theme,
+          subtitle: _getThemeModeLabel(context, provider.settings.themeMode),
           icon: Icons.brightness_6_rounded,
           onTap: () => _showThemeModeDialog(context, provider),
         ),
         SettingsListTile(
-          title: 'Tamaño de texto',
-          subtitle: _getTextSizeLabel(provider.settings.textSize),
+          title: l10n.textSize,
+          subtitle: _getTextSizeLabel(context, provider.settings.textSize),
           icon: Icons.text_fields_rounded,
           onTap: () => _showTextSizeDialog(context, provider),
         ),
@@ -106,13 +100,14 @@ class SettingsPage extends StatelessWidget {
 
   /// Sección de captura
   Widget _buildCaptureSection(BuildContext context, SettingsProvider provider) {
+    final l10n = AppLocalizations.of(context)!;
     return SettingsSection(
-      title: 'Captura',
+      title: l10n.capture,
       icon: Icons.camera_alt_rounded,
       children: [
         SettingsSwitchTile(
-          title: 'Flash automático',
-          subtitle: 'Activar flash durante la captura',
+          title: l10n.autoFlash,
+          subtitle: l10n.autoFlashSubtitle,
           icon: Icons.flash_on_rounded,
           value: provider.settings.flashEnabled,
           onChanged: (value) => provider.updateFlashEnabled(value),
@@ -123,19 +118,20 @@ class SettingsPage extends StatelessWidget {
 
   /// Sección de unidades y formato
   Widget _buildUnitsSection(BuildContext context, SettingsProvider provider) {
+    final l10n = AppLocalizations.of(context)!;
     return SettingsSection(
-      title: 'Unidades y formato',
+      title: l10n.unitsAndFormat,
       icon: Icons.tune_rounded,
       children: [
         SettingsListTile(
-          title: 'Unidad de peso',
-          subtitle: _getWeightUnitLabel(provider.settings.weightUnit),
+          title: l10n.weightUnit,
+          subtitle: _getWeightUnitLabel(context, provider.settings.weightUnit),
           icon: Icons.scale_rounded,
           onTap: () => _showWeightUnitDialog(context, provider),
         ),
         SettingsListTile(
-          title: 'Formato de fecha',
-          subtitle: _getDateFormatLabel(provider.settings.dateFormat),
+          title: l10n.dateFormat,
+          subtitle: _getDateFormatLabel(context, provider.settings.dateFormat),
           icon: Icons.calendar_today_rounded,
           onTap: () => _showDateFormatDialog(context, provider),
         ),
@@ -148,13 +144,14 @@ class SettingsPage extends StatelessWidget {
     BuildContext context,
     SettingsProvider provider,
   ) {
+    final l10n = AppLocalizations.of(context)!;
     return SettingsSection(
-      title: 'Idioma',
+      title: l10n.language,
       icon: Icons.language_rounded,
       children: [
         SettingsListTile(
-          title: 'Idioma de la interfaz',
-          subtitle: _getLanguageLabel(provider.settings.language),
+          title: l10n.interfaceLanguage,
+          subtitle: _getLanguageLabel(context, provider.settings.language),
           icon: Icons.translate_rounded,
           onTap: () => _showLanguageDialog(context, provider),
         ),
@@ -162,64 +159,70 @@ class SettingsPage extends StatelessWidget {
     );
   }
 
-  String _getThemeModeLabel(AppThemeMode mode) {
+  String _getThemeModeLabel(BuildContext context, AppThemeMode mode) {
+    final l10n = AppLocalizations.of(context)!;
     switch (mode) {
       case AppThemeMode.system:
-        return 'Seguir sistema';
+        return l10n.themeModeSystem;
       case AppThemeMode.light:
-        return 'Claro';
+        return l10n.themeModeLight;
       case AppThemeMode.dark:
-        return 'Oscuro';
+        return l10n.themeModeDark;
     }
   }
 
-  String _getTextSizeLabel(TextSize size) {
+  String _getTextSizeLabel(BuildContext context, TextSize size) {
+    final l10n = AppLocalizations.of(context)!;
     switch (size) {
       case TextSize.small:
-        return 'Pequeño';
+        return l10n.textSizeSmall;
       case TextSize.normal:
-        return 'Normal';
+        return l10n.textSizeNormal;
       case TextSize.large:
-        return 'Grande';
+        return l10n.textSizeLarge;
       case TextSize.extraLarge:
-        return 'Extra grande';
+        return l10n.textSizeExtraLarge;
     }
   }
 
-  String _getWeightUnitLabel(WeightUnit unit) {
+  String _getWeightUnitLabel(BuildContext context, WeightUnit unit) {
+    final l10n = AppLocalizations.of(context)!;
     switch (unit) {
       case WeightUnit.kilograms:
-        return 'Kilogramos (kg)';
+        return l10n.weightUnitKilograms;
       case WeightUnit.pounds:
-        return 'Libras (lb)';
+        return l10n.weightUnitPounds;
     }
   }
 
-  String _getDateFormatLabel(DateFormat format) {
+  String _getDateFormatLabel(BuildContext context, DateFormat format) {
+    final l10n = AppLocalizations.of(context)!;
     switch (format) {
       case DateFormat.dayMonthYear:
-        return 'DD/MM/YYYY';
+        return l10n.dateFormatDayMonthYear;
       case DateFormat.monthDayYear:
-        return 'MM/DD/YYYY';
+        return l10n.dateFormatMonthDayYear;
       case DateFormat.yearMonthDay:
-        return 'YYYY-MM-DD';
+        return l10n.dateFormatYearMonthDay;
     }
   }
 
-  String _getLanguageLabel(AppLanguage language) {
+  String _getLanguageLabel(BuildContext context, AppLanguage language) {
+    final l10n = AppLocalizations.of(context)!;
     switch (language) {
       case AppLanguage.spanish:
-        return 'Español';
+        return l10n.languageSpanish;
       case AppLanguage.english:
-        return 'English';
+        return l10n.languageEnglish;
     }
   }
 
   void _showThemeModeDialog(BuildContext context, SettingsProvider provider) {
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Seleccionar tema'),
+        title: Text(l10n.selectTheme),
         content: RadioGroup<AppThemeMode>(
           groupValue: provider.settings.themeMode,
           onChanged: (value) {
@@ -232,7 +235,7 @@ class SettingsPage extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: AppThemeMode.values.map((mode) {
               return RadioListTile<AppThemeMode>(
-                title: Text(_getThemeModeLabel(mode)),
+                title: Text(_getThemeModeLabel(context, mode)),
                 value: mode,
               );
             }).toList(),
@@ -264,10 +267,11 @@ class SettingsPage extends StatelessWidget {
   }
 
   void _showTextSizeDialog(BuildContext context, SettingsProvider provider) {
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Tamaño de texto'),
+        title: Text(l10n.selectTextSize),
         content: ConstrainedBox(
           constraints: const BoxConstraints(maxHeight: 300),
           child: SingleChildScrollView(
@@ -290,7 +294,7 @@ class SettingsPage extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(vertical: 4.0),
                     child: RadioListTile<TextSize>(
                       title: Text(
-                        _getTextSizeLabel(size),
+                        _getTextSizeLabel(context, size),
                         // Aplicar tamaño de fuente específico para cada opción
                         style: TextStyle(fontSize: _getPreviewFontSize(size)),
                       ),
@@ -309,10 +313,11 @@ class SettingsPage extends StatelessWidget {
   }
 
   void _showWeightUnitDialog(BuildContext context, SettingsProvider provider) {
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Unidad de peso'),
+        title: Text(l10n.selectWeightUnit),
         content: RadioGroup<WeightUnit>(
           groupValue: provider.settings.weightUnit,
           onChanged: (value) {
@@ -325,7 +330,7 @@ class SettingsPage extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: WeightUnit.values.map((unit) {
               return RadioListTile<WeightUnit>(
-                title: Text(_getWeightUnitLabel(unit)),
+                title: Text(_getWeightUnitLabel(context, unit)),
                 value: unit,
               );
             }).toList(),
@@ -336,10 +341,11 @@ class SettingsPage extends StatelessWidget {
   }
 
   void _showDateFormatDialog(BuildContext context, SettingsProvider provider) {
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Formato de fecha'),
+        title: Text(l10n.selectDateFormat),
         content: RadioGroup<DateFormat>(
           groupValue: provider.settings.dateFormat,
           onChanged: (value) {
@@ -352,7 +358,7 @@ class SettingsPage extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: DateFormat.values.map((format) {
               return RadioListTile<DateFormat>(
-                title: Text(_getDateFormatLabel(format)),
+                title: Text(_getDateFormatLabel(context, format)),
                 value: format,
               );
             }).toList(),
@@ -363,10 +369,11 @@ class SettingsPage extends StatelessWidget {
   }
 
   void _showLanguageDialog(BuildContext context, SettingsProvider provider) {
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Idioma'),
+        title: Text(l10n.selectLanguage),
         content: RadioGroup<AppLanguage>(
           groupValue: provider.settings.language,
           onChanged: (value) {
@@ -379,7 +386,7 @@ class SettingsPage extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: AppLanguage.values.map((language) {
               return RadioListTile<AppLanguage>(
-                title: Text(_getLanguageLabel(language)),
+                title: Text(_getLanguageLabel(context, language)),
                 value: language,
               );
             }).toList(),

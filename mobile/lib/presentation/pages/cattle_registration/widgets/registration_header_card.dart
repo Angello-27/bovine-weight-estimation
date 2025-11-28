@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
+import '../../../../l10n/app_localizations.dart';
 
 /// Card de header para registro de ganado
 class RegistrationHeaderCard extends StatelessWidget {
@@ -77,7 +78,7 @@ class RegistrationHeaderCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Nuevo Animal',
+                  AppLocalizations.of(context)!.newAnimal,
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: Theme.of(context).colorScheme.onSurface,
@@ -85,7 +86,7 @@ class RegistrationHeaderCard extends StatelessWidget {
                 ),
                 const SizedBox(height: AppSpacing.xs),
                 Text(
-                  'Completa los datos del animal',
+                  AppLocalizations.of(context)!.completeAnimalData,
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: Theme.of(
                       context,

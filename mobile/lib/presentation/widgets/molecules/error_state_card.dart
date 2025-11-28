@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
+import '../../../l10n/app_localizations.dart';
 
 /// Card de estado de error
 class ErrorStateCard extends StatelessWidget {
@@ -63,7 +64,7 @@ class ErrorStateCard extends StatelessWidget {
                 ElevatedButton.icon(
                   onPressed: onRetry,
                   icon: const Icon(Icons.refresh),
-                  label: const Text('Reintentar'),
+                  label: Text(AppLocalizations.of(context)!.retry),
                 ),
               ],
             ],

@@ -18,6 +18,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../domain/usecases/export_csv_usecase.dart';
 import '../../../../domain/usecases/export_pdf_usecase.dart';
+import '../../../../l10n/app_localizations.dart';
 
 /// Bottom sheet de opciones de exportación
 class ExportOptionsBottomSheet extends StatelessWidget {
@@ -41,18 +42,18 @@ class ExportOptionsBottomSheet extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            'Exportar Historial',
+            AppLocalizations.of(context)!.export,
             style: Theme.of(context).textTheme.titleLarge,
           ),
           const SizedBox(height: AppSpacing.md),
           ListTile(
             leading: const Icon(Icons.picture_as_pdf, color: AppColors.error),
             title: Text(
-              'Exportar como PDF',
+              AppLocalizations.of(context)!.exportAsPdf,
               style: Theme.of(context).textTheme.bodyLarge,
             ),
             subtitle: Text(
-              'Documento profesional con gráficos',
+              AppLocalizations.of(context)!.forPrinting,
               style: Theme.of(context).textTheme.bodySmall,
             ),
             onTap: () {
@@ -63,11 +64,11 @@ class ExportOptionsBottomSheet extends StatelessWidget {
           ListTile(
             leading: const Icon(Icons.table_chart, color: AppColors.success),
             title: Text(
-              'Exportar como CSV',
+              AppLocalizations.of(context)!.exportAsCsv,
               style: Theme.of(context).textTheme.bodyLarge,
             ),
             subtitle: Text(
-              'Para análisis en Excel',
+              AppLocalizations.of(context)!.forExcelAnalysis,
               style: Theme.of(context).textTheme.bodySmall,
             ),
             onTap: () {
@@ -98,7 +99,7 @@ class ExportOptionsBottomSheet extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 12),
-              Text('Generando PDF de $cattleName...'),
+              Text(AppLocalizations.of(context)!.generatingPdf(cattleName)),
             ],
           ),
           backgroundColor: AppColors.info,
@@ -159,7 +160,7 @@ class ExportOptionsBottomSheet extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 12),
-              Text('Generando CSV de $cattleName...'),
+              Text(AppLocalizations.of(context)!.generatingCsv(cattleName)),
             ],
           ),
           backgroundColor: AppColors.success,
@@ -287,8 +288,8 @@ class ExportOptionsBottomSheet extends StatelessWidget {
 
       if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('PDF compartido exitosamente'),
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.pdfSharedSuccessfully),
           backgroundColor: AppColors.success,
         ),
       );
@@ -296,7 +297,9 @@ class ExportOptionsBottomSheet extends StatelessWidget {
       if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Error al compartir PDF: ${e.toString()}'),
+          content: Text(
+            AppLocalizations.of(context)!.errorSharingPdf(e.toString()),
+          ),
           backgroundColor: AppColors.error,
         ),
       );
@@ -315,7 +318,9 @@ class ExportOptionsBottomSheet extends StatelessWidget {
       if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Error al imprimir PDF: ${e.toString()}'),
+          content: Text(
+            AppLocalizations.of(context)!.errorPrintingPdf(e.toString()),
+          ),
           backgroundColor: AppColors.error,
         ),
       );
@@ -334,7 +339,9 @@ class ExportOptionsBottomSheet extends StatelessWidget {
       if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Error al mostrar PDF: ${e.toString()}'),
+          content: Text(
+            AppLocalizations.of(context)!.errorShowingPdf(e.toString()),
+          ),
           backgroundColor: AppColors.error,
         ),
       );
@@ -355,7 +362,7 @@ class ExportOptionsBottomSheet extends StatelessWidget {
       if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('CSV guardado en: ${file.path}'),
+          content: Text(AppLocalizations.of(context)!.csvSavedAt(file.path)),
           backgroundColor: AppColors.success,
           duration: const Duration(seconds: 4),
           action: SnackBarAction(
@@ -369,7 +376,9 @@ class ExportOptionsBottomSheet extends StatelessWidget {
       if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Error al compartir CSV: ${e.toString()}'),
+          content: Text(
+            AppLocalizations.of(context)!.errorSharingCsv(e.toString()),
+          ),
           backgroundColor: AppColors.error,
         ),
       );

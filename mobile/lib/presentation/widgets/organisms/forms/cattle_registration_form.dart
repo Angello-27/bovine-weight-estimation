@@ -12,6 +12,7 @@ import '../../../../core/constants/age_categories.dart';
 import '../../../../core/constants/breeds.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../domain/entities/cattle.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../atoms/inputs/text_input_field.dart';
 import '../../molecules/dropdowns/breed_dropdown.dart';
 import '../../molecules/dropdowns/gender_dropdown.dart';
@@ -61,7 +62,7 @@ class _CattleRegistrationFormState extends State<CattleRegistrationForm> {
         children: [
           // Sección: Datos Obligatorios
           Text(
-            'Datos Obligatorios',
+            AppLocalizations.of(context)!.requiredData,
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
               fontWeight: FontWeight.bold,
               color: Theme.of(context).colorScheme.onSurface,
@@ -72,16 +73,16 @@ class _CattleRegistrationFormState extends State<CattleRegistrationForm> {
 
           // Caravana (único, obligatorio)
           TextInputField(
-            labelText: 'Número de Caravana *',
-            hintText: 'Ej: A-001',
+            labelText: AppLocalizations.of(context)!.earTagNumber,
+            hintText: AppLocalizations.of(context)!.earTagExample,
             controller: widget.earTagController,
             validator: (value) {
               if (value == null || value.trim().isEmpty) {
-                return 'La caravana es obligatoria';
+                return AppLocalizations.of(context)!.earTagRequired;
               }
               final regex = RegExp(r'^[A-Za-z0-9\-]+$');
               if (!regex.hasMatch(value)) {
-                return 'Solo alfanuméricos y guiones';
+                return AppLocalizations.of(context)!.earTagInvalid;
               }
               return null;
             },
@@ -99,8 +100,8 @@ class _CattleRegistrationFormState extends State<CattleRegistrationForm> {
 
           // Fecha de nacimiento (obligatorio)
           TextInputField(
-            labelText: 'Fecha de Nacimiento *',
-            hintText: 'Selecciona fecha',
+            labelText: AppLocalizations.of(context)!.birthDate,
+            hintText: AppLocalizations.of(context)!.selectDate,
             readOnly: true,
             controller: TextEditingController(
               text: widget.selectedBirthDate != null
@@ -111,7 +112,7 @@ class _CattleRegistrationFormState extends State<CattleRegistrationForm> {
             onTap: () => _selectBirthDate(context),
             validator: (value) {
               if (widget.selectedBirthDate == null) {
-                return 'La fecha de nacimiento es obligatoria';
+                return AppLocalizations.of(context)!.birthDateRequired;
               }
               return null;
             },
@@ -134,7 +135,7 @@ class _CattleRegistrationFormState extends State<CattleRegistrationForm> {
 
           // Sección: Datos Opcionales
           Text(
-            'Datos Opcionales',
+            AppLocalizations.of(context)!.optionalData,
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
               fontWeight: FontWeight.bold,
               color: Theme.of(context).colorScheme.onSurface,
@@ -145,8 +146,8 @@ class _CattleRegistrationFormState extends State<CattleRegistrationForm> {
 
           // Nombre (opcional)
           TextInputField(
-            labelText: 'Nombre',
-            hintText: 'Ej: Brownie',
+            labelText: AppLocalizations.of(context)!.name,
+            hintText: AppLocalizations.of(context)!.nameExample,
             controller: widget.nameController,
           ),
 
@@ -154,8 +155,8 @@ class _CattleRegistrationFormState extends State<CattleRegistrationForm> {
 
           // Color (opcional)
           TextInputField(
-            labelText: 'Color',
-            hintText: 'Ej: Pardo, Negro',
+            labelText: AppLocalizations.of(context)!.color,
+            hintText: AppLocalizations.of(context)!.colorExample,
             controller: widget.colorController,
           ),
 
@@ -163,15 +164,15 @@ class _CattleRegistrationFormState extends State<CattleRegistrationForm> {
 
           // Peso al nacer (opcional)
           TextInputField(
-            labelText: 'Peso al Nacer (kg)',
-            hintText: 'Ej: 35',
+            labelText: AppLocalizations.of(context)!.birthWeight,
+            hintText: AppLocalizations.of(context)!.birthWeightExample,
             controller: widget.birthWeightController,
             keyboardType: TextInputType.number,
             validator: (value) {
               if (value != null && value.isNotEmpty) {
                 final weight = double.tryParse(value);
                 if (weight == null || weight < 10 || weight > 100) {
-                  return 'Peso debe estar entre 10-100 kg';
+                  return AppLocalizations.of(context)!.birthWeightInvalid;
                 }
               }
               return null;
@@ -182,8 +183,8 @@ class _CattleRegistrationFormState extends State<CattleRegistrationForm> {
 
           // Observaciones (opcional)
           TextInputField(
-            labelText: 'Observaciones',
-            hintText: 'Notas adicionales',
+            labelText: AppLocalizations.of(context)!.observations,
+            hintText: AppLocalizations.of(context)!.observationsHint,
             controller: widget.observationsController,
             maxLines: 3,
           ),
@@ -246,7 +247,7 @@ class _CattleRegistrationFormState extends State<CattleRegistrationForm> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Categoría Automática',
+                  AppLocalizations.of(context)!.automaticCategory,
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: Theme.of(context).colorScheme.onSurfaceVariant,
                     fontWeight: FontWeight.w500,
@@ -270,14 +271,15 @@ class _CattleRegistrationFormState extends State<CattleRegistrationForm> {
 
   /// Selector de fecha de nacimiento
   Future<void> _selectBirthDate(BuildContext context) async {
+    final l10n = AppLocalizations.of(context)!;
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: widget.selectedBirthDate ?? DateTime.now(),
       firstDate: DateTime(2004), // 20 años atrás
       lastDate: DateTime.now(), // No puede ser futura
-      helpText: 'Selecciona fecha de nacimiento',
-      cancelText: 'Cancelar',
-      confirmText: 'Aceptar',
+      helpText: l10n.selectBirthDate,
+      cancelText: l10n.cancel,
+      confirmText: l10n.accept,
     );
 
     if (picked != null) {

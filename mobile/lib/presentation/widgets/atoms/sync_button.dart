@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
+import '../../../l10n/app_localizations.dart';
 
 /// Botón de sincronización manual
 class SyncButton extends StatelessWidget {
@@ -19,8 +20,8 @@ class SyncButton extends StatelessWidget {
   /// Estado de carga
   final bool isLoading;
 
-  /// Texto del botón
-  final String label;
+  /// Texto del botón (opcional, usa localización por defecto)
+  final String? label;
 
   /// Mostrar ícono
   final bool showIcon;
@@ -32,7 +33,7 @@ class SyncButton extends StatelessWidget {
     super.key,
     required this.onPressed,
     this.isLoading = false,
-    this.label = 'Sincronizar ahora',
+    this.label,
     this.showIcon = true,
     this.compact = false,
   });
@@ -49,7 +50,7 @@ class SyncButton extends StatelessWidget {
                 child: CircularProgressIndicator(strokeWidth: 2.0),
               )
             : const Icon(Icons.sync_rounded),
-        tooltip: label,
+        tooltip: label ?? AppLocalizations.of(context)!.syncNow,
         style: IconButton.styleFrom(foregroundColor: AppColors.primary),
       );
     }
@@ -69,7 +70,9 @@ class SyncButton extends StatelessWidget {
           ? const Icon(Icons.sync_rounded, size: 20)
           : const SizedBox.shrink(),
       label: Text(
-        isLoading ? 'Sincronizando...' : label,
+        isLoading
+            ? AppLocalizations.of(context)!.syncing
+            : label ?? AppLocalizations.of(context)!.syncNow,
         style: Theme.of(
           context,
         ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),

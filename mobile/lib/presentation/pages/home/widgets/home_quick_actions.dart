@@ -11,6 +11,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/routes/app_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../../widgets/molecules/action_tile.dart';
 
 /// Grid de acciones rápidas del home
@@ -19,6 +20,7 @@ class HomeQuickActions extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return GridView.count(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -30,8 +32,8 @@ class HomeQuickActions extends StatelessWidget {
         // US-001: Captura de fotogramas
         ActionTile(
           icon: Icons.camera_alt,
-          title: 'Capturar',
-          subtitle: 'Fotogramas',
+          title: l10n.captureAction,
+          subtitle: l10n.captureSubtitle,
           color: AppColors.primary,
           onTap: () => AppRouter.push(context, AppRoutes.capture),
         ),
@@ -39,8 +41,8 @@ class HomeQuickActions extends StatelessWidget {
         // US-002: Estimación de peso
         ActionTile(
           icon: Icons.monitor_weight,
-          title: 'Estimar',
-          subtitle: 'Peso IA',
+          title: l10n.estimateAction,
+          subtitle: l10n.estimateSubtitle,
           color: AppColors.secondary,
           onTap: () => AppRouter.push(
             context,
@@ -52,8 +54,8 @@ class HomeQuickActions extends StatelessWidget {
         // US-003: Registro de ganado
         ActionTile(
           icon: Icons.add_circle,
-          title: 'Registrar',
-          subtitle: 'Animal',
+          title: l10n.registerAction,
+          subtitle: l10n.registerSubtitle,
           color: AppColors.accent,
           onTap: () => AppRouter.push(context, AppRoutes.cattleRegistration),
         ),
@@ -61,8 +63,8 @@ class HomeQuickActions extends StatelessWidget {
         // US-004: Historial de peso
         ActionTile(
           icon: Icons.history,
-          title: 'Historial',
-          subtitle: 'Pesajes',
+          title: l10n.historyAction,
+          subtitle: l10n.historySubtitle,
           color: AppColors.info,
           onTap: () => AppRouter.push(context, AppRoutes.weightHistory),
         ),

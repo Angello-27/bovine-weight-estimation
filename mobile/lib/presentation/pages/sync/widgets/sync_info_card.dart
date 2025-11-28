@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../../providers/sync_provider.dart';
 import 'sync_info_row.dart';
 
@@ -41,7 +42,7 @@ class SyncInfoCard extends StatelessWidget {
                 ),
                 const SizedBox(width: AppSpacing.sm),
                 Text(
-                  'Información',
+                  AppLocalizations.of(context)!.information,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: Theme.of(context).colorScheme.onSurface,
@@ -55,8 +56,10 @@ class SyncInfoCard extends StatelessWidget {
             // Conectividad
             SyncInfoRow(
               icon: Icons.wifi_rounded,
-              label: 'Conectividad',
-              value: syncProvider.isConnected ? 'Online' : 'Offline',
+              label: AppLocalizations.of(context)!.connectivity,
+              value: syncProvider.isConnected
+                  ? AppLocalizations.of(context)!.online
+                  : AppLocalizations.of(context)!.offline,
               valueColor: syncProvider.isConnected
                   ? AppColors.success
                   : AppColors.error,
@@ -67,7 +70,7 @@ class SyncInfoCard extends StatelessWidget {
             // Items pendientes
             SyncInfoRow(
               icon: Icons.schedule_rounded,
-              label: 'Items pendientes',
+              label: AppLocalizations.of(context)!.pendingItems,
               value: '${syncProvider.pendingCount}',
               valueColor: syncProvider.pendingCount > 0
                   ? AppColors.warning
@@ -79,8 +82,8 @@ class SyncInfoCard extends StatelessWidget {
             // Sincronización automática
             SyncInfoRow(
               icon: Icons.sync_rounded,
-              label: 'Sincronización automática',
-              value: 'Activa',
+              label: AppLocalizations.of(context)!.automaticSync,
+              value: AppLocalizations.of(context)!.active,
               valueColor: AppColors.primary,
             ),
 
@@ -110,8 +113,7 @@ class SyncInfoCard extends StatelessWidget {
                   const SizedBox(width: AppSpacing.sm),
                   Expanded(
                     child: Text(
-                      'La sincronización se ejecuta automáticamente cada 60 segundos '
-                      'cuando hay conexión y items pendientes.',
+                      AppLocalizations.of(context)!.syncAutoDescription,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: Theme.of(
                           context,

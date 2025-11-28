@@ -11,10 +11,11 @@ library;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../providers/sync_provider.dart';
 import '../../widgets/atoms/sync_button.dart';
+import '../../widgets/molecules/app_bar_gradient.dart';
 import '../../widgets/molecules/sync_progress_card.dart';
 import 'widgets/sync_main_status_card.dart';
 import 'widgets/sync_info_card.dart';
@@ -26,15 +27,7 @@ class SyncStatusPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          'Estado de Sincronización',
-          style: Theme.of(context).textTheme.titleLarge,
-        ),
-        flexibleSpace: Container(
-          decoration: const BoxDecoration(color: AppColors.primary),
-        ),
-      ),
+      appBar: AppBarGradient(title: AppLocalizations.of(context)!.syncStatus),
       body: Consumer<SyncProvider>(
         builder: (context, syncProvider, child) {
           return RefreshIndicator(

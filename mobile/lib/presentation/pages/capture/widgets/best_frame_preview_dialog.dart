@@ -13,6 +13,7 @@ import 'package:provider/provider.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../../providers/capture_provider.dart';
 import '../../../../core/routes/app_router.dart';
 
@@ -50,15 +51,13 @@ class BestFramePreviewDialog extends StatelessWidget {
           children: [
             // Header
             _buildHeader(context),
-            
+
             // Imagen del mejor frame
-            Flexible(
-              child: _buildImagePreview(),
-            ),
-            
+            Flexible(child: _buildImagePreview()),
+
             // Información detallada
             _buildFrameInfo(),
-            
+
             // Botones de acción
             _buildActionButtons(context),
           ],
@@ -139,9 +138,9 @@ class BestFramePreviewDialog extends StatelessWidget {
             value: bestFrame.globalScore.toStringAsFixed(2),
             color: AppColors.accent,
           ),
-          
+
           const SizedBox(height: AppSpacing.sm),
-          
+
           // Estadísticas de calidad
           Row(
             children: [
@@ -162,9 +161,9 @@ class BestFramePreviewDialog extends StatelessWidget {
               ),
             ],
           ),
-          
+
           const SizedBox(height: AppSpacing.sm),
-          
+
           Row(
             children: [
               Expanded(
@@ -179,23 +178,25 @@ class BestFramePreviewDialog extends StatelessWidget {
                 child: _buildInfoCard(
                   icon: Icons.visibility,
                   label: 'Silueta',
-                  value: bestFrame.quality.silhouetteVisibility.toStringAsFixed(2),
+                  value: bestFrame.quality.silhouetteVisibility.toStringAsFixed(
+                    2,
+                  ),
                 ),
               ),
             ],
           ),
-          
+
           const SizedBox(height: AppSpacing.sm),
-          
+
           // Estadísticas de captura
           _buildInfoRow(
             icon: Icons.camera,
             label: 'Total Frames',
             value: '$totalFrames',
           ),
-          
+
           const SizedBox(height: 4),
-          
+
           _buildInfoRow(
             icon: Icons.check_circle,
             label: 'Frames Óptimos',
@@ -220,10 +221,7 @@ class BestFramePreviewDialog extends StatelessWidget {
         const SizedBox(width: AppSpacing.sm),
         Text(
           label,
-          style: TextStyle(
-            color: AppColors.textSecondary,
-            fontSize: 14,
-          ),
+          style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
         ),
         const Spacer(),
         Text(
@@ -279,9 +277,7 @@ class BestFramePreviewDialog extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
-        border: Border(
-          top: BorderSide(color: AppColors.surfaceVariant),
-        ),
+        border: Border(top: BorderSide(color: AppColors.surfaceVariant)),
       ),
       child: Row(
         children: [
@@ -292,12 +288,12 @@ class BestFramePreviewDialog extends StatelessWidget {
               style: OutlinedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
               ),
-              child: const Text('Cancelar'),
+              child: Text(AppLocalizations.of(context)!.cancel),
             ),
           ),
-          
+
           const SizedBox(width: AppSpacing.md),
-          
+
           // Botón confirmar y continuar
           Expanded(
             flex: 2,
@@ -305,13 +301,13 @@ class BestFramePreviewDialog extends StatelessWidget {
               onPressed: () {
                 // Cerrar diálogo
                 Navigator.of(context).pop();
-                
+
                 // Navegar a estimación de peso con el mejor frame
                 final provider = Provider.of<CaptureProvider>(
                   context,
                   listen: false,
                 );
-                
+
                 if (provider.bestFrame != null) {
                   AppRouter.push(
                     context,
@@ -348,4 +344,3 @@ class BestFramePreviewDialog extends StatelessWidget {
     );
   }
 }
-

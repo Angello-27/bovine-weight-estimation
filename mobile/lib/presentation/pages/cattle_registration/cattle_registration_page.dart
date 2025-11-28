@@ -12,10 +12,11 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/constants/breeds.dart';
-import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../domain/entities/cattle.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../widgets/atoms/buttons/primary_button.dart';
+import '../../widgets/molecules/app_bar_gradient.dart';
 import '../../widgets/organisms/forms/cattle_registration_form.dart';
 import '../../providers/cattle_provider.dart';
 import 'widgets/registration_header_card.dart';
@@ -58,14 +59,8 @@ class _CattleRegistrationPageState extends State<CattleRegistrationPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      appBar: AppBar(
-        title: Text(
-          'Registrar Animal',
-          style: Theme.of(context).textTheme.titleLarge,
-        ),
-        flexibleSpace: Container(
-          decoration: BoxDecoration(gradient: AppColors.primaryGradient),
-        ),
+      appBar: AppBarGradient(
+        title: AppLocalizations.of(context)!.registerAnimal,
       ),
       body: Consumer<CattleProvider>(
         builder: (context, provider, child) {
@@ -113,7 +108,7 @@ class _CattleRegistrationPageState extends State<CattleRegistrationPage> {
 
                   // Botón de registro
                   PrimaryButton(
-                    text: 'Registrar Animal',
+                    text: AppLocalizations.of(context)!.registerAnimal,
                     icon: Icons.save,
                     isLoading: provider.isLoading,
                     onPressed: _handleRegister,

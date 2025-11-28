@@ -10,12 +10,16 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:flutter_localizations/flutter_localizations.dart';
+
 import 'core/config/app_config.dart';
 import 'core/config/dependency_injection.dart';
 import 'core/config/provider_configuration.dart';
 import 'core/routes/app_router.dart';
 import 'core/theme/app_theme.dart';
+import 'core/utils/locale_helper.dart';
 import 'domain/entities/app_settings.dart';
+import 'l10n/app_localizations.dart';
 import 'presentation/providers/settings_provider.dart';
 
 void main() async {
@@ -57,10 +61,25 @@ class MyApp extends StatelessWidget {
             AppThemeMode.system => ThemeMode.system,
           };
 
+          // Obtener locale desde settings
+          final locale = LocaleHelper.appLanguageToLocale(
+            settingsProvider.settings.language,
+          );
+
           return MaterialApp(
             // Configuración básica
             title: AppConfig.appName,
             debugShowCheckedModeBanner: AppConfig.showDebugBanner,
+
+            // Localización
+            locale: locale,
+            supportedLocales: AppLocalizations.supportedLocales,
+            localizationsDelegates: const [
+              AppLocalizations.delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
 
             // Tema Material Design 3 con tamaño de texto
             theme: AppTheme.lightTheme(

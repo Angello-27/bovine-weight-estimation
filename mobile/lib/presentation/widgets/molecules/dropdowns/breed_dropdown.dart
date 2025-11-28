@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/constants/breeds.dart';
 import '../../../../core/theme/app_spacing.dart';
+import '../../../../l10n/app_localizations.dart';
 
 /// Dropdown de selección de raza
 class BreedDropdown extends StatelessWidget {
@@ -39,8 +40,8 @@ class BreedDropdown extends StatelessWidget {
         key: ValueKey(selectedBreed),
         initialValue: selectedBreed,
         decoration: InputDecoration(
-          labelText: 'Raza *',
-          hintText: 'Selecciona la raza',
+          labelText: AppLocalizations.of(context)!.breedRequired,
+          hintText: AppLocalizations.of(context)!.selectBreed,
           prefixIcon: Icon(
             Icons.pets_rounded,
             color: Theme.of(context).colorScheme.primary,
@@ -73,7 +74,7 @@ class BreedDropdown extends StatelessWidget {
             : null,
         validator: (value) {
           if (value == null) {
-            return 'La raza es obligatoria';
+            return AppLocalizations.of(context)!.breedRequiredValidation;
           }
           return null;
         },

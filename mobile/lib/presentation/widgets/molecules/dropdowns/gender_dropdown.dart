@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../../domain/entities/cattle.dart';
 import '../../../../core/theme/app_spacing.dart';
+import '../../../../l10n/app_localizations.dart';
 
 /// Dropdown de selección de género
 class GenderDropdown extends StatelessWidget {
@@ -39,8 +40,8 @@ class GenderDropdown extends StatelessWidget {
         key: ValueKey(selectedGender),
         initialValue: selectedGender,
         decoration: InputDecoration(
-          labelText: 'Género *',
-          hintText: 'Selecciona el género',
+          labelText: AppLocalizations.of(context)!.genderRequired,
+          hintText: AppLocalizations.of(context)!.selectGender,
           prefixIcon: Icon(
             Icons.wc_rounded,
             color: Theme.of(context).colorScheme.primary,
@@ -73,7 +74,7 @@ class GenderDropdown extends StatelessWidget {
             : null,
         validator: (value) {
           if (value == null) {
-            return 'El género es obligatorio';
+            return AppLocalizations.of(context)!.genderRequiredValidation;
           }
           return null;
         },

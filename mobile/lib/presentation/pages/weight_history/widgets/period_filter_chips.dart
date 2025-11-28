@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../../providers/weight_history_provider.dart';
 
 /// Filtros de período con chips
@@ -32,7 +33,7 @@ class PeriodFilterChips extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Período',
+          AppLocalizations.of(context)!.period,
           style: Theme.of(
             context,
           ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),

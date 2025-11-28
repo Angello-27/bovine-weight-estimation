@@ -10,8 +10,10 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../../providers/sync_provider.dart';
 import '../../../widgets/atoms/sync_status_indicator.dart';
+import '../utils/sync_result_localizer.dart';
 import 'sync_error_banner.dart';
 
 /// Card principal de estado de sincronización
@@ -42,7 +44,7 @@ class SyncMainStatusCard extends StatelessWidget {
             // Indicador principal de estado
             SyncStatusIndicator(
               status: syncProvider.syncState.name,
-              label: syncProvider.stateText,
+              label: _getStateText(context, syncProvider),
               size: 20.0,
             ),
 
@@ -50,7 +52,7 @@ class SyncMainStatusCard extends StatelessWidget {
 
             // Texto detallado del estado
             Text(
-              syncProvider.detailedStatusText,
+              _getDetailedStatusText(context, syncProvider),
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                 color: Theme.of(
@@ -69,5 +71,43 @@ class SyncMainStatusCard extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  /// Obtiene el texto del estado localizado
+  String _getStateText(BuildContext context, SyncProvider provider) {
+    final localizations = AppLocalizations.of(context)!;
+    switch (provider.syncState) {
+      case GlobalSyncState.offline:
+        return localizations.noConnection;
+      case GlobalSyncState.syncing:
+        return localizations.syncing;
+      case GlobalSyncState.synced:
+        return localizations.syncedStatus;
+      case GlobalSyncState.error:
+        return localizations.syncError;
+      case GlobalSyncState.idle:
+        return provider.pendingCount > 0
+            ? localizations.pendingCount(provider.pendingCount)
+            : localizations.allSynced;
+    }
+  }
+
+  /// Obtiene el texto detallado del estado localizado
+  String _getDetailedStatusText(BuildContext context, SyncProvider provider) {
+    final localizations = AppLocalizations.of(context)!;
+    if (provider.lastSyncResult != null) {
+      // Usar el helper para localizar el mensaje
+      return SyncResultLocalizer.getLocalizedMessage(
+        context,
+        provider.lastSyncResult!,
+      );
+    }
+    if (provider.errorMessage != null) {
+      return provider.errorMessage!;
+    }
+    if (provider.pendingCount > 0) {
+      return localizations.itemsWaitingSync(provider.pendingCount);
+    }
+    return localizations.noPendingChanges;
   }
 }

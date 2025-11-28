@@ -13,6 +13,7 @@ import '../../../../core/config/app_config.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/routes/app_router.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../../providers/sync_provider.dart';
 import 'home_stats.dart';
 
@@ -91,7 +92,7 @@ class HomeHeader extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Agrocom',
+          AppLocalizations.of(context)!.appName,
           style: Theme.of(context).textTheme.titleLarge?.copyWith(
             color: Colors.white,
             fontWeight: FontWeight.bold,
