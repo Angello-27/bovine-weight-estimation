@@ -1,7 +1,7 @@
 // frontend/src/containers/weight-estimations/GetAllWeightEstimations.js
 
 import { useState, useEffect } from 'react';
-import { getAllWeightEstimations } from '../../services/weight-estimations/getAllWeightEstimations';
+import getAllWeightEstimations from '../../services/weight-estimations/getAllWeightEstimations';
 
 function GetAllWeightEstimations() {
     const [items, setItems] = useState([]);

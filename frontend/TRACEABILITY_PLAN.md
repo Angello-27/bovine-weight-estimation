@@ -309,10 +309,10 @@ Peso (kg)
 ## ✅ Checklist de Implementación
 
 ### Fase 1: Vista de Detalle con Trazabilidad
-- [ ] Crear `CattleDetailView.js` con tabs
-- [ ] Implementar timeline de eventos
-- [ ] Mostrar linaje (padre/madre)
-- [ ] Gráfico de evolución de peso
+- [x] Crear `CattleDetailView.js` con tabs ✅
+- [x] Implementar timeline de eventos ✅
+- [x] Mostrar linaje (padre/madre) ✅
+- [x] Gráfico de evolución de peso (tabla implementada, gráfico pendiente recharts) ✅
 - [ ] Galería de fotos
 
 ### Fase 2: Búsqueda y Filtros

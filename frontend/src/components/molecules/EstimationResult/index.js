@@ -9,7 +9,7 @@ import Chip from '@mui/material/Chip';
 import Card from '../../atoms/Card';
 import MonitorWeightIcon from '@mui/icons-material/MonitorWeight';
 
-function EstimationResult({ result, loading, onSave, onReset }) {
+function EstimationResult({ result, loading, onSave, onReset, showActions = true }) {
     if (!result) return null;
 
     const getConfidenceColor = (score) => {
@@ -83,22 +83,24 @@ function EstimationResult({ result, loading, onSave, onReset }) {
                 )}
             </Grid>
 
-            <Box mt={3} display="flex" gap={2}>
-                <CustomButton
-                    variant="contained"
-                    onClick={onSave}
-                    disabled={loading}
-                >
-                    Guardar Estimación
-                </CustomButton>
-                <CustomButton
-                    variant="outlined"
-                    onClick={onReset}
-                    disabled={loading}
-                >
-                    Estimar Otra Vez
-                </CustomButton>
-            </Box>
+            {showActions && (
+                <Box mt={3} display="flex" gap={2}>
+                    <CustomButton
+                        variant="contained"
+                        onClick={onSave}
+                        disabled={loading}
+                    >
+                        Guardar Estimación
+                    </CustomButton>
+                    <CustomButton
+                        variant="outlined"
+                        onClick={onReset}
+                        disabled={loading}
+                    >
+                        Estimar Otra Vez
+                    </CustomButton>
+                </Box>
+            )}
         </Card>
     );
 }

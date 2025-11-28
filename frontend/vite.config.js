@@ -4,11 +4,25 @@ import path from 'path';
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    react({
+      // Permite JSX en archivos .js y .jsx
+      include: /\.(jsx|js)$/,
+      // Configuración adicional para JSX en archivos .js
+      jsxRuntime: 'automatic',
+      // Babel options para transformar JSX en archivos .js
+      babel: {
+        parserOpts: {
+          plugins: ['jsx'],
+        },
+      },
+    }),
+  ],
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
     },
+    extensions: ['.jsx', '.js', '.json'],
   },
   server: {
     port: 3000,
@@ -20,5 +34,18 @@ export default defineConfig({
   },
   // Variables de entorno
   envPrefix: 'REACT_APP_',
+  esbuild: {
+    // Configura esbuild para manejar JSX en archivos .js
+    loader: 'jsx',
+    include: /src\/.*\.jsx?$/,
+    exclude: [],
+  },
+  optimizeDeps: {
+    esbuildOptions: {
+      loader: {
+        '.js': 'jsx',
+      },
+    },
+  },
 });
 

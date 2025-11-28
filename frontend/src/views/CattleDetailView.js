@@ -1,92 +1,54 @@
 // frontend/src/views/CattleDetailView.js
 
-import React, { useMemo } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import React from 'react';
+import { useParams } from 'react-router-dom';
 import PanelTemplate from '../templates/PanelTemplate';
 import CattleDetailTemplate from '../templates/CattleDetailTemplate';
 import GetCattleById from '../containers/cattle/GetCattleById';
+import GetCattleLineage from '../containers/cattle/GetCattleLineage';
 import GetWeightHistoryByCattle from '../containers/weight-estimations/GetWeightHistoryByCattle';
-import { cattleToTimelineEvents } from '../utils/transformers/cattleToTimelineEvents';
-import { weightEstimationToChartData } from '../utils/transformers/weightEstimationToChartData';
-import getCattleById from '../services/cattle/getCattleById';
+import TransformCattleDetailData from '../containers/cattle/TransformCattleDetailData';
+import ManageCattleNavigation from '../containers/cattle/ManageCattleNavigation';
+import CombineCattleLoading from '../containers/cattle/CombineCattleLoading';
+import GenerateCattleReport from '../containers/cattle/GenerateCattleReport';
 
 function CattleDetailView() {
     const { id } = useParams();
-    const navigate = useNavigate();
     
     const cattleProps = GetCattleById(id);
     const estimationsProps = GetWeightHistoryByCattle(id);
-
-    // Obtener padre y madre si existen
-    const [father, setFather] = React.useState(null);
-    const [mother, setMother] = React.useState(null);
-    const [loadingLineage, setLoadingLineage] = React.useState(false);
-
-    React.useEffect(() => {
-        if (cattleProps.cattle) {
-            const fetchLineage = async () => {
-                setLoadingLineage(true);
-                try {
-                    if (cattleProps.cattle.father_id) {
-                        const fatherData = await getCattleById(cattleProps.cattle.father_id);
-                        setFather(fatherData);
-                    }
-                    if (cattleProps.cattle.mother_id) {
-                        const motherData = await getCattleById(cattleProps.cattle.mother_id);
-                        setMother(motherData);
-                    }
-                } catch (error) {
-                    console.error('Error al obtener linaje:', error);
-                } finally {
-                    setLoadingLineage(false);
-                }
-            };
-            fetchLineage();
-        }
-    }, [cattleProps.cattle]);
-
-    // Transformar datos para timeline
-    const timelineEvents = useMemo(() => {
-        if (!cattleProps.cattle) return [];
-        return cattleToTimelineEvents(cattleProps.cattle, estimationsProps.estimations);
-    }, [cattleProps.cattle, estimationsProps.estimations]);
-
-    // Transformar datos para gráfico
-    const chartData = useMemo(() => {
-        if (!estimationsProps.estimations || estimationsProps.estimations.length === 0) {
-            return null;
-        }
-        return weightEstimationToChartData(
-            estimationsProps.estimations,
-            cattleProps.cattle?.birth_date,
-            cattleProps.cattle?.birth_weight_kg
-        );
-    }, [estimationsProps.estimations, cattleProps.cattle]);
-
-    const handleViewFather = (fatherId) => {
-        navigate(`/cattle/${fatherId}`);
-    };
-
-    const handleViewMother = (motherId) => {
-        navigate(`/cattle/${motherId}`);
-    };
-
-    const loading = cattleProps.loading || estimationsProps.loading || loadingLineage;
-    const error = cattleProps.error || estimationsProps.error;
+    const lineageProps = GetCattleLineage(cattleProps.cattle);
+    const transformedData = TransformCattleDetailData(
+        cattleProps.cattle,
+        estimationsProps.estimations
+    );
+    const navigation = ManageCattleNavigation();
+    const { loading, error } = CombineCattleLoading(cattleProps, estimationsProps, lineageProps);
+    const reportProps = GenerateCattleReport(
+        cattleProps.cattle,
+        estimationsProps.estimations,
+        transformedData.timelineEvents,
+        lineageProps.father,
+        lineageProps.mother
+    );
 
     return (
         <PanelTemplate content={
             <CattleDetailTemplate
                 cattle={cattleProps.cattle}
                 estimations={estimationsProps.estimations}
-                timelineEvents={timelineEvents}
-                chartData={chartData}
-                father={father}
-                mother={mother}
+                timelineEvents={transformedData.timelineEvents}
+                chartData={transformedData.chartData}
+                galleryImages={transformedData.galleryImages}
+                father={lineageProps.father}
+                mother={lineageProps.mother}
                 loading={loading}
                 error={error}
-                onViewFather={handleViewFather}
-                onViewMother={handleViewMother}
+                onViewFather={navigation.handleViewFather}
+                onViewMother={navigation.handleViewMother}
+                onGenerateReport={reportProps.handleGenerateReport}
+                reportLoading={reportProps.loading}
+                reportError={reportProps.error}
             />
         } />
     );

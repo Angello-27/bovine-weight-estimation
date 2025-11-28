@@ -14,6 +14,7 @@ import CattleDetailView from '../views/CattleDetailView';
 // TODO: Importar cuando se creen
 // import WeightEstimationDetailView from '../views/WeightEstimationDetailView';
 import WeightEstimationFromWebView from '../views/WeightEstimationFromWebView';
+import WeightEstimationDetailView from '../views/WeightEstimationDetailView';
 // import StatisticsView from '../views/StatisticsView';
 
 function AppRoutes() {
@@ -27,9 +28,8 @@ function AppRoutes() {
                 <Route path="/cattle/:id" element={<CattleDetailView />} />
                 <Route path="/weight-estimations" element={<WeightEstimationsView />} />
                 <Route path="/weight-estimations/estimate" element={<WeightEstimationFromWebView />} />
+                <Route path="/weight-estimations/:id" element={<WeightEstimationDetailView />} />
                 <Route path="/sync" element={<SyncStatusView />} />
-                {/* TODO: Agregar cuando se creen */}
-                {/* <Route path="/weight-estimations/:id" element={<WeightEstimationDetailView />} /> */}
                 {/* <Route path="/statistics" element={<StatisticsView />} /> */}
                 {/* Asegúrate de que esta ruta esté al final */}
                 <Route path="*" element={<ErrorView />} />

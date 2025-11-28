@@ -6,12 +6,14 @@ import ActionButton from '../components/molecules/ActionButton';
 import LoadingState from '../components/molecules/LoadingState';
 import ErrorState from '../components/molecules/ErrorState';
 import PageHeader from '../components/molecules/PageHeader';
+import SearchBar from '../components/molecules/SearchBar';
+import CattleFilters from '../components/molecules/CattleFilters';
 import AddIcon from '@mui/icons-material/Add';
 import Dialog from '@mui/material/Dialog';
 import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
 
-function CattleTemplate({ items, loading, error, formData, handleChange, handleComboBoxChange, handleSubmit, showForm, onCloseForm, onViewClick, onCreateClick }) {
+function CattleTemplate({ items, loading, error, searchQuery, filters, onSearchChange, onFilterChange, formData, handleChange, handleComboBoxChange, handleSubmit, showForm, onCloseForm, onViewClick, onCreateClick }) {
     return (
         <Grid component="section" py={12}>
             <Container>
@@ -31,11 +33,24 @@ function CattleTemplate({ items, loading, error, formData, handleChange, handleC
 
                 <LoadingState loading={loading}>
                     {!error && (
-                        <Grid container spacing={3}>
-                            <Grid item xs={12}>
-                                <CattleList items={items} onViewClick={onViewClick} />
+                        <>
+                            <SearchBar
+                                value={searchQuery}
+                                onChange={onSearchChange}
+                                placeholder="Buscar por caravana, nombre o raza..."
+                            />
+                            
+                            <CattleFilters
+                                filters={filters}
+                                onChange={onFilterChange}
+                            />
+
+                            <Grid container spacing={3}>
+                                <Grid item xs={12}>
+                                    <CattleList items={items} onViewClick={onViewClick} />
+                                </Grid>
                             </Grid>
-                        </Grid>
+                        </>
                     )}
                 </LoadingState>
 

@@ -5,7 +5,14 @@ import CustomTypography from '../../atoms/CustomTypography';
 import Card from '../../atoms/Card';
 import EmptyState from '../../molecules/EmptyState';
 import MonitorWeightIcon from '@mui/icons-material/MonitorWeight';
+import WeightStatsCards from '../../molecules/WeightStatsCards';
+import WeightLineChart from '../../molecules/WeightLineChart';
+import WeightHistoryTable from '../../molecules/WeightHistoryTable';
 
+/**
+ * CattleWeightHistoryChart organism - Muestra la evolución de peso de un animal
+ * @param {Object} chartData - Datos del gráfico { data: [{ label, weight, confidence }] }
+ */
 function CattleWeightHistoryChart({ chartData }) {
     if (!chartData || !chartData.data || chartData.data.length === 0) {
         return (
@@ -15,10 +22,18 @@ function CattleWeightHistoryChart({ chartData }) {
         );
     }
 
-    // Preparar datos para tabla simple (hasta que se instale recharts)
+    // Preparar datos para Recharts
+    const chartDataFormatted = chartData.data.map((point) => ({
+        fecha: point.label,
+        peso: point.weight,
+        confianza: point.confidence ? (point.confidence * 100).toFixed(0) : null
+    }));
+
+    // Calcular estadísticas
     const latestWeight = chartData.data[chartData.data.length - 1]?.weight;
     const firstWeight = chartData.data[0]?.weight;
     const weightGain = latestWeight && firstWeight ? (latestWeight - firstWeight).toFixed(1) : null;
+    const averageWeight = chartData.data.reduce((sum, point) => sum + point.weight, 0) / chartData.data.length;
 
     return (
         <Card>
@@ -29,47 +44,15 @@ function CattleWeightHistoryChart({ chartData }) {
                 </CustomTypography>
             </Box>
             
-            {weightGain && (
-                <Box mb={3}>
-                    <CustomTypography variant="body2" color="text.secondary">
-                        Ganancia de peso: <strong>{weightGain} kg</strong>
-                    </CustomTypography>
-                </Box>
-            )}
+            <WeightStatsCards 
+                weightGain={weightGain}
+                latestWeight={latestWeight}
+                averageWeight={averageWeight}
+            />
             
-            <Box sx={{ width: '100%', height: 300, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: 'action.hover', borderRadius: 2 }}>
-                <CustomTypography variant="body2" color="text.secondary">
-                    Gráfico de evolución (Recharts pendiente de instalar)
-                </CustomTypography>
-            </Box>
+            <WeightLineChart data={chartDataFormatted} />
             
-            <Box mt={3}>
-                <CustomTypography variant="subtitle2" mb={2}>
-                    Historial de Pesos
-                </CustomTypography>
-                <Box component="table" sx={{ width: '100%', borderCollapse: 'collapse' }}>
-                    <Box component="thead">
-                        <Box component="tr" sx={{ borderBottom: '1px solid', borderColor: 'divider' }}>
-                            <Box component="th" sx={{ textAlign: 'left', p: 1, fontWeight: 'bold' }}>Fecha</Box>
-                            <Box component="th" sx={{ textAlign: 'right', p: 1, fontWeight: 'bold' }}>Peso (kg)</Box>
-                            <Box component="th" sx={{ textAlign: 'center', p: 1, fontWeight: 'bold' }}>Confianza</Box>
-                        </Box>
-                    </Box>
-                    <Box component="tbody">
-                        {chartData.data.map((point, index) => (
-                            <Box component="tr" key={index} sx={{ borderBottom: '1px solid', borderColor: 'divider' }}>
-                                <Box component="td" sx={{ p: 1 }}>{point.label}</Box>
-                                <Box component="td" sx={{ textAlign: 'right', p: 1, fontWeight: 'bold' }}>
-                                    {point.weight.toFixed(1)}
-                                </Box>
-                                <Box component="td" sx={{ textAlign: 'center', p: 1 }}>
-                                    {point.confidence ? `${(point.confidence * 100).toFixed(0)}%` : '-'}
-                                </Box>
-                            </Box>
-                        ))}
-                    </Box>
-                </Box>
-            </Box>
+            <WeightHistoryTable data={chartData.data} />
         </Card>
     );
 }

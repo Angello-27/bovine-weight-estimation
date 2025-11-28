@@ -1,49 +1,37 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React from 'react';
 import PanelTemplate from '../templates/PanelTemplate';
 import CattleTemplate from '../templates/CattleTemplate';
 import GetAllCattle from '../containers/cattle/GetAllCattle';
+import FilterCattle from '../containers/cattle/FilterCattle';
 import CreateNewCattle from '../containers/cattle/CreateNewCattle';
+import ManageCattleForm from '../containers/cattle/ManageCattleForm';
+import ManageCattleNavigation from '../containers/cattle/ManageCattleNavigation';
 
 function CattleView() {
-    const navigate = useNavigate();
     const cattleProps = GetAllCattle();
+    const filterProps = FilterCattle(cattleProps.items);
     const formProps = CreateNewCattle();
-    const [showForm, setShowForm] = useState(false);
-
-    const handleViewClick = (cattleId) => {
-        navigate(`/cattle/${cattleId}`);
-    };
-
-    const handleCreateClick = () => {
-        // Reset form data when creating new
-        formProps.handleChange({ target: { name: 'ear_tag', value: '' } });
-        formProps.handleChange({ target: { name: 'breed', value: '' } });
-        formProps.handleChange({ target: { name: 'birth_date', value: '' } });
-        formProps.handleChange({ target: { name: 'gender', value: '' } });
-        formProps.handleChange({ target: { name: 'name', value: '' } });
-        formProps.handleChange({ target: { name: 'color', value: '' } });
-        formProps.handleChange({ target: { name: 'birth_weight_kg', value: '' } });
-        formProps.handleChange({ target: { name: 'observations', value: '' } });
-        setShowForm(true);
-    };
-
-    const handleCloseForm = () => {
-        setShowForm(false);
-    };
+    const formActions = ManageCattleForm(formProps);
+    const navigation = ManageCattleNavigation();
 
     return (
         <PanelTemplate content={
             <CattleTemplate
-                {...cattleProps}
+                items={filterProps.filteredItems}
+                loading={cattleProps.loading}
+                error={cattleProps.error}
+                searchQuery={filterProps.searchQuery}
+                filters={filterProps.filters}
+                onSearchChange={filterProps.handleSearchChange}
+                onFilterChange={filterProps.handleFilterChange}
                 formData={formProps.formData}
                 handleChange={formProps.handleChange}
                 handleComboBoxChange={formProps.handleComboBoxChange}
                 handleSubmit={formProps.handleSubmit}
-                showForm={showForm}
-                onCloseForm={handleCloseForm}
-                onViewClick={handleViewClick}
-                onCreateClick={handleCreateClick}
+                showForm={formActions.showForm}
+                onCloseForm={formActions.handleCloseForm}
+                onViewClick={navigation.handleViewClick}
+                onCreateClick={formActions.handleCreateClick}
             />
         } />
     );

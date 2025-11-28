@@ -1,8 +1,8 @@
 // frontend/src/containers/dashboard/DashboardStatsContainer.js
 
 import { useState, useEffect } from 'react';
-import { getAllCattle } from '../../services/cattle/getAllCattle';
-import { getAllWeightEstimations } from '../../services/weight-estimations/getAllWeightEstimations';
+import getAllCattle from '../../services/cattle/getAllCattle';
+import getAllWeightEstimations from '../../services/weight-estimations/getAllWeightEstimations';
 
 function DashboardStatsContainer() {
     const [stats, setStats] = useState({

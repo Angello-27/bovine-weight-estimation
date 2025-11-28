@@ -1,8 +1,8 @@
 // frontend/src/containers/sync/SyncStatusContainer.js
 
 import { useState, useEffect } from 'react';
-import { getSyncHealth } from '../../services/sync/getSyncHealth';
-import { getSyncStats } from '../../services/sync/getSyncStats';
+import getSyncHealth from '../../services/sync/getSyncHealth';
+import getSyncStats from '../../services/sync/getSyncStats';
 
 function SyncStatusContainer() {
     const [health, setHealth] = useState({

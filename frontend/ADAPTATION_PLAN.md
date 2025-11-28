@@ -348,11 +348,18 @@ Adaptar el frontend React existente (sistema de empresas/propiedades) para el pr
 - [x] Adaptar vistas antiguas (RoleView, UserView) con listas siguiendo patrón de Cattle ✅
 - [x] Crear organisms para listas (RoleList, UserList) ✅
 - [x] Crear servicio y container para usuarios (getAllUsers, GetAllUsers) ✅
-- [ ] Crear organisms adicionales (CreateCattle, CattleTraceabilityTimeline, LineageTree, WeightChart)
-- [ ] Crear containers adicionales (GetCattleById, GetCattleLineage, GetCattleTimeline, etc.)
-- [ ] Crear transformers (breedToComboBox, cattleToTimelineEvents, etc.)
-- [ ] Crear vista de detalle (CattleDetailView, WeightEstimationDetailView)
-- [ ] Crear vista de estimación desde web (WeightEstimationFromWebView)
+- [x] Crear organisms adicionales (CreateCattle, CattleTraceabilityTimeline, LineageTree, WeightChart) ✅
+- [x] Crear containers adicionales (GetCattleById, GetWeightHistoryByCattle) ✅
+- [x] Crear transformers (breedToComboBox, cattleToTimelineEvents, weightEstimationToChartData) ✅
+- [x] Crear vista de detalle (CattleDetailView) ✅
+- [x] Crear vista de estimación desde web (WeightEstimationFromWebView) ✅
+- [ ] Crear vista WeightEstimationDetailView
+- [ ] Instalar recharts y completar gráfico de evolución de peso
+- [ ] Implementar búsqueda avanzada en CattleView
+- [ ] Implementar filtros múltiples
+- [ ] Crear servicios de trazabilidad en backend (GetCattleLineage, GetCattleTimeline)
+- [ ] Implementar galería de fotos en CattleDetailView
+- [ ] Crear generador de reportes PDF (Fase 3)
 - [ ] Testing
 
 ## ✅ Decisiones Completadas

@@ -1,7 +1,7 @@
 // frontend/src/containers/cattle/GetAllCattle.js
 
 import { useState, useEffect } from 'react';
-import { getAllCattle } from '../../services/cattle/getAllCattle';
+import getAllCattle from '../../services/cattle/getAllCattle';
 
 function GetAllCattle() {
     const [items, setItems] = useState([]);
