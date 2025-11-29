@@ -1,7 +1,7 @@
 # Backend FastAPI - Sistema de Estimación de Peso Bovino
 
 **Cliente**: Hacienda Gamelera (Bruno Brito Macedo)  
-**Stack**: Python 3.11+ | FastAPI | MongoDB (Beanie ODM) | TensorFlow  
+**Stack**: Python 3.11+ | FastAPI | MongoDB (Beanie ODM) | TensorFlow Lite  
 **Arquitectura**: Clean Architecture + SOLID Principles
 
 ---
@@ -21,23 +21,44 @@ backend/app/
 │       └── exceptions.py      # Excepciones personalizadas
 │
 ├── models/                    # Data Layer (Beanie ODM)
+│   ├── alert_model.py         # Alertas y cronograma
 │   ├── animal_model.py        # Modelo MongoDB de animales
+│   ├── farm_model.py          # Modelo de fincas
+│   ├── role_model.py          # Modelo de roles
+│   ├── user_model.py          # Modelo de usuarios
 │   └── weight_estimation_model.py  # Modelo de pesajes
 │
 ├── schemas/                   # API Layer (Pydantic DTOs)
+│   ├── alert_schemas.py       # Request/Response alertas
 │   ├── animal_schemas.py      # Request/Response animales
-│   ├── weighing_schemas.py    # Request/Response pesajes
-│   └── sync_schemas.py        # DTOs sincronización
+│   ├── auth_schemas.py        # Request/Response autenticación
+│   ├── farm_schemas.py        # Request/Response fincas
+│   ├── role_schemas.py        # Request/Response roles
+│   ├── sync_schemas.py        # DTOs sincronización
+│   ├── user_schemas.py        # Request/Response usuarios
+│   └── weighing_schemas.py    # Request/Response pesajes
 │
 ├── services/                  # Business Logic Layer
+│   ├── alert_service.py        # Lógica de negocio alertas
 │   ├── animal_service.py      # Lógica de negocio animales
-│   ├── weighing_service.py    # Lógica de negocio pesajes
-│   └── sync_service.py        # Lógica sincronización
+│   ├── auth_service.py        # Lógica de autenticación
+│   ├── farm_service.py        # Lógica de negocio fincas
+│   ├── ml_service.py          # Lógica de ML/inferencia
+│   ├── role_service.py        # Lógica de negocio roles
+│   ├── sync_service.py        # Lógica sincronización
+│   ├── user_service.py        # Lógica de negocio usuarios
+│   └── weighing_service.py    # Lógica de negocio pesajes
 │
 ├── api/routes/                # Presentation Layer (Routers)
-│   ├── animals.py             # 5 endpoints CRUD animales
-│   ├── weighings.py           # 4 endpoints pesajes
-│   └── sync.py                # 3 endpoints sincronización
+│   ├── alert.py               # Endpoints alertas y cronograma
+│   ├── animals.py             # Endpoints CRUD animales
+│   ├── auth.py                # Endpoints autenticación
+│   ├── farm.py                # Endpoints CRUD fincas
+│   ├── ml.py                  # Endpoints ML/predicción
+│   ├── role.py                # Endpoints CRUD roles
+│   ├── sync.py                # Endpoints sincronización
+│   ├── user.py                # Endpoints CRUD usuarios
+│   └── weighings.py           # Endpoints pesajes
 │
 └── main.py                    # Application entry point
 ```
@@ -55,175 +76,212 @@ source venv/bin/activate  # Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-> **📋 Integración con Modelo TFLite**: Después de que Colab exporte el modelo, sigue la [Guía de Integración](INTEGRATION_GUIDE.md) para configurar el backend con el modelo real.
+### 2. Configuración
 
-### 2. Configuración MongoDB
+Crear archivo `.env` en `backend/`:
 
-**Opción A - MongoDB Local (Desarrollo):**
-```bash
-# macOS
-brew install mongodb-community@7.0
-brew services start mongodb-community
+```env
+# MongoDB
+MONGODB_URL=mongodb://localhost:27017
+MONGODB_DB_NAME=bovine_weight_estimation
 
-# Ubuntu
-sudo apt install mongodb-org
-sudo systemctl start mongod
+# Seguridad
+SECRET_KEY=tu_secret_key_super_segura_aqui
+ENVIRONMENT=development
+
+# CORS
+CORS_ORIGINS=["http://localhost:3000", "http://localhost:8080"]
+
+# ML Models
+ML_MODELS_PATH=./ml_models
+ML_DEFAULT_MODEL=generic-cattle-v1.0.0.tflite
 ```
 
-**Opción B - MongoDB Atlas (Cloud Gratuito):**
-1. Ir a https://www.mongodb.com/cloud/atlas
-2. Crear cuenta y cluster M0 (gratis)
-3. Obtener connection string
-4. Actualizar en `.env`
-
-### 3. Configurar Variables
+### 3. Setup Inicial
 
 ```bash
-cp .env.example .env
-# Editar .env con tu MONGODB_URL
+# Verificar dependencias y configuración
+python scripts/setup_production.py
+
+# Cargar datos iniciales (roles, usuarios, finca, animales, alertas)
+python -m scripts.seed_data
 ```
 
-### 4. Ejecutar Servidor
+### 4. Iniciar Backend
 
 ```bash
-# Con auto-reload
+# Desarrollo
 python -m app.main
 
-# O con uvicorn
-uvicorn app.main:app --reload
+# Producción
+uvicorn app.main:app --host 0.0.0.0 --port 8000
 ```
 
-### 5. Verificar
-
-- **API Docs**: http://localhost:8000/api/docs
-- **Health**: http://localhost:8000/health
-
----
-
-## 📚 API Endpoints
-
-### 🐄 Animals (US-003)
-
-| Método | Endpoint | Descripción |
-|--------|----------|-------------|
-| POST | `/api/v1/animals` | Crear animal |
-| GET | `/api/v1/animals/{id}` | Obtener por ID |
-| GET | `/api/v1/animals?farm_id=...` | Listar (paginado) |
-| PUT | `/api/v1/animals/{id}` | Actualizar |
-| DELETE | `/api/v1/animals/{id}` | Eliminar (soft) |
-
-### ⚖️ Weighings (US-002, US-004)
-
-| Método | Endpoint | Descripción |
-|--------|----------|-------------|
-| POST | `/api/v1/weighings` | Crear estimación |
-| GET | `/api/v1/weighings/{id}` | Obtener por ID |
-| GET | `/api/v1/weighings/animal/{id}` | Historial |
-| GET | `/api/v1/weighings` | Listar todas |
-
-### 🔄 Sync (US-005)
-
-| Método | Endpoint | Descripción |
-|--------|----------|-------------|
-| POST | `/api/v1/sync/cattle` | Batch animales |
-| POST | `/api/v1/sync/weight-estimations` | Batch pesajes |
-| GET | `/api/v1/sync/health` | Health check |
-
----
-
-## 🎯 Constantes del Dominio
-
-### 7 Razas Bovinas Tropicales (NO MODIFICAR)
-
-Alineadas con el modelo ML entrenado en Colab:
-
-1. **Nelore** – Carne tropical dominante en Santa Cruz (≈42% del hato)
-2. **Brahman** – Cebuino versátil para cruzamientos y climas extremos
-3. **Guzerat** – Doble propósito (carne/leche) con gran rusticidad materna
-4. **Senepol** – Carne premium adaptada al calor, ideal para "steer" de alta calidad
-5. **Girolando** – Lechera tropical (Holstein × Gyr) muy difundida en sistemas semi-intensivos
-6. **Gyr lechero** – Lechera pura clave para genética tropical y sólidos altos
-7. **Sindi** – Lechera tropical compacta, de alta fertilidad y leche rica en sólidos
-
-> Estas razas cubren el portafolio real de Santa Cruz (carne tropical + lecheras adaptadas).
-
-### 4 Categorías de Edad
-
-1. Terneros (<8 meses)
-2. Vaquillonas/Torillos (6-18 meses)
-3. Vaquillonas/Toretes (19-30 meses)
-4. Vacas/Toros (>30 meses)
-
-### Métricas del Sistema
-
-- **Precisión ML**: ≥95% (R² ≥ 0.95)
-- **Error absoluto**: <5 kg
-- **Tiempo procesamiento**: <3 segundos
-- **Confidence mínimo**: ≥80%
-
----
-
-## 🧪 Testing
+### 5. Verificar Endpoints
 
 ```bash
-# Todos los tests
-pytest
+# Health check
+curl http://localhost:8000/health
 
-# Con cobertura
-pytest --cov=app --cov-report=html
-
-# Solo unit tests
-pytest tests/unit/ -v
+# Swagger docs
+open http://localhost:8000/api/docs
 ```
 
 ---
 
-## 🔧 Desarrollo
+## 📊 Modelos Implementados
 
-### Linting y Formateo (equivalente a `flutter analyze`)
+| Modelo | Estado | Archivo | Servicio | Rutas |
+|--------|--------|---------|----------|-------|
+| `AlertModel` | ✅ | `alert_model.py` | ✅ | ✅ |
+| `AnimalModel` | ✅ | `animal_model.py` | ✅ | ✅ |
+| `WeightEstimationModel` | ✅ | `weight_estimation_model.py` | ✅ | ✅ |
+| `UserModel` | ✅ | `user_model.py` | ✅ | ✅ |
+| `FarmModel` | ✅ | `farm_model.py` | ✅ | ✅ |
+| `RoleModel` | ✅ | `role_model.py` | ✅ | ✅ |
 
+**Total**: 6 modelos completamente implementados con CRUD completo.
+
+---
+
+## 🔔 Sistema de Alertas con Cronograma
+
+### Endpoints de Consulta (para Móvil)
+
+El móvil puede consultar alertas programadas:
+
+- **`GET /api/v1/alerts/today`** - Alertas del día actual
+  ```bash
+  GET /api/v1/alerts/today?user_id={userId}&farm_id={farmId}
+  ```
+
+- **`GET /api/v1/alerts/upcoming?days_ahead=7`** - Alertas próximas (próximos N días)
+  ```bash
+  GET /api/v1/alerts/upcoming?days_ahead=7&user_id={userId}
+  ```
+
+- **`GET /api/v1/alerts/scheduled/list`** - Alertas en rango de fechas
+  ```bash
+  GET /api/v1/alerts/scheduled/list?from_date=2024-12-20&to_date=2024-12-27
+  ```
+
+### Funcionalidades
+
+- ✅ Cronograma y programación de eventos
+- ✅ Recurrencia (diario, semanal, mensual, trimestral, anual)
+- ✅ Recordatorios (X días antes del evento)
+- ✅ Filtros por raza, edad, género, cantidad (en `filter_criteria`)
+- ✅ Estados: pending, sent, read, completed, cancelled
+- ✅ Ubicación GPS para eventos
+
+---
+
+## 🤖 Machine Learning - TFLite
+
+### Estado Actual
+
+- ✅ `model_loader.py` preparado para TFLite real
+- ✅ `deep_learning_strategy.py` usa TFLite real
+- ✅ `preprocessing.py` compatible con TFLite
+- ✅ `requirements.txt` incluye `tensorflow-lite-runtime==2.16.0`
+
+### Integrar Modelo desde Colab/Drive
+
+Ver guía completa: [`INTEGRATION_GUIDE.md`](INTEGRATION_GUIDE.md)
+
+**Resumen rápido**:
 ```bash
-# ✅ Análisis de código (como flutter analyze)
-python3 -m ruff check app/
+# Opción A: Script automático
+python scripts/download_model_from_drive.py --file-id FILE_ID
 
-# 🔧 Corregir automáticamente
-python3 -m ruff check app/ --fix
-
-# 🎨 Formatear código (Black-compatible)
-python3 -m ruff format app/
-
-# 🚀 Todo en uno (check + fix + format)
-python3 -m ruff check app/ --fix && python3 -m ruff format app/
+# Opción B: Manual
+# Descargar desde Google Drive y copiar a:
+cp ~/Downloads/generic-cattle-v1.0.0.tflite backend/ml_models/
 ```
 
-**Configuración del IDE**:
-- ✅ `.vscode/settings.json` incluido
-- ✅ Python interpreter: `venv/bin/python`
-- ✅ Ruff linter habilitado
-- ✅ Format on save activado
-- ✅ Auto fix imports on save
+---
 
-**Reinicia Cursor/VSCode** después de crear el venv para que detecte las dependencias.
+## 📋 Scripts de Utilidad
+
+Ver documentación completa: [`scripts/README.md`](scripts/README.md)
+
+### Scripts Disponibles
+
+1. **`setup_production.py`** - Setup para producción/cloud
+   - Verifica dependencias
+   - Crea directorios necesarios
+   - Valida configuración
+
+2. **`seed_data.py`** - Datos iniciales para testing
+   - Crea roles, usuarios, finca
+   - Genera 200 animales con trazabilidad completa
+   - Genera estimaciones de peso y alertas de ejemplo
+
+3. **`download_model_from_drive.py`** - Descargar modelo TFLite
+   - Descarga desde Google Drive usando `gdown`
 
 ---
 
+## 🔧 Configuración para Cloud
+
+### Variables de Entorno (.env)
+
+```env
+# MongoDB (Cloud)
+MONGODB_URL=mongodb+srv://user:pass@cluster.mongodb.net/
+MONGODB_DB_NAME=bovine_weight_estimation
+
+# Seguridad
+SECRET_KEY=tu_secret_key_super_segura_aqui
+ENVIRONMENT=production
+
+# CORS (restringir en producción)
+CORS_ORIGINS=["https://tu-dominio.com"]
+
+# ML Models
+ML_MODELS_PATH=./ml_models
+ML_DEFAULT_MODEL=generic-cattle-v1.0.0.tflite
+```
+
+### Deployment Checklist
+
+- [ ] Configurar MongoDB Atlas
+- [ ] Configurar variables de entorno
+- [ ] Descargar modelo TFLite
+- [ ] Ejecutar `setup_production.py`
+- [ ] Probar endpoints con Swagger
+- [ ] Configurar CORS para frontend
+- [ ] Configurar SSL/TLS
+- [ ] Configurar logging
+- [ ] Configurar monitoreo
+
 ---
 
-## 🔗 Integración con Modelo ML
+## 📚 Documentación Adicional
 
-Después de entrenar y exportar el modelo TFLite desde Colab (BLOQUE 16), sigue la guía de integración:
-
-📖 **[Guía de Integración TFLite](INTEGRATION_GUIDE.md)**
-
-**Pasos principales**:
-1. Descargar modelo desde Google Drive/Colab
-2. Copiar a `backend/ml_models/`
-3. Instalar `tensorflow-lite-runtime`
-4. Verificar que el backend carga el modelo correctamente
+- **Integración TFLite**: [`INTEGRATION_GUIDE.md`](INTEGRATION_GUIDE.md) - Guía completa para integrar modelo desde Colab
+- **Scripts**: [`scripts/README.md`](scripts/README.md) - Documentación de scripts de utilidad
 
 ---
 
-**Hacienda Gamelera** - Bruno Brito Macedo  
-**Versión**: 1.0.0  
-**Última actualización**: 20 Oct 2024
+## 🎯 Estado del Proyecto
 
+### ✅ Completado
+
+- ✅ Todos los modelos implementados (Alert, Animal, WeightEstimation, User, Farm, Role)
+- ✅ AlertModel con cronograma completo
+- ✅ API de consulta de alertas (today, upcoming, scheduled/list)
+- ✅ Preparación para TFLite real
+- ✅ Scripts de utilidad (seed_data, setup_production, download_model_from_drive)
+- ✅ Endpoints REST completos (CRUD para todos los modelos)
+- ✅ Integración en main.py
+
+### 📱 Próximos Pasos (Móvil)
+
+- [ ] Integrar endpoints de alertas en el móvil Flutter
+- [ ] Mostrar alertas del día en pantalla principal
+- [ ] Implementar calendario de alertas próximas
+
+---
+
+**Última actualización**: Diciembre 2024
