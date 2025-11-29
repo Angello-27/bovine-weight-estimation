@@ -1,0 +1,176 @@
+"""
+Animal Repository Implementation - Data Layer
+Implementación del repositorio de animales usando Beanie ODM
+"""
+
+from uuid import UUID
+
+from ...domain.entities.animal import Animal
+from ...domain.repositories.animal_repository import AnimalRepository
+from ..models.animal_model import AnimalModel
+
+
+class AnimalRepositoryImpl(AnimalRepository):
+    """
+    Implementación del repositorio de animales usando Beanie ODM.
+
+    Single Responsibility: Persistencia de animales en MongoDB.
+    """
+
+    def _to_entity(self, model: AnimalModel) -> Animal:
+        """
+        Convierte AnimalModel (Data) a Animal (Domain Entity).
+
+        Args:
+            model: Modelo de Beanie
+
+        Returns:
+            Entidad Animal del dominio
+        """
+        return Animal(
+            id=model.id,
+            ear_tag=model.ear_tag,
+            breed=model.breed,
+            birth_date=model.birth_date,
+            gender=model.gender,
+            name=model.name,
+            color=model.color,
+            birth_weight_kg=model.birth_weight_kg,
+            mother_id=model.mother_id,
+            father_id=model.father_id,
+            observations=model.observations,
+            photo_url=model.photo_url,
+            status=model.status,
+            farm_id=model.farm_id,
+            registration_date=model.registration_date,
+            last_updated=model.last_updated,
+            device_id=model.device_id,
+            synced_at=model.synced_at,
+        )
+
+    def _to_model(self, entity: Animal) -> AnimalModel:
+        """
+        Convierte Animal (Domain Entity) a AnimalModel (Data).
+
+        Args:
+            entity: Entidad Animal del dominio
+
+        Returns:
+            Modelo de Beanie
+        """
+        return AnimalModel(
+            id=entity.id,
+            ear_tag=entity.ear_tag,
+            breed=entity.breed,
+            birth_date=entity.birth_date,
+            gender=entity.gender,
+            name=entity.name,
+            color=entity.color,
+            birth_weight_kg=entity.birth_weight_kg,
+            mother_id=entity.mother_id,
+            father_id=entity.father_id,
+            observations=entity.observations,
+            photo_url=entity.photo_url,
+            status=entity.status,
+            farm_id=entity.farm_id,
+            registration_date=entity.registration_date,
+            last_updated=entity.last_updated,
+            device_id=entity.device_id,
+            synced_at=entity.synced_at,
+        )
+
+    async def save(self, animal: Animal) -> Animal:
+        """
+        Guarda o actualiza un animal.
+
+        Args:
+            animal: Entidad Animal a persistir
+
+        Returns:
+            Animal guardado con ID asignado
+        """
+        model = self._to_model(animal)
+        await model.save()
+        return self._to_entity(model)
+
+    async def get_by_id(self, animal_id: UUID) -> Animal | None:
+        """
+        Obtiene un animal por ID.
+
+        Args:
+            animal_id: ID del animal
+
+        Returns:
+            Animal si existe, None si no existe
+        """
+        model = await AnimalModel.get(animal_id)
+        if model is None:
+            return None
+        return self._to_entity(model)
+
+    async def find_by_ear_tag(self, ear_tag: str, farm_id: UUID) -> Animal | None:
+        """
+        Busca un animal por caravana y hacienda.
+
+        Args:
+            ear_tag: Número de caravana
+            farm_id: ID de la hacienda
+
+        Returns:
+            Animal si existe, None si no existe
+        """
+        model = await AnimalModel.find_one(
+            AnimalModel.ear_tag == ear_tag, AnimalModel.farm_id == farm_id
+        )
+        if model is None:
+            return None
+        return self._to_entity(model)
+
+    async def get_by_farm(
+        self,
+        farm_id: UUID,
+        skip: int = 0,
+        limit: int = 50,
+        status: str | None = None,
+    ) -> list[Animal]:
+        """
+        Obtiene animales de una hacienda con paginación.
+
+        Args:
+            farm_id: ID de la hacienda
+            skip: Offset para paginación
+            limit: Límite de resultados
+            status: Filtro opcional por estado
+
+        Returns:
+            Lista de Animal
+        """
+        query = AnimalModel.find(AnimalModel.farm_id == farm_id)
+
+        if status:
+            query = query.find(AnimalModel.status == status)
+
+        models = await query.skip(skip).limit(limit).to_list()
+
+        return [self._to_entity(model) for model in models]
+
+    async def delete(self, animal_id: UUID) -> bool:
+        """
+        Elimina un animal (soft delete).
+
+        Args:
+            animal_id: ID del animal
+
+        Returns:
+            True si se eliminó exitosamente
+        """
+        model = await AnimalModel.get(animal_id)
+        if model is None:
+            return False
+
+        # Soft delete (marcar como inactive)
+        model.status = "inactive"
+        model.update_timestamp()
+        await model.save()
+
+        return True
