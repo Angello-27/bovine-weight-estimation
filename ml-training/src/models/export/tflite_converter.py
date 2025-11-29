@@ -3,11 +3,46 @@ Conversor de modelos TensorFlow a TensorFlow Lite.
 Optimizado para móvil con quantización.
 """
 
+import contextlib
+import os
+import sys
 from pathlib import Path
 from typing import Callable, Optional, Tuple
 
 import numpy as np
 import tensorflow as tf  # type: ignore
+
+
+@contextlib.contextmanager
+def suppress_tf_messages():
+    """
+    Suprime mensajes verbosos de TensorFlow/TFLite durante la conversión.
+    Oculta mensajes de stderr y ajusta el nivel de logging de TensorFlow.
+    """
+    # Guardar estado original
+    old_stderr = sys.stderr
+    old_verbosity = None
+
+    try:
+        # Reducir verbosidad de TensorFlow
+        try:
+            old_verbosity = tf.get_logger().level
+            tf.get_logger().setLevel("ERROR")
+        except Exception:
+            pass
+
+        # Suprimir stderr
+        with open(os.devnull, "w", encoding="utf-8") as devnull:
+            sys.stderr = devnull
+            yield
+    finally:
+        # Restaurar estado original
+        sys.stderr = old_stderr
+        if old_verbosity is not None:
+            try:
+                tf.get_logger().setLevel(old_verbosity)
+            except Exception:
+                pass
 
 
 class TFLiteExporter:
@@ -37,32 +72,44 @@ class TFLiteExporter:
             int: Tamaño del modelo en bytes
         """
         # Determinar si usar modelo en memoria o cargar desde archivo
-        if model is not None:
-            print("📱 Convirtiendo modelo en memoria a TFLite...")
-            keras_model = model
-        elif saved_model_path:
-            print(f"📱 Convirtiendo a TFLite: {Path(saved_model_path).name}")
-            try:
-                # Intentar cargar como SavedModel primero (más robusto)
-                keras_model = tf.keras.models.load_model(saved_model_path)
-            except Exception:
-                # Si falla, intentar con custom_objects para manejar funciones de pérdida
+        use_saved_model = False
+        saved_model_path_str = None
+
+        if saved_model_path:
+            # Si se proporciona saved_model_path, verificar si es un SavedModel
+            saved_model_path_obj = Path(saved_model_path)
+
+            # Un SavedModel es un directorio (no un archivo .keras, .h5, etc.)
+            # Si es un directorio, asumimos que es un SavedModel
+            if saved_model_path_obj.exists() and saved_model_path_obj.is_dir():
+                # Es un directorio SavedModel, usar from_saved_model (más robusto)
+                use_saved_model = True
+                saved_model_path_str = str(saved_model_path)
+            else:
+                # Es un archivo (probablemente .keras o .h5), intentar cargar como modelo Keras
                 try:
-                    print(
-                        "⚠️ Intentando cargar con manejo de funciones personalizadas..."
-                    )
-                    keras_model = tf.keras.models.load_model(
-                        saved_model_path,
-                        custom_objects={"mse": tf.keras.losses.MeanSquaredError()},
-                    )
-                except Exception as e2:
-                    print(f"❌ Error cargando modelo: {e2}")
-                    raise
+                    keras_model = tf.keras.models.load_model(saved_model_path)
+                except Exception:
+                    try:
+                        keras_model = tf.keras.models.load_model(
+                            saved_model_path,
+                            custom_objects={"mse": tf.keras.losses.MeanSquaredError()},
+                        )
+                    except Exception as e2:
+                        print(f"❌ Error cargando modelo: {e2}")
+                        raise
+        elif model is not None:
+            keras_model = model
         else:
             raise ValueError("Debe proporcionar 'model' o 'saved_model_path'")
 
-        # Crear conversor
-        converter = tf.lite.TFLiteConverter.from_keras_model(keras_model)
+        # Crear conversor según el tipo de entrada
+        if use_saved_model:
+            # Usar from_saved_model que es más robusto para SavedModel
+            converter = tf.lite.TFLiteConverter.from_saved_model(saved_model_path_str)
+        else:
+            # Usar from_keras_model para modelos Keras
+            converter = tf.lite.TFLiteConverter.from_keras_model(keras_model)
 
         # Aplicar optimizaciones según método
         if optimization == "none":
@@ -86,15 +133,67 @@ class TFLiteExporter:
                 converter.inference_input_type = tf.uint8
                 converter.inference_output_type = tf.float32
             else:
-                print("⚠️ Dataset representativo requerido para INT8. Usando FP16")
                 converter.target_spec.supported_types = [tf.float16]
 
-        # Convertir
+        # Convertir con reintentos si falla por operaciones no soportadas
+        tflite_model = None
+        conversion_error = None
+
         try:
-            tflite_model = converter.convert()
+            # Suprimir mensajes verbosos durante la conversión (mensajes "unknown")
+            with suppress_tf_messages():
+                tflite_model = converter.convert()
         except Exception as e:
-            print(f"❌ Error en conversión: {e}")
-            raise
+            conversion_error = str(e)
+            error_lower = conversion_error.lower()
+
+            # Si el error es por operaciones no soportadas (flex ops), intentar con flex ops
+            if (
+                "needs_flex_ops" in error_lower
+                or "custom op" in error_lower
+                or "flex op" in error_lower
+                or "error_needs_flex_ops" in error_lower
+            ):
+                print(
+                    "⚠️ Algunas operaciones requieren flex ops. Reintentando con soporte flex..."
+                )
+
+                # Reintentar con flex ops habilitadas
+                if use_saved_model:
+                    converter = tf.lite.TFLiteConverter.from_saved_model(
+                        saved_model_path_str
+                    )
+                else:
+                    converter = tf.lite.TFLiteConverter.from_keras_model(keras_model)
+
+                # Aplicar optimizaciones nuevamente
+                if optimization == "default":
+                    converter.optimizations = [tf.lite.Optimize.DEFAULT]
+                    converter.target_spec.supported_types = [tf.float16]
+
+                # Habilitar flex ops (permite usar operaciones de TensorFlow no nativas en TFLite)
+                converter.target_spec.supported_ops = [
+                    tf.lite.OpsSet.TFLITE_BUILTINS,
+                    tf.lite.OpsSet.SELECT_TF_OPS,  # Habilita flex ops
+                ]
+
+                try:
+                    # Suprimir mensajes verbosos durante la conversión
+                    with suppress_tf_messages():
+                        tflite_model = converter.convert()
+                    print("✅ Conversión exitosa con flex ops habilitadas")
+                except Exception as e2:
+                    # Mostrar solo el error final, no todos los mensajes "unknown"
+                    error_msg = str(e2).split("\n")[0] if "\n" in str(e2) else str(e2)
+                    print(f"❌ Error en conversión: {error_msg}")
+                    raise RuntimeError(
+                        "Error en conversión a TFLite incluso con flex ops habilitadas."
+                    )
+            else:
+                # Otro tipo de error, mostrar solo el mensaje principal
+                error_msg = str(e).split("\n")[0] if "\n" in str(e) else str(e)
+                print(f"❌ Error en conversión: {error_msg}")
+                raise
 
         # Guardar modelo
         if output_path is None:
@@ -110,9 +209,7 @@ class TFLiteExporter:
         model_size_kb = len(tflite_model) / 1024
         model_size_mb = model_size_kb / 1024
 
-        print(f"✅ Modelo exportado: {output_path_obj.name}")
-        print(f"📏 Tamaño: {model_size_kb:.1f} KB ({model_size_mb:.2f} MB)")
-        print(f"🎯 Optimización: {optimization}")
+        print(f"✅ Modelo exportado: {output_path_obj.name} ({model_size_mb:.2f} MB)")
 
         return len(tflite_model)
 
@@ -186,9 +283,6 @@ class TFLiteExporter:
         # Obtener predicción
         prediction = interpreter.get_tensor(output_details[0]["index"])[0][0]
 
-        print(f"⏱️ Inferencia TFLite: {inference_time:.2f} ms")
-        print(f"📊 Predicción: {prediction:.2f} kg")
-
         return inference_time, prediction
 
 
@@ -229,7 +323,5 @@ def save_model_metadata(
         import json
 
         json.dump(metadata, f, indent=2)
-
-    print(f"💾 Metadata guardado: {metadata_path}")
 
     return metadata
