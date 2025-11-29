@@ -9,8 +9,8 @@ import time
 
 import numpy as np
 
-from app.core.constants import BreedType, SystemMetrics
 from app.core.exceptions import MLModelException, ValidationException
+from app.domain.shared.constants import BreedType, SystemMetrics
 
 from .model_loader import MLModelLoader
 from .preprocessing import ImagePreprocessor

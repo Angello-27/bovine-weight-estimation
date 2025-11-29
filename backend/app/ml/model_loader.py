@@ -6,22 +6,20 @@ Single Responsibility: Cargar modelos ML en memoria
 """
 
 from pathlib import Path
-from typing import Optional
-
-import numpy as np
+from typing import Any, Optional
 
 try:
-    import tflite_runtime.interpreter as tflite
+    import tflite_runtime.interpreter as tflite  # type: ignore[import-untyped, import-not-found, import]
 
     TFLITE_AVAILABLE = True
 except ImportError:
     # Fallback para desarrollo (si no está instalado)
-    tflite = None
+    tflite = None  # type: ignore[assignment]
     TFLITE_AVAILABLE = False
 
 from ..core.config import settings
-from ..core.constants import BreedType
 from ..core.exceptions import MLModelException
+from ..domain.shared.constants import BreedType
 
 
 class MLModelLoader:
@@ -33,7 +31,9 @@ class MLModelLoader:
     """
 
     _instance: Optional["MLModelLoader"] = None
-    _models_cache: dict[BreedType, any] = {}  # Cache de modelos cargados
+    _models_cache: dict[str, dict[str, Any]] = (
+        {}
+    )  # Cache de modelos cargados (key: "generic" o breed.value)
 
     def __new__(cls):
         """Singleton pattern."""
@@ -47,7 +47,7 @@ class MLModelLoader:
         self.models_path.mkdir(parents=True, exist_ok=True)
         self.model_loaded = False
 
-    def load_generic_model(self) -> any:
+    def load_generic_model(self) -> dict[str, Any]:
         """
         Carga modelo genérico TFLite (para todas las razas).
 
@@ -84,12 +84,14 @@ class MLModelLoader:
                 )
 
             # Cargar TFLite Interpreter
-            interpreter = tflite.Interpreter(model_path=str(model_path))
-            interpreter.allocate_tensors()
+            if tflite is None:
+                raise MLModelException("TFLite runtime no disponible")
+            interpreter = tflite.Interpreter(model_path=str(model_path))  # type: ignore[union-attr]
+            interpreter.allocate_tensors()  # type: ignore[union-attr]
 
             # Obtener input/output details
-            input_details = interpreter.get_input_details()
-            output_details = interpreter.get_output_details()
+            input_details = interpreter.get_input_details()  # type: ignore[union-attr]
+            output_details = interpreter.get_output_details()  # type: ignore[union-attr]
 
             print(f"✅ Modelo TFLite cargado: {model_filename}")
             print(f"   Input shape: {input_details[0]['shape']}")
@@ -116,7 +118,7 @@ class MLModelLoader:
         except Exception as e:
             raise MLModelException(f"Error al cargar modelo TFLite: {str(e)}")
 
-    def load_model(self, breed: BreedType) -> any:
+    def load_model(self, breed: BreedType) -> dict[str, Any]:
         """
         Carga modelo TFLite (usa modelo genérico para todas las razas).
 
@@ -135,7 +137,7 @@ class MLModelLoader:
         # Por ahora, usar modelo genérico para todas las razas
         return self.load_generic_model()
 
-    def load_all_models(self) -> dict[str, any]:
+    def load_all_models(self) -> dict[str, dict[str, Any]]:
         """
         Carga modelo genérico TFLite (por ahora solo hay uno genérico).
 
@@ -150,7 +152,7 @@ class MLModelLoader:
             return {"generic": generic_model}
         except MLModelException as e:
             raise MLModelException(
-                f"No se pudo cargar modelo TFLite: {e.message}. "
+                f"No se pudo cargar modelo TFLite: {str(e)}. "
                 f"Verifica que exista en: {self.models_path}/"
             )
 
