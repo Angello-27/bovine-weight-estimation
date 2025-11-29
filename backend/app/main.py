@@ -13,6 +13,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
 
 from app.api.routes import (
+    alert_router,
     animals_router,
     auth_router,
     farm_router,
@@ -23,8 +24,9 @@ from app.api.routes import (
     weighings_router,
 )
 from app.core.config import settings
+from app.data.models.animal_model import AnimalModel
 from app.models import (
-    AnimalModel,
+    AlertModel,
     FarmModel,
     RoleModel,
     UserModel,
@@ -45,12 +47,14 @@ async def lifespan(app: FastAPI):
     print(f"🌍 Ambiente: {settings.ENVIRONMENT}")
 
     # Conectar a MongoDB
-    client = AsyncIOMotorClient(settings.MONGODB_URL)
+    client: AsyncIOMotorClient = AsyncIOMotorClient(settings.MONGODB_URL)  # type: ignore[assignment]
 
     # Inicializar Beanie con modelos
-    await init_beanie(
-        database=client[settings.MONGODB_DB_NAME],
+    database = client[settings.MONGODB_DB_NAME]
+    await init_beanie(  # type: ignore[arg-type]
+        database=database,
         document_models=[
+            AlertModel,
             AnimalModel,
             FarmModel,
             RoleModel,
@@ -97,6 +101,7 @@ app.include_router(animals_router)  # US-003: Registro de Animales
 app.include_router(weighings_router)  # US-002/US-004: Estimación y Historial
 app.include_router(ml_router)  # US-002: Inferencia ML (Core del proyecto)
 app.include_router(sync_router)  # US-005: Sincronización Offline
+app.include_router(alert_router)  # Alertas y cronograma
 
 
 @app.get("/", tags=["Root"])
@@ -129,23 +134,31 @@ async def health():
         Estado de componentes del sistema
     """
     try:
-        # TODO: Verificar MongoDB connection pool
-        # TODO: Verificar modelos ML cargados
+        from app.ml.model_loader import MLModelLoader
+
+        # Verificar modelos ML cargados
+        model_loader = MLModelLoader()
+        models_loaded = 1 if model_loader.is_model_loaded() else 0
+        loaded_breeds = model_loader.get_loaded_breeds()
 
         return {
             "status": "healthy",
             "database": "connected",  # MongoDB
-            "models_loaded": 0,  # TODO: Cargar modelos TFLite
+            "models_loaded": models_loaded,
+            "loaded_models": loaded_breeds,
             "services": {
                 "sync": "active",  # US-005
                 "animals": "active",  # US-003
                 "weighings": "active",  # US-002/US-004
+                "alerts": "active",  # Alertas y cronograma
+                "ml": "active" if models_loaded > 0 else "degraded",  # ML
             },
         }
     except Exception as e:
         return {
             "status": "degraded",
             "error": str(e),
+            "models_loaded": 0,
         }
 
 
