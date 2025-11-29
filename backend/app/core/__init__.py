@@ -14,8 +14,9 @@ from .constants import (
     HaciendaConstants,
     SystemMetrics,
 )
-from .errors import (
+from .exceptions import (
     AlreadyExistsException,
+    AuthenticationException,
     DatabaseException,
     DomainException,
     MLModelException,
@@ -38,11 +39,12 @@ __all__ = [
     "SystemMetrics",
     "CaptureConstants",
     "HaciendaConstants",
-    # Errors
+    # Exceptions
     "DomainException",
     "ValidationException",
     "NotFoundException",
     "AlreadyExistsException",
+    "AuthenticationException",
     "DatabaseException",
     "MLModelException",
     "SyncConflictException",
