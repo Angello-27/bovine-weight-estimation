@@ -12,6 +12,7 @@ import numpy as np
 
 try:
     import tflite_runtime.interpreter as tflite
+
     TFLITE_AVAILABLE = True
 except ImportError:
     # Fallback para desarrollo (si no está instalado)
@@ -20,7 +21,7 @@ except ImportError:
 
 from ..core.config import settings
 from ..core.constants import BreedType
-from ..core.errors import MLModelException
+from ..core.exceptions import MLModelException
 
 
 class MLModelLoader:
@@ -49,7 +50,7 @@ class MLModelLoader:
     def load_generic_model(self) -> any:
         """
         Carga modelo genérico TFLite (para todas las razas).
-        
+
         El modelo exportado desde Colab es genérico y funciona para todas las razas.
 
         Returns:
@@ -118,7 +119,7 @@ class MLModelLoader:
     def load_model(self, breed: BreedType) -> any:
         """
         Carga modelo TFLite (usa modelo genérico para todas las razas).
-        
+
         Por ahora, el modelo exportado desde Colab es genérico.
         En el futuro, puede haber modelos específicos por raza.
 

@@ -10,7 +10,8 @@ import time
 import numpy as np
 
 from app.core.constants import BreedType, SystemMetrics
-from app.core.errors import MLModelException, ValidationException
+from app.core.exceptions import MLModelException, ValidationException
+
 from .model_loader import MLModelLoader
 from .preprocessing import ImagePreprocessor
 from .strategy_context import WeightEstimationContext
@@ -80,7 +81,7 @@ class MLInferenceEngine:
 
         try:
             # 1. Validar raza
-            breed_value = breed.value if hasattr(breed, 'value') else breed
+            breed_value = breed.value if hasattr(breed, "value") else breed
             if not BreedType.is_valid(breed_value):
                 raise ValidationException(
                     f"Raza inválida: {breed_value}. "
@@ -89,11 +90,13 @@ class MLInferenceEngine:
 
             # 2. Usar contexto de estrategias para estimación
             # Esto reemplaza el sistema híbrido anterior con Strategy Pattern
-            strategy_result = self.strategy_context.estimate_weight(image_bytes, breed_value)
-            
-            estimated_weight = strategy_result['weight']
-            confidence = strategy_result['confidence']
-            selected_strategy = strategy_result.get('selected_strategy', 'unknown')
+            strategy_result = self.strategy_context.estimate_weight(
+                image_bytes, breed_value
+            )
+
+            estimated_weight = strategy_result["weight"]
+            confidence = strategy_result["confidence"]
+            selected_strategy = strategy_result.get("selected_strategy", "unknown")
 
             # 3. Calcular tiempo de procesamiento
             processing_time_ms = int((time.time() - start_time) * 1000)
