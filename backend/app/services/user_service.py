@@ -5,7 +5,7 @@ Lógica de negocio para gestión de usuarios
 
 from uuid import UUID
 
-from ..core.errors import AlreadyExistsException, NotFoundException
+from ..core.exceptions import AlreadyExistsException, NotFoundException
 from ..models import FarmModel, RoleModel, UserModel
 from ..schemas.user_schemas import (
     UserCreateRequest,
@@ -124,9 +124,7 @@ class UserService:
             last_login=user.last_login,
         )
 
-    async def get_all_users(
-        self, skip: int = 0, limit: int = 50
-    ) -> list[UserResponse]:
+    async def get_all_users(self, skip: int = 0, limit: int = 50) -> list[UserResponse]:
         """
         Obtiene todos los usuarios con paginación.
 
@@ -176,9 +174,7 @@ class UserService:
 
         # Validar email único si se está actualizando
         if request.email is not None and request.email != user.email:
-            existing_email = await UserModel.find_one(
-                UserModel.email == request.email
-            )
+            existing_email = await UserModel.find_one(UserModel.email == request.email)
             if existing_email is not None:
                 raise AlreadyExistsException(
                     resource="User", field="email", value=request.email
@@ -242,4 +238,3 @@ class UserService:
             raise NotFoundException(resource="User", field="id", value=str(user_id))
 
         await user.delete()
-

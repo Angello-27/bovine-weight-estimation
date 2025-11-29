@@ -10,7 +10,7 @@ from jose import JWTError, jwt
 from passlib.context import CryptContext
 
 from ..core.config import settings
-from ..core.errors import AuthenticationException, NotFoundException
+from ..core.exceptions import AuthenticationException, NotFoundException
 from ..models import RoleModel, UserModel
 from ..schemas.auth_schemas import LoginRequest, LoginResponse, TokenData
 
@@ -101,7 +101,9 @@ class AuthService:
                 try:
                     user_id = UUID(sub)
                 except (ValueError, TypeError):
-                    raise AuthenticationException("Token inválido: ID de usuario inválido")
+                    raise AuthenticationException(
+                        "Token inválido: ID de usuario inválido"
+                    )
             username: str | None = payload.get("username")
             if user_id is None or username is None:
                 raise AuthenticationException("Token inválido: datos faltantes")
@@ -139,7 +141,9 @@ class AuthService:
         # Obtener rol del usuario
         role = await RoleModel.find_one(RoleModel.id == user.role_id)
         if role is None:
-            raise NotFoundException(resource="Role", field="id", value=str(user.role_id))
+            raise NotFoundException(
+                resource="Role", field="id", value=str(user.role_id)
+            )
 
         # Actualizar último login
         user.update_last_login()
@@ -160,4 +164,3 @@ class AuthService:
             access_token=access_token,
             token_type="bearer",
         )
-

@@ -8,7 +8,7 @@ Single Responsibility: Coordinar proceso de estimación de peso con IA
 from uuid import UUID
 
 from ..core.constants import BreedType
-from ..core.errors import ValidationException
+from ..core.exceptions import ValidationException
 from ..ml import MLInferenceEngine
 from ..models import WeightEstimationModel
 
@@ -66,7 +66,7 @@ class MLService:
 
         # 4. Crear modelo de peso
         # Nota: frame_image_path sería path real en producción
-        breed_value = breed.value if hasattr(breed, 'value') else breed
+        breed_value = breed.value if hasattr(breed, "value") else breed
         weight_estimation = WeightEstimationModel(
             animal_id=str(animal_id) if animal_id else None,
             breed=breed_value,

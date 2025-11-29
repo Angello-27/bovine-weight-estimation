@@ -5,7 +5,7 @@ Lógica de negocio para gestión de pesajes/estimaciones
 
 from uuid import UUID
 
-from ..core.errors import NotFoundException
+from ..core.exceptions import NotFoundException
 from ..models import WeightEstimationModel
 from ..schemas.weighing_schemas import WeighingCreateRequest, WeighingResponse
 

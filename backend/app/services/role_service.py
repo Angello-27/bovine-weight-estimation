@@ -5,7 +5,7 @@ Lógica de negocio para gestión de roles
 
 from uuid import UUID
 
-from ..core.errors import AlreadyExistsException, NotFoundException
+from ..core.exceptions import AlreadyExistsException, NotFoundException
 from ..models import RoleModel
 from ..schemas.role_schemas import (
     RoleCreateRequest,
@@ -87,9 +87,7 @@ class RoleService:
             last_updated=role.last_updated,
         )
 
-    async def get_all_roles(
-        self, skip: int = 0, limit: int = 50
-    ) -> list[RoleResponse]:
+    async def get_all_roles(self, skip: int = 0, limit: int = 50) -> list[RoleResponse]:
         """
         Obtiene todos los roles con paginación.
 
@@ -180,4 +178,3 @@ class RoleService:
             raise NotFoundException(resource="Role", field="id", value=str(role_id))
 
         await role.delete()
-

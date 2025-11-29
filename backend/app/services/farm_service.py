@@ -5,7 +5,7 @@ Lógica de negocio para gestión de fincas
 
 from uuid import UUID
 
-from ..core.errors import AlreadyExistsException, NotFoundException
+from ..core.exceptions import AlreadyExistsException, NotFoundException
 from ..models import FarmModel, UserModel
 from ..schemas.farm_schemas import (
     FarmCreateRequest,
@@ -233,4 +233,3 @@ class FarmService:
             )
 
         await farm.delete()
-
