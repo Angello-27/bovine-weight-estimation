@@ -1,12 +1,19 @@
 """
-Animal Service - Business Logic
-Lógica de negocio para gestión de animales
+Animal Service - Business Logic (Refactorizado para Clean Architecture)
+Orquesta casos de uso del dominio
 """
 
 from uuid import UUID
 
-from ..core.errors import AlreadyExistsException, NotFoundException
-from ..models import AnimalModel
+from ..domain.entities.animal import Animal
+from ..domain.repositories.animal_repository import AnimalRepository
+from ..domain.usecases.animals import (
+    CreateAnimalUseCase,
+    DeleteAnimalUseCase,
+    GetAnimalByIdUseCase,
+    GetAnimalsByFarmUseCase,
+    UpdateAnimalUseCase,
+)
 from ..schemas.animal_schemas import (
     AnimalCreateRequest,
     AnimalResponse,
@@ -16,11 +23,27 @@ from ..schemas.animal_schemas import (
 
 class AnimalService:
     """
-    Servicio de gestión de animales.
+    Servicio de gestión de animales (refactorizado).
 
-    Single Responsibility: Business logic de animales.
-    No contiene lógica de persistencia (delegada a Beanie Model).
+    Single Responsibility: Orquestar casos de uso y convertir entre capas.
+    Ahora usa Clean Architecture con Use Cases.
     """
+
+    def __init__(self, animal_repository: AnimalRepository | None = None):
+        """
+        Inicializa el servicio.
+
+        Args:
+            animal_repository: Repositorio de animales (inyección de dependencia)
+        """
+        from ..data.repositories.animal_repository_impl import AnimalRepositoryImpl
+
+        self._repository = animal_repository or AnimalRepositoryImpl()
+        self._create_usecase = CreateAnimalUseCase(self._repository)
+        self._get_by_id_usecase = GetAnimalByIdUseCase(self._repository)
+        self._get_by_farm_usecase = GetAnimalsByFarmUseCase(self._repository)
+        self._update_usecase = UpdateAnimalUseCase(self._repository)
+        self._delete_usecase = DeleteAnimalUseCase(self._repository)
 
     async def create_animal(self, request: AnimalCreateRequest) -> AnimalResponse:
         """
@@ -31,44 +54,27 @@ class AnimalService:
 
         Returns:
             AnimalResponse con el animal creado
-
-        Raises:
-            AlreadyExistsException: Si la caravana ya existe
-            ValidationException: Si los datos son inválidos
         """
-        # Validar que la caravana no exista
-        existing = await AnimalModel.find_one(
-            AnimalModel.ear_tag == request.ear_tag,
-            AnimalModel.farm_id == request.farm_id,
-        )
-
-        if existing is not None:
-            raise AlreadyExistsException(
-                resource="Animal", field="ear_tag", value=request.ear_tag
-            )
-
-        # Crear modelo
-        animal = AnimalModel(
+        animal = await self._create_usecase.execute(
             ear_tag=request.ear_tag,
-            breed=request.breed,
+            breed=(
+                request.breed.value
+                if hasattr(request.breed, "value")
+                else str(request.breed)
+            ),
             birth_date=request.birth_date,
             gender=request.gender,
+            farm_id=request.farm_id,
             name=request.name,
             color=request.color,
             birth_weight_kg=request.birth_weight_kg,
-            mother_id=request.mother_id,
-            father_id=request.father_id,
+            mother_id=str(request.mother_id) if request.mother_id else None,
+            father_id=str(request.father_id) if request.father_id else None,
             observations=request.observations,
             photo_url=request.photo_url,
-            farm_id=request.farm_id,
-            status="active",
         )
 
-        # Guardar en MongoDB
-        await animal.insert()
-
-        # Convertir a response
-        return self._to_response(animal)
+        return self._entity_to_response(animal)
 
     async def get_animal(self, animal_id: UUID) -> AnimalResponse:
         """
@@ -79,16 +85,9 @@ class AnimalService:
 
         Returns:
             AnimalResponse
-
-        Raises:
-            NotFoundException: Si el animal no existe
         """
-        animal = await AnimalModel.get(animal_id)
-
-        if animal is None:
-            raise NotFoundException(resource="Animal", identifier=str(animal_id))
-
-        return self._to_response(animal)
+        animal = await self._get_by_id_usecase.execute(animal_id)
+        return self._entity_to_response(animal)
 
     async def get_animals_by_farm(
         self,
@@ -109,14 +108,11 @@ class AnimalService:
         Returns:
             Lista de AnimalResponse
         """
-        query = AnimalModel.find(AnimalModel.farm_id == farm_id)
+        animals = await self._get_by_farm_usecase.execute(
+            farm_id=farm_id, skip=skip, limit=limit, status=status
+        )
 
-        if status:
-            query = query.find(AnimalModel.status == status)
-
-        animals = await query.skip(skip).limit(limit).to_list()
-
-        return [self._to_response(animal) for animal in animals]
+        return [self._entity_to_response(animal) for animal in animals]
 
     async def update_animal(
         self, animal_id: UUID, request: AnimalUpdateRequest
@@ -130,24 +126,17 @@ class AnimalService:
 
         Returns:
             AnimalResponse actualizado
-
-        Raises:
-            NotFoundException: Si el animal no existe
         """
-        animal = await AnimalModel.get(animal_id)
+        animal = await self._update_usecase.execute(
+            animal_id=animal_id,
+            name=request.name,
+            color=request.color,
+            observations=request.observations,
+            status=request.status,
+            photo_url=request.photo_url,
+        )
 
-        if animal is None:
-            raise NotFoundException(resource="Animal", identifier=str(animal_id))
-
-        # Actualizar solo campos proporcionados
-        update_data = request.model_dump(exclude_unset=True)
-        for field, value in update_data.items():
-            setattr(animal, field, value)
-
-        animal.update_timestamp()
-        await animal.save()
-
-        return self._to_response(animal)
+        return self._entity_to_response(animal)
 
     async def delete_animal(self, animal_id: UUID) -> bool:
         """
@@ -158,43 +147,40 @@ class AnimalService:
 
         Returns:
             True si se eliminó exitosamente
-
-        Raises:
-            NotFoundException: Si el animal no existe
         """
-        animal = await AnimalModel.get(animal_id)
+        return await self._delete_usecase.execute(animal_id)
 
-        if animal is None:
-            raise NotFoundException(resource="Animal", identifier=str(animal_id))
-
-        # Soft delete (marcar como inactive)
-        animal.status = "inactive"
-        animal.update_timestamp()
-        await animal.save()
-
-        return True
-
-    def _to_response(self, animal: AnimalModel) -> AnimalResponse:
+    def _entity_to_response(self, animal: Animal) -> AnimalResponse:
         """
-        Convierte AnimalModel a AnimalResponse.
+        Convierte Animal (Domain Entity) a AnimalResponse (API Schema).
 
         Args:
-            animal: Modelo de MongoDB
+            animal: Entidad Animal del dominio
 
         Returns:
             AnimalResponse con campos calculados
         """
+        from ..core.constants import BreedType
+
         return AnimalResponse(
             id=animal.id,
             ear_tag=animal.ear_tag,
-            breed=animal.breed,
+            breed=(
+                BreedType(animal.breed)
+                if isinstance(animal.breed, str)
+                else animal.breed
+            ),
             birth_date=animal.birth_date,
             gender=animal.gender,
             name=animal.name,
             color=animal.color,
             birth_weight_kg=animal.birth_weight_kg,
             status=animal.status,
-            farm_id=animal.farm_id,
+            farm_id=(
+                animal.farm_id
+                if animal.farm_id
+                else UUID("00000000-0000-0000-0000-000000000000")
+            ),
             registration_date=animal.registration_date,
             last_updated=animal.last_updated,
             age_months=animal.calculate_age_months(),
