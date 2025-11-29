@@ -18,27 +18,42 @@ class Settings(BaseSettings):
     """
 
     # ===== Application =====
-    APP_NAME: str = "Bovine Weight Estimation API"
-    APP_VERSION: str = "1.0.0"
+    APP_NAME: str = Field(
+        default="Bovine Weight Estimation API",
+        description="Nombre de la aplicación",
+    )
+    APP_VERSION: str = Field(default="1.0.0", description="Versión de la aplicación")
     DEBUG: bool = Field(default=False, description="Modo debug (solo desarrollo)")
     ENVIRONMENT: str = Field(
         default="development", description="Ambiente: development/staging/production"
     )
 
     # ===== API Configuration =====
-    API_V1_PREFIX: str = "/api/v1"
-    DOCS_URL: str | None = "/api/docs"
-    REDOC_URL: str | None = "/api/redoc"
-    OPENAPI_URL: str | None = "/api/openapi.json"
+    API_V1_PREFIX: str = Field(default="/api/v1", description="Prefijo de la API")
+    DOCS_URL: str | None = Field(
+        default="/api/docs", description="URL de documentación Swagger"
+    )
+    REDOC_URL: str | None = Field(
+        default="/api/redoc", description="URL de documentación ReDoc"
+    )
+    OPENAPI_URL: str | None = Field(
+        default="/api/openapi.json", description="URL del esquema OpenAPI"
+    )
 
     # ===== CORS =====
     CORS_ORIGINS: list[str] = Field(
         default=["http://localhost:3000", "http://localhost:8080"],
         description="Orígenes permitidos para CORS",
     )
-    CORS_ALLOW_CREDENTIALS: bool = True
-    CORS_ALLOW_METHODS: list[str] = ["*"]
-    CORS_ALLOW_HEADERS: list[str] = ["*"]
+    CORS_ALLOW_CREDENTIALS: bool = Field(
+        default=True, description="Permitir credenciales en CORS"
+    )
+    CORS_ALLOW_METHODS: list[str] = Field(
+        default=["*"], description="Métodos HTTP permitidos en CORS"
+    )
+    CORS_ALLOW_HEADERS: list[str] = Field(
+        default=["*"], description="Headers permitidos en CORS"
+    )
 
     # ===== MongoDB =====
     MONGODB_URL: str = Field(
@@ -49,47 +64,73 @@ class Settings(BaseSettings):
         default="bovine_weight_estimation",
         description="Nombre de la base de datos",
     )
-    MONGODB_MIN_POOL_SIZE: int = 10
-    MONGODB_MAX_POOL_SIZE: int = 100
+    MONGODB_MIN_POOL_SIZE: int = Field(
+        default=10, description="Tamaño mínimo del pool de conexiones MongoDB"
+    )
+    MONGODB_MAX_POOL_SIZE: int = Field(
+        default=100, description="Tamaño máximo del pool de conexiones MongoDB"
+    )
 
     # ===== Security =====
     SECRET_KEY: str = Field(
         default="CHANGE_THIS_IN_PRODUCTION_USE_ENV_FILE",
         description="Secret key para JWT (CAMBIAR en producción)",
     )
-    JWT_ALGORITHM: str = "HS256"
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7  # 7 días
+    JWT_ALGORITHM: str = Field(default="HS256", description="Algoritmo JWT")
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = Field(
+        default=10080, description="Minutos de expiración del token JWT (7 días)"
+    )
 
     # ===== ML Models =====
     ML_MODELS_PATH: str = Field(
         default="./ml_models",
         description="Path local para modelos TFLite",
     )
-    ML_DEFAULT_MODEL: str = "generic-v1.0.0.tflite"
-    ML_INPUT_SIZE: int = 224  # 224x224 para TFLite
-    ML_CONFIDENCE_THRESHOLD: float = 0.80  # Mínimo 80%
-
-    # ===== AWS S3 (opcional, para modelos en cloud) =====
-    AWS_S3_BUCKET_NAME: str | None = None
-    AWS_ACCESS_KEY_ID: str | None = None
-    AWS_SECRET_ACCESS_KEY: str | None = None
-    AWS_REGION: str = "us-east-1"
+    ML_DEFAULT_MODEL: str = Field(
+        default="generic-v1.0.0.tflite",
+        description="Nombre del modelo TFLite por defecto",
+    )
+    ML_INPUT_SIZE: int = Field(
+        default=224, description="Tamaño de entrada del modelo ML (224x224 para TFLite)"
+    )
+    ML_CONFIDENCE_THRESHOLD: float = Field(
+        default=0.80, description="Umbral mínimo de confianza ML (80%)"
+    )
 
     # ===== Logging =====
     LOG_LEVEL: str = Field(default="INFO", description="Nivel de logs")
-    LOG_FORMAT: str = "json"  # json o text
+    LOG_FORMAT: str = Field(default="json", description="Formato de logs: json o text")
 
     # ===== Performance =====
-    MAX_UPLOAD_SIZE_MB: int = 10  # Máximo tamaño de imagen
-    REQUEST_TIMEOUT_S: int = 30  # Timeout de requests
+    MAX_UPLOAD_SIZE_MB: int = Field(
+        default=10, description="Tamaño máximo de imagen en MB"
+    )
+    REQUEST_TIMEOUT_S: int = Field(
+        default=30, description="Timeout de requests en segundos"
+    )
 
     # ===== Hacienda Gamelera =====
-    HACIENDA_NAME: str = "Hacienda Gamelera"
-    HACIENDA_OWNER: str = "Bruno Brito Macedo"
-    HACIENDA_LOCATION: str = "San Ignacio de Velasco, Santa Cruz, Bolivia"
-    HACIENDA_CAPACITY: int = 500  # 500 cabezas de ganado bovino
-    PROJECT_TYPE: str = "Proyecto académico final de carrera"
-    PROJECT_DEADLINE: str = "Finales noviembre / inicio diciembre 2024"
+    HACIENDA_NAME: str = Field(
+        default="Hacienda Gamelera", description="Nombre de la hacienda"
+    )
+    HACIENDA_OWNER: str = Field(
+        default="Bruno Brito Macedo", description="Propietario de la hacienda"
+    )
+    HACIENDA_LOCATION: str = Field(
+        default="San Ignacio de Velasco, Santa Cruz, Bolivia",
+        description="Ubicación de la hacienda",
+    )
+    HACIENDA_CAPACITY: int = Field(
+        default=500, description="Capacidad de ganado bovino en cabezas"
+    )
+    PROJECT_TYPE: str = Field(
+        default="Proyecto académico final de carrera",
+        description="Tipo de proyecto",
+    )
+    PROJECT_DEADLINE: str = Field(
+        default="Finales noviembre / inicio diciembre 2024",
+        description="Fecha límite del proyecto",
+    )
 
     model_config = SettingsConfigDict(
         env_file=".env",
