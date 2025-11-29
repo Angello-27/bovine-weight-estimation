@@ -9,7 +9,7 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 
 from ...api.dependencies import get_current_active_user
-from ...core.errors import AlreadyExistsException, NotFoundException
+from ...core.exceptions import AlreadyExistsException, NotFoundException
 from ...models import RoleModel, UserModel
 from ...schemas.role_schemas import (
     RoleCreateRequest,
@@ -76,9 +76,7 @@ async def create_role(
     try:
         return await role_service.create_role(request)
     except AlreadyExistsException as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
 
 @router.get(
@@ -112,7 +110,9 @@ async def get_all_roles(
     """
     roles = await role_service.get_all_roles(skip=skip, limit=limit)
     total = await RoleModel.find_all().count()
-    return RolesListResponse(total=total, roles=roles, page=skip // limit + 1, page_size=limit)
+    return RolesListResponse(
+        total=total, roles=roles, page=skip // limit + 1, page_size=limit
+    )
 
 
 @router.get(
@@ -189,9 +189,7 @@ async def update_role(
     except NotFoundException as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
     except AlreadyExistsException as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
 
 @router.delete(
@@ -224,4 +222,3 @@ async def delete_role(
         await role_service.delete_role(role_id)
     except NotFoundException as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
-

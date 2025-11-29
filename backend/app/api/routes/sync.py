@@ -7,6 +7,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, status
 
+from ...models import AnimalModel
 from ...schemas.sync_schemas import (
     CattleSyncBatchRequest,
     CattleSyncBatchResponse,
@@ -196,10 +197,11 @@ async def sync_health_check(
         HealthCheckResponse con estado del servicio
     """
     try:
-        # TODO: En producción, verificar MongoDB connection
+        # Verificar MongoDB connection contando documentos
+        await AnimalModel.count()
         return HealthCheckResponse(
             status="online",
-            database="memory (MVP)",  # TODO: Cambiar a "connected" con MongoDB
+            database="connected",
         )
     except Exception as e:
         return HealthCheckResponse(
@@ -221,9 +223,11 @@ async def sync_stats(
 
     WARNING: Deshabilitar en producción por seguridad
     """
+    cattle_count = await sync_service.get_cattle_count()
+    weight_count = await sync_service.get_weight_estimation_count()
     return {
-        "cattle_count": sync_service.get_cattle_count(),
-        "weight_estimation_count": sync_service.get_weight_estimation_count(),
-        "storage": "memory (MVP)",
+        "cattle_count": cattle_count,
+        "weight_estimation_count": weight_count,
+        "storage": "MongoDB",
         "note": "Deshabilitar en producción",
     }

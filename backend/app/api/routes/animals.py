@@ -8,7 +8,7 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 
-from ...core.errors import (
+from ...core.exceptions import (
     AlreadyExistsException,
     NotFoundException,
     ValidationException,

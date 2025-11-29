@@ -8,7 +8,7 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 
-from ...core.errors import NotFoundException, ValidationException
+from ...core.exceptions import NotFoundException, ValidationException
 from ...schemas.weighing_schemas import (
     WeighingCreateRequest,
     WeighingResponse,

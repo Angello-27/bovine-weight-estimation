@@ -9,7 +9,7 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 
 from ...api.dependencies import get_current_active_user
-from ...core.errors import AlreadyExistsException, NotFoundException
+from ...core.exceptions import AlreadyExistsException, NotFoundException
 from ...models import UserModel
 from ...schemas.user_schemas import (
     UserCreateRequest,
@@ -79,9 +79,7 @@ async def create_user(
     try:
         return await user_service.create_user(request)
     except AlreadyExistsException as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
     except NotFoundException as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 
@@ -117,7 +115,9 @@ async def get_all_users(
     """
     users = await user_service.get_all_users(skip=skip, limit=limit)
     total = await UserModel.find_all().count()
-    return UsersListResponse(total=total, users=users, page=skip // limit + 1, page_size=limit)
+    return UsersListResponse(
+        total=total, users=users, page=skip // limit + 1, page_size=limit
+    )
 
 
 @router.get(
@@ -194,9 +194,7 @@ async def update_user(
     except NotFoundException as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
     except AlreadyExistsException as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
 
 @router.delete(
@@ -229,4 +227,3 @@ async def delete_user(
         await user_service.delete_user(user_id)
     except NotFoundException as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
-

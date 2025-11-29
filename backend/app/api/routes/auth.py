@@ -7,7 +7,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, status
 
-from ...core.errors import AuthenticationException
+from ...core.exceptions import AuthenticationException
 from ...schemas.auth_schemas import LoginRequest, LoginResponse
 from ...services import AuthService
 
@@ -79,4 +79,3 @@ async def login(
             detail=str(e),
             headers={"WWW-Authenticate": "Bearer"},
         )
-

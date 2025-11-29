@@ -19,7 +19,7 @@ from fastapi import (
 )
 
 from ...core.constants import BreedType
-from ...core.errors import MLModelException, ValidationException
+from ...core.exceptions import MLModelException, ValidationException
 from ...services.ml_service import MLService
 
 # Router con prefijo /api/v1/ml
@@ -105,9 +105,11 @@ async def predict_weight(
         # Retornar respuesta
         return {
             "id": str(weight_estimation.id),
-            "animal_id": str(weight_estimation.animal_id)
-            if weight_estimation.animal_id
-            else None,
+            "animal_id": (
+                str(weight_estimation.animal_id)
+                if weight_estimation.animal_id
+                else None
+            ),
             "breed": weight_estimation.breed,
             "estimated_weight_kg": weight_estimation.estimated_weight_kg,
             "confidence": weight_estimation.confidence,
