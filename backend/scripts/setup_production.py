@@ -1,0 +1,165 @@
+"""
+Script de Setup para Producción/Cloud
+
+Prepara el backend para deployment en la nube:
+- Verifica dependencias
+- Crea directorios necesarios
+- Valida configuración
+- Prepara modelos ML
+
+Uso:
+    python scripts/setup_production.py
+"""
+
+import sys
+from pathlib import Path
+
+# Agregar el directorio raíz al path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
+from app.core.config import settings
+
+
+def check_dependencies():
+    """Verifica que todas las dependencias estén instaladas."""
+    print("🔍 Verificando dependencias...")
+
+    required_packages = [
+        "fastapi",
+        "uvicorn",
+        "motor",
+        "beanie",
+        "pydantic",
+        "python-jose",
+        "passlib",
+    ]
+
+    missing = []
+    for package in required_packages:
+        try:
+            __import__(package.replace("-", "_"))
+            print(f"   ✅ {package}")
+        except ImportError:
+            print(f"   ❌ {package} - FALTA")
+            missing.append(package)
+
+    # Verificar tensorflow-lite-runtime (opcional pero recomendado)
+    try:
+        import tflite_runtime.interpreter as tflite  # type: ignore  # noqa: F401
+
+        print("   ✅ tensorflow-lite-runtime")
+    except ImportError:
+        print("   ⚠️  tensorflow-lite-runtime - No instalado (opcional)")
+
+    if missing:
+        print(f"\n❌ Faltan dependencias: {', '.join(missing)}")
+        print("   Instala con: pip install -r requirements.txt")
+        return False
+
+    print("✅ Todas las dependencias están instaladas\n")
+    return True
+
+
+def create_directories():
+    """Crea directorios necesarios."""
+    print("📁 Creando directorios necesarios...")
+
+    directories = [
+        "ml_models",
+        "logs",
+        "uploads",
+    ]
+
+    for dir_name in directories:
+        dir_path = Path(dir_name)
+        dir_path.mkdir(parents=True, exist_ok=True)
+        print(f"   ✅ {dir_name}/")
+
+    print("✅ Directorios creados\n")
+
+
+def check_ml_models():
+    """Verifica modelos ML."""
+    print("🤖 Verificando modelos ML...")
+
+    models_path = Path(settings.ML_MODELS_PATH)
+    default_model = models_path / settings.ML_DEFAULT_MODEL
+
+    if default_model.exists():
+        file_size = default_model.stat().st_size / (1024 * 1024)  # MB
+        print(f"   ✅ Modelo encontrado: {settings.ML_DEFAULT_MODEL}")
+        print(f"      Tamaño: {file_size:.2f} MB")
+    else:
+        print(f"   ⚠️  Modelo no encontrado: {default_model}")
+        print("      Descarga el modelo desde Colab/Drive")
+        print("      Ver guía: backend/INTEGRATION_GUIDE.md")
+
+    print()
+
+
+def validate_config():
+    """Valida configuración crítica."""
+    print("⚙️  Validando configuración...")
+
+    issues = []
+
+    # Verificar MongoDB URL
+    if (
+        settings.MONGODB_URL == "mongodb://localhost:27017"
+        and settings.ENVIRONMENT == "production"
+    ):
+        issues.append("⚠️  MONGODB_URL está en localhost (cambiar en producción)")
+
+    # Verificar Secret Key
+    if (
+        settings.SECRET_KEY == "CHANGE_THIS_IN_PRODUCTION_USE_ENV_FILE"
+        and settings.ENVIRONMENT == "production"
+    ):
+        issues.append("❌ SECRET_KEY no configurado (CRÍTICO en producción)")
+
+    # Verificar CORS
+    if "*" in settings.CORS_ORIGINS and settings.ENVIRONMENT == "production":
+        issues.append("⚠️  CORS permite todos los orígenes (restringir en producción)")
+
+    if issues:
+        print("   Problemas encontrados:")
+        for issue in issues:
+            print(f"   {issue}")
+    else:
+        print("   ✅ Configuración válida")
+
+    print()
+
+
+def main():
+    """Función principal."""
+    print("=" * 70)
+    print("🚀 Setup de Producción - Backend FastAPI")
+    print("=" * 70)
+    print()
+
+    # Verificar dependencias
+    if not check_dependencies():
+        sys.exit(1)
+
+    # Crear directorios
+    create_directories()
+
+    # Verificar modelos ML
+    check_ml_models()
+
+    # Validar configuración
+    validate_config()
+
+    print("=" * 70)
+    print("✅ Setup completado")
+    print()
+    print("📝 Próximos pasos:")
+    print("   1. Configurar variables de entorno (.env)")
+    print("   2. Descargar modelo TFLite desde Colab/Drive")
+    print("   3. Ejecutar: python -m app.main")
+    print("=" * 70)
+
+
+if __name__ == "__main__":
+    main()

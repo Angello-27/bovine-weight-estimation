@@ -20,6 +20,7 @@ import sys
 from collections import Counter
 from datetime import datetime, timedelta
 from pathlib import Path
+from typing import cast
 from uuid import UUID
 
 # Agregar el directorio raíz al path
@@ -31,12 +32,14 @@ from motor.motor_asyncio import AsyncIOMotorClient
 from app.core.config import settings
 from app.core.constants import AgeCategory, BreedType
 from app.models import (
+    AlertModel,
     AnimalModel,
     FarmModel,
     RoleModel,
     UserModel,
     WeightEstimationModel,
 )
+from app.models.alert_model import AlertStatus, AlertType, RecurrenceType
 from app.services import AuthService
 
 # IDs fijos para datos de seed (para reproducibilidad)
@@ -262,7 +265,7 @@ async def create_farm(owner: UserModel) -> FarmModel:
     print(f"      📊 Capacidad: {farm.capacity} animales")
 
     # Actualizar usuario con farm_id
-    owner.farm_id = farm.id
+    owner.farm_id = cast(UUID, farm.id)  # type: ignore[assignment]
     await owner.save()
     print(f"   ✅ Usuario {owner.username} asociado a finca {farm.name}")
 
@@ -531,6 +534,146 @@ def generate_weight_estimations(
     return estimations
 
 
+def generate_sample_alerts(
+    user_id: UUID, farm_id: UUID, animals: list[AnimalModel]
+) -> list[AlertModel]:
+    """
+    Genera alertas de ejemplo con cronograma para hatos.
+
+    Incluye alertas programadas filtradas por:
+    - Raza/especie
+    - Categoría de edad
+    - Género
+    - Cantidad de animales
+    """
+    alerts = []
+    now = datetime.utcnow()
+
+    # Contar animales por criterios
+    breed_counts = Counter(animal.breed for animal in animals)
+
+    # Alerta 1: Pesaje masivo de Nelore (raza más común)
+    nelore_count = breed_counts.get("nelore", 0)
+    if nelore_count > 0:
+        alerts.append(
+            AlertModel(
+                user_id=user_id,
+                farm_id=farm_id,
+                type=AlertType.SCHEDULED_WEIGHING,
+                title="Pesaje Masivo - Nelore",
+                message=f"Pesar {min(nelore_count, 50)} animales Nelore del potrero principal",
+                status=AlertStatus.PENDING,
+                scheduled_at=now + timedelta(days=7),  # Próxima semana
+                recurrence=RecurrenceType.MONTHLY,
+                reminder_before_days=[7, 1],
+                filter_criteria={
+                    "breed": "nelore",
+                    "count": min(nelore_count, 50),
+                },
+                location={
+                    "type": "Point",
+                    "coordinates": [-60.797889, -15.859500],
+                },
+            )
+        )
+
+    # Alerta 2: Tratamiento veterinario para terneros
+    terneros = [
+        a for a in animals if a.calculate_age_category() == AgeCategory.TERNEROS
+    ]
+    terneros_count = len(terneros)
+    if terneros_count > 0:
+        alerts.append(
+            AlertModel(
+                user_id=user_id,
+                farm_id=farm_id,
+                type=AlertType.VETERINARY_TREATMENT,
+                title="Vacunación - Terneros",
+                message=f"Vacunar {terneros_count} terneros (<8 meses) - Programa sanitario",
+                status=AlertStatus.PENDING,
+                scheduled_at=now + timedelta(days=14),  # En 2 semanas
+                recurrence=RecurrenceType.QUARTERLY,
+                reminder_before_days=[7, 3, 1],
+                filter_criteria={
+                    "age_category": "terneros",
+                    "count": terneros_count,
+                },
+            )
+        )
+
+    # Alerta 3: Pesaje de vaquillonas hembras
+    vaquillonas = [
+        a
+        for a in animals
+        if a.gender == "female"
+        and a.calculate_age_category() == AgeCategory.VAQUILLONAS_TORILLOS
+    ]
+    vaquillonas_count = len(vaquillonas)
+    if vaquillonas_count > 0:
+        alerts.append(
+            AlertModel(
+                user_id=user_id,
+                farm_id=farm_id,
+                type=AlertType.SCHEDULED_WEIGHING,
+                title="Control de Peso - Vaquillonas",
+                message=f"Pesar {vaquillonas_count} vaquillonas (6-18 meses) para control de desarrollo",
+                status=AlertStatus.PENDING,
+                scheduled_at=now + timedelta(days=10),
+                recurrence=RecurrenceType.MONTHLY,
+                reminder_before_days=[7, 1],
+                filter_criteria={
+                    "age_category": "vaquillonas_torillos",
+                    "gender": "female",
+                    "count": vaquillonas_count,
+                },
+            )
+        )
+
+    # Alerta 4: Pesaje de Brahman machos
+    brahman_males = [a for a in animals if a.breed == "brahman" and a.gender == "male"]
+    brahman_males_count = len(brahman_males)
+    if brahman_males_count > 0:
+        alerts.append(
+            AlertModel(
+                user_id=user_id,
+                farm_id=farm_id,
+                type=AlertType.SCHEDULED_WEIGHING,
+                title="Pesaje - Toros Brahman",
+                message=f"Pesar {brahman_males_count} toros Brahman para evaluación reproductiva",
+                status=AlertStatus.PENDING,
+                scheduled_at=now + timedelta(days=5),
+                recurrence=RecurrenceType.MONTHLY,
+                reminder_before_days=[3, 1],
+                filter_criteria={
+                    "breed": "brahman",
+                    "gender": "male",
+                    "count": brahman_males_count,
+                },
+            )
+        )
+
+    # Alerta 5: Evento calendario - Competencia ASOCEBU
+    alerts.append(
+        AlertModel(
+            user_id=user_id,
+            farm_id=farm_id,
+            type=AlertType.CALENDAR_EVENT,
+            title="Competencia ASOCEBU - Exposición Ganadera",
+            message="Preparar animales Nelore y Brahman para exposición",
+            status=AlertStatus.PENDING,
+            scheduled_at=now + timedelta(days=30),
+            recurrence=RecurrenceType.YEARLY,
+            reminder_before_days=[30, 14, 7, 1],
+            filter_criteria={
+                "breed": ["nelore", "brahman"],
+                "count": 10,
+            },
+        )
+    )
+
+    return alerts
+
+
 async def seed_database():
     """Función principal para cargar datos iniciales con trazabilidad completa."""
     print("🌱 Iniciando carga de datos iniciales con TRAZABILIDAD COMPLETA...")
@@ -545,6 +688,7 @@ async def seed_database():
         await init_beanie(
             database=client[settings.MONGODB_DB_NAME],
             document_models=[
+                AlertModel,
                 AnimalModel,
                 FarmModel,
                 RoleModel,
@@ -556,6 +700,7 @@ async def seed_database():
 
         # Limpiar datos existentes
         print("🗑️  Limpiando datos existentes...")
+        await AlertModel.delete_all()
         await AnimalModel.delete_all()
         await WeightEstimationModel.delete_all()
         await FarmModel.delete_all()
@@ -602,6 +747,16 @@ async def seed_database():
         await WeightEstimationModel.insert_many(estimations)
         print(f"✅ {len(estimations)} estimaciones insertadas en MongoDB\n")
 
+        # Generar alertas de ejemplo con cronograma
+        print("🔔 Generando alertas de ejemplo con cronograma...")
+        alerts = generate_sample_alerts(bruno.id, farm_id, animals)
+        print(f"   📝 {len(alerts)} alertas generadas")
+
+        # Insertar alertas
+        if alerts:
+            await AlertModel.insert_many(alerts)
+            print(f"✅ {len(alerts)} alertas insertadas en MongoDB\n")
+
         # Resumen detallado
         print("=" * 70)
         print("📊 RESUMEN DE DATOS CARGADOS - TRAZABILIDAD COMPLETA")
@@ -614,6 +769,9 @@ async def seed_database():
         print(
             f"📈 Promedio de pesajes por animal: {len(estimations) / len(animals):.1f}"
         )
+        alerts_count = len(alerts) if "alerts" in locals() else 0
+        if alerts_count > 0:
+            print(f"🔔 Alertas programadas: {alerts_count}")
         print(f"🏢 Hacienda ID: {farm_id}\n")
 
         # Distribución por raza
