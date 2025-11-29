@@ -1,6 +1,6 @@
 """
-Auth Dependencies
-Dependencias para autenticación y autorización
+API Dependencies
+Dependencias para autenticación y autorización en FastAPI
 """
 
 from typing import Annotated
@@ -8,10 +8,10 @@ from typing import Annotated
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
-from ...core.exceptions import AuthenticationException  # type: ignore
-from ...models import UserModel
-from ...schemas.auth_schemas import TokenData
-from ...services import AuthService
+from ..core.exceptions import AuthenticationException
+from ..models import UserModel
+from ..schemas.auth_schemas import TokenData
+from ..services import AuthService
 
 # Security scheme para JWT Bearer tokens
 security = HTTPBearer()
