@@ -7,8 +7,8 @@ Single Responsibility: Coordinar proceso de estimación de peso con IA
 
 from uuid import UUID
 
-from ..core.constants import BreedType
 from ..core.exceptions import ValidationException
+from ..domain.shared.constants import BreedType
 from ..ml import MLInferenceEngine
 from ..models import WeightEstimationModel
 
@@ -75,7 +75,7 @@ class MLService:
             method="strategy_based",  # Indicar método basado en estrategias
             model_version=result.model_version,
             processing_time_ms=result.processing_time_ms,
-            frame_image_path=f"temp/frame_{animal_id or 'unknown'}.jpg",  # TODO: S3
+            frame_image_path=f"temp/frame_{animal_id or 'unknown'}.jpg",
             device_id=device_id,
         )
 

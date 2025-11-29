@@ -6,7 +6,7 @@ Entidad pura del dominio sin dependencias externas
 from datetime import datetime
 from uuid import UUID, uuid4
 
-from ...core.constants import AgeCategory
+from ..shared.constants import AgeCategory
 
 
 class Animal:
@@ -92,4 +92,3 @@ class Animal:
     def __hash__(self) -> int:
         """Hash basado en ID."""
         return hash(self.id)
-

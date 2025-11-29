@@ -8,7 +8,7 @@ from uuid import UUID
 
 from pydantic import BaseModel, Field, field_validator
 
-from ..core.constants import BreedType
+from ..domain.shared.constants import BreedType
 
 
 class AnimalCreateRequest(BaseModel):

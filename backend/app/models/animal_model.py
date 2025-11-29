@@ -9,7 +9,7 @@ from uuid import UUID, uuid4
 from beanie import Document, Indexed
 from pydantic import Field
 
-from ..core.constants import AgeCategory, BreedType
+from ..domain.shared.constants import AgeCategory, BreedType
 
 
 class AnimalModel(Document):

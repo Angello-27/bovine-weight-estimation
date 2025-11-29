@@ -9,7 +9,7 @@ from uuid import UUID, uuid4
 from beanie import Document, Indexed
 from pydantic import Field, field_validator
 
-from ..core.constants import BreedType, SystemMetrics
+from ..domain.shared.constants import BreedType, SystemMetrics
 
 
 class WeightEstimationModel(Document):

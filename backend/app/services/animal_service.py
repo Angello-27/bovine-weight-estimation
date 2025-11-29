@@ -160,7 +160,7 @@ class AnimalService:
         Returns:
             AnimalResponse con campos calculados
         """
-        from ..core.constants import BreedType
+        from ..domain.shared.constants import BreedType
 
         return AnimalResponse(
             id=animal.id,
