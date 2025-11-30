@@ -8,7 +8,7 @@ from uuid import UUID
 
 from pydantic import BaseModel, Field, field_validator
 
-from ..models.alert_model import AlertStatus, AlertType, RecurrenceType
+from ..domain.entities.alert import AlertStatus, AlertType, RecurrenceType
 
 
 class AlertCreateRequest(BaseModel):
