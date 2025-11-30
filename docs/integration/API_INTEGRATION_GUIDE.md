@@ -51,10 +51,13 @@
     "priority": "Administrador"
   },
   "role_id": "660e8400-e29b-41d4-a716-446655440001",
+  "farm_id": "770e8400-e29b-41d4-a716-446655440000",
   "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
   "token_type": "bearer"
 }
 ```
+
+**Nota**: El campo `farm_id` puede ser `null` si el usuario no tiene una finca asignada. Si es `null`, el usuario deberá seleccionar una finca antes de poder listar animales.
 
 **Response 401** (Credenciales inválidas):
 ```json
