@@ -1,15 +1,16 @@
 // components/atoms/LogoutButton/index.js
 import Button from '@mui/material/Button';
-import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../services/auth/AuthContext';
+import { logoutUser } from '../../../services/auth/authService';
 
 function LogoutButton() {
     const { logout } = useAuth();
-    const navigate = useNavigate();
 
     const handleLogout = () => {
+        // Limpiar contexto de sesión
         logout();
-        navigate('/');
+        // Limpiar localStorage y redirigir (logoutUser ya hace esto)
+        logoutUser();
     };
 
     return <Button

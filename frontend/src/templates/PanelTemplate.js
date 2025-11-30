@@ -3,12 +3,13 @@ import MainLayout from '../components/layout/MainLayout';
 import { useAuth } from '../services/auth/AuthContext';
 
 function PanelTemplate({ content }) {
-    const { username, role } = useAuth(); // Accedes a los datos del usuario
+    const { role } = useAuth(); // Accedes al rol del usuario para filtrar el sidebar
 
-    if (!username && !role) return;
+    // No retornar nada si no hay rol (no está autenticado)
+    if (!role) return null;
 
     return (
-        <MainLayout title={username} menu={role}>
+        <MainLayout menu={role}>
             {content}
         </MainLayout>
     );

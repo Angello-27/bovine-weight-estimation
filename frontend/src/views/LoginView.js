@@ -1,7 +1,7 @@
 // src/views/LoginView.js
 
 import React from 'react';
-import LoginContainer from '../containers/LoginContainer';
+import LoginContainer from '../containers/auth/LoginContainer';
 import LoginTemplate from '../templates/LoginTemplate';
 
 function LoginView() {

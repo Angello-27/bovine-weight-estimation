@@ -1,6 +1,6 @@
 // frontend/src/components/molecules/PageHeaderCentered/index.js
 
-import Grid from "@mui/material/Grid";
+import Box from "@mui/material/Box";
 import CustomTypography from '../../atoms/CustomTypography';
 
 /**
@@ -10,16 +10,29 @@ import CustomTypography from '../../atoms/CustomTypography';
  */
 function PageHeaderCentered({ title, description }) {
     return (
-        <Grid container item justifyContent="center" xs={12} mb={4} textAlign="center">
-            <CustomTypography variant="h3" mb={description ? 2 : 0}>
+        <Box 
+            sx={{ 
+                textAlign: 'center',
+                mb: 4,
+                py: 2
+            }}
+        >
+            <CustomTypography 
+                customVariant="pageTitle"
+                sx={{ 
+                    mb: description ? 2 : 0
+                }}
+            >
                 {title}
             </CustomTypography>
             {description && (
-                <CustomTypography variant="body1" color="text.secondary">
+                <CustomTypography 
+                    customVariant="pageDescription"
+                >
                     {description}
                 </CustomTypography>
             )}
-        </Grid>
+        </Box>
     );
 }
 

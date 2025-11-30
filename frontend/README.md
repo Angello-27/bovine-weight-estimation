@@ -74,16 +74,76 @@ Esto crea una carpeta `build/` con los archivos optimizados listos para desplega
 frontend/
 ├── public/              # Archivos estáticos
 ├── src/
-│   ├── api/            # Configuración de axios
+│   ├── api/            # Configuración de axios (cliente HTTP con middleware)
+│   │   └── axiosClient.js  # Cliente HTTP con interceptores (middleware)
 │   ├── components/     # Componentes (Atomic Design)
-│   ├── config/         # Configuración (rutas, temas, constantes)
-│   ├── containers/     # Lógica de negocio
-│   ├── services/       # Servicios API
-│   ├── templates/       # Templates de páginas
-│   ├── utils/          # Utilidades
-│   └── views/          # Vistas principales
+│   │   ├── atoms/      # Componentes básicos (botones, inputs)
+│   │   ├── molecules/  # Componentes compuestos (ProtectedRoute, formularios)
+│   │   ├── organisms/  # Componentes complejos (listas, tablas, formularios completos)
+│   │   ├── layout/     # Componentes de layout (Header, Sidebar, Footer)
+│   │   └── auth/       # Componentes de autenticación (legacy, usar molecules/)
+│   ├── config/         # Configuración centralizada
+│   │   ├── routes.js          # Definición de rutas React Router
+│   │   ├── routesConfig.js    # Configuración centralizada de rutas y sidebar
+│   │   ├── constants.js       # Constantes de la aplicación (razas, estados)
+│   │   ├── theme/             # Configuración de temas
+│   │   └── themes.js          # Temas Material-UI
+│   ├── containers/     # Hooks de lógica de negocio (casos de uso)
+│   │   ├── auth/       # Casos de uso de autenticación
+│   │   ├── cattle/     # Casos de uso de ganado
+│   │   ├── weight-estimations/  # Casos de uso de estimaciones
+│   │   ├── farm/       # Casos de uso de fincas
+│   │   ├── user/       # Casos de uso de usuarios
+│   │   ├── role/       # Casos de uso de roles
+│   │   ├── sync/       # Casos de uso de sincronización
+│   │   └── dashboard/  # Casos de uso del dashboard
+│   ├── services/       # Servicios API (llamadas al backend)
+│   │   ├── auth/       # Servicios de autenticación
+│   │   │   ├── authService.js  # Casos de uso: login, logout, getCurrentUser
+│   │   │   └── AuthContext.js  # Context API para estado de autenticación
+│   │   ├── cattle/     # Servicios de ganado
+│   │   ├── weight-estimations/  # Servicios de estimaciones
+│   │   ├── farm/       # Servicios de fincas
+│   │   ├── user/       # Servicios de usuarios
+│   │   ├── role/       # Servicios de roles
+│   │   ├── sync/       # Servicios de sincronización
+│   │   └── reports/    # Servicios de reportes
+│   ├── templates/      # Templates de páginas (layouts de vistas)
+│   ├── utils/          # Utilidades (transformers, helpers)
+│   └── views/          # Vistas principales (páginas de la aplicación)
 └── package.json
 ```
+
+### 📚 Organización por Responsabilidades
+
+**API (`src/api/`)**: Cliente HTTP con middleware (interceptores)
+- `axiosClient.js`: Configuración base, interceptores de request/response
+
+**Services (`src/services/`)**: Casos de uso que interactúan con el backend
+- Organizados por dominio: `auth/`, `cattle/`, `weight-estimations/`, etc.
+- Cada servicio representa un caso de uso específico
+
+**Containers (`src/containers/`)**: Hooks personalizados que orquestan servicios
+- Organizados por dominio, igual que services
+- Combinan múltiples servicios y lógica de estado local
+
+**Components (`src/components/`)**: UI components siguiendo Atomic Design
+- **Atoms**: Componentes básicos reutilizables
+- **Molecules**: Componentes compuestos (ej: `ProtectedRoute`)
+- **Organisms**: Componentes complejos con lógica propia
+- **Layout**: Componentes estructurales (Header, Sidebar, Footer)
+
+**Config (`src/config/`)**: Configuración centralizada
+- `routesConfig.js`: Fuente única de verdad para rutas y sidebar
+- `constants.js`: Constantes de la aplicación
+- `routes.js`: Configuración de React Router
+
+### 🔑 Principios de Organización
+
+1. **Separación de Responsabilidades**: Services (API) → Containers (Lógica) → Components (UI)
+2. **Atomic Design**: Componentes organizados por complejidad
+3. **Single Source of Truth**: `routesConfig.js` centraliza rutas y sidebar
+4. **Domain-Driven**: Services y Containers organizados por dominio de negocio
 
 ## 🔧 Configuración del Backend
 
@@ -126,9 +186,23 @@ PORT=3001 npm start
 - **Axios** para peticiones HTTP
 - **Atomic Design** para estructura de componentes
 
+## 📚 Documentación de Integración
+
+> 📖 **Guía Completa de Integración**: Ver [`docs/integration/FRONTEND_INTEGRATION_GUIDE.md`](../docs/integration/FRONTEND_INTEGRATION_GUIDE.md)
+
+Esta guía incluye:
+- Integración completa con Backend FastAPI
+- Uso de APIs REST
+- Estimación de Peso desde Web (ML)
+- Sistema de Trazabilidad
+- Sistema de Reportes
+- Autenticación y Autorización
+- Checklist completo de implementación
+
 ## 🔗 Enlaces Útiles
 
 - [React Documentation](https://react.dev/)
 - [Material-UI Documentation](https://mui.com/)
 - [React Router Documentation](https://reactrouter.com/)
+- [Documentación API Backend](../docs/integration/API_INTEGRATION_GUIDE.md)
 

@@ -1,18 +1,19 @@
-// src/components/molecules/GridContainer.js
+// src/components/molecules/MainContainer/index.js
 import React from 'react';
-import { Grid } from '@mui/material';
+import Box from '@mui/material/Box';
 
-const gridStyles = {
+const containerStyles = {
     display: 'flex',
     flexDirection: 'column',
     minHeight: '100vh',
+    width: '100%',
 };
 
 function MainContainer({ children }) {
     return (
-        <Grid elevation={3} sx={gridStyles}>
+        <Box sx={containerStyles}>
             {children}
-        </Grid>
+        </Box>
     );
 }
 

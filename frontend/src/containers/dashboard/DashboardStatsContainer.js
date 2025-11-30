@@ -17,20 +17,40 @@ function DashboardStatsContainer() {
     useEffect(() => {
         async function fetchStats() {
             try {
-                // Obtener datos de animales
-                const cattleData = await getAllCattle();
-                const cattleList = cattleData.animals || cattleData || [];
+                setError(null);
+                
+                // Obtener datos de animales con manejo de errores mejorado
+                let cattleList = [];
+                try {
+                    const cattleData = await getAllCattle();
+                    // El backend puede retornar { animals: [], total: 0 } o directamente []
+                    cattleList = Array.isArray(cattleData) 
+                        ? cattleData 
+                        : (cattleData?.animals || []);
+                } catch (cattleError) {
+                    console.warn('Error al obtener animales (continuando):', cattleError);
+                    // Continuar aunque falle, mostrar 0
+                }
 
-                // Obtener datos de estimaciones
-                const estimationsData = await getAllWeightEstimations();
-                const estimationsList = estimationsData.weighings || estimationsData || [];
+                // Obtener datos de estimaciones con manejo de errores mejorado
+                let estimationsList = [];
+                try {
+                    const estimationsData = await getAllWeightEstimations();
+                    // El backend puede retornar { weighings: [], total: 0 } o directamente []
+                    estimationsList = Array.isArray(estimationsData)
+                        ? estimationsData
+                        : (estimationsData?.weighings || []);
+                } catch (estimationsError) {
+                    console.warn('Error al obtener estimaciones (continuando):', estimationsError);
+                    // Continuar aunque falle, mostrar 0
+                }
 
                 // Calcular estadísticas
                 const totalCattle = cattleList.length;
                 
                 // Calcular peso promedio (de estimaciones más recientes por animal)
                 const weights = estimationsList
-                    .map(est => est.estimated_weight)
+                    .map(est => est.estimated_weight_kg || est.estimated_weight)
                     .filter(w => w && w > 0);
                 const averageWeight = weights.length > 0
                     ? weights.reduce((sum, w) => sum + w, 0) / weights.length
@@ -49,8 +69,10 @@ function DashboardStatsContainer() {
                     totalEstimations,
                 });
             } catch (err) {
-                setError(err.message);
-                console.error('Error al obtener estadísticas:', err);
+                // Solo establecer error si es un error crítico
+                const errorMessage = err.response?.data?.detail || err.message || 'Error al obtener estadísticas';
+                setError(errorMessage);
+                console.error('Error crítico al obtener estadísticas:', err);
             } finally {
                 setLoading(false);
             }

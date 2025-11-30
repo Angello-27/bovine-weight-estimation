@@ -9,18 +9,32 @@ export const lightTheme = createTheme({
         mode: 'light',
         primary: {
             main: colors.primary,
-            light: colors.lightPrimary, // Añade el nuevo color claro
-            dark: colors.darkPrimary, // Añade el nuevo color oscuro
+            light: colors.lightPrimary,
+            dark: colors.darkPrimary,
         },
         secondary: {
             main: colors.accent,
-            light: colors.lightAccent, // Añade el nuevo color claro
-            dark: colors.darkAccent, // Añade el nuevo color oscuro
+            light: colors.lightAccent,
+            dark: colors.darkAccent,
+        },
+        background: {
+            default: '#f8f9fa', // Color de fondo claro para mejor contraste
+            paper: '#ffffff', // Color blanco puro para las cards/papers
         },
         // ...otros valores del tema light que desees añadir
     },
     typography: {
         fontFamily: 'Roboto, sans-serif',
+    },
+    components: {
+        MuiPaper: {
+            styleOverrides: {
+                root: {
+                    backgroundColor: '#ffffff',
+                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)', // Sombra más visible en light mode
+                },
+            },
+        },
     },
 });
 
@@ -31,17 +45,31 @@ export const darkTheme = createTheme({
         mode: 'dark',
         primary: {
             main: colors.accent,
-            light: colors.lightAccent, // Añade el nuevo color claro
-            dark: colors.darkAccent, // Añade el nuevo color oscuro
+            light: colors.lightAccent,
+            dark: colors.darkAccent,
         },
         secondary: {
             main: colors.primary,
-            light: colors.lightPrimary, // Añade el nuevo color claro
-            dark: colors.darkPrimary, // Añade el nuevo color oscuro
+            light: colors.lightPrimary,
+            dark: colors.darkPrimary,
+        },
+        background: {
+            default: '#27282A', // Fondo oscuro
+            paper: '#1e1f21', // Paper más oscuro para mejor contraste
         },
         // ...otros valores del tema dark que desees añadir
     },
     typography: {
         fontFamily: 'Roboto, sans-serif',
+    },
+    components: {
+        MuiPaper: {
+            styleOverrides: {
+                root: {
+                    backgroundColor: '#1e1f21',
+                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.3)', // Sombra más pronunciada en dark mode
+                },
+            },
+        },
     },
 });

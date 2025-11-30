@@ -1,10 +1,9 @@
 // src/config/constants.js
-
-import DashboardIcon from '@mui/icons-material/Dashboard';
-import PetsIcon from '@mui/icons-material/Pets';
-import ScaleIcon from '@mui/icons-material/Scale';
-import SyncIcon from '@mui/icons-material/Sync';
-import BarChartIcon from '@mui/icons-material/BarChart';
+/**
+ * Constantes de la aplicación
+ * 
+ * Nota: Para configuración de rutas y sidebar, ver routesConfig.js
+ */
 
 export const drawer = {
     width: 304,
@@ -16,11 +15,27 @@ export const radioButtonsRoles = [
     { id: "Invitado", label: "Invitado" }
 ];
 
-export const sidebarItems = [
-    { text: 'Dashboard', icon: <DashboardIcon />, to: "/home", roles: ['Administrador', 'Usuario', 'Invitado'] },
-    { text: 'Ganado', icon: <PetsIcon />, to: "/cattle", roles: ['Administrador', 'Usuario'] },
-    { text: 'Estimaciones de Peso', icon: <ScaleIcon />, to: "/weight-estimations", roles: ['Administrador', 'Usuario'] },
-    { text: 'Sincronización', icon: <SyncIcon />, to: "/sync", roles: ['Administrador'] },
-    { text: 'Estadísticas', icon: <BarChartIcon />, to: "/statistics", roles: ['Administrador', 'Usuario'] }
+import { getAllSidebarItems } from './routesConfig';
+export const sidebarItems = getAllSidebarItems();
+
+// Razas válidas de bovinos (7 razas exactas del sistema)
+export const BREEDS = [
+    'nelore',
+    'brahman',
+    'guzerat',
+    'senepol',
+    'girolando',
+    'gyr_lechero',
+    'sindi',
 ];
+
+// Estados posibles de un animal
+export const ANIMAL_STATUS = ['active', 'inactive', 'sold', 'deceased'];
+
+// Géneros posibles de un animal
+export const GENDERS = ['male', 'female'];
+
+// Configuración de API
+export const API_VERSION = 'v1';
+export const API_BASE_URL = import.meta.env.REACT_APP_API_URL || 'http://localhost:8000';
 

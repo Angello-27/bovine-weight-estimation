@@ -5,19 +5,20 @@ import List from '@mui/material/List';
 import DrawerHeader from '../../molecules/DrawerHeader';
 import DrawerContent from '../../organisms/DrawerContent';
 import SidebarItem from '../../atoms/SidebarItem';
-import { sidebarItems } from '../../../config/constants';
+import { getAllSidebarItems } from '../../../config/routesConfig';
 
 function Sidebar({ menu, open, handleDrawerClose }) {
+    const sidebarItems = getAllSidebarItems();
 
     return (
         <DrawerContent open={open}>
             <DrawerHeader handleDrawerClose={handleDrawerClose} />
             <Divider />
             <List>
-                {/* Aquí va el resto de tu código relacionado con la lista del Sidebar */}
+                {/* Renderiza items del sidebar filtrados por rol del usuario */}
                 {sidebarItems.map(item => {
                     // Verifica si el role actual puede ver este ítem
-                    if (item.roles.includes(menu)) {
+                    if (item.roles && item.roles.includes(menu)) {
                         return (
                             <SidebarItem
                                 key={item.text}

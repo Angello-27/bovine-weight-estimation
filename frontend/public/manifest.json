@@ -1,6 +1,7 @@
 {
-  "short_name": "Agrocom Web",
-  "name": "Panel Administrativo de Agrocom",
+  "short_name": "Hacienda Gamelera",
+  "name": "Panel Administrativo - Sistema de Estimación de Peso Bovino con IA",
+  "description": "Panel web administrativo para gestión de ganado y estimaciones de peso con inteligencia artificial - Hacienda Gamelera",
   "icons": [
     {
       "src": "favicon.ico",
@@ -20,6 +21,10 @@
   ],
   "start_url": ".",
   "display": "standalone",
-  "theme_color": "#000000",
-  "background_color": "#ffffff"
+  "theme_color": "#255946",
+  "background_color": "#ffffff",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "es-BO",
+  "dir": "ltr"
 }

@@ -1,9 +1,28 @@
-// src/components/atoms/CustomButton.js
-import { Button } from '@mui/material';
+// frontend/src/components/atoms/CustomButton/index.js
 
-function CustomButton({ variant, fullWidth, children, ...props }) {
+import Button from '@mui/material/Button';
+
+/**
+ * CustomButton atom - Botón personalizado con estilos consistentes del tema
+ * 
+ * Características:
+ * - Estilos adaptados al tema (light/dark)
+ * - Altura consistente
+ * - Soportan todas las props de Button de MUI
+ */
+function CustomButton({ children, sx, ...props }) {
     return (
-        <Button variant={variant} fullWidth={fullWidth} {...props}>
+        <Button
+            sx={{
+                minHeight: '48px',
+                textTransform: 'none',
+                fontWeight: 500,
+                borderRadius: 2,
+                px: 3,
+                ...sx,
+            }}
+            {...props}
+        >
             {children}
         </Button>
     );
