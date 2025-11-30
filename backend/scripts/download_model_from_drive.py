@@ -22,6 +22,11 @@ except ImportError:
     print("   Instala con: pip install gdown")
     sys.exit(1)
 
+try:
+    import requests  # type: ignore
+except ImportError:
+    requests = None  # type: ignore
+
 # Agregar path del backend para importar settings
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
@@ -83,9 +88,6 @@ def download_model_from_drive(
     # Crear directorio si no existe
     output_path.mkdir(parents=True, exist_ok=True)
 
-    # Construir URL de descarga
-    url = f"https://drive.google.com/uc?id={file_id}"
-
     output_file = output_path / model_filename
 
     print("\n📥 Descargando modelo desde Google Drive...")
@@ -93,8 +95,76 @@ def download_model_from_drive(
     print(f"   Output: {output_file}")
 
     try:
-        # Descargar archivo
-        gdown.download(url, str(output_file), quiet=False)
+        # Método 1: Intentar con gdown (puede fallar con algunos archivos)
+        url = f"https://drive.google.com/uc?id={file_id}"
+        print(f"   URL: {url}")
+
+        try:
+            # Intentar descarga con fuzzy=True para manejar archivos grandes
+            gdown.download(url, str(output_file), quiet=False, fuzzy=True)
+
+            # Verificar que el archivo se descargó correctamente
+            if output_file.exists():
+                file_size = output_file.stat().st_size
+                # Si el archivo es muy pequeño (< 1KB), probablemente es un error HTML
+                if file_size < 1024:
+                    output_file.unlink()  # Eliminar archivo pequeño
+                    raise Exception(
+                        f"El archivo descargado es muy pequeño ({file_size} bytes). "
+                        "Verifica que el archivo esté compartido públicamente."
+                    )
+        except Exception as gdown_error:
+            # Si gdown falla, intentar con requests directamente
+            if requests is None:
+                raise gdown_error
+
+            print("   ⚠️ gdown falló, intentando método alternativo con requests...")
+
+            # Método alternativo: Descargar directamente usando requests
+            # Primero obtener el link de descarga real
+            share_url = f"https://drive.google.com/uc?export=download&id={file_id}"
+
+            # Hacer request con sesión para manejar cookies
+            session = requests.Session()
+            response = session.get(share_url, stream=True, allow_redirects=True)
+
+            # Si Google Drive muestra página de confirmación (archivos grandes)
+            # Buscar el link de descarga real en la respuesta
+            if (
+                "virus scan warning" in response.text.lower()
+                or "confirm" in response.text.lower()
+            ):
+                # Extraer el link de confirmación
+                import re
+
+                confirm_match = re.search(
+                    r'href="(/uc\?export=download[^"]+)', response.text
+                )
+                if confirm_match:
+                    confirm_url = "https://drive.google.com" + confirm_match.group(1)
+                    response = session.get(confirm_url, stream=True)
+
+            # Verificar que la respuesta es exitosa
+            response.raise_for_status()
+
+            # Descargar archivo en chunks
+            total_size = 0
+            with open(output_file, "wb") as f:
+                for chunk in response.iter_content(chunk_size=8192):
+                    if chunk:
+                        f.write(chunk)
+                        total_size += len(chunk)
+
+            if total_size < 1024:
+                output_file.unlink()
+                raise Exception(
+                    f"El archivo descargado es muy pequeño ({total_size} bytes). "
+                    "Verifica que el archivo esté compartido públicamente."
+                )
+
+            print(
+                f"   ✅ Descargado {total_size / (1024*1024):.2f} MB usando método alternativo"
+            )
 
         if output_file.exists():
             file_size = output_file.stat().st_size / (1024 * 1024)  # MB
@@ -110,13 +180,47 @@ def download_model_from_drive(
             sys.exit(1)
 
     except Exception as e:
-        print(f"❌ Error al descargar modelo: {e}")
-        print("\n💡 Consejos:")
-        print("   1. Verifica que el archivo esté compartido públicamente o con acceso")
-        print("   2. Verifica que el FILE_ID sea correcto")
-        print("   3. Extrae el FILE_ID del link compartido:")
-        print("      https://drive.google.com/file/d/FILE_ID_AQUI/view?usp=sharing")
-        print("   4. Intenta descargar manualmente desde Drive")
+        error_msg = str(e)
+        print(f"❌ Error al descargar modelo: {error_msg}")
+
+        # Intentar método alternativo si el primero falló
+        if "groups" in error_msg.lower() or "none" in error_msg.lower():
+            print("\n🔄 Intentando método alternativo de descarga...")
+            try:
+                # Método alternativo: usar formato de link compartido
+                share_url = (
+                    f"https://drive.google.com/file/d/{file_id}/view?usp=sharing"
+                )
+                gdown.download(share_url, str(output_file), quiet=False, fuzzy=True)
+
+                if output_file.exists() and output_file.stat().st_size > 1024:
+                    file_size = output_file.stat().st_size / (1024 * 1024)  # MB
+                    print("\n✅ Modelo descargado exitosamente (método alternativo)")
+                    print(f"   Tamaño: {file_size:.2f} MB")
+                    print(f"   Ubicación: {output_file.absolute()}")
+                    print("\n💡 El modelo está listo para usar en el backend.")
+                    print(
+                        f"   El sistema cargará automáticamente el modelo desde: {output_path.absolute()}"
+                    )
+                    return
+            except Exception as e2:
+                print(f"   ❌ Método alternativo también falló: {e2}")
+
+        print("\n💡 Consejos para resolver el problema:")
+        print(
+            "   1. Verifica que el archivo esté compartido con 'Cualquiera con el enlace'"
+        )
+        print(
+            "   2. Abre el link en el navegador para verificar que el archivo sea accesible:"
+        )
+        print(f"      https://drive.google.com/file/d/{file_id}/view?usp=sharing")
+        print("   3. Verifica que el FILE_ID sea correcto")
+        print("   4. Intenta descargar manualmente desde Drive y copiar a ml_models/")
+        print("   5. Verifica que tengas conexión a internet estable")
+        print("\n📝 Si el problema persiste, puedes descargar manualmente:")
+        print(f"   - Abre: https://drive.google.com/file/d/{file_id}/view?usp=sharing")
+        print(f"   - Descarga el archivo")
+        print(f"   - Copia a: {output_file.absolute()}")
         sys.exit(1)
 
 
