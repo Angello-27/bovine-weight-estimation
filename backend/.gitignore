@@ -165,3 +165,12 @@ dumps/
 *.bson
 *.json.gz
 
+# Ruff cache
+.ruff_cache/
+
+# Uploads temporales
+uploads/
+
+# Modelos YOLO descargados
+*.pt
+

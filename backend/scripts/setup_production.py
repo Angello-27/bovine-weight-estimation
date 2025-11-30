@@ -17,31 +17,32 @@ from pathlib import Path
 # Agregar el directorio raíz al path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from app.core.config import settings
+from app.core.config import settings  # noqa: E402
 
 
 def check_dependencies():
     """Verifica que todas las dependencias estén instaladas."""
     print("🔍 Verificando dependencias...")
 
-    required_packages = [
-        "fastapi",
-        "uvicorn",
-        "motor",
-        "beanie",
-        "pydantic",
-        "python-jose",
-        "passlib",
-    ]
+    # Mapeo de nombres de paquetes pip a nombres de módulos Python
+    required_packages = {
+        "fastapi": "fastapi",
+        "uvicorn": "uvicorn",
+        "motor": "motor",
+        "beanie": "beanie",
+        "pydantic": "pydantic",
+        "python-jose": "jose",  # El paquete se llama python-jose pero el módulo es jose
+        "passlib": "passlib",
+    }
 
     missing = []
-    for package in required_packages:
+    for package_name, module_name in required_packages.items():
         try:
-            __import__(package.replace("-", "_"))
-            print(f"   ✅ {package}")
+            __import__(module_name)
+            print(f"   ✅ {package_name}")
         except ImportError:
-            print(f"   ❌ {package} - FALTA")
-            missing.append(package)
+            print(f"   ❌ {package_name} - FALTA")
+            missing.append(package_name)
 
     # Verificar tensorflow-lite-runtime (opcional pero recomendado)
     try:

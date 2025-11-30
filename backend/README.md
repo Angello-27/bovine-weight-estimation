@@ -23,9 +23,16 @@ backend/app/
 │   │   └── role_repository.py
 │   ├── usecases/                # Casos de uso (lógica de negocio)
 │   │   ├── animals/             # Use cases de animales
+│   │   │   ├── get_animal_lineage_usecase.py  # Linaje
+│   │   │   └── get_animal_timeline_usecase.py # Timeline
 │   │   ├── users/                # Use cases de usuarios
 │   │   ├── roles/                # Use cases de roles
-│   │   └── auth/                 # Use cases de autenticación
+│   │   ├── auth/                 # Use cases de autenticación
+│   │   └── reports/              # Use cases de reportes
+│   │       ├── generate_traceability_report_usecase.py
+│   │       ├── generate_inventory_report_usecase.py
+│   │       ├── generate_movements_report_usecase.py
+│   │       └── generate_growth_report_usecase.py
 │   └── shared/                  # Código compartido del dominio
 │       └── constants/           # Constantes del dominio
 │           ├── breeds.py
@@ -53,24 +60,36 @@ backend/app/
 │   │   ├── weighings.py         # Pesajes
 │   │   ├── alert.py             # Alertas
 │   │   ├── ml.py                # ML/predicción
-│   │   └── sync.py              # Sincronización
+│   │   ├── sync.py              # Sincronización
+│   │   └── reports.py           # Reportes (PDF, Excel)
 │   ├── schemas/                 # Pydantic DTOs (Request/Response)
 │   │   ├── animal_schemas.py
 │   │   ├── user_schemas.py
 │   │   ├── role_schemas.py
 │   │   └── ...
-│   └── dependencies.py          # Dependencias FastAPI (auth, etc.)
-│
-├── services/                    # ⚠️ DEPRECATED - Ya no se usa
-│   └── (Módulos migrados directamente a Use Cases)
+│   └── mappers/                 # Mappers (DTO ↔ Entity)
+│       ├── animal_mapper.py
+│       ├── weight_estimation_mapper.py
+│       └── ...
 │
 ├── core/                        # Core Layer (Compartido)
 │   ├── config.py                # Configuración (Pydantic Settings)
 │   ├── database.py              # Configuración MongoDB/Beanie
+│   ├── dependencies/            # Dependency Injection
+│   │   ├── animals.py           # Dependencias de animales
+│   │   ├── reports.py           # Dependencias de reportes
+│   │   └── ...                  # Otras dependencias
 │   ├── exceptions.py            # Excepciones del dominio
 │   ├── lifespan.py              # Lifecycle de FastAPI
 │   ├── middleware.py            # Middlewares (CORS, etc.)
-│   └── routes.py                # Registro de rutas
+│   ├── routes.py                # Registro de rutas
+│   └── utils/                   # Utilidades compartidas
+│       ├── jwt.py               # JWT utilities
+│       ├── password.py          # Password hashing
+│       ├── ml_inference.py      # ML inference utilities
+│       ├── pdf_generator.py     # Generador PDF
+│       ├── excel_generator.py   # Generador Excel
+│       └── report_generator.py  # Facade para reportes
 │
 │
 ├── ml/                          # Machine Learning
@@ -99,19 +118,16 @@ backend/app/
 
 3. **Presentation Layer** (API):
    - ✅ Solo maneja HTTP requests/responses
-   - ✅ Convierte entre Schemas y Use Cases
+   - ✅ Convierte entre Schemas y Use Cases usando Mappers
    - ✅ No contiene lógica de negocio
-
-4. **Service Layer** (Orquestadores):
-   - ✅ Coordina múltiples use cases
-   - ✅ Convierte entre Domain Entities y API Schemas
+   - ✅ Inyecta Use Cases directamente usando Dependency Injection
 
 ### 🔄 Flujo de Datos
 
 ```
 API Route → Use Case → Repository Interface
-                          ↓
-              Repository Implementation → Model (Beanie) → MongoDB
+                                      ↓
+                              Repository Implementation → Model (Beanie) → MongoDB
               ↑
         Mappers (DTO ↔ Entity)
         Utils (funciones auxiliares)
@@ -127,10 +143,17 @@ API Route → Use Case → Repository Interface
 
 ```bash
 cd backend
-python -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
+python3 -m venv venv  # macOS/Linux: python3 | Windows: python
+source venv/bin/activate  # macOS/Linux: source venv/bin/activate | Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
+
+> **Nota**: En macOS y Linux modernos, usa `python3`. Si `python3` no está disponible, asegúrate de tener Python 3.11+ instalado.
+
+> **⚠️ TensorFlow Lite Runtime (macOS)**: `tensorflow-lite-runtime` no está disponible en PyPI para macOS. El código tiene fallback automático, pero para funcionalidad ML completa:
+> - **Opción 1** (Recomendada): Instalar TensorFlow completo: `pip install tensorflow` (~500MB)
+> - **Opción 2**: Compilar desde fuente o usar Docker para producción
+> - **Opción 3**: Usar el fallback mock (solo para desarrollo)
 
 ### 2. Configuración
 
@@ -197,9 +220,97 @@ open http://localhost:8000/api/docs
 | **Sync** | ✅ | ✅ | ✅ | ✅ | ✅ Completado |
 | **Alert** | ✅ | ✅ | ✅ | ✅ | ✅ Completado |
 | **Farm** | ✅ | ✅ | ✅ | ✅ | ✅ Completado |
+| **Reports** | ✅ | ✅ | ✅ | ✅ | ✅ Completado |
 
-**Total**: 8 módulos completamente migrados a Clean Architecture
+**Total**: 9 módulos completamente migrados a Clean Architecture
 **Patrón**: Routes → Use Cases → Repositories → Models (sin Application Services)
+
+---
+
+## 📊 Sistema de Reportes (PDF y Excel)
+
+### Endpoints de Reportes
+
+El backend proporciona endpoints para generar reportes en formatos PDF y Excel con diseños profesionales:
+
+- **`POST /api/v1/reports/traceability/{animal_id}`** - Reporte de trazabilidad individual
+  ```bash
+  POST /api/v1/reports/traceability/{animal_id}
+  {
+    "format": "pdf"  # o "excel"
+  }
+  ```
+
+- **`POST /api/v1/reports/inventory`** - Reporte de inventario
+  ```bash
+  POST /api/v1/reports/inventory
+  {
+    "farm_id": "uuid",
+    "format": "pdf",  # o "excel"
+    "status": "active",  # opcional
+    "breed": "brahman",  # opcional
+    "date_from": "2024-01-01T00:00:00Z",  # opcional
+    "date_to": "2024-12-31T23:59:59Z"  # opcional
+  }
+  ```
+
+- **`POST /api/v1/reports/movements`** - Reporte de movimientos (ventas/fallecimientos)
+  ```bash
+  POST /api/v1/reports/movements
+  {
+    "farm_id": "uuid",
+    "format": "pdf",  # o "excel"
+    "movement_type": "sold",  # "sold", "deceased", o null para todos
+    "date_from": "2024-01-01T00:00:00Z",  # opcional
+    "date_to": "2024-12-31T23:59:59Z"  # opcional
+  }
+  ```
+
+- **`POST /api/v1/reports/growth`** - Reporte de crecimiento (GDP)
+  ```bash
+  POST /api/v1/reports/growth
+  {
+    "format": "pdf",  # o "excel"
+    "animal_id": "uuid",  # opcional (reporte individual)
+    "farm_id": "uuid"  # opcional (reporte grupal)
+  }
+  ```
+
+### Características
+
+- ✅ **Formato PDF**: Diseño profesional con colores de marca
+- ✅ **Formato Excel**: Estilos avanzados con formato personalizado
+- ✅ **Paleta de colores**: Usa tema light de la app móvil (Hacienda Gamelera)
+- ✅ **Normativas**: Cumple con SENASAG, REGENSA, ASOCEBU
+- ✅ **Clean Architecture**: Implementado con Use Cases y Dependency Injection
+
+### Generadores
+
+- `PDFGenerator`: Generación de PDFs con reportlab
+- `ExcelGenerator`: Generación de Excel con openpyxl
+- `ReportGenerator`: Facade que delega a generadores especializados
+
+---
+
+## 🐄 Trazabilidad del Ganado (US-004)
+
+### Endpoints de Trazabilidad
+
+- **`GET /api/v1/animals/{animal_id}/lineage`** - Obtener linaje (padre, madre, descendientes)
+  ```bash
+  GET /api/v1/animals/{animal_id}/lineage
+  ```
+
+- **`GET /api/v1/animals/{animal_id}/timeline`** - Timeline completo de eventos
+  ```bash
+  GET /api/v1/animals/{animal_id}/timeline
+  ```
+
+### Funcionalidades
+
+- ✅ Linaje completo (padre, madre, descendientes)
+- ✅ Timeline cronológico de eventos (registro, nacimiento, pesajes, cambios de estado)
+- ✅ Integración con reportes de trazabilidad
 
 ---
 
@@ -368,8 +479,9 @@ ML_DEFAULT_MODEL=generic-cattle-v1.0.0.tflite
 ## 📚 Documentación Adicional
 
 - **Integración TFLite**: [`INTEGRATION_GUIDE.md`](INTEGRATION_GUIDE.md) - Guía completa para integrar modelo desde Colab
-- **Flujo Clean Architecture**: [`FLUJO_CLEAN_ARCHITECTURE.md`](FLUJO_CLEAN_ARCHITECTURE.md) - Flujo de datos y responsabilidades por capa
 - **Scripts**: [`scripts/README.md`](scripts/README.md) - Documentación de scripts de utilidad
+
+**Nota**: La documentación de flujo Clean Architecture fue eliminada después de completar la migración. El código sigue el patrón estándar: Routes → Use Cases → Repositories → Models.
 
 ---
 
@@ -377,7 +489,7 @@ ML_DEFAULT_MODEL=generic-cattle-v1.0.0.tflite
 
 ### ✅ Completado
 
-- ✅ Migración completa a Clean Architecture (8 módulos: Animal, User, Role, Auth, WeightEstimation, Sync, Alert, Farm)
+- ✅ Migración completa a Clean Architecture (9 módulos: Animal, User, Role, Auth, WeightEstimation, Sync, Alert, Farm, Reports)
 - ✅ Eliminación de Application Services legacy (MLService, WeighingService)
 - ✅ Implementación de Use Cases para WeightEstimations
 - ✅ Mapper para WeightEstimation (DTO ↔ Entity)
@@ -386,6 +498,9 @@ ML_DEFAULT_MODEL=generic-cattle-v1.0.0.tflite
 - ✅ Todos los modelos implementados (Alert, Animal, WeightEstimation, User, Farm, Role)
 - ✅ AlertModel con cronograma completo
 - ✅ API de consulta de alertas (today, upcoming, scheduled/list)
+- ✅ **Sistema de reportes completo** (PDF y Excel con diseños profesionales)
+- ✅ **Endpoints de trazabilidad** (lineage, timeline) - US-004
+- ✅ **Generadores de reportes** (PDFGenerator, ExcelGenerator) con colores de marca
 - ✅ Scripts de utilidad (seed_data, setup_production, download_model_from_drive)
 - ✅ Endpoints REST completos (CRUD para todos los modelos)
 - ✅ Integración en main.py
@@ -395,11 +510,19 @@ ML_DEFAULT_MODEL=generic-cattle-v1.0.0.tflite
 
 - ⏳ Integración de modelo TFLite real desde Google Drive
 
-### 📱 Próximos Pasos (Móvil)
+### 📱 Próximos Pasos (Frontend)
 
+#### Panel Web (React)
+- [ ] Integrar endpoints de reportes en el panel web
+- [ ] Implementar descarga de reportes (PDF/Excel)
+- [ ] Vista de trazabilidad con lineage y timeline
+- [ ] Integrar endpoint `/api/v1/ml/estimate` para upload de imágenes
+
+#### Móvil (Flutter)
 - [ ] Integrar endpoints de alertas en el móvil Flutter
 - [ ] Mostrar alertas del día en pantalla principal
 - [ ] Implementar calendario de alertas próximas
+- [ ] Vista de trazabilidad (si se requiere en móvil)
 
 ---
 

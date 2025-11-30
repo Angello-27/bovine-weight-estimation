@@ -24,14 +24,14 @@ from typing import cast
 from uuid import UUID
 
 # Agregar el directorio raíz al path
-sys.path.insert(0, str(Path(__file__).parent.parent))
+sys.path.insert(0, str(Path(__file__).parent.parent))  # noqa: E402
 
-from beanie import init_beanie
-from motor.motor_asyncio import AsyncIOMotorClient
+from beanie import init_beanie  # noqa: E402
+from motor.motor_asyncio import AsyncIOMotorClient  # noqa: E402
 
-from app.core.config import settings
-from app.core.constants import AgeCategory, BreedType
-from app.models import (
+from app.core.config import settings  # noqa: E402
+from app.core.utils.password import get_password_hash  # noqa: E402
+from app.data.models import (  # noqa: E402
     AlertModel,
     AnimalModel,
     FarmModel,
@@ -39,8 +39,12 @@ from app.models import (
     UserModel,
     WeightEstimationModel,
 )
-from app.models.alert_model import AlertStatus, AlertType, RecurrenceType
-from app.services import AuthService
+from app.data.models.alert_model import (  # noqa: E402
+    AlertStatus,
+    AlertType,
+    RecurrenceType,
+)
+from app.domain.shared.constants import AgeCategory, BreedType  # noqa: E402
 
 # IDs fijos para datos de seed (para reproducibilidad)
 ADMIN_ROLE_ID = UUID("110e8400-e29b-41d4-a716-446655440000")
@@ -200,16 +204,12 @@ async def create_users(admin_role: RoleModel) -> UserModel:
     Returns:
         UserModel de Bruno Brito Macedo
     """
-    auth_service = AuthService()
-
     # Usuario principal: Bruno Brito Macedo
     bruno = UserModel(
         id=BRUNO_USER_ID,
         username="bruno_brito",
         email="bruno@haciendagamelera.com",
-        hashed_password=auth_service.get_password_hash(
-            "password123"
-        ),  # Cambiar en producción
+        hashed_password=get_password_hash("password123"),  # Cambiar en producción
         role_id=admin_role.id,
         farm_id=None,  # Se asignará después de crear la finca
         is_active=True,
@@ -222,7 +222,7 @@ async def create_users(admin_role: RoleModel) -> UserModel:
     example_user = UserModel(
         username="usuario_ejemplo",
         email="usuario@haciendagamelera.com",
-        hashed_password=auth_service.get_password_hash("password123"),
+        hashed_password=get_password_hash("password123"),
         role_id=admin_role.id,  # Usar admin_role por ahora
         farm_id=None,
         is_active=True,
@@ -311,7 +311,7 @@ def generate_animals(farm_id: UUID) -> list[AnimalModel]:
             registration_date=birth_date + timedelta(days=random.randint(1, 30)),
             last_updated=now - timedelta(days=random.randint(0, 30)),
             photo_url=IMAGE_REFERENCES.get(breed.value),
-            observations=f"Animal base para reproducción. Raza {BreedType.get_display_name(BreedType(breed))}.",
+            observations=f"Animal base para reproducción. Raza {BreedType.get_display_name(breed)}.",
         )
         base_animals.append(animal)
         base_counter += 1
@@ -367,7 +367,7 @@ def generate_animals(farm_id: UUID) -> list[AnimalModel]:
                 breed=breed.value,
                 birth_date=birth_date,
                 gender=gender,
-                name=f"{BreedType.get_display_name(BreedType(breed))} {ear_tag_counter}",
+                name=f"{BreedType.get_display_name(breed)} {ear_tag_counter}",
                 color=random.choice(BREED_COLORS[breed]),
                 birth_weight_kg=round(random.uniform(*BIRTH_WEIGHTS[breed]), 1),
                 mother_id=mother_id,
@@ -377,7 +377,7 @@ def generate_animals(farm_id: UUID) -> list[AnimalModel]:
                 registration_date=birth_date + timedelta(days=random.randint(1, 30)),
                 last_updated=last_updated,
                 photo_url=IMAGE_REFERENCES.get(breed.value),
-                observations=f"Animal de raza {BreedType.get_display_name(BreedType(breed))}. "
+                observations=f"Animal de raza {BreedType.get_display_name(breed)}. "
                 f"Registrado para trazabilidad completa.",
             )
             animals.append(animal)
@@ -780,7 +780,7 @@ async def seed_database():
         for breed, count in sorted(breed_counts.items()):
             percentage = (count / len(animals)) * 100
             print(
-                f"   - {BreedType.get_display_name(BreedType(breed))}: "
+                f"   - {BreedType.get_display_name(BreedType(breed))}: "  # breed es str aquí
                 f"{count} animales ({percentage:.1f}%)"
             )
 

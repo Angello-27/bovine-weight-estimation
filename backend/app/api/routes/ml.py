@@ -63,7 +63,7 @@ router = APIRouter(
 
     **7 Razas soportadas** (tropicales priorizadas):
     - nelore, brahman, guzerat, senepol, girolando, gyr_lechero, sindi
-
+    
     **Razas prioritarias** (más datos disponibles en Santa Cruz):
     - nelore (42% del hato), brahman, guzerat
     """,
@@ -89,19 +89,19 @@ async def predict_weight(
     """
     from ...core.utils.ml_inference import estimate_weight_from_image
 
-    # Leer bytes de imagen
-    image_bytes = await image.read()
+        # Leer bytes de imagen
+        image_bytes = await image.read()
 
     # Ejecutar inferencia (sin guardar)
     estimation = await estimate_weight_from_image(
-        image_bytes=image_bytes,
-        breed=breed,
+            image_bytes=image_bytes,
+            breed=breed,
         animal_id=str(animal_id) if animal_id else None,
-        device_id=device_id,
-    )
+            device_id=device_id,
+        )
 
-    # Retornar respuesta
-    return {
+        # Retornar respuesta
+        return {
         "id": str(estimation.id),
         "animal_id": str(estimation.animal_id) if estimation.animal_id else None,
         "breed": estimation.breed,
@@ -113,7 +113,7 @@ async def predict_weight(
         "method": "strategy_based",
         "meets_quality_criteria": estimation.meets_quality_criteria(),
         "timestamp": estimation.timestamp.isoformat(),
-    }
+        }
 
 
 @router.get(
@@ -137,12 +137,12 @@ async def predict_weight(
 async def get_models_status():
     """Obtiene estado de modelos ML."""
     status_info = await get_ml_models_status()
-    return {
-        "status": "ok",
-        **status_info,
-        "note": "Sistema de estrategias activo: ML entrenado + híbrido YOLO como fallback",
-        "method": "strategy_based",
-    }
+        return {
+            "status": "ok",
+            **status_info,
+            "note": "Sistema de estrategias activo: ML entrenado + híbrido YOLO como fallback",
+            "method": "strategy_based",
+        }
 
 
 @router.post(

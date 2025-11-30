@@ -22,12 +22,17 @@ email-validator==2.1.0
 # ===== Autenticación y Seguridad =====
 python-jose[cryptography]==3.3.0
 passlib[bcrypt]==1.7.4
+bcrypt<5.0.0  # Compatible con passlib 1.7.4 (bcrypt 5.0+ requiere passlib más reciente)
 types-passlib==1.7.7.20250602  # Stubs de tipos para passlib
 python-dotenv==1.0.0
 
 # ===== Machine Learning =====
 # TensorFlow Lite Runtime (ligero, ~10MB vs TensorFlow completo ~500MB)
-tensorflow-lite-runtime==2.16.0  # Runtime para inferencia TFLite (sin TensorFlow completo)
+# NOTA: En macOS, puede requerir instalación manual o usar versión alternativa
+# Para macOS, instalar después con: pip install tensorflow-lite-runtime
+# O usar versión disponible: pip install tensorflow-lite-runtime --upgrade
+# Si no está disponible, el código usará fallback automático
+# tensorflow-lite-runtime==2.16.0  # Comentado: puede no estar disponible en macOS
 pillow==10.1.0      # Procesamiento de imágenes
 numpy==1.26.2       # Operaciones numéricas
 opencv-python==4.8.1.78  # Procesamiento de imágenes (YOLO)

@@ -183,5 +183,5 @@ async def delete_farm(
     current_user: Annotated[User, Depends(get_current_active_user)],
 ) -> Response:
     """Elimina una finca."""
-    await delete_usecase.execute(farm_id)
-    return Response(status_code=status.HTTP_204_NO_CONTENT)
+        await delete_usecase.execute(farm_id)
+        return Response(status_code=status.HTTP_204_NO_CONTENT)
