@@ -7,7 +7,8 @@ from datetime import datetime
 from typing import Any
 from uuid import UUID
 
-from ..models import AnimalModel, WeightEstimationModel
+from ..data.models.animal_model import AnimalModel
+from ..models import WeightEstimationModel
 from ..schemas.sync_schemas import (
     CattleSyncBatchResponse,
     CattleSyncItemRequest,

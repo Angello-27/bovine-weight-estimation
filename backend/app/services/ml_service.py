@@ -10,7 +10,7 @@ from uuid import UUID
 from ..core.exceptions import ValidationException
 from ..domain.shared.constants import BreedType
 from ..ml import MLInferenceEngine
-from ..models import WeightEstimationModel
+from ..models import WeightEstimationModel  # TODO: Migrar a data/models/
 
 
 class MLService:

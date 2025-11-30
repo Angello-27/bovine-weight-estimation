@@ -9,7 +9,7 @@ from uuid import UUID
 
 from ..core.exceptions import NotFoundException
 from ..data.models.user_model import UserModel
-from ..models import AlertModel
+from ..models import AlertModel  # TODO: Migrar a data/models/
 from ..schemas.alert_schemas import (
     AlertCreateRequest,
     AlertResponse,

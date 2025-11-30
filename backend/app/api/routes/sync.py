@@ -7,7 +7,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, status
 
-from ...models import AnimalModel
+from ...data.models.animal_model import AnimalModel
 from ...schemas.sync_schemas import (
     CattleSyncBatchRequest,
     CattleSyncBatchResponse,

@@ -32,7 +32,7 @@ class WeighingService:
         """
         # Validar que el animal existe (si se proporciona)
         if request.animal_id:
-            from ..models import AnimalModel
+            from ..data.models.animal_model import AnimalModel
 
             animal = await AnimalModel.get(request.animal_id)
             if animal is None:
