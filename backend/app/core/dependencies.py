@@ -12,14 +12,24 @@ from typing import Annotated
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
+from app.application import AuthService
 from app.core.exceptions import AuthenticationException
+from app.data.repositories.animal_repository_impl import AnimalRepositoryImpl
 from app.data.repositories.farm_repository_impl import FarmRepositoryImpl
 from app.data.repositories.role_repository_impl import RoleRepositoryImpl
 from app.data.repositories.user_repository_impl import UserRepositoryImpl
 from app.domain.entities.user import User
+from app.domain.repositories.animal_repository import AnimalRepository
 from app.domain.repositories.farm_repository import FarmRepository
 from app.domain.repositories.role_repository import RoleRepository
 from app.domain.repositories.user_repository import UserRepository
+from app.domain.usecases.animals import (
+    CreateAnimalUseCase,
+    DeleteAnimalUseCase,
+    GetAnimalByIdUseCase,
+    GetAnimalsByFarmUseCase,
+    UpdateAnimalUseCase,
+)
 from app.domain.usecases.auth import GetUserByTokenUseCase
 from app.domain.usecases.farms import (
     CreateFarmUseCase,
@@ -43,7 +53,6 @@ from app.domain.usecases.users import (
     UpdateUserUseCase,
 )
 from app.schemas.auth_schemas import TokenData
-from app.services import AuthService
 
 # Security scheme para JWT Bearer tokens
 security = HTTPBearer()
@@ -64,6 +73,11 @@ def get_role_repository() -> RoleRepository:
 def get_farm_repository() -> FarmRepository:
     """Dependency para obtener FarmRepository."""
     return FarmRepositoryImpl()
+
+
+def get_animal_repository() -> AnimalRepository:
+    """Dependency para obtener AnimalRepository."""
+    return AnimalRepositoryImpl()
 
 
 # ==================== Auth Dependencies ====================
@@ -294,11 +308,50 @@ def get_delete_farm_usecase(
     return DeleteFarmUseCase(farm_repository=farm_repository)
 
 
+# ==================== Animal Use Cases ====================
+
+
+def get_create_animal_usecase(
+    animal_repository: Annotated[AnimalRepository, Depends(get_animal_repository)],
+) -> CreateAnimalUseCase:
+    """Dependency para CreateAnimalUseCase."""
+    return CreateAnimalUseCase(animal_repository=animal_repository)
+
+
+def get_get_animal_by_id_usecase(
+    animal_repository: Annotated[AnimalRepository, Depends(get_animal_repository)],
+) -> GetAnimalByIdUseCase:
+    """Dependency para GetAnimalByIdUseCase."""
+    return GetAnimalByIdUseCase(animal_repository=animal_repository)
+
+
+def get_get_animals_by_farm_usecase(
+    animal_repository: Annotated[AnimalRepository, Depends(get_animal_repository)],
+) -> GetAnimalsByFarmUseCase:
+    """Dependency para GetAnimalsByFarmUseCase."""
+    return GetAnimalsByFarmUseCase(animal_repository=animal_repository)
+
+
+def get_update_animal_usecase(
+    animal_repository: Annotated[AnimalRepository, Depends(get_animal_repository)],
+) -> UpdateAnimalUseCase:
+    """Dependency para UpdateAnimalUseCase."""
+    return UpdateAnimalUseCase(animal_repository=animal_repository)
+
+
+def get_delete_animal_usecase(
+    animal_repository: Annotated[AnimalRepository, Depends(get_animal_repository)],
+) -> DeleteAnimalUseCase:
+    """Dependency para DeleteAnimalUseCase."""
+    return DeleteAnimalUseCase(animal_repository=animal_repository)
+
+
 __all__ = [
     # Repositories
     "get_user_repository",
     "get_role_repository",
     "get_farm_repository",
+    "get_animal_repository",
     # Auth
     "get_get_user_by_token_usecase",
     "get_current_user",
@@ -323,4 +376,10 @@ __all__ = [
     "get_get_all_farms_usecase",
     "get_update_farm_usecase",
     "get_delete_farm_usecase",
+    # Animal Use Cases
+    "get_create_animal_usecase",
+    "get_get_animal_by_id_usecase",
+    "get_get_animals_by_farm_usecase",
+    "get_update_animal_usecase",
+    "get_delete_animal_usecase",
 ]
