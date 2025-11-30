@@ -12,10 +12,31 @@ try:
     import tflite_runtime.interpreter as tflite  # type: ignore[import-untyped, import-not-found, import]
 
     TFLITE_AVAILABLE = True
+    TFLITE_SOURCE = "tflite_runtime"
 except ImportError:
-    # Fallback para desarrollo (si no está instalado)
-    tflite = None  # type: ignore[assignment]
-    TFLITE_AVAILABLE = False
+    # Fallback: usar TensorFlow completo (funciona en macOS y otros sistemas)
+    try:
+        import tensorflow as tf  # type: ignore[import-untyped]
+
+        # TensorFlow completo tiene soporte para TFLite
+        class TFLiteWrapper:
+            """Wrapper para usar tf.lite.Interpreter como tflite_runtime.interpreter"""
+
+            @staticmethod
+            def Interpreter(model_path: str):
+                return tf.lite.Interpreter(model_path=model_path)
+
+        tflite = TFLiteWrapper()  # type: ignore[assignment]
+        TFLITE_AVAILABLE = True
+        TFLITE_SOURCE = "tensorflow"
+        print(
+            "✅ Usando TensorFlow completo para cargar modelos TFLite (tflite_runtime no disponible)"
+        )
+    except ImportError:
+        # Sin TensorFlow ni tflite_runtime
+        tflite = None  # type: ignore[assignment]
+        TFLITE_AVAILABLE = False
+        TFLITE_SOURCE = None
 
 from ..core.config import settings
 from ..core.exceptions import MLModelException
@@ -76,11 +97,11 @@ class MLModelLoader:
             )
 
         try:
-            # Verificar que TFLite está disponible
+            # Verificar que TFLite está disponible (runtime o TensorFlow completo)
             if not TFLITE_AVAILABLE:
                 raise MLModelException(
-                    "tensorflow-lite-runtime no instalado. "
-                    "Ejecuta: pip install tensorflow-lite-runtime"
+                    "TensorFlow o tensorflow-lite-runtime no instalado. "
+                    "Ejecuta: pip install tensorflow"
                 )
 
             # Cargar TFLite Interpreter

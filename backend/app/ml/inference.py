@@ -183,16 +183,22 @@ class MLInferenceEngine:
         Returns:
             Diccionario con info de modelos y estrategias
         """
-        loaded_breeds = self.model_loader.get_loaded_breeds()
+        loaded_model_keys = self.model_loader.get_loaded_breeds()
         strategy_info = self.strategy_context.get_strategy_info()
 
+        # Si hay modelo genérico cargado, todas las razas están disponibles
+        # El modelo genérico sirve para todas las 7 razas
+        has_generic_model = "generic" in loaded_model_keys
+        all_breeds_list = [breed.value for breed in BreedType]
+
+        breeds_loaded = all_breeds_list if has_generic_model else []
+        missing_breeds = [] if has_generic_model else all_breeds_list
+
         return {
-            "total_loaded": len(loaded_breeds),
-            "breeds_loaded": [breed.value for breed in loaded_breeds],
-            "all_breeds": [breed.value for breed in BreedType],
-            "missing_breeds": [
-                breed.value for breed in BreedType if breed not in loaded_breeds
-            ],
+            "total_loaded": len(loaded_model_keys),
+            "breeds_loaded": breeds_loaded,
+            "all_breeds": all_breeds_list,
+            "missing_breeds": missing_breeds,
             "strategies": strategy_info,
             "available_strategies": self.strategy_context.get_available_strategies(),
         }

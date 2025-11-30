@@ -4,6 +4,7 @@ Decorators y funciones para convertir excepciones del dominio a HTTP
 """
 
 from collections.abc import Awaitable, Callable
+from functools import wraps
 from typing import Any, TypeVar
 
 from fastapi import HTTPException, status
@@ -47,6 +48,7 @@ def handle_domain_exceptions(
         ```
     """
 
+    @wraps(func)
     async def wrapper(*args: Any, **kwargs: Any) -> T:
         try:
             return await func(*args, **kwargs)
