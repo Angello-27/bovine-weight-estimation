@@ -18,9 +18,9 @@ from fastapi import (
     status,
 )
 
+from ...application.ml_service import MLService
 from ...core.exceptions import MLModelException, ValidationException
 from ...domain.shared.constants import BreedType
-from ...services.ml_service import MLService
 
 # Router con prefijo /api/v1/ml
 router = APIRouter(

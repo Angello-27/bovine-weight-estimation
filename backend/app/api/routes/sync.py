@@ -7,6 +7,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, status
 
+from ...application.sync_service import SyncService
 from ...data.models.animal_model import AnimalModel
 from ...schemas.sync_schemas import (
     CattleSyncBatchRequest,
@@ -15,7 +16,6 @@ from ...schemas.sync_schemas import (
     WeightEstimationSyncBatchRequest,
     WeightEstimationSyncBatchResponse,
 )
-from ...services.sync_service import SyncService
 
 # Router con prefijo /api/v1/sync
 router = APIRouter(

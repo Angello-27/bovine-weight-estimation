@@ -8,6 +8,7 @@ from uuid import UUID
 
 from fastapi import APIRouter, HTTPException, Query
 
+from ...application.alert_service import AlertService
 from ...core.exceptions import NotFoundException
 from ...schemas.alert_schemas import (
     AlertCreateRequest,
@@ -15,7 +16,6 @@ from ...schemas.alert_schemas import (
     AlertsListResponse,
     AlertUpdateRequest,
 )
-from ...services.alert_service import AlertService
 
 # Crear router
 alert_router = APIRouter(prefix="/alerts", tags=["Alerts"])

@@ -7,9 +7,9 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, status
 
+from ...application import AuthService
 from ...core.exceptions import AuthenticationException
 from ...schemas.auth_schemas import LoginRequest, LoginResponse
-from ...services import AuthService
 
 # Router con prefijo /auth
 router = APIRouter(

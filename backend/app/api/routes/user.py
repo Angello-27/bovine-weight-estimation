@@ -8,6 +8,7 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, Query, status
 
+from ...application import AuthService
 from ...core.dependencies import (
     get_create_user_usecase,
     get_current_active_user,
@@ -30,7 +31,6 @@ from ...schemas.user_schemas import (
     UsersListResponse,
     UserUpdateRequest,
 )
-from ...services import AuthService
 from ..mappers import UserMapper
 from ..utils import handle_domain_exceptions
 

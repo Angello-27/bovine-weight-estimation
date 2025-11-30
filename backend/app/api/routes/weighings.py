@@ -8,13 +8,13 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 
+from ...application import WeighingService
 from ...core.exceptions import NotFoundException, ValidationException
 from ...schemas.weighing_schemas import (
     WeighingCreateRequest,
     WeighingResponse,
     WeighingsListResponse,
 )
-from ...services import WeighingService
 
 # Router con prefijo /api/v1/weighings
 router = APIRouter(
