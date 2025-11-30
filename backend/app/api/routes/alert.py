@@ -73,6 +73,7 @@ async def create_alert(
 @alert_router.get("", response_model=AlertsListResponse)
 @handle_domain_exceptions
 async def list_alerts(
+    list_usecase: Annotated[ListAlertsUseCase, Depends(get_list_alerts_usecase)],
     user_id: UUID | None = Query(None, description="Filtrar por usuario"),
     farm_id: UUID | None = Query(None, description="Filtrar por finca"),
     type: str | None = Query(None, description="Filtrar por tipo"),
@@ -81,9 +82,6 @@ async def list_alerts(
     scheduled_to: datetime | None = Query(None, description="Filtrar hasta fecha"),
     page: int = Query(1, ge=1, description="Número de página"),
     page_size: int = Query(50, ge=1, le=100, description="Tamaño de página"),
-    list_usecase: Annotated[
-        ListAlertsUseCase, Depends(get_list_alerts_usecase)
-    ] = Depends(get_list_alerts_usecase),
 ) -> AlertsListResponse:
     """
     Lista alertas con filtros opcionales.
@@ -189,10 +187,10 @@ async def mark_alert_as_completed(
 @alert_router.get("/pending/list", response_model=list[AlertResponse])
 @handle_domain_exceptions
 async def get_pending_alerts(
-    user_id: UUID | None = Query(None, description="Filtrar por usuario"),
     get_pending_usecase: Annotated[
         GetPendingAlertsUseCase, Depends(get_get_pending_alerts_usecase)
-    ] = Depends(get_get_pending_alerts_usecase),
+    ],
+    user_id: UUID | None = Query(None, description="Filtrar por usuario"),
 ) -> list[AlertResponse]:
     """
     Obtiene alertas pendientes (para procesar por cron job).
@@ -206,11 +204,11 @@ async def get_pending_alerts(
 @alert_router.get("/scheduled/list", response_model=list[AlertResponse])
 @handle_domain_exceptions
 async def get_scheduled_alerts(
-    from_date: datetime = Query(..., description="Fecha desde"),
-    to_date: datetime = Query(..., description="Fecha hasta"),
     get_scheduled_usecase: Annotated[
         GetScheduledAlertsUseCase, Depends(get_get_scheduled_alerts_usecase)
-    ] = Depends(get_get_scheduled_alerts_usecase),
+    ],
+    from_date: datetime = Query(..., description="Fecha desde"),
+    to_date: datetime = Query(..., description="Fecha hasta"),
 ) -> list[AlertResponse]:
     """
     Obtiene alertas programadas en un rango de fechas.
@@ -224,11 +222,11 @@ async def get_scheduled_alerts(
 @alert_router.get("/today", response_model=list[AlertResponse])
 @handle_domain_exceptions
 async def get_today_alerts(
-    user_id: UUID | None = Query(None, description="Filtrar por usuario"),
-    farm_id: UUID | None = Query(None, description="Filtrar por finca"),
     get_today_usecase: Annotated[
         GetTodayAlertsUseCase, Depends(get_get_today_alerts_usecase)
-    ] = Depends(get_get_today_alerts_usecase),
+    ],
+    user_id: UUID | None = Query(None, description="Filtrar por usuario"),
+    farm_id: UUID | None = Query(None, description="Filtrar por finca"),
 ) -> list[AlertResponse]:
     """
     Obtiene alertas programadas para el día de hoy.
@@ -247,14 +245,14 @@ async def get_today_alerts(
 @alert_router.get("/upcoming", response_model=list[AlertResponse])
 @handle_domain_exceptions
 async def get_upcoming_alerts(
+    get_upcoming_usecase: Annotated[
+        GetUpcomingAlertsUseCase, Depends(get_get_upcoming_alerts_usecase)
+    ],
     days_ahead: int = Query(
         7, ge=1, le=30, description="Días hacia adelante (default: 7)"
     ),
     user_id: UUID | None = Query(None, description="Filtrar por usuario"),
     farm_id: UUID | None = Query(None, description="Filtrar por finca"),
-    get_upcoming_usecase: Annotated[
-        GetUpcomingAlertsUseCase, Depends(get_get_upcoming_alerts_usecase)
-    ] = Depends(get_get_upcoming_alerts_usecase),
 ) -> list[AlertResponse]:
     """
     Obtiene alertas programadas para los próximos N días.
@@ -283,11 +281,11 @@ async def get_alert_animals(
     alert_id: UUID,
     get_alert_usecase: Annotated[
         GetAlertByIdUseCase, Depends(get_get_alert_by_id_usecase)
-    ] = Depends(get_get_alert_by_id_usecase),
+    ],
     get_filter_criteria_usecase: Annotated[
         GetAnimalsByFilterCriteriaUseCase,
         Depends(get_get_animals_by_filter_criteria_usecase),
-    ] = Depends(get_get_animals_by_filter_criteria_usecase),
+    ],
 ) -> list[AnimalResponse]:
     """
     Obtiene los animales que cumplen los criterios de filtrado de una alerta.
