@@ -6,22 +6,12 @@
 ┌─────────────────────────────────────────────────────────────────┐
 │                    PRESENTATION LAYER (API)                      │
 │  ┌──────────────────────────────────────────────────────────┐   │
-│  │  routes/farm.py                                          │   │
-│  │  - Recibe HTTP Request (FarmCreateRequest DTO)            │   │
+│  │  routes/animals.py                                       │   │
+│  │  - Recibe HTTP Request (AnimalCreateRequest DTO)          │   │
 │  │  - Valida autenticación                                  │   │
-│  │  - Llama a Application Service                           │   │
-│  └──────────────────────────────────────────────────────────┘   │
-└─────────────────────────────────────────────────────────────────┘
-                              │
-                              ▼
-┌─────────────────────────────────────────────────────────────────┐
-│              APPLICATION LAYER (Application Services)            │
-│  ┌──────────────────────────────────────────────────────────┐   │
-│  │  application/farm_service.py                              │   │
-│  │  - Orquesta Use Cases                                     │   │
-│  │  - Convierte DTO → Entity (para use case)                 │   │
-│  │  - Convierte Entity → DTO (para response)                │   │
-│  │  - NO accede directamente a datos                         │   │
+│  │  - Usa Mapper para convertir DTO → parámetros            │   │
+│  │  - Llama directamente a Use Case (inyección)             │   │
+│  │  - Usa Mapper para convertir Entity → DTO                │   │
 │  └──────────────────────────────────────────────────────────┘   │
 └─────────────────────────────────────────────────────────────────┘
                               │
@@ -29,10 +19,11 @@
 ┌─────────────────────────────────────────────────────────────────┐
 │                    DOMAIN LAYER (Use Cases)                     │
 │  ┌──────────────────────────────────────────────────────────┐   │
-│  │  domain/usecases/farms/create_farm_usecase.py            │   │
+│  │  domain/usecases/animals/create_animal_usecase.py        │   │
 │  │  - Contiene lógica de negocio pura                        │   │
 │  │  - Valida reglas de negocio                               │   │
 │  │  - Llama a Repository Interface (no implementación)       │   │
+│  │  - Retorna Entity (no DTO)                                │   │
 │  └──────────────────────────────────────────────────────────┘   │
 └─────────────────────────────────────────────────────────────────┘
                               │
@@ -40,10 +31,10 @@
 ┌─────────────────────────────────────────────────────────────────┐
 │              DATA LAYER (Repository Implementation)             │
 │  ┌──────────────────────────────────────────────────────────┐   │
-│  │  data/repositories/farm_repository_impl.py               │   │
+│  │  data/repositories/animal_repository_impl.py             │   │
 │  │  - Implementa Repository Interface                        │   │
 │  │  - Accede a MongoDB/Beanie                                │   │
-│  │  - Convierte Model → Entity                               │   │
+│  │  - Convierte Entity ↔ Model                               │   │
 │  └──────────────────────────────────────────────────────────┘   │
 └─────────────────────────────────────────────────────────────────┘
                               │
@@ -51,7 +42,7 @@
 ┌─────────────────────────────────────────────────────────────────┐
 │                    DATA LAYER (Models)                          │
 │  ┌──────────────────────────────────────────────────────────┐   │
-│  │  data/models/farm_model.py                               │   │
+│  │  data/models/animal_model.py                             │   │
 │  │  - Beanie ODM Model                                       │   │
 │  │  - Persistencia en MongoDB                                │   │
 │  └──────────────────────────────────────────────────────────┘   │
@@ -62,52 +53,90 @@
 
 ### 1. **Routes (API/Controllers)**
 ```python
-# routes/farm.py
+# routes/animals.py
 @router.post("")
-async def create_farm(
-    request: FarmCreateRequest,  # ← DTO (Presentation)
-    farm_service: FarmService,     # ← Application Service
-) -> FarmResponse:                # ← DTO (Presentation)
-    return await farm_service.create_farm(request)
+@handle_domain_exceptions
+async def create_animal(
+    request: AnimalCreateRequest,  # ← DTO (Presentation)
+    create_usecase: Annotated[
+        CreateAnimalUseCase, Depends(get_create_animal_usecase)  # ← Use Case (inyectado)
+    ],
+) -> AnimalResponse:  # ← DTO (Presentation)
+    # 1. Convertir DTO → parámetros usando Mapper
+    params = AnimalMapper.create_request_to_params(request)
+    
+    # 2. Ejecutar Use Case (retorna Entity)
+    animal = await create_usecase.execute(**params)
+    
+    # 3. Convertir Entity → DTO usando Mapper
+    return AnimalMapper.to_response(animal)
 ```
 
 **Responsabilidad:**
 - ✅ Recibir HTTP requests
 - ✅ Validar autenticación/autorización
 - ✅ Convertir HTTP → DTO
-- ✅ Llamar a Application Service
-- ✅ Convertir excepciones → HTTP responses
+- ✅ Usar Mapper para convertir DTO → parámetros del Use Case
+- ✅ Llamar directamente a Use Case (inyección de dependencias)
+- ✅ Usar Mapper para convertir Entity → DTO
+- ✅ Usar decorador `@handle_domain_exceptions` para manejo de errores
 - ❌ NO contiene lógica de negocio
 - ❌ NO accede a datos
 
 ---
 
-### 2. **Application Services** (services/)
+### 2. **Mappers** (api/mappers/)
 ```python
-# application/farm_service.py
-class FarmService:
-    async def create_farm(self, request: FarmCreateRequest) -> FarmResponse:
-        # 1. Llama a Use Case (Domain)
-        farm = await self._create_usecase.execute(
-            name=request.name,
-            owner_id=request.owner_id,
+# api/mappers/animal_mapper.py
+class AnimalMapper:
+    @staticmethod
+    def create_request_to_params(request: AnimalCreateRequest) -> dict:
+        """Convierte DTO a parámetros para Use Case."""
+        return {
+            "ear_tag": request.ear_tag,
+            "breed": request.breed.value,
+            ...
+        }
+    
+    @staticmethod
+    def to_response(animal: Animal) -> AnimalResponse:
+        """Convierte Entity a DTO."""
+        return AnimalResponse(
+            id=animal.id,
+            ear_tag=animal.ear_tag,
             ...
         )
-        
-        # 2. Convierte Entity → DTO
-        return self._to_response(farm)
 ```
 
 **Responsabilidad:**
-- ✅ **Orquestar Use Cases** (coordinar múltiples use cases si es necesario)
 - ✅ **Convertir DTO ↔ Entity** (entre Presentation y Domain)
-- ✅ **Inyectar dependencias** (crear repositorios, use cases)
-- ❌ NO contiene lógica de negocio (eso va en Use Cases)
-- ❌ NO accede directamente a datos (eso va en Repositories)
+- ✅ **Convertir DTO → parámetros** para Use Cases
+- ❌ NO contiene lógica de negocio
+- ❌ NO accede a datos
 
 ---
 
-### 3. **Use Cases** (domain/usecases/)
+### 3. **Utils** (core/utils/ y api/utils/)
+```python
+# core/utils/ml_inference.py
+async def estimate_weight_from_image(...) -> WeightEstimation:
+    """Función auxiliar para inferencia ML."""
+    ...
+
+# api/utils/pagination.py
+def calculate_skip(page: int, page_size: int) -> int:
+    """Calcula skip para paginación."""
+    ...
+```
+
+**Responsabilidad:**
+- ✅ Funciones auxiliares reutilizables
+- ✅ Sin estado ni lógica de negocio compleja
+- ✅ Pueden ser usadas desde Routes o Use Cases
+
+---
+
+### 4. **Use Cases** (domain/usecases/)
 ```python
 # domain/usecases/farms/create_farm_usecase.py
 class CreateFarmUseCase:
@@ -133,7 +162,7 @@ class CreateFarmUseCase:
 
 ---
 
-### 4. **Repository Implementation** (data/repositories/)
+### 5. **Repository Implementation** (data/repositories/)
 ```python
 # data/repositories/farm_repository_impl.py
 class FarmRepositoryImpl(FarmRepository):
@@ -156,7 +185,7 @@ class FarmRepositoryImpl(FarmRepository):
 
 ---
 
-### 5. **Models** (data/models/)
+### 6. **Models** (data/models/)
 ```python
 # data/models/farm_model.py
 class FarmModel(Document):
@@ -173,80 +202,88 @@ class FarmModel(Document):
 
 ---
 
-## ❓ ¿Los Services se comunican con los datos?
+## ❓ ¿Las Routes acceden directamente a datos?
 
 ### ❌ NO directamente
 
-Los **Application Services**:
-- ✅ Se comunican con **Use Cases** (Domain)
-- ✅ Se comunican con **DTOs** (Presentation)
+Las **Routes**:
+- ✅ Se comunican con **Use Cases** (Domain) mediante inyección de dependencias
+- ✅ Se comunican con **DTOs** (Presentation) y **Mappers**
+- ✅ Usan **Utils** para funciones auxiliares
 - ❌ NO se comunican directamente con **Repositories** (eso lo hacen los Use Cases)
 - ❌ NO se comunican directamente con **Models/Data** (eso lo hacen los Repositories)
 
 ### ✅ Flujo Correcto
 
 ```
-Routes → Application Service → Use Case → Repository → Model → MongoDB
-  ↑                                                              ↓
-  └────────────────── DTOs (Response) ←────────────────────────┘
+Routes → Use Case → Repository Interface
+  ↓                      ↓
+Mappers          Repository Impl → Model → MongoDB
+  ↑                      ↓
+DTOs ←───────────────────┘
 ```
 
----
-
-## 🎯 Función de los Application Services
-
-**En resumen, los Application Services:**
-
-1. **Orquestan Use Cases** - Coordinan qué use cases ejecutar
-2. **Convierten entre capas** - DTO ↔ Entity
-3. **Inyectan dependencias** - Crean repositorios y use cases
-4. **NO contienen lógica de negocio** - Eso va en Use Cases
-5. **NO acceden a datos** - Eso va en Repositories
+**Nota**: Los Application Services fueron eliminados. La conversión DTO ↔ Entity ahora se hace mediante Mappers en la capa de presentación.
 
 ---
 
-## 📊 Ejemplo Completo: Crear Finca
+## 📊 Ejemplo Completo: Crear Animal
 
 ```python
 # 1. ROUTE (Presentation)
 @router.post("")
-async def create_farm(
-    request: FarmCreateRequest,  # DTO
-    farm_service: FarmService,
-) -> FarmResponse:  # DTO
-    return await farm_service.create_farm(request)
+@handle_domain_exceptions
+async def create_animal(
+    request: AnimalCreateRequest,  # DTO
+    create_usecase: Annotated[
+        CreateAnimalUseCase, Depends(get_create_animal_usecase)
+    ],
+) -> AnimalResponse:  # DTO
+    # Convertir DTO → parámetros usando Mapper
+    params = AnimalMapper.create_request_to_params(request)
+    
+    # Ejecutar Use Case (retorna Entity)
+    animal = await create_usecase.execute(**params)
+    
+    # Convertir Entity → DTO usando Mapper
+    return AnimalMapper.to_response(animal)
 
-# 2. APPLICATION SERVICE
-class FarmService:
-    async def create_farm(self, request: FarmCreateRequest) -> FarmResponse:
-        # Orquesta Use Case
-        farm = await self._create_usecase.execute(
-            name=request.name,  # DTO → Use Case params
-            owner_id=request.owner_id,
+# 2. MAPPER (Presentation)
+class AnimalMapper:
+    @staticmethod
+    def create_request_to_params(request: AnimalCreateRequest) -> dict:
+        """Convierte DTO a parámetros para Use Case."""
+        return {
+            "ear_tag": request.ear_tag,
+            "breed": request.breed.value,
+            "birth_date": request.birth_date,
             ...
-        )
-        # Convierte Entity → DTO
-        return FarmResponse(
-            id=farm.id,
-            name=farm.name,
+        }
+    
+    @staticmethod
+    def to_response(animal: Animal) -> AnimalResponse:
+        """Convierte Entity a DTO."""
+        return AnimalResponse(
+            id=animal.id,
+            ear_tag=animal.ear_tag,
             ...
         )
 
 # 3. USE CASE (Domain)
-class CreateFarmUseCase:
-    async def execute(self, name: str, owner_id: UUID, ...) -> Farm:
+class CreateAnimalUseCase:
+    async def execute(self, ear_tag: str, breed: str, ...) -> Animal:
         # Lógica de negocio
-        owner = await self._user_repository.get_by_id(owner_id)
-        if owner is None:
-            raise NotFoundException(...)
+        existing = await self._animal_repository.find_by_ear_tag(ear_tag, farm_id)
+        if existing is not None:
+            raise AlreadyExistsException(...)
         
-        farm = Farm(name=name, ...)  # Entity
-        return await self._farm_repository.save(farm)  # Repository Interface
+        animal = Animal(ear_tag=ear_tag, breed=breed, ...)  # Entity
+        return await self._animal_repository.save(animal)  # Repository Interface
 
 # 4. REPOSITORY IMPLEMENTATION (Data)
-class FarmRepositoryImpl:
-    async def save(self, farm: Farm) -> Farm:
-        model = FarmModel.from_entity(farm)  # Entity → Model
+class AnimalRepositoryImpl:
+    async def save(self, animal: Animal) -> Animal:
+        model = AnimalModel.from_entity(animal)  # Entity → Model
         await model.insert()  # MongoDB
         return model.to_entity()  # Model → Entity
 ```
@@ -255,14 +292,14 @@ class FarmRepositoryImpl:
 
 ## ✅ Conclusión
 
-**Los Application Services NO se comunican directamente con los datos.**
+**Las Routes NO acceden directamente a datos. Usan Use Cases mediante inyección de dependencias.**
 
-Su función es:
-- 🎯 **Orquestar** Use Cases
-- 🔄 **Convertir** DTO ↔ Entity
-- 📦 **Coordinar** entre Presentation y Domain
+Arquitectura actual:
+- 🎯 **Routes** → inyectan y llaman directamente a **Use Cases**
+- 🔄 **Mappers** → convierten **DTO ↔ Entity** (en capa de presentación)
+- 🛠️ **Utils** → funciones auxiliares (ML inference, paginación, etc.)
+- 📦 **Use Cases** → contienen lógica de negocio y llaman a **Repository Interfaces**
+- 💾 **Repositories** → implementan acceso a **Models/Data**
 
-Los datos los manejan:
-- **Use Cases** → llaman a **Repository Interfaces**
-- **Repositories** → implementan acceso a **Models/Data**
+**Nota histórica**: Los Application Services fueron eliminados durante la migración a Clean Architecture para simplificar el flujo y seguir el patrón estándar: Routes → Use Cases → Repositories.
 
