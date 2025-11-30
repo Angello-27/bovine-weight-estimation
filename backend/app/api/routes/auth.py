@@ -55,10 +55,10 @@ router = APIRouter(
 )
 @handle_domain_exceptions
 async def login(
-    login_data: LoginRequest,
     authenticate_usecase: Annotated[
         AuthenticateUserUseCase, Depends(get_authenticate_user_usecase)
-    ] = Depends(get_authenticate_user_usecase),
+    ],
+    login_data: LoginRequest,
 ) -> LoginResponse:
     """
     Endpoint para iniciar sesión.
