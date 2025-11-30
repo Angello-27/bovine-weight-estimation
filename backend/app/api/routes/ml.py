@@ -226,7 +226,7 @@ async def estimate_weight_from_web(
         "confidence_score": response.confidence,
         "confidence": response.confidence,
         "breed_confidence": response.confidence,
-        "model_version": response.model_version,
+        "ml_model_version": response.ml_model_version,
         "processing_time_ms": response.processing_time_ms,
         "image_path": saved_estimation.frame_image_path,
         "method": response.method,
