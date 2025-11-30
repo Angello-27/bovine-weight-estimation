@@ -297,12 +297,19 @@ python scripts/download_model_from_drive.py
 
 ### El modelo no se carga (models_loaded: 0)
 
-**En macOS**: Esto es normal si no tienes `tensorflow-lite-runtime`. El sistema usará el fallback YOLO.
+**Importante**: El modelo se carga bajo demanda (lazy loading). Aparecerá como `total_loaded: 0` hasta que hagas la primera predicción.
 
-**Para usar TFLite real**:
+**En macOS**: El sistema usa TensorFlow completo como fallback automáticamente si `tensorflow-lite-runtime` no está disponible. Esto es normal y funciona correctamente.
+
+**Para verificar que TensorFlow está instalado**:
 ```bash
 pip install tensorflow
+python3 -c "import tensorflow as tf; print(tf.__version__)"
 ```
+
+**Después de la primera predicción exitosa**, el endpoint `/api/v1/ml/models/status` mostrará:
+- `total_loaded: 1` (modelo genérico)
+- `breeds_loaded`: todas las 7 razas disponibles
 
 ---
 
