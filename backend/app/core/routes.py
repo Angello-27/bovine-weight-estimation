@@ -11,6 +11,7 @@ from app.api.routes import (
     auth_router,
     farm_router,
     ml_router,
+    reports_router,
     role_router,
     sync_router,
     user_router,
@@ -35,3 +36,4 @@ def setup_routes(app: FastAPI) -> None:
     app.include_router(ml_router)  # US-002: Inferencia ML (Core del proyecto)
     app.include_router(sync_router)  # US-005: Sincronización Offline
     app.include_router(alert_router)  # Alertas y cronograma
+    app.include_router(reports_router)  # Reportes (PDF, CSV, Excel)

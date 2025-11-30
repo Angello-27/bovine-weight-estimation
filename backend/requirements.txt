@@ -57,9 +57,10 @@ python-json-logger==2.0.7
 loguru==0.7.2       # Logging estructurado
 
 # ===== Reportes =====
-reportlab==4.0.7    # Generación de PDFs
-openpyxl==3.1.2     # Generación de Excel
-xmltodict==0.13.0   # Generación de XML
+reportlab==4.0.7    # Generación de PDFs con diseño profesional
+openpyxl==3.1.2     # Generación de Excel con estilos avanzados
+# Nota: reportlab requiere Pillow (ya incluido en ML dependencies)
+# Nota: openpyxl no requiere dependencias adicionales
 
 # ===== Utilidades HTTP =====
 httpx==0.25.2       # HTTP client async

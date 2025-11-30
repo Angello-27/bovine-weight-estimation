@@ -43,6 +43,12 @@ from .farms import (
     get_get_farm_by_id_usecase,
     get_update_farm_usecase,
 )
+from .reports import (
+    get_generate_growth_report_usecase,
+    get_generate_inventory_report_usecase,
+    get_generate_movements_report_usecase,
+    get_generate_traceability_report_usecase,
+)
 from .repositories import (
     get_alert_repository,
     get_animal_repository,
@@ -142,6 +148,11 @@ __all__ = [
     "get_weight_estimation_by_id_usecase",
     "get_weight_estimations_by_animal_id_usecase",
     "get_all_weight_estimations_usecase",
+    # Reports Use Cases
+    "get_generate_traceability_report_usecase",
+    "get_generate_inventory_report_usecase",
+    "get_generate_movements_report_usecase",
+    "get_generate_growth_report_usecase",
     # Repositories
     "get_weight_estimation_repository",
 ]
