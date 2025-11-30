@@ -112,13 +112,13 @@ async def get_animal(
 )
 @handle_domain_exceptions
 async def list_animals(
+    get_by_farm_usecase: Annotated[
+        GetAnimalsByFarmUseCase, Depends(get_get_animals_by_farm_usecase)
+    ],
     farm_id: UUID = Query(..., description="ID de la hacienda"),
     status: str | None = Query(None, description="Filtro por estado"),
     page: int = Query(1, ge=1, description="Número de página"),
     page_size: int = Query(50, ge=1, le=100, description="Tamaño de página"),
-    get_by_farm_usecase: Annotated[
-        GetAnimalsByFarmUseCase, Depends(get_get_animals_by_farm_usecase)
-    ] = Depends(get_get_animals_by_farm_usecase),
 ) -> AnimalsListResponse:
     """Lista animales con paginación."""
     skip = (page - 1) * page_size
