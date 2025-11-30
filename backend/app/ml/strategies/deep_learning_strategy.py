@@ -83,7 +83,7 @@ class DeepLearningWeightEstimationStrategy(BaseWeightEstimationStrategy):
                 "weight": round(estimated_weight, 2),
                 "confidence": confidence,
                 "method": "tflite_model",
-                "model_version": self._model["version"],
+                "ml_model_version": self._model["version"],
                 "strategy": self.get_strategy_name(),
                 "detection_quality": "good" if confidence > 0.85 else "acceptable",
             }
@@ -97,7 +97,7 @@ class DeepLearningWeightEstimationStrategy(BaseWeightEstimationStrategy):
                 "weight": weight_kg,
                 "confidence": confidence,
                 "method": "ml_model_mock",
-                "model_version": "1.0.0-mock",
+                "ml_model_version": "1.0.0-mock",
                 "strategy": self.get_strategy_name(),
                 "detection_quality": "acceptable",
             }

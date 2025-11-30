@@ -41,7 +41,7 @@ class CreateWeightEstimationUseCase:
         estimated_weight_kg: float,
         confidence: float,
         method: str,
-        model_version: str,
+        ml_model_version: str,
         processing_time_ms: int,
         frame_image_path: str,
         latitude: float | None = None,
@@ -58,7 +58,7 @@ class CreateWeightEstimationUseCase:
             estimated_weight_kg: Peso estimado en kg
             confidence: Confidence score (0.0-1.0)
             method: Método de estimación (tflite, web_upload, etc.)
-            model_version: Versión del modelo
+            ml_model_version: Versión del modelo ML
             processing_time_ms: Tiempo de procesamiento en ms
             frame_image_path: Path del fotograma
             latitude: Latitud GPS (opcional)
@@ -82,9 +82,7 @@ class CreateWeightEstimationUseCase:
                     )
             except ValueError:
                 # Si UUID es inválido, no encontrado
-                raise NotFoundException(
-                    resource="Animal", field="id", value=animal_id
-                )
+                raise NotFoundException(resource="Animal", field="id", value=animal_id)
 
         # Crear entidad WeightEstimation
         estimation = WeightEstimation(
@@ -93,7 +91,7 @@ class CreateWeightEstimationUseCase:
             estimated_weight_kg=estimated_weight_kg,
             confidence=confidence,
             method=method,
-            model_version=model_version,
+            ml_model_version=ml_model_version,
             processing_time_ms=processing_time_ms,
             frame_image_path=frame_image_path,
             latitude=latitude,
@@ -104,4 +102,3 @@ class CreateWeightEstimationUseCase:
 
         # Guardar usando el repositorio
         return await self._weight_estimation_repository.create(estimation)
-

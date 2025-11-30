@@ -63,7 +63,7 @@ async def estimate_weight_from_image(
         estimated_weight_kg=result.estimated_weight_kg,
         confidence=result.confidence,
         method="strategy_based",  # Indicar método basado en estrategias
-        model_version=result.model_version,
+        ml_model_version=result.ml_model_version,
         processing_time_ms=result.processing_time_ms,
         frame_image_path=image_path,
         device_id=device_id,

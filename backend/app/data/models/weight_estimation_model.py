@@ -6,10 +6,10 @@ Modelo de persistencia para estimaciones de peso en MongoDB
 from datetime import datetime
 from uuid import UUID, uuid4
 
-from beanie import Document, Indexed
-from pydantic import Field, field_validator
+from beanie import Document
+from pydantic import ConfigDict, Field, field_validator
 
-from ...domain.shared.constants import BreedType, SystemMetrics
+from ...domain.shared.constants import SystemMetrics
 
 
 class WeightEstimationModel(Document):
@@ -19,16 +19,35 @@ class WeightEstimationModel(Document):
     Single Responsibility: Persistencia de estimaciones de peso con IA.
     """
 
-    # ID único de la estimación
-    id: UUID = Field(default_factory=uuid4, alias="_id")
-
-    # Animal relacionado
-    animal_id: Indexed(str) | None = Field(
-        None, description="ID del animal (si está vinculado)"
+    # Configuración de Pydantic v2 - Permitir campos que empiecen con "model_"
+    model_config = ConfigDict(
+        protected_namespaces=(),
+        json_schema_extra={
+            "example": {
+                "_id": "550e8400-e29b-41d4-a716-446655440001",
+                "animal_id": "550e8400-e29b-41d4-a716-446655440000",
+                "breed": "brahman",
+                "estimated_weight_kg": 487.5,
+                "confidence": 0.95,
+                "method": "tflite",
+                "ml_model_version": "1.0.0",
+                "processing_time_ms": 2100,
+                "frame_image_path": "/frames/frame_001.jpg",
+                "latitude": -15.859500,
+                "longitude": -60.797889,
+                "timestamp": "2024-10-20T14:30:00Z",
+            }
+        },
     )
 
-    # Datos de estimación
-    breed: Indexed(str) = Field(..., description="Raza del animal")
+    # ID único de la estimación
+    id: UUID = Field(default_factory=uuid4, alias="_id")  # type: ignore
+
+    # Animal relacionado (índice definido en Settings)
+    animal_id: str | None = Field(None, description="ID del animal (si está vinculado)")
+
+    # Datos de estimación (índice definido en Settings)
+    breed: str = Field(..., description="Raza del animal")
     estimated_weight_kg: float = Field(
         ..., description="Peso estimado en kg", ge=0, le=1500
     )
@@ -36,7 +55,9 @@ class WeightEstimationModel(Document):
 
     # Metadata de procesamiento
     method: str = Field(default="tflite", description="Método: tflite/schaeffer/manual")
-    model_version: str = Field(default="1.0.0", description="Versión del modelo usado")
+    ml_model_version: str = Field(
+        default="1.0.0", description="Versión del modelo ML usado"
+    )
     processing_time_ms: int = Field(..., description="Tiempo de procesamiento en ms")
     frame_image_path: str = Field(..., description="Path del fotograma usado")
 
@@ -44,8 +65,8 @@ class WeightEstimationModel(Document):
     latitude: float | None = Field(None, description="Latitud GPS", ge=-90, le=90)
     longitude: float | None = Field(None, description="Longitud GPS", ge=-180, le=180)
 
-    # Timestamps
-    timestamp: Indexed(datetime) = Field(
+    # Timestamps (índice definido en Settings)
+    timestamp: datetime = Field(
         default_factory=datetime.utcnow, description="Timestamp de la estimación"
     )
     created_at: datetime = Field(
@@ -134,23 +155,3 @@ class WeightEstimationModel(Document):
             "confidence",  # Filtro por calidad
             [("animal_id", 1), ("timestamp", -1)],  # Historial por animal
         ]
-
-    class Config:
-        """Configuración de Pydantic."""
-
-        json_schema_extra = {
-            "example": {
-                "_id": "550e8400-e29b-41d4-a716-446655440001",
-                "animal_id": "550e8400-e29b-41d4-a716-446655440000",
-                "breed": "brahman",
-                "estimated_weight_kg": 487.5,
-                "confidence": 0.95,
-                "method": "tflite",
-                "model_version": "1.0.0",
-                "processing_time_ms": 2100,
-                "frame_image_path": "/frames/frame_001.jpg",
-                "latitude": -15.859500,
-                "longitude": -60.797889,
-                "timestamp": "2024-10-20T14:30:00Z",
-            }
-        }

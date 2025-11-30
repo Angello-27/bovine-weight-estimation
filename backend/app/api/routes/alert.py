@@ -141,12 +141,13 @@ async def update_alert(
 
 
 @alert_router.delete(
-    "/{alert_id}", status_code=status.HTTP_204_NO_CONTENT, response_class=Response
+    "/{alert_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
 )
 async def delete_alert(
     alert_id: UUID,
     delete_usecase: Annotated[DeleteAlertUseCase, Depends(get_delete_alert_usecase)],
-) -> Response:
+) -> None:
     """Elimina una alerta."""
     from fastapi import HTTPException
 
@@ -154,7 +155,6 @@ async def delete_alert(
 
     try:
         await delete_usecase.execute(alert_id)
-        return Response(status_code=status.HTTP_204_NO_CONTENT)
     except NotFoundException as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 

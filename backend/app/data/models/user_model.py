@@ -6,8 +6,8 @@ Modelo de persistencia para usuarios en MongoDB
 from datetime import datetime
 from uuid import UUID, uuid4
 
-from beanie import Document, Indexed
-from pydantic import EmailStr, Field
+from beanie import Document
+from pydantic import ConfigDict, EmailStr, Field
 
 
 class UserModel(Document):
@@ -18,21 +18,33 @@ class UserModel(Document):
     Single Responsibility: Persistencia de datos de usuarios.
     """
 
-    # ID único del usuario
-    id: UUID = Field(default_factory=uuid4, alias="_id")
+    # Configuración de Pydantic v2
+    model_config = ConfigDict(
+        json_schema_extra={
+            "example": {
+                "_id": "550e8400-e29b-41d4-a716-446655440000",
+                "username": "juan_perez",
+                "email": "juan@example.com",
+                "role_id": "660e8400-e29b-41d4-a716-446655440000",
+                "is_active": True,
+                "is_superuser": False,
+            }
+        },
+    )
 
-    # Datos de autenticación
-    username: Indexed(str, unique=True) = Field(
+    # ID único del usuario
+    id: UUID = Field(default_factory=uuid4, alias="_id")  # type: ignore
+
+    # Datos de autenticación (índices únicos definidos en Settings)
+    username: str = Field(
         ..., description="Nombre de usuario (único)", min_length=3, max_length=50
     )
-    email: Indexed(EmailStr, unique=True) = Field(
-        ..., description="Email del usuario (único)"
-    )
+    email: EmailStr = Field(..., description="Email del usuario (único)")
     hashed_password: str = Field(..., description="Contraseña hasheada con bcrypt")
 
     # Relación con rol
     role_id: UUID = Field(..., description="ID del rol asignado al usuario")
-    
+
     # Relación con finca (opcional - un usuario puede tener múltiples fincas)
     farm_id: UUID | None = Field(
         None, description="ID de la finca principal del usuario"
@@ -51,9 +63,7 @@ class UserModel(Document):
     last_updated: datetime = Field(
         default_factory=datetime.utcnow, description="Última actualización"
     )
-    last_login: datetime | None = Field(
-        None, description="Último inicio de sesión"
-    )
+    last_login: datetime | None = Field(None, description="Último inicio de sesión")
 
     class Settings:
         """Configuración de Beanie."""
@@ -78,18 +88,3 @@ class UserModel(Document):
     def update_last_login(self) -> None:
         """Actualiza timestamp de último login."""
         self.last_login = datetime.utcnow()
-
-    class Config:
-        """Configuración de Pydantic."""
-
-        json_schema_extra = {
-            "example": {
-                "_id": "550e8400-e29b-41d4-a716-446655440000",
-                "username": "juan_perez",
-                "email": "juan@example.com",
-                "role_id": "660e8400-e29b-41d4-a716-446655440000",
-                "is_active": True,
-                "is_superuser": False,
-            }
-        }
-

@@ -172,7 +172,6 @@ async def update_user(
 @router.delete(
     "/{user_id}",
     status_code=status.HTTP_204_NO_CONTENT,
-    response_class=Response,
     summary="Eliminar usuario",
     description="""
     Elimina un usuario del sistema.
@@ -184,12 +183,11 @@ async def delete_user(
     user_id: UUID,
     delete_usecase: Annotated[DeleteUserUseCase, Depends(get_delete_user_usecase)],
     current_user: Annotated[User, Depends(get_current_active_user)],
-) -> Response:
+) -> None:
     """Elimina un usuario."""
     from ...core.exceptions import NotFoundException
 
     try:
         await delete_usecase.execute(user_id)
-        return Response(status_code=status.HTTP_204_NO_CONTENT)
     except NotFoundException as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))

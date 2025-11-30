@@ -191,7 +191,7 @@ class SyncWeightEstimationsBatchUseCase:
         existing.estimated_weight_kg = item_data["estimated_weight"]
         existing.confidence = item_data["confidence_score"]
         existing.method = item_data.get("method", "tflite")
-        existing.model_version = item_data.get("model_version", "1.0.0")
+        existing.ml_model_version = item_data.get("ml_model_version", "1.0.0")
         existing.processing_time_ms = item_data["processing_time_ms"]
         existing.frame_image_path = item_data["frame_image_path"]
         existing.latitude = item_data.get("gps_latitude")
@@ -212,7 +212,7 @@ class SyncWeightEstimationsBatchUseCase:
             "estimated_weight_kg": estimation.estimated_weight_kg,
             "confidence": estimation.confidence,
             "method": estimation.method,
-            "model_version": estimation.model_version,
+            "ml_model_version": estimation.ml_model_version,
             "timestamp": estimation.timestamp.isoformat(),
         }
 

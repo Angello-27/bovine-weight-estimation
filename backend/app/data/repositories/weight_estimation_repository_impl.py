@@ -44,7 +44,7 @@ class WeightEstimationRepositoryImpl(WeightEstimationRepository):
         model.estimated_weight_kg = estimation.estimated_weight_kg
         model.confidence = estimation.confidence
         model.method = estimation.method
-        model.model_version = estimation.model_version
+        model.ml_model_version = estimation.ml_model_version
         model.processing_time_ms = estimation.processing_time_ms
         model.frame_image_path = estimation.frame_image_path
         model.latitude = estimation.latitude
@@ -102,7 +102,7 @@ class WeightEstimationRepositoryImpl(WeightEstimationRepository):
             estimated_weight_kg=model.estimated_weight_kg,
             confidence=model.confidence,
             method=model.method,
-            model_version=model.model_version,
+            ml_model_version=model.ml_model_version,
             processing_time_ms=model.processing_time_ms,
             frame_image_path=model.frame_image_path,
             latitude=model.latitude,
@@ -121,7 +121,7 @@ class WeightEstimationRepositoryImpl(WeightEstimationRepository):
             estimated_weight_kg=entity.estimated_weight_kg,
             confidence=entity.confidence,
             method=entity.method,
-            model_version=entity.model_version,
+            ml_model_version=entity.ml_model_version,
             processing_time_ms=entity.processing_time_ms,
             frame_image_path=entity.frame_image_path,
             latitude=entity.latitude,

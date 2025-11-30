@@ -25,13 +25,13 @@ class MLInferenceResult:
         estimated_weight_kg: float,
         confidence: float,
         processing_time_ms: int,
-        model_version: str,
+        ml_model_version: str,
         breed: BreedType,
     ):
         self.estimated_weight_kg = estimated_weight_kg
         self.confidence = confidence
         self.processing_time_ms = processing_time_ms
-        self.model_version = model_version
+        self.ml_model_version = ml_model_version
         self.breed = breed
 
     def to_dict(self) -> dict:
@@ -40,7 +40,7 @@ class MLInferenceResult:
             "estimated_weight_kg": self.estimated_weight_kg,
             "confidence": self.confidence,
             "processing_time_ms": self.processing_time_ms,
-            "model_version": self.model_version,
+            "ml_model_version": self.ml_model_version,
             "breed": self.breed.value,
             "meets_quality_criteria": self.confidence >= SystemMetrics.MIN_CONFIDENCE
             and self.processing_time_ms < SystemMetrics.MAX_PROCESSING_TIME_MS,
@@ -115,7 +115,7 @@ class MLInferenceEngine:
                 estimated_weight_kg=estimated_weight,
                 confidence=confidence,
                 processing_time_ms=processing_time_ms,
-                model_version=f"1.0.0-{selected_strategy}",  # Indicar estrategia usada
+                ml_model_version=f"1.0.0-{selected_strategy}",  # Indicar estrategia usada
                 breed=breed,
             )
 

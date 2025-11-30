@@ -6,7 +6,7 @@ Endpoints REST para gestión de animales
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, Query, Response, status
+from fastapi import APIRouter, Depends, Query, status
 
 from ...core.dependencies import (
     get_create_animal_usecase,
@@ -158,18 +158,22 @@ async def update_animal(
 @router.delete(
     "/{animal_id}",
     status_code=status.HTTP_204_NO_CONTENT,
-    response_class=Response,
     summary="Eliminar animal",
     description="Elimina un animal (soft delete - marca como inactive).",
 )
-@handle_domain_exceptions
 async def delete_animal(
     animal_id: UUID,
     delete_usecase: Annotated[DeleteAnimalUseCase, Depends(get_delete_animal_usecase)],
-) -> Response:
+) -> None:
     """Elimina un animal (soft delete)."""
-    await delete_usecase.execute(animal_id)
-    return Response(status_code=status.HTTP_204_NO_CONTENT)
+    from fastapi import HTTPException
+
+    from ...core.exceptions import NotFoundException
+
+    try:
+        await delete_usecase.execute(animal_id)
+    except NotFoundException as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 
 
 # ===== Trazabilidad Endpoints =====

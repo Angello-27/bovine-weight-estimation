@@ -134,7 +134,7 @@ class WeightEstimationSyncItemRequest(BaseModel):
     gps_latitude: float | None = Field(None, ge=-90, le=90)
     gps_longitude: float | None = Field(None, ge=-180, le=180)
     method: str = Field(default="tflite", description="Método de estimación")
-    model_version: str = Field(default="1.0.0", description="Versión del modelo ML")
+    ml_model_version: str = Field(default="1.0.0", description="Versión del modelo ML")
     processing_time_ms: int = Field(..., gt=0, description="Tiempo de procesamiento")
     operation: SyncOperation = Field(..., description="create/update/delete")
 

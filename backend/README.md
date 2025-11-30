@@ -155,6 +155,10 @@ pip install -r requirements.txt
 > - **Opción 2**: Compilar desde fuente o usar Docker para producción
 > - **Opción 3**: Usar el fallback mock (solo para desarrollo)
 
+> **ℹ️ Notas sobre warnings durante la ejecución**:
+> - El warning de `model_version` en Pydantic es normal y se ha solucionado agregando `protected_namespaces = ()` en la configuración
+> - El mensaje "(trapped) error reading bcrypt version" es informativo y no afecta la funcionalidad del hashing de passwords
+
 ### 2. Configuración
 
 Crear archivo `.env` en `backend/`:
@@ -205,6 +209,28 @@ curl http://localhost:8000/health
 # Swagger docs
 open http://localhost:8000/api/docs
 ```
+
+### 6. Visualizar Datos en MongoDB
+
+**MongoDB Compass (Recomendado)**:
+```bash
+# Instalar MongoDB Compass
+brew install --cask mongodb-compass
+
+# O descargar desde: https://www.mongodb.com/try/download/compass
+```
+
+**Conectar a la base de datos**:
+- URI de conexión: `mongodb://localhost:27017`
+- Base de datos: `bovine_weight_estimation`
+
+**Colecciones después del seed**:
+- `users` - Usuarios del sistema
+- `roles` - Roles y permisos  
+- `farms` - Fincas registradas
+- `animals` - Animales con trazabilidad completa
+- `weight_estimations` - Historial de estimaciones de peso
+- `alerts` - Alertas y recordatorios programados
 
 ---
 

@@ -25,7 +25,7 @@ class WeighingCreateRequest(BaseModel):
 
     # Opcionales
     method: str = Field(default="tflite", description="Método de estimación")
-    model_version: str = Field(default="1.0.0", description="Versión del modelo")
+    ml_model_version: str = Field(default="1.0.0", description="Versión del modelo ML")
     latitude: float | None = Field(None, ge=-90, le=90)
     longitude: float | None = Field(None, ge=-180, le=180)
     device_id: str | None = None
@@ -51,7 +51,7 @@ class WeighingResponse(BaseModel):
     confidence: float
     confidence_level: str  # high/medium/low
     method: str
-    model_version: str
+    ml_model_version: str
     processing_time_ms: int
     latitude: float | None
     longitude: float | None

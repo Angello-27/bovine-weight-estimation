@@ -17,11 +17,24 @@ Carga datos de ejemplo para desarrollo y testing con TRAZABILIDAD COMPLETA:
 import asyncio
 import random
 import sys
+import warnings
 from collections import Counter
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import cast
 from uuid import UUID
+
+# Suprimir warnings conocidos que no afectan funcionalidad
+# Suprimir mensaje informativo de bcrypt (compatibilidad con passlib)
+warnings.filterwarnings(
+    "ignore",
+    message=".*bcrypt.*",
+    category=UserWarning,
+)
+# Suprimir tracebacks de errores "trapped" (son informativos)
+import logging
+
+logging.getLogger("passlib.handlers.bcrypt").setLevel(logging.ERROR)
 
 # Agregar el directorio raíz al path
 sys.path.insert(0, str(Path(__file__).parent.parent))  # noqa: E402
@@ -472,10 +485,12 @@ def generate_weight_estimations(
 
         if (end_date - start_date).days < 30:
             # Si el período es muy corto, solo un pesaje
-            weighing_dates = [
-                start_date
-                + timedelta(days=random.randint(0, (end_date - start_date).days))
-            ]
+            days_diff = max(0, (end_date - start_date).days)
+            weighing_dates = (
+                [start_date + timedelta(days=random.randint(0, days_diff))]
+                if days_diff > 0
+                else [start_date]
+            )
         else:
             # Distribuir pesajes uniformemente
             days_span = (end_date - start_date).days
@@ -521,7 +536,7 @@ def generate_weight_estimations(
                 estimated_weight_kg=weight,
                 confidence=round(confidence, 2),
                 method="tflite",
-                model_version="1.0.0",
+                ml_model_version="1.0.0",
                 processing_time_ms=processing_time,
                 frame_image_path=f"/frames/{animal.ear_tag}_weighing_{i+1:03d}.jpg",
                 latitude=-15.859500,  # San Ignacio de Velasco

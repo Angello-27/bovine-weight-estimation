@@ -124,7 +124,7 @@ class TimelineEventData(BaseModel):
     estimated_weight_kg: float | None = None
     confidence: float | None = None
     method: str | None = None
-    model_version: str | None = None
+    ml_model_version: str | None = None
     gps_latitude: float | None = None
     gps_longitude: float | None = None
     frame_image_path: str | None = None

@@ -23,7 +23,7 @@ class WeightEstimation:
         estimated_weight_kg: float = 0.0,
         confidence: float = 0.0,
         method: str = "tflite",
-        model_version: str = "1.0.0",
+        ml_model_version: str = "1.0.0",
         processing_time_ms: int = 0,
         frame_image_path: str = "",
         latitude: float | None = None,
@@ -39,7 +39,7 @@ class WeightEstimation:
         self.estimated_weight_kg = estimated_weight_kg
         self.confidence = confidence
         self.method = method
-        self.model_version = model_version
+        self.ml_model_version = ml_model_version
         self.processing_time_ms = processing_time_ms
         self.frame_image_path = frame_image_path
         self.latitude = latitude

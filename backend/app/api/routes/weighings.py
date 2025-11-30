@@ -116,16 +116,16 @@ async def get_animal_weighings(
     skip = calculate_skip(page=page, page_size=page_size)
     estimations = await get_by_animal_usecase.execute(
         animal_id=animal_id, skip=skip, limit=page_size
-        )
+    )
 
     weighings = [WeightEstimationMapper.to_response(e) for e in estimations]
 
-        return WeighingsListResponse(
+    return WeighingsListResponse(
         total=len(weighings),
-            weighings=weighings,
-            page=page,
-            page_size=page_size,
-        )
+        weighings=weighings,
+        page=page,
+        page_size=page_size,
+    )
 
 
 @router.get(
@@ -148,9 +148,9 @@ async def list_weighings(
 
     weighings = [WeightEstimationMapper.to_response(e) for e in estimations]
 
-        return WeighingsListResponse(
+    return WeighingsListResponse(
         total=len(weighings),
-            weighings=weighings,
-            page=page,
-            page_size=page_size,
-        )
+        weighings=weighings,
+        page=page,
+        page_size=page_size,
+    )
