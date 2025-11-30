@@ -22,6 +22,7 @@ class LoginResponse(BaseModel):
     username: str
     role: str  # Nombre del rol
     role_id: UUID
+    farm_id: UUID | None = None  # ID de la finca principal del usuario
     access_token: str
     token_type: str = "bearer"
 
@@ -34,4 +35,3 @@ class TokenData(BaseModel):
 
     user_id: UUID | None = None
     username: str | None = None
-

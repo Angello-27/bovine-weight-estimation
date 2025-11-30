@@ -41,6 +41,7 @@ class AuthMapper:
             username=user.username,
             role=role.name,
             role_id=role.id,
+            farm_id=user.farm_id,  # Incluir farm_id del usuario
             access_token=access_token,
             token_type="bearer",
         )
