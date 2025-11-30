@@ -6,7 +6,7 @@ Endpoints REST para gestión de usuarios
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
 
 from ...core.dependencies import (
     get_create_user_usecase,
@@ -172,6 +172,7 @@ async def update_user(
 @router.delete(
     "/{user_id}",
     status_code=status.HTTP_204_NO_CONTENT,
+    response_class=Response,
     summary="Eliminar usuario",
     description="""
     Elimina un usuario del sistema.
@@ -179,11 +180,16 @@ async def update_user(
     **Permisos**: Requiere autenticación
     """,
 )
-@handle_domain_exceptions
 async def delete_user(
     user_id: UUID,
     delete_usecase: Annotated[DeleteUserUseCase, Depends(get_delete_user_usecase)],
     current_user: Annotated[User, Depends(get_current_active_user)],
-) -> None:
+) -> Response:
     """Elimina un usuario."""
-    await delete_usecase.execute(user_id)
+    from ...core.exceptions import NotFoundException
+    
+    try:
+        await delete_usecase.execute(user_id)
+        return Response(status_code=status.HTTP_204_NO_CONTENT)
+    except NotFoundException as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))

@@ -6,7 +6,7 @@ Endpoints REST para gestión de fincas
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
 
 from ...core.dependencies import (
     get_create_farm_usecase,
@@ -165,6 +165,7 @@ async def update_farm(
 @router.delete(
     "/{farm_id}",
     status_code=status.HTTP_204_NO_CONTENT,
+    response_class=Response,
     summary="Eliminar finca",
     description="""
     Elimina una finca del sistema.
@@ -175,11 +176,16 @@ async def update_farm(
     **Permisos**: Requiere autenticación
     """,
 )
-@handle_domain_exceptions
 async def delete_farm(
     farm_id: UUID,
     delete_usecase: Annotated[DeleteFarmUseCase, Depends(get_delete_farm_usecase)],
     current_user: Annotated[User, Depends(get_current_active_user)],
-) -> None:
+) -> Response:
     """Elimina una finca."""
-    await delete_usecase.execute(farm_id)
+    from ...core.exceptions import NotFoundException
+
+    try:
+        await delete_usecase.execute(farm_id)
+        return Response(status_code=status.HTTP_204_NO_CONTENT)
+    except NotFoundException as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))

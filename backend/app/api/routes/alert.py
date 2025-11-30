@@ -7,7 +7,7 @@ from datetime import datetime
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, Response, status
 
 from ...core.dependencies import (
     get_create_alert_usecase,
@@ -140,15 +140,23 @@ async def update_alert(
     return AlertMapper.to_response(alert)
 
 
-@alert_router.delete("/{alert_id}", status_code=204)
-@handle_domain_exceptions
+@alert_router.delete(
+    "/{alert_id}", status_code=status.HTTP_204_NO_CONTENT, response_class=Response
+)
 async def delete_alert(
     alert_id: UUID,
     delete_usecase: Annotated[DeleteAlertUseCase, Depends(get_delete_alert_usecase)],
-):
+) -> Response:
     """Elimina una alerta."""
-    await delete_usecase.execute(alert_id)
-    return
+    from fastapi import HTTPException
+
+    from ...core.exceptions import NotFoundException
+
+    try:
+        await delete_usecase.execute(alert_id)
+        return Response(status_code=status.HTTP_204_NO_CONTENT)
+    except NotFoundException as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 
 
 @alert_router.post("/{alert_id}/read", response_model=AlertResponse)

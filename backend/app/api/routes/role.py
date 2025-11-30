@@ -6,7 +6,7 @@ Endpoints REST para gestión de roles
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
 
 from ...core.dependencies import (
     get_create_role_usecase,
@@ -155,6 +155,7 @@ async def update_role(
 @router.delete(
     "/{role_id}",
     status_code=status.HTTP_204_NO_CONTENT,
+    response_class=Response,
     summary="Eliminar rol",
     description="""
     Elimina un rol del sistema.
@@ -162,11 +163,16 @@ async def update_role(
     **Permisos**: Requiere autenticación
     """,
 )
-@handle_domain_exceptions
 async def delete_role(
     role_id: UUID,
     delete_usecase: Annotated[DeleteRoleUseCase, Depends(get_delete_role_usecase)],
     current_user: Annotated[User, Depends(get_current_active_user)],
-) -> None:
+) -> Response:
     """Elimina un rol."""
-    await delete_usecase.execute(role_id)
+    from ...core.exceptions import NotFoundException
+
+    try:
+        await delete_usecase.execute(role_id)
+        return Response(status_code=status.HTTP_204_NO_CONTENT)
+    except NotFoundException as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
