@@ -92,6 +92,10 @@ class Settings(BaseSettings):
         default="generic-cattle-v1.0.0.tflite",
         description="Nombre del modelo TFLite por defecto",
     )
+    ML_MODEL_FILE_ID: str = Field(
+        default="1Mi2C7f4YM6eF4bYhoZkzG2RyaykY3KvM",
+        description="File ID del modelo TFLite en Google Drive",
+    )
     ML_INPUT_SIZE: int = Field(
         default=224, description="Tamaño de entrada del modelo ML (224x224 para TFLite)"
     )

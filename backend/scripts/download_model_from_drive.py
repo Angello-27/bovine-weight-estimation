@@ -33,18 +33,25 @@ except ImportError:
 
 
 def download_model_from_drive(
-    file_id: str, output_dir: str | None = None, filename: str | None = None
+    file_id: str | None = None,
+    output_dir: str | None = None,
+    filename: str | None = None,
 ):
     """
     Descarga un modelo TFLite desde Google Drive.
 
     Args:
-        file_id: ID del archivo en Google Drive
+        file_id: ID del archivo en Google Drive (opcional, usa ML_MODEL_FILE_ID de settings si no se proporciona)
         output_dir: Directorio de salida (opcional, usa settings si no se proporciona)
         filename: Nombre del archivo (opcional, usa settings si no se proporciona)
     """
     # Usar configuración del proyecto si está disponible
     if settings is not None:
+        # Usar FILE_ID de settings si no se proporciona
+        file_id_from_env = None
+        if file_id is None:
+            file_id = settings.ML_MODEL_FILE_ID
+            file_id_from_env = True
         output_path = (
             Path(settings.ML_MODELS_PATH) if output_dir is None else Path(output_dir)
         )
@@ -52,9 +59,26 @@ def download_model_from_drive(
         print("📋 Usando configuración del proyecto:")
         print(f"   ML_MODELS_PATH: {settings.ML_MODELS_PATH}")
         print(f"   ML_DEFAULT_MODEL: {settings.ML_DEFAULT_MODEL}")
+        if file_id_from_env:
+            print(f"   ML_MODEL_FILE_ID: {file_id} (desde .env)")
+        else:
+            print(f"   ML_MODEL_FILE_ID: {file_id} (proporcionado)")
     else:
         output_path = Path(output_dir or "ml_models")
         model_filename = filename or "generic-cattle-v1.0.0.tflite"
+        # Si no hay settings y no se proporciona file_id, mostrar error
+        if file_id is None:
+            print(
+                "❌ Error: No se proporcionó FILE_ID y no se pudo obtener de configuración"
+            )
+            print("   Usa: --file-id FILE_ID o configura ML_MODEL_FILE_ID en .env")
+            sys.exit(1)
+
+    # Validar que tenemos file_id
+    if file_id is None:
+        print("❌ Error: No se proporcionó FILE_ID")
+        print("   Usa: --file-id FILE_ID o configura ML_MODEL_FILE_ID en .env")
+        sys.exit(1)
 
     # Crear directorio si no existe
     output_path.mkdir(parents=True, exist_ok=True)
@@ -104,8 +128,9 @@ def main():
     parser.add_argument(
         "--file-id",
         type=str,
-        required=True,
-        help="ID del archivo en Google Drive (extraer del link compartido)",
+        required=False,
+        default=None,
+        help="ID del archivo en Google Drive (opcional, usa ML_MODEL_FILE_ID de .env si no se proporciona)",
     )
     parser.add_argument(
         "--output",

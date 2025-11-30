@@ -49,17 +49,15 @@ El proyecto ya incluye un script Python que usa la configuración del proyecto:
 # 1. Instalar gdown si no está instalado
 pip install gdown
 
-# 2. Obtener FILE_ID del modelo en Google Drive
-#    - Abre el archivo en Drive: generic-cattle-v1.0.0.tflite
-#    - Comparte con "cualquiera con el enlace"
-#    - Copia el link: https://drive.google.com/file/d/FILE_ID_AQUI/view?usp=sharing
-#    - Extrae el FILE_ID_AQUI del link
+# 2. El FILE_ID ya está configurado en .env (ML_MODEL_FILE_ID)
+#    Si necesitas cambiarlo, edita backend/.env
 
-# 3. Ejecutar script (desde el directorio raíz del proyecto)
+# 3. Ejecutar script (desde el directorio backend/)
 cd backend
-python scripts/download_model_from_drive.py --file-id TU_FILE_ID_AQUI
+python scripts/download_model_from_drive.py
 
 # El script automáticamente:
+# - Usa ML_MODEL_FILE_ID de .env (ya configurado)
 # - Usa ML_MODELS_PATH de settings (./ml_models por defecto)
 # - Usa ML_DEFAULT_MODEL de settings (generic-cattle-v1.0.0.tflite)
 # - Crea el directorio si no existe
@@ -69,15 +67,16 @@ python scripts/download_model_from_drive.py --file-id TU_FILE_ID_AQUI
 **Ejemplo completo**:
 ```bash
 # Desde el directorio backend/
-python scripts/download_model_from_drive.py --file-id 1AbCdEfGhIjKlMnOpQrStUvWxYz1234567
+python scripts/download_model_from_drive.py
 
 # Output esperado:
 # 📋 Usando configuración del proyecto:
 #    ML_MODELS_PATH: ./ml_models
 #    ML_DEFAULT_MODEL: generic-cattle-v1.0.0.tflite
+#    ML_MODEL_FILE_ID: 1Mi2C7f4YM6eF4bYhoZkzG2RyaykY3KvM (desde .env)
 #
 # 📥 Descargando modelo desde Google Drive...
-#    File ID: 1AbCdEfGhIjKlMnOpQrStUvWxYz1234567
+#    File ID: 1Mi2C7f4YM6eF4bYhoZkzG2RyaykY3KvM
 #    Output: ml_models/generic-cattle-v1.0.0.tflite
 # ...
 # ✅ Modelo descargado exitosamente
@@ -85,14 +84,19 @@ python scripts/download_model_from_drive.py --file-id 1AbCdEfGhIjKlMnOpQrStUvWxY
 #    Ubicación: /path/to/backend/ml_models/generic-cattle-v1.0.0.tflite
 ```
 
-**Para obtener FILE_ID**:
-1. En Colab, después de exportar, el archivo está en:
-   `/content/drive/MyDrive/bovine-weight-estimation/models/generic-cattle-v1.0.0.tflite`
-2. Abre Google Drive en navegador y navega al archivo
-3. Click derecho → "Obtener enlace" o "Compartir"
-4. Configura compartir como "Cualquiera con el enlace"
-5. Copia el link: `https://drive.google.com/file/d/FILE_ID_AQUI/view?usp=sharing`
-6. Extrae el `FILE_ID_AQUI` (es la parte entre `/d/` y `/view`)
+**Nota**: También puedes proporcionar un FILE_ID diferente usando `--file-id`:
+```bash
+python scripts/download_model_from_drive.py --file-id OTRO_FILE_ID
+```
+
+**Para cambiar el FILE_ID** (si es necesario):
+1. El FILE_ID ya está configurado en `backend/.env` como `ML_MODEL_FILE_ID`
+2. Si necesitas usar un modelo diferente:
+   - Abre el archivo en Drive: `generic-cattle-v1.0.0.tflite`
+   - Comparte con "cualquiera con el enlace"
+   - Copia el link: `https://drive.google.com/file/d/FILE_ID_AQUI/view?usp=sharing`
+   - Extrae el `FILE_ID_AQUI` (es la parte entre `/d/` y `/view`)
+   - Actualiza `ML_MODEL_FILE_ID` en `backend/.env`
 
 ---
 
