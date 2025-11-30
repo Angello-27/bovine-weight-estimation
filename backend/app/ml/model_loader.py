@@ -31,7 +31,8 @@ except ImportError:
             """Wrapper para usar tf.lite.Interpreter como tflite_runtime.interpreter"""
 
             @staticmethod
-            def Interpreter(model_path: str):  # type: ignore[misc]
+            def Interpreter(model_path: str):  # type: ignore[misc]  # noqa: N802
+                """Crea un Interpreter de TensorFlow Lite."""
                 return tf.lite.Interpreter(model_path=model_path)
 
         tflite = TFLiteWrapper()  # type: ignore[assignment]
