@@ -223,8 +223,10 @@ async def create_users(admin_role: RoleModel) -> UserModel:
         username="bruno_brito",
         email="bruno@haciendagamelera.com",
         hashed_password=get_password_hash("password123"),  # Cambiar en producción
+        first_name="Bruno",
+        last_name="Brito Macedo",
         role_id=admin_role.id,
-        farm_id=None,  # Se asignará después de crear la finca
+        farm_id=FARM_ID,
         is_active=True,
         is_superuser=True,
     )
@@ -233,11 +235,13 @@ async def create_users(admin_role: RoleModel) -> UserModel:
 
     # Usuario de ejemplo (no superusuario)
     example_user = UserModel(
-        username="usuario_ejemplo",
-        email="usuario@haciendagamelera.com",
+        username="miguelo",
+        email="miguel@haciendagamelera.com",
         hashed_password=get_password_hash("password123"),
-        role_id=admin_role.id,  # Usar admin_role por ahora
-        farm_id=None,
+        first_name="Miguel",
+        last_name="Escobar",
+        role_id=admin_role.id,
+        farm_id=FARM_ID,
         is_active=True,
         is_superuser=False,
     )

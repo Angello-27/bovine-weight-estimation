@@ -39,6 +39,8 @@ class CreateUserUseCase:
         email: str,
         hashed_password: str,
         role_id: UUID,
+        first_name: str | None = None,
+        last_name: str | None = None,
         farm_id: UUID | None = None,
     ) -> User:
         """
@@ -49,6 +51,8 @@ class CreateUserUseCase:
             email: Email del usuario
             hashed_password: Contraseña hasheada
             role_id: ID del rol
+            first_name: Nombre del usuario (opcional)
+            last_name: Apellido del usuario (opcional)
             farm_id: ID de la finca (opcional)
 
         Returns:
@@ -80,6 +84,8 @@ class CreateUserUseCase:
             username=username,
             email=email,
             hashed_password=hashed_password,
+            first_name=first_name,
+            last_name=last_name,
             role_id=role_id,
             farm_id=farm_id,
             is_active=True,

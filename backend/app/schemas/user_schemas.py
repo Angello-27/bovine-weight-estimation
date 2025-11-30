@@ -12,11 +12,21 @@ from pydantic import BaseModel, EmailStr, Field
 class UserCreateRequest(BaseModel):
     """Request para crear un usuario."""
 
-    username: str = Field(..., description="Nombre de usuario", min_length=3, max_length=50)
+    username: str = Field(
+        ..., description="Nombre de usuario", min_length=3, max_length=50
+    )
     email: EmailStr = Field(..., description="Email del usuario")
     password: str = Field(..., description="Contraseña", min_length=6)
+    first_name: str | None = Field(
+        None, description="Nombre del usuario", max_length=100
+    )
+    last_name: str | None = Field(
+        None, description="Apellido del usuario", max_length=100
+    )
     role_id: UUID = Field(..., description="ID del rol asignado")
-    farm_id: UUID | None = Field(None, description="ID de la finca principal del usuario")
+    farm_id: UUID | None = Field(
+        None, description="ID de la finca principal del usuario"
+    )
 
 
 class UserUpdateRequest(BaseModel):
@@ -24,6 +34,12 @@ class UserUpdateRequest(BaseModel):
 
     email: EmailStr | None = None
     password: str | None = Field(None, description="Nueva contraseña", min_length=6)
+    first_name: str | None = Field(
+        None, description="Nombre del usuario", max_length=100
+    )
+    last_name: str | None = Field(
+        None, description="Apellido del usuario", max_length=100
+    )
     role_id: UUID | None = None
     farm_id: UUID | None = None
     is_active: bool | None = None
@@ -35,6 +51,8 @@ class UserResponse(BaseModel):
     id: UUID
     username: str
     email: str
+    first_name: str | None = None
+    last_name: str | None = None
     role_id: UUID
     farm_id: UUID | None = None
     is_active: bool
@@ -54,4 +72,3 @@ class UsersListResponse(BaseModel):
     users: list[UserResponse]
     page: int = 1
     page_size: int = 50
-

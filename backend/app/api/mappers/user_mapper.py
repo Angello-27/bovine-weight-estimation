@@ -38,6 +38,8 @@ class UserMapper:
             id=user.id,
             username=user.username,
             email=user.email,
+            first_name=user.first_name,
+            last_name=user.last_name,
             role_id=role_id,
             farm_id=user.farm_id,
             is_active=user.is_active,
@@ -65,6 +67,8 @@ class UserMapper:
             "username": request.username,
             "email": request.email,
             "hashed_password": hashed_password,
+            "first_name": request.first_name,
+            "last_name": request.last_name,
             "role_id": request.role_id,
             "farm_id": request.farm_id,
         }
@@ -88,6 +92,10 @@ class UserMapper:
             params["email"] = request.email
         if hashed_password is not None:
             params["hashed_password"] = hashed_password
+        if request.first_name is not None:
+            params["first_name"] = request.first_name
+        if request.last_name is not None:
+            params["last_name"] = request.last_name
         if request.role_id is not None:
             params["role_id"] = request.role_id
         if request.farm_id is not None:

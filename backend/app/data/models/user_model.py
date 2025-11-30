@@ -42,6 +42,14 @@ class UserModel(Document):
     email: EmailStr = Field(..., description="Email del usuario (único)")
     hashed_password: str = Field(..., description="Contraseña hasheada con bcrypt")
 
+    # Información personal
+    first_name: str | None = Field(
+        None, description="Nombre del usuario", max_length=100
+    )
+    last_name: str | None = Field(
+        None, description="Apellido del usuario", max_length=100
+    )
+
     # Relación con rol
     role_id: UUID = Field(..., description="ID del rol asignado al usuario")
 

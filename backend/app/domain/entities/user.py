@@ -21,6 +21,8 @@ class User:
         username: str = "",
         email: str = "",
         hashed_password: str = "",
+        first_name: str | None = None,
+        last_name: str | None = None,
         role_id: UUID | None = None,
         farm_id: UUID | None = None,
         is_active: bool = True,
@@ -34,6 +36,8 @@ class User:
         self.username = username
         self.email = email
         self.hashed_password = hashed_password
+        self.first_name = first_name
+        self.last_name = last_name
         self.role_id = role_id
         self.farm_id = farm_id
         self.is_active = is_active
