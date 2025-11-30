@@ -35,7 +35,7 @@ function UserList({ items, roles, farms, onEditClick, onDeleteClick }) {
             )
         },
         {
-            label: 'Finca',
+            label: 'Hacienda',
             field: 'farm_id',
             render: (value) => (
                 <Chip

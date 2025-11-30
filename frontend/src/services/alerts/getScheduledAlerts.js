@@ -7,7 +7,7 @@ import apiClient from '../../api/axiosClient';
  * 
  * @param {Object} filters - Filtros opcionales
  * @param {string} filters.user_id - Filtrar por usuario (UUID) (opcional)
- * @param {string} filters.farm_id - Filtrar por finca (UUID) (opcional)
+ * @param {string} filters.farm_id - Filtrar por hacienda (UUID) (opcional)
  * @returns {Promise<Array>} Lista de alertas programadas
  */
 const getScheduledAlerts = async (filters = {}) => {

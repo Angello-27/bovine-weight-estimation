@@ -199,6 +199,26 @@ Esta guía incluye:
 - Autenticación y Autorización
 - Checklist completo de implementación
 
+## 🎯 Patrón CRUD Estándar
+
+> 📖 **Guía de Referencia CRUD**: Ver [`docs/patterns/CRUD_PATTERN_REFERENCE.md`](../docs/patterns/CRUD_PATTERN_REFERENCE.md)
+
+Esta guía documenta el patrón estándar implementado para el módulo de **Haciendas (Farms)**, que debe ser seguido como referencia para implementar todos los demás módulos CRUD del sistema:
+
+- **Arquitectura General**: Separación de responsabilidades (Views → Templates → Organisms → Atoms)
+- **Estructura de Archivos**: Organización estándar de carpetas y archivos
+- **Patrón de Componentes**: Views, Templates, Organisms (Listas, Formularios)
+- **Servicios API**: Patrón estándar para llamadas al backend
+- **Validación de Formularios**: Validación frontend con mensajes claros
+- **Manejo de Errores**: Extracción y visualización de errores del backend
+- **Notificaciones**: Sistema de Snackbar para feedback al usuario
+- **Paginación**: Implementación estándar de paginación
+- **Estilos y Diseño**: Layouts y componentes reutilizables
+- **Flujo Completo del CRUD**: Diagramas de flujo para cada operación
+- **Checklist de Implementación**: Lista completa para implementar nuevos módulos
+
+Este documento está basado en la implementación completa y funcional del módulo de Haciendas, sirviendo como referencia estándar para mantener homogeneidad y calidad en todo el sistema.
+
 ## 🔗 Enlaces Útiles
 
 - [React Documentation](https://react.dev/)

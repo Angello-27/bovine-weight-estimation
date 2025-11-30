@@ -23,7 +23,7 @@ const createUser = async (userData) => {
         if (error.response && error.response.status === 400) {
             throw new Error('Los datos proporcionados son incorrectos. Por favor verifica e intenta de nuevo.');
         } else if (error.response && error.response.status === 404) {
-            throw new Error('El rol o la finca especificada no existe.');
+            throw new Error('El rol o la hacienda especificada no existe.');
         } else {
             throw new Error('Ocurrió un error al intentar crear el usuario. Por favor intenta de nuevo más tarde.');
         }

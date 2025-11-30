@@ -5,7 +5,7 @@ import apiClient from '../../api/axiosClient';
  * Obtiene todos los animales (ganado) registrados con filtros y paginación
  * 
  * @param {Object} filters - Filtros opcionales
- * @param {string} filters.farm_id - Filtrar por finca (UUID)
+ * @param {string} filters.farm_id - Filtrar por hacienda (UUID)
  * @param {string} filters.breed - Filtrar por raza
  * @param {string} filters.gender - Filtrar por género (male/female)
  * @param {string} filters.status - Filtrar por estado (active/inactive/sold/deceased)
@@ -37,7 +37,7 @@ const getAllCattle = async (filters = {}) => {
         // Si aún no hay farm_id, lanzar un error descriptivo
         // El backend requiere farm_id como parámetro obligatorio
         if (!farmId) {
-            throw new Error('Se requiere farm_id para listar animales. Por favor, proporciona un farm_id en los filtros o asegúrate de que tu usuario tenga una finca asignada.');
+            throw new Error('Se requiere farm_id para listar animales. Por favor, proporciona un farm_id en los filtros o asegúrate de que tu usuario tenga una hacienda asignada.');
         }
         
         // Agregar farm_id como requerido

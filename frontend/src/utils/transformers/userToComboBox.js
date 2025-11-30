@@ -8,10 +8,24 @@
 export const userToComboBox = (users = []) => {
     if (!Array.isArray(users)) return [];
     
-    return users.map(user => ({
-        id: user.id,
-        label: user.username || `Usuario ${user.id}`,
-        value: user.id
-    }));
+    return users.map(user => {
+        // Priorizar nombre completo, luego nombre o apellido individual, finalmente username
+        let label = '';
+        if (user.first_name && user.last_name) {
+            label = `${user.first_name} ${user.last_name}`;
+        } else if (user.first_name) {
+            label = user.first_name;
+        } else if (user.last_name) {
+            label = user.last_name;
+        } else {
+            label = user.username || `Usuario ${user.id}`;
+        }
+        
+        return {
+            id: user.id,
+            label: label,
+            value: user.id
+        };
+    });
 };
 

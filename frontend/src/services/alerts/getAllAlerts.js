@@ -9,7 +9,7 @@ import apiClient from '../../api/axiosClient';
  * @param {number} filters.page - Número de página (default: 1)
  * @param {number} filters.page_size - Tamaño de página (default: 50, max: 100)
  * @param {string} filters.user_id - Filtrar por usuario (UUID) (opcional)
- * @param {string} filters.farm_id - Filtrar por finca (UUID) (opcional)
+ * @param {string} filters.farm_id - Filtrar por hacienda (UUID) (opcional)
  * @param {string} filters.type - Filtrar por tipo (opcional)
  * @param {string} filters.status - Filtrar por estado (opcional)
  * @param {string} filters.scheduled_from - Fecha desde (ISO 8601) (opcional)

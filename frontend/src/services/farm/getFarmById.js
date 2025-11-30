@@ -3,9 +3,9 @@
 import apiClient from '../../api/axiosClient';
 
 /**
- * Obtiene una finca por su ID
- * @param {string} farmId - ID de la finca
- * @returns {Promise<Object>} Datos de la finca
+ * Obtiene una hacienda por su ID
+ * @param {string} farmId - ID de la hacienda
+ * @returns {Promise<Object>} Datos de la hacienda
  */
 const getFarmById = async (farmId) => {
     try {
@@ -13,9 +13,9 @@ const getFarmById = async (farmId) => {
         return response.data;
     } catch (error) {
         if (error.response && error.response.status === 404) {
-            throw new Error('Finca no encontrada.');
+            throw new Error('Hacienda no encontrada.');
         } else {
-            throw new Error('Ocurrió un error al intentar obtener la finca. Por favor intenta de nuevo más tarde.');
+            throw new Error('Ocurrió un error al intentar obtener la hacienda. Por favor intenta de nuevo más tarde.');
         }
     }
 };

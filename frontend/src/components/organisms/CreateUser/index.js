@@ -16,7 +16,7 @@ function CreateUser({ formData, onInputChange, onSubmit, roles, farms, onComboBo
                     <InputField xs={12} label="Contraseña" name="password" type="password" value={formData.password} onChange={onInputChange} />
                     <ComboBox xs={12} options={roles} label="Grupo de usuarios para el acceso" id="combo-box-role" fieldName="roleId" onChange={onComboBoxChange} value={formData.roleId} />
                     {farms && (
-                        <ComboBox xs={12} options={farms} label="Finca (opcional)" id="combo-box-farm" fieldName="farmId" onChange={onComboBoxChange} value={formData.farmId} />
+                        <ComboBox xs={12} options={farms} label="Hacienda (opcional)" id="combo-box-farm" fieldName="farmId" onChange={onComboBoxChange} value={formData.farmId} />
                     )}
                 </Grid>
                 <Grid container item justifyContent="center" xs={12} my={10}>

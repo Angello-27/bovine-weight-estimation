@@ -12,7 +12,7 @@ import apiClient from '../../api/axiosClient';
  * @param {string} alertData.status - Estado: 'pending', 'completed', 'cancelled' (default: 'pending')
  * @param {string} alertData.scheduled_date - Fecha programada (ISO 8601)
  * @param {string} alertData.user_id - ID del usuario (opcional)
- * @param {string} alertData.farm_id - ID de la finca (opcional)
+ * @param {string} alertData.farm_id - ID de la hacienda (opcional)
  * @returns {Promise<Object>} Alerta creada
  */
 const createAlert = async (alertData) => {

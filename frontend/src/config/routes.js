@@ -21,7 +21,8 @@ import WeightEstimationFromWebView from '../views/WeightEstimationFromWebView';
 import WeightEstimationDetailView from '../views/WeightEstimationDetailView';
 import UserView from '../views/UserView';
 import RoleView from '../views/RoleView';
-import FarmView from '../views/FarmView';
+import FarmView from '../views/farm/FarmView';
+import FarmDetailView from '../views/farm/FarmDetailView';
 // import StatisticsView from '../views/StatisticsView';
 
 // Mapeo de paths a componentes
@@ -79,6 +80,14 @@ function AppRoutes() {
                     element={
                         <ProtectedRoute requiredRoles={['Administrador', 'Usuario']}>
                             <WeightEstimationDetailView />
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/farms/:id"
+                    element={
+                        <ProtectedRoute requiredRoles={['Administrador']}>
+                            <FarmDetailView />
                         </ProtectedRoute>
                     }
                 />

@@ -6,7 +6,7 @@ import apiClient from '../../api/axiosClient';
  * Genera reporte de inventario de animales (PDF o Excel) desde el backend
  * 
  * @param {Object} params - Parámetros del reporte
- * @param {string} params.farm_id - ID de la finca (opcional)
+ * @param {string} params.farm_id - ID de la hacienda (opcional)
  * @param {string} params.format - Formato: 'pdf' o 'excel' (default: 'excel')
  * @param {string} params.status - Estado: 'active', 'inactive', 'sold', 'deceased' (opcional)
  * @param {string} params.breed - Raza (opcional)

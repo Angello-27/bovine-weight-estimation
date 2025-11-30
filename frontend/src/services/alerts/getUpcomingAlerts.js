@@ -8,7 +8,7 @@ import apiClient from '../../api/axiosClient';
  * @param {Object} filters - Filtros opcionales
  * @param {number} filters.days_ahead - Días hacia adelante (default: 7, max: 30)
  * @param {string} filters.user_id - Filtrar por usuario (UUID) (opcional)
- * @param {string} filters.farm_id - Filtrar por finca (UUID) (opcional)
+ * @param {string} filters.farm_id - Filtrar por hacienda (UUID) (opcional)
  * @returns {Promise<Array>} Lista de alertas próximas
  */
 const getUpcomingAlerts = async (filters = {}) => {

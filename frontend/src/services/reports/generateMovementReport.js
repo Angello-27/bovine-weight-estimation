@@ -6,7 +6,7 @@ import apiClient from '../../api/axiosClient';
  * Genera reporte de movimientos (ventas, fallecimientos) (PDF o Excel) desde el backend
  * 
  * @param {Object} params - Parámetros del reporte
- * @param {string} params.farm_id - ID de la finca (opcional)
+ * @param {string} params.farm_id - ID de la hacienda (opcional)
  * @param {string} params.format - Formato: 'pdf' o 'excel' (default: 'pdf')
  * @param {string} params.movement_type - Tipo de movimiento: 'sold', 'deceased', o null (todos) (opcional)
  * @param {string} params.date_from - Fecha desde (ISO 8601) (opcional)

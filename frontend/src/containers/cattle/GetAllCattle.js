@@ -25,22 +25,22 @@ function GetAllCattle() {
                     }
                 }
                 
-                // Si el usuario no tiene farm_id, obtener la primera finca disponible
+                // Si el usuario no tiene farm_id, obtener la primera hacienda disponible
                 if (!farmId) {
                     try {
                         const farmsResponse = await getAllFarms({ limit: 1 });
                         if (farmsResponse?.farms && farmsResponse.farms.length > 0) {
                             farmId = farmsResponse.farms[0].id;
-                            console.log('Usando primera finca disponible:', farmId);
+                            console.log('Usando primera hacienda disponible:', farmId);
                         }
                     } catch (e) {
-                        console.warn('No se pudo obtener fincas:', e);
+                        console.warn('No se pudo obtener haciendas:', e);
                     }
                 }
                 
                 // Llamar al servicio con farm_id
                 if (!farmId) {
-                    throw new Error('No se encontró una finca. Por favor, contacta al administrador para asignarte una finca.');
+                    throw new Error('No se encontró una hacienda. Por favor, contacta al administrador para asignarte una hacienda.');
                 }
                 
                 const filters = { farm_id: farmId };

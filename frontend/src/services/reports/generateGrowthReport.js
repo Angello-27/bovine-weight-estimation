@@ -7,7 +7,7 @@ import apiClient from '../../api/axiosClient';
  * 
  * @param {Object} params - Parámetros del reporte
  * @param {string} params.animal_id - ID del animal (opcional, si no se proporciona farm_id)
- * @param {string} params.farm_id - ID de la finca (opcional, si no se proporciona animal_id)
+ * @param {string} params.farm_id - ID de la hacienda (opcional, si no se proporciona animal_id)
  * @param {string} params.format - Formato: 'pdf' o 'excel' (default: 'excel')
  * @returns {Promise<void>} Descarga el archivo automáticamente
  */
@@ -30,7 +30,7 @@ const generateGrowthReport = async (params = {}) => {
         // Crear nombre de archivo descriptivo
         const timestamp = new Date().toISOString().split('T')[0];
         const id = params.animal_id || params.farm_id;
-        const type = params.animal_id ? 'animal' : 'finca';
+        const type = params.animal_id ? 'animal' : 'hacienda';
         const filename = `crecimiento_${type}_${id}_${timestamp}.${format}`;
 
         // Crear URL del blob y descargar

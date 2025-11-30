@@ -90,7 +90,7 @@ export const appRoutes = [
         path: '/farms',
         roles: ['Administrador'],
         sidebar: {
-            text: 'Fincas',
+            text: 'Haciendas',
             icon: <FarmIcon />,
             to: '/farms',
         },
@@ -123,11 +123,24 @@ export const getSidebarItems = (userRole) => {
 
 /**
  * Obtiene la configuración de una ruta específica
+ * Maneja rutas dinámicas: si no hay coincidencia exacta, busca la ruta base
  * @param {string} path - Path de la ruta
  * @returns {Object|null} Configuración de la ruta o null si no existe
  */
 export const getRouteConfig = (path) => {
-    return appRoutes.find(route => route.path === path) || null;
+    // Buscar coincidencia exacta primero
+    const exactMatch = appRoutes.find(route => route.path === path);
+    if (exactMatch) {
+        return exactMatch;
+    }
+    
+    // Si no hay coincidencia exacta, buscar rutas base que coincidan
+    // Por ejemplo: /farms/123 debería coincidir con /farms
+    const routeMatch = appRoutes
+        .filter(route => path.startsWith(route.path + '/'))
+        .sort((a, b) => b.path.length - a.path.length)[0]; // Ordenar por longitud descendente para obtener la coincidencia más específica
+    
+    return routeMatch || null;
 };
 
 /**

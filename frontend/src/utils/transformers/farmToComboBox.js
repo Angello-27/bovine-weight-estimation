@@ -10,7 +10,7 @@ export const farmToComboBox = (farms = []) => {
     
     return farms.map(farm => ({
         id: farm.id,
-        label: farm.name || `Finca ${farm.id}`,
+        label: farm.name || `Hacienda ${farm.id}`,
         value: farm.id
     }));
 };
