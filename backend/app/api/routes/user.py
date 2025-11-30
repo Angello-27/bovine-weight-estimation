@@ -8,7 +8,6 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, Query, status
 
-from ...application import AuthService
 from ...core.dependencies import (
     get_create_user_usecase,
     get_current_active_user,
@@ -17,6 +16,7 @@ from ...core.dependencies import (
     get_get_user_by_id_usecase,
     get_update_user_usecase,
 )
+from ...core.utils.password import get_password_hash
 from ...domain.entities.user import User
 from ...domain.usecases.users import (
     CreateUserUseCase,
@@ -73,7 +73,7 @@ async def create_user(
 ) -> UserResponse:
     """Crea un nuevo usuario."""
     # Hash de contraseña
-    hashed_password = AuthService.get_password_hash(request.password)
+    hashed_password = get_password_hash(request.password)
 
     # Convertir request a parámetros y ejecutar use case
     params = UserMapper.create_request_to_params(request, hashed_password)
@@ -159,7 +159,7 @@ async def update_user(
     # Hash de contraseña si se proporciona
     hashed_password = None
     if request.password is not None:
-        hashed_password = AuthService.get_password_hash(request.password)
+        hashed_password = get_password_hash(request.password)
 
     # Convertir request a parámetros y ejecutar use case
     params = UserMapper.update_request_to_params(request, hashed_password)

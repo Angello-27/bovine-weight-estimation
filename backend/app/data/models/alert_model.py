@@ -4,6 +4,7 @@ Modelo de persistencia para alertas y notificaciones con soporte para cronograma
 """
 
 from datetime import datetime, timedelta
+from typing import Annotated
 from uuid import UUID, uuid4
 
 from beanie import Document, Indexed
@@ -23,7 +24,7 @@ class AlertModel(Document):
     id: UUID = Field(default_factory=uuid4, alias="_id")  # type: ignore
 
     # Usuario y finca
-    user_id: Indexed(UUID) = Field(..., description="ID del usuario")  # type: ignore
+    user_id: Annotated[UUID, Indexed()] = Field(..., description="ID del usuario")  # type: ignore
     farm_id: UUID | None = Field(None, description="ID de la finca (opcional)")  # type: ignore
 
     # Tipo y contenido

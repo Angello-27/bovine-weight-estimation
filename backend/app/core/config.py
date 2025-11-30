@@ -41,18 +41,20 @@ class Settings(BaseSettings):
     )
 
     # ===== CORS =====
-    CORS_ORIGINS: list[str] = Field(
+    CORS_ORIGINS: str | list[str] = Field(
         default=["http://localhost:3000", "http://localhost:8080"],
-        description="Orígenes permitidos para CORS",
+        description="Orígenes permitidos para CORS (separados por comas en .env)",
     )
     CORS_ALLOW_CREDENTIALS: bool = Field(
         default=True, description="Permitir credenciales en CORS"
     )
-    CORS_ALLOW_METHODS: list[str] = Field(
-        default=["*"], description="Métodos HTTP permitidos en CORS"
+    CORS_ALLOW_METHODS: str | list[str] = Field(
+        default=["*"],
+        description="Métodos HTTP permitidos en CORS (separados por comas en .env)",
     )
-    CORS_ALLOW_HEADERS: list[str] = Field(
-        default=["*"], description="Headers permitidos en CORS"
+    CORS_ALLOW_HEADERS: str | list[str] = Field(
+        default=["*"],
+        description="Headers permitidos en CORS (separados por comas en .env)",
     )
 
     # ===== MongoDB =====
@@ -157,6 +159,35 @@ class Settings(BaseSettings):
         if v_upper not in allowed:
             raise ValueError(f"LOG_LEVEL debe ser uno de: {allowed}")
         return v_upper
+
+    @field_validator(
+        "CORS_ORIGINS", "CORS_ALLOW_METHODS", "CORS_ALLOW_HEADERS", mode="before"
+    )
+    @classmethod
+    def validate_cors_list_fields(cls, v: str | list[str] | None) -> list[str]:
+        """
+        Valida y convierte campos de lista de CORS a lista.
+
+        Acepta:
+        - Lista de strings (desde JSON en .env)
+        - String separado por comas (desde .env simple)
+        - String con "*" (retorna ["*"])
+        - None o string vacío (retorna lista vacía)
+        """
+        if v is None:
+            return []
+        if isinstance(v, list):
+            return v
+        if isinstance(v, str):
+            # Si es string vacío, retornar lista vacía
+            if not v.strip():
+                return []
+            # Si es "*", retornar ["*"]
+            if v.strip() == "*":
+                return ["*"]
+            # Si es string con comas, dividir y limpiar
+            return [item.strip() for item in v.split(",") if item.strip()]
+        return []
 
     @property
     def is_production(self) -> bool:

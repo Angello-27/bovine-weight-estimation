@@ -13,6 +13,7 @@ from app.domain.usecases.animals import (
     DeleteAnimalUseCase,
     GetAnimalByIdUseCase,
     GetAnimalsByFarmUseCase,
+    GetAnimalsByFilterCriteriaUseCase,
     UpdateAnimalUseCase,
 )
 
@@ -52,3 +53,10 @@ def get_delete_animal_usecase(
 ) -> DeleteAnimalUseCase:
     """Dependency para DeleteAnimalUseCase."""
     return DeleteAnimalUseCase(animal_repository=animal_repository)
+
+
+def get_get_animals_by_filter_criteria_usecase(
+    animal_repository: Annotated[AnimalRepository, Depends(get_animal_repository)],
+) -> GetAnimalsByFilterCriteriaUseCase:
+    """Dependency para GetAnimalsByFilterCriteriaUseCase."""
+    return GetAnimalsByFilterCriteriaUseCase(animal_repository=animal_repository)

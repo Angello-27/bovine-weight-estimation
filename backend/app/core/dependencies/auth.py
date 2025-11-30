@@ -8,17 +8,30 @@ from typing import Annotated
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
-from app.application import AuthService
 from app.core.exceptions import AuthenticationException
+from app.core.utils.jwt import decode_access_token
+from app.core.utils.password import verify_password
 from app.domain.entities.user import User
+from app.domain.repositories.role_repository import RoleRepository
 from app.domain.repositories.user_repository import UserRepository
-from app.domain.usecases.auth import GetUserByTokenUseCase
-from app.schemas.auth_schemas import TokenData
+from app.domain.usecases.auth import AuthenticateUserUseCase, GetUserByTokenUseCase
 
-from .repositories import get_user_repository
+from .repositories import get_role_repository, get_user_repository
 
 # Security scheme para JWT Bearer tokens
 security = HTTPBearer()
+
+
+def get_authenticate_user_usecase(
+    user_repository: Annotated[UserRepository, Depends(get_user_repository)],
+    role_repository: Annotated[RoleRepository, Depends(get_role_repository)],
+) -> AuthenticateUserUseCase:
+    """Dependency para AuthenticateUserUseCase."""
+    return AuthenticateUserUseCase(
+        user_repository=user_repository,
+        role_repository=role_repository,
+        password_verifier=verify_password,
+    )
 
 
 def get_get_user_by_token_usecase(
@@ -48,11 +61,8 @@ async def get_current_user(
         HTTPException 401: Si el token es inválido o el usuario no existe
     """
     try:
-        # Decodificar token usando AuthService (solo para decodificación)
-        auth_service = AuthService()
-        token_data: TokenData = auth_service.decode_access_token(
-            credentials.credentials
-        )
+        # Decodificar token usando utilidad JWT
+        token_data = decode_access_token(credentials.credentials)
 
         if token_data.user_id is None:
             raise HTTPException(

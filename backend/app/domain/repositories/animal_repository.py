@@ -90,3 +90,29 @@ class AnimalRepository(ABC):
             True si se eliminó exitosamente
         """
         pass
+
+    @abstractmethod
+    async def find_by_criteria(
+        self,
+        farm_id: UUID,
+        breed: str | None = None,
+        age_category: str | None = None,
+        gender: str | None = None,
+        status: str | None = None,
+        limit: int | None = None,
+    ) -> list[Animal]:
+        """
+        Busca animales por múltiples criterios de filtrado.
+
+        Args:
+            farm_id: ID de la finca (requerido)
+            breed: Raza del animal (opcional)
+            age_category: Categoría de edad (opcional)
+            gender: Género del animal (opcional)
+            status: Estado del animal (opcional)
+            limit: Límite de resultados (opcional)
+
+        Returns:
+            Lista de Animal que cumplen los criterios
+        """
+        pass

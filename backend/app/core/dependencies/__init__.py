@@ -23,9 +23,11 @@ from .animals import (
     get_delete_animal_usecase,
     get_get_animal_by_id_usecase,
     get_get_animals_by_farm_usecase,
+    get_get_animals_by_filter_criteria_usecase,
     get_update_animal_usecase,
 )
 from .auth import (
+    get_authenticate_user_usecase,
     get_current_active_user,
     get_current_superuser,
     get_current_user,
@@ -69,6 +71,7 @@ __all__ = [
     "get_animal_repository",
     "get_alert_repository",
     # Auth
+    "get_authenticate_user_usecase",
     "get_get_user_by_token_usecase",
     "get_current_user",
     "get_current_active_user",
@@ -96,6 +99,7 @@ __all__ = [
     "get_create_animal_usecase",
     "get_get_animal_by_id_usecase",
     "get_get_animals_by_farm_usecase",
+    "get_get_animals_by_filter_criteria_usecase",
     "get_update_animal_usecase",
     "get_delete_animal_usecase",
     # Alert Use Cases

@@ -4,6 +4,7 @@ Modelo de persistencia para fincas/haciendas en MongoDB
 """
 
 from datetime import datetime
+from typing import Annotated
 from uuid import UUID, uuid4
 
 from beanie import Document, Indexed
@@ -22,7 +23,7 @@ class FarmModel(Document):
     """
 
     # ID único de la finca
-    id: UUID = Field(default_factory=uuid4, alias="_id")
+    id: UUID = Field(default_factory=uuid4, alias="_id")  # type: ignore[assignment]
 
     # Datos básicos
     name: Indexed(str) = Field(  # type: ignore
@@ -31,7 +32,7 @@ class FarmModel(Document):
         min_length=1,
         max_length=200,
     )
-    owner_id: Indexed(UUID) = Field(  # type: ignore
+    owner_id: Annotated[UUID, Indexed()] = Field(  # type: ignore
         ..., description="ID del propietario (UserModel)"
     )
 

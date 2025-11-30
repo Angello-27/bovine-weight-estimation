@@ -174,3 +174,56 @@ class AnimalRepositoryImpl(AnimalRepository):
         await model.save()
 
         return True
+
+    async def find_by_criteria(
+        self,
+        farm_id: UUID,
+        breed: str | None = None,
+        age_category: str | None = None,
+        gender: str | None = None,
+        status: str | None = None,
+        limit: int | None = None,
+    ) -> list[Animal]:
+        """
+        Busca animales por múltiples criterios de filtrado.
+
+        Args:
+            farm_id: ID de la finca (requerido)
+            breed: Raza del animal (opcional)
+            age_category: Categoría de edad (opcional)
+            gender: Género del animal (opcional)
+            status: Estado del animal (opcional)
+            limit: Límite de resultados (opcional)
+
+        Returns:
+            Lista de Animal que cumplen los criterios
+        """
+        # Construir query base
+        query = AnimalModel.find(AnimalModel.farm_id == farm_id)
+
+        # Aplicar filtros
+        if breed:
+            query = query.find(AnimalModel.breed == breed)
+        if gender:
+            query = query.find(AnimalModel.gender == gender)
+        if status:
+            query = query.find(AnimalModel.status == status)
+
+        # Obtener todos los animales que cumplen los filtros básicos
+        models = await query.to_list()
+
+        # Filtrar por categoría de edad si se especifica
+        if age_category:
+            filtered_models = []
+            for model in models:
+                animal_entity = self._to_entity(model)
+                animal_age_category = animal_entity.calculate_age_category()
+                if animal_age_category.value == age_category:
+                    filtered_models.append(model)
+            models = filtered_models
+
+        # Aplicar límite si se especifica
+        if limit:
+            models = models[:limit]
+
+        return [self._to_entity(model) for model in models]

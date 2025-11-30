@@ -13,6 +13,7 @@ from ...core.dependencies import (
     get_create_alert_usecase,
     get_delete_alert_usecase,
     get_get_alert_by_id_usecase,
+    get_get_animals_by_filter_criteria_usecase,
     get_get_pending_alerts_usecase,
     get_get_scheduled_alerts_usecase,
     get_get_today_alerts_usecase,
@@ -35,13 +36,15 @@ from ...domain.usecases.alerts import (
     MarkAlertAsReadUseCase,
     UpdateAlertUseCase,
 )
+from ...domain.usecases.animals import GetAnimalsByFilterCriteriaUseCase
 from ...schemas.alert_schemas import (
     AlertCreateRequest,
     AlertResponse,
     AlertsListResponse,
     AlertUpdateRequest,
 )
-from ..mappers import AlertMapper
+from ...schemas.animal_schemas import AnimalResponse
+from ..mappers import AlertMapper, AnimalMapper
 from ..utils import handle_domain_exceptions
 
 # Crear router
@@ -264,3 +267,44 @@ async def get_upcoming_alerts(
         days_ahead=days_ahead, user_id=user_id, farm_id=farm_id
     )
     return [AlertMapper.to_response(alert) for alert in alerts]
+
+
+@alert_router.get("/{alert_id}/animals", response_model=list[AnimalResponse])
+@handle_domain_exceptions
+async def get_alert_animals(
+    alert_id: UUID,
+    get_alert_usecase: Annotated[
+        GetAlertByIdUseCase, Depends(get_get_alert_by_id_usecase)
+    ] = Depends(get_get_alert_by_id_usecase),
+    get_filter_criteria_usecase: Annotated[
+        GetAnimalsByFilterCriteriaUseCase,
+        Depends(get_get_animals_by_filter_criteria_usecase),
+    ] = Depends(get_get_animals_by_filter_criteria_usecase),
+) -> list[AnimalResponse]:
+    """
+    Obtiene los animales que cumplen los criterios de filtrado de una alerta.
+
+    **Uso**: Para alertas con `filter_criteria` (cronograma por hato).
+    Retorna la lista de animales que cumplen los criterios especificados en la alerta.
+
+    **Ejemplo**:
+    - Alerta con `filter_criteria: {"breed": "nelore", "age_category": "terneros", "gender": "female"}`
+    - Retorna todos los terneros hembras de raza Nelore de la finca asociada
+
+    **Nota**: Si la alerta no tiene `filter_criteria` o `farm_id`, retorna lista vacía.
+    """
+    # Obtener la alerta
+    alert = await get_alert_usecase.execute(alert_id)
+
+    # Verificar que la alerta tenga filter_criteria y farm_id
+    if not alert.filter_criteria or not alert.farm_id:
+        return []
+
+    # Obtener animales filtrados usando los criterios de la alerta
+    animals = await get_filter_criteria_usecase.execute(
+        farm_id=alert.farm_id,
+        filter_criteria=alert.filter_criteria,
+    )
+
+    # Convertir a DTOs
+    return [AnimalMapper.to_response(animal) for animal in animals]
