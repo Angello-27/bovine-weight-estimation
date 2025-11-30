@@ -8,6 +8,14 @@ Single Responsibility: Cargar modelos ML en memoria
 from pathlib import Path
 from typing import Any, Optional
 
+from ..core.config import settings
+from ..core.exceptions import MLModelException
+from ..domain.shared.constants import BreedType
+
+# Declarar variables globales con tipos explícitos
+TFLITE_AVAILABLE: bool = False
+TFLITE_SOURCE: str | None = None
+
 try:
     import tflite_runtime.interpreter as tflite  # type: ignore[import-untyped, import-not-found, import]
 
@@ -23,7 +31,7 @@ except ImportError:
             """Wrapper para usar tf.lite.Interpreter como tflite_runtime.interpreter"""
 
             @staticmethod
-            def Interpreter(model_path: str):
+            def Interpreter(model_path: str):  # type: ignore[misc]
                 return tf.lite.Interpreter(model_path=model_path)
 
         tflite = TFLiteWrapper()  # type: ignore[assignment]
@@ -37,10 +45,6 @@ except ImportError:
         tflite = None  # type: ignore[assignment]
         TFLITE_AVAILABLE = False
         TFLITE_SOURCE = None
-
-from ..core.config import settings
-from ..core.exceptions import MLModelException
-from ..domain.shared.constants import BreedType
 
 
 class MLModelLoader:
