@@ -1,0 +1,869 @@
+# 🎨 Guía de Integración Frontend - Panel Web React
+
+**Objetivo**: Guía completa de integración del Panel Web React con el Backend FastAPI, incluyendo ML, APIs REST, trazabilidad, reportes y estimación de peso.
+
+**Frontend**: React + Material-UI  
+**Backend**: FastAPI (Python 3.11+)  
+**Base URL API**: `http://localhost:8000` (desarrollo) | `https://api.haciendagamelera.com` (producción)
+
+---
+
+## 📋 Índice
+
+1. [Configuración Inicial](#configuración-inicial)
+2. [Arquitectura del Frontend](#arquitectura-del-frontend)
+3. [Integración con APIs REST](#integración-con-apis-rest)
+4. [Estimación de Peso desde Web](#estimación-de-peso-desde-web)
+5. [Trazabilidad del Ganado](#trazabilidad-del-ganado)
+6. [Sistema de Reportes](#sistema-de-reportes)
+7. [Autenticación y Autorización](#autenticación-y-autorización)
+8. [Checklist de Implementación](#checklist-de-implementación)
+
+---
+
+## 🔧 Configuración Inicial
+
+### 1. Variables de Entorno
+
+**Archivo:** `.env` o `.env.local`
+
+```env
+REACT_APP_API_BASE_URL=http://localhost:8000
+REACT_APP_API_VERSION=v1
+REACT_APP_APP_NAME=Bovine Weight Estimation
+```
+
+### 2. Configuración de Axios
+
+**Archivo:** `src/api/axiosClient.js`
+
+```javascript
+import axios from 'axios';
+
+const apiClient = axios.create({
+  baseURL: process.env.REACT_APP_API_BASE_URL || 'http://localhost:8000',
+  timeout: 30000,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
+// Interceptor para agregar token JWT
+apiClient.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('access_token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
+// Interceptor para manejar errores
+apiClient.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      // Token expirado o inválido
+      localStorage.removeItem('access_token');
+      window.location.href = '/login';
+    }
+    return Promise.reject(error);
+  }
+);
+
+export default apiClient;
+```
+
+### 3. Constantes de la Aplicación
+
+**Archivo:** `src/config/constants.js`
+
+```javascript
+// Rutas del sidebar
+export const sidebarItems = [
+  {
+    text: 'Dashboard',
+    icon: <DashboardIcon />,
+    to: '/dashboard',
+    roles: ['Administrador', 'Usuario', 'Invitado'],
+  },
+  {
+    text: 'Ganado',
+    icon: <PetsIcon />,
+    to: '/cattle',
+    roles: ['Administrador', 'Usuario'],
+  },
+  {
+    text: 'Estimaciones',
+    icon: <ScaleIcon />,
+    to: '/weight-estimations',
+    roles: ['Administrador', 'Usuario'],
+  },
+  {
+    text: 'Estimar Peso',
+    icon: <AddCircleIcon />,
+    to: '/weight-estimations/estimate',
+    roles: ['Administrador', 'Usuario'],
+  },
+  {
+    text: 'Reportes',
+    icon: <DescriptionIcon />,
+    to: '/reports',
+    roles: ['Administrador', 'Usuario'],
+  },
+  {
+    text: 'Usuarios',
+    icon: <PeopleIcon />,
+    to: '/users',
+    roles: ['Administrador'],
+  },
+  {
+    text: 'Roles',
+    icon: <SecurityIcon />,
+    to: '/roles',
+    roles: ['Administrador'],
+  },
+  {
+    text: 'Sincronización',
+    icon: <SyncIcon />,
+    to: '/sync',
+    roles: ['Administrador'],
+  },
+];
+
+// Razas válidas
+export const BREEDS = [
+  'nelore',
+  'brahman',
+  'guzerat',
+  'senepol',
+  'girolando',
+  'gyr_lechero',
+  'sindi',
+];
+
+// Estados de animales
+export const ANIMAL_STATUS = ['active', 'inactive', 'sold', 'deceased'];
+
+// Géneros
+export const GENDERS = ['male', 'female'];
+```
+
+### 4. Rutas de la Aplicación
+
+**Archivo:** `src/config/routes.js`
+
+```javascript
+import { Routes, Route, Navigate } from 'react-router-dom';
+import LoginView from '../views/LoginView';
+import DashboardView from '../views/DashboardView';
+import CattleView from '../views/CattleView';
+import CattleDetailView from '../views/CattleDetailView';
+import WeightEstimationsView from '../views/WeightEstimationsView';
+import WeightEstimationFromWebView from '../views/WeightEstimationFromWebView';
+import SyncStatusView from '../views/SyncStatusView';
+import UserView from '../views/UserView';
+import RoleView from '../views/RoleView';
+import FarmView from '../views/FarmView';
+
+const AppRoutes = () => {
+  return (
+    <Routes>
+      <Route path="/login" element={<LoginView />} />
+      <Route path="/dashboard" element={<DashboardView />} />
+      <Route path="/cattle" element={<CattleView />} />
+      <Route path="/cattle/:id" element={<CattleDetailView />} />
+      <Route path="/weight-estimations" element={<WeightEstimationsView />} />
+      <Route
+        path="/weight-estimations/estimate"
+        element={<WeightEstimationFromWebView />}
+      />
+      <Route path="/sync" element={<SyncStatusView />} />
+      <Route path="/users" element={<UserView />} />
+      <Route path="/roles" element={<RoleView />} />
+      <Route path="/farms" element={<FarmView />} />
+      <Route path="/" element={<Navigate to="/dashboard" replace />} />
+    </Routes>
+  );
+};
+
+export default AppRoutes;
+```
+
+---
+
+## 🏗️ Arquitectura del Frontend
+
+### Estructura de Carpetas
+
+```
+src/
+├── api/
+│   └── axiosClient.js          # Cliente HTTP configurado
+├── config/
+│   ├── constants.js            # Constantes de la app
+│   └── routes.js               # Configuración de rutas
+├── services/                   # Servicios API
+│   ├── auth/
+│   │   └── login.js
+│   ├── cattle/
+│   │   ├── getAllCattle.js
+│   │   ├── getCattleById.js
+│   │   ├── createCattle.js
+│   │   ├── updateCattle.js
+│   │   └── deleteCattle.js
+│   ├── weight-estimations/
+│   │   ├── getAllWeightEstimations.js
+│   │   ├── getWeightEstimationById.js
+│   │   ├── getWeightEstimationsByCattleId.js
+│   │   └── estimateWeightFromImage.js    # ⭐ ML desde web
+│   ├── reports/
+│   │   ├── generateTraceabilityReport.js
+│   │   ├── generateInventoryReport.js
+│   │   ├── generateMovementReport.js
+│   │   └── generateGrowthReport.js
+│   ├── sync/
+│   │   ├── getSyncHealth.js
+│   │   └── getSyncStats.js
+│   ├── users/
+│   │   └── getAllUsers.js
+│   ├── roles/
+│   │   └── getAllRoles.js
+│   └── farms/
+│       └── getAllFarms.js
+├── containers/                 # Lógica de negocio
+│   ├── auth/
+│   ├── cattle/
+│   ├── weight-estimations/
+│   ├── reports/
+│   └── sync/
+├── components/
+│   ├── atoms/                  # Componentes básicos
+│   ├── molecules/              # Componentes compuestos
+│   └── organisms/              # Componentes complejos
+│       ├── CreateCattle/
+│       ├── CreateWeightEstimation/
+│       ├── CattleList/
+│       ├── CattleTraceabilityTimeline/
+│       ├── CattleLineageTree/
+│       ├── CattleWeightHistoryChart/
+│       └── CattleReportGenerator/
+├── views/                      # Vistas principales
+│   ├── LoginView.js
+│   ├── DashboardView.js
+│   ├── CattleView.js
+│   ├── CattleDetailView.js
+│   ├── WeightEstimationsView.js
+│   ├── WeightEstimationFromWebView.js
+│   ├── SyncStatusView.js
+│   ├── UserView.js
+│   └── RoleView.js
+├── templates/                  # Templates de layout
+│   ├── DashboardTemplate.js
+│   ├── CattleTemplate.js
+│   ├── WeightEstimationTemplate.js
+│   └── SyncStatusTemplate.js
+└── utils/
+    └── transformers/
+        ├── breedToComboBox.js
+        ├── cattleToTableRow.js
+        ├── weightEstimationToChartData.js
+        └── cattleToTimelineEvents.js
+```
+
+---
+
+## 🔌 Integración con APIs REST
+
+### Autenticación
+
+**Servicio:** `src/services/auth/login.js`
+
+```javascript
+import apiClient from '../../api/axiosClient';
+
+export const login = async (username, password) => {
+  const response = await apiClient.post('/auth/login', {
+    username,
+    password,
+  });
+  
+  // Guardar token
+  localStorage.setItem('access_token', response.data.access_token);
+  localStorage.setItem('user', JSON.stringify(response.data));
+  
+  return response.data;
+};
+```
+
+**Uso en LoginView:**
+```javascript
+const handleLogin = async (username, password) => {
+  try {
+    const userData = await login(username, password);
+    navigate('/dashboard');
+  } catch (error) {
+    setError('Credenciales inválidas');
+  }
+};
+```
+
+### Gestión de Animales (Cattle)
+
+**Servicio:** `src/services/cattle/getAllCattle.js`
+
+```javascript
+import apiClient from '../../api/axiosClient';
+
+export const getAllCattle = async (filters = {}) => {
+  const params = new URLSearchParams();
+  
+  if (filters.farm_id) params.append('farm_id', filters.farm_id);
+  if (filters.breed) params.append('breed', filters.breed);
+  if (filters.gender) params.append('gender', filters.gender);
+  if (filters.status) params.append('status', filters.status);
+  if (filters.page) params.append('page', filters.page);
+  if (filters.page_size) params.append('page_size', filters.page_size);
+  
+  const response = await apiClient.get(`/api/v1/animals?${params.toString()}`);
+  return response.data;
+};
+```
+
+**Endpoint Backend:** `GET /api/v1/animals`
+
+**Response:**
+```json
+{
+  "total": 100,
+  "animals": [
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440000",
+      "ear_tag": "HG-BRA-001",
+      "name": "Brahman #1",
+      "breed": "brahman",
+      "birth_date": "2022-03-15T00:00:00Z",
+      "gender": "male",
+      "status": "active",
+      "farm_id": "770e8400-e29b-41d4-a716-446655440000"
+    }
+  ],
+  "page": 1,
+  "page_size": 50
+}
+```
+
+### Gestión de Estimaciones de Peso
+
+**Servicio:** `src/services/weight-estimations/getWeightEstimationsByCattleId.js`
+
+```javascript
+import apiClient from '../../api/axiosClient';
+
+export const getWeightEstimationsByCattleId = async (cattleId, page = 1, pageSize = 50) => {
+  const response = await apiClient.get(
+    `/api/v1/weighings/animal/${cattleId}?page=${page}&page_size=${pageSize}`
+  );
+  return response.data;
+};
+```
+
+**Endpoint Backend:** `GET /api/v1/weighings/animal/{animal_id}`
+
+---
+
+## 🤖 Estimación de Peso desde Web
+
+### Descripción
+
+Permitir hacer estimaciones de peso desde el panel web subiendo imágenes. El backend procesa la imagen con el modelo ML TFLite y retorna la estimación.
+
+### Endpoint Backend
+
+**POST** `/api/v1/ml/estimate`
+
+**Autenticación:** Requerida (JWT Bearer Token)
+
+**Content-Type:** `multipart/form-data`
+
+**Request:**
+- `image` (File, required): Imagen del bovino (JPEG/PNG/WEBP)
+- `breed` (string, required): Raza
+- `animal_id` (UUID, optional): ID del animal si existe
+
+**Response:**
+```json
+{
+  "id": "2e0a53d6-86c0-4ae8-b402-ae09233861b7",
+  "animal_id": "550e8400-e29b-41d4-a716-446655440000",
+  "breed": "nelore",
+  "estimated_weight": 289.25,
+  "estimated_weight_kg": 289.25,
+  "confidence_score": 0.92,
+  "confidence": 0.92,
+  "ml_model_version": "1.0.0-deep_learning_tflite",
+  "processing_time_ms": 397,
+  "image_path": "web_uploads/550e8400.../cow.jpg",
+  "method": "strategy_based",
+  "meets_quality_criteria": true,
+  "timestamp": "2025-11-30T14:54:25.964158"
+}
+```
+
+### Servicio Frontend
+
+**Archivo:** `src/services/weight-estimations/estimateWeightFromImage.js`
+
+```javascript
+import apiClient from '../../api/axiosClient';
+
+export const estimateWeightFromImage = async (imageFile, breed, animalId = null) => {
+  const formData = new FormData();
+  formData.append('image', imageFile);
+  formData.append('breed', breed);
+  if (animalId) {
+    formData.append('animal_id', animalId);
+  }
+
+  const response = await apiClient.post('/api/v1/ml/estimate', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+
+  return response.data;
+};
+```
+
+### Vista: WeightEstimationFromWebView
+
+**Flujo:**
+1. Usuario selecciona imagen (drag & drop o botón)
+2. Usuario selecciona raza (opcional, pero recomendado)
+3. Usuario selecciona animal (opcional)
+4. Click en "Estimar"
+5. Mostrar resultado: peso, confianza, tiempo de procesamiento
+6. Opción de guardar estimación
+
+**Componente:**
+```javascript
+import React, { useState } from 'react';
+import { estimateWeightFromImage } from '../../services/weight-estimations/estimateWeightFromImage';
+import ImageUploader from '../../components/organisms/CreateWeightEstimation/ImageUploader';
+import EstimationResult from '../../components/organisms/CreateWeightEstimation/EstimationResult';
+
+const WeightEstimationFromWebView = () => {
+  const [imageFile, setImageFile] = useState(null);
+  const [breed, setBreed] = useState('');
+  const [animalId, setAnimalId] = useState(null);
+  const [estimation, setEstimation] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  const handleEstimate = async () => {
+    if (!imageFile || !breed) {
+      setError('Por favor selecciona una imagen y una raza');
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const result = await estimateWeightFromImage(imageFile, breed, animalId);
+      setEstimation(result);
+    } catch (err) {
+      setError(err.response?.data?.detail || 'Error al estimar peso');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div>
+      <ImageUploader
+        onImageSelected={setImageFile}
+        selectedImage={imageFile}
+      />
+      <BreedSelector value={breed} onChange={setBreed} />
+      <CattleSelector value={animalId} onChange={setAnimalId} />
+      <Button onClick={handleEstimate} disabled={loading}>
+        {loading ? 'Estimando...' : 'Estimar Peso'}
+      </Button>
+      {estimation && <EstimationResult estimation={estimation} />}
+      {error && <Alert severity="error">{error}</Alert>}
+    </div>
+  );
+};
+```
+
+### Componentes Requeridos
+
+#### ImageUploader
+- Drag & drop para imágenes
+- Preview de imagen
+- Validación de formato (JPEG, PNG, WEBP)
+- Validación de tamaño (máx. 10MB)
+
+#### EstimationResult
+- Muestra peso estimado destacado
+- Barra de confianza
+- Información de ML (versión, método)
+- Tiempo de procesamiento
+- Botón para guardar estimación
+
+---
+
+## 🐄 Trazabilidad del Ganado
+
+### Vista de Detalle: CattleDetailView
+
+**Endpoint Backend:** `GET /api/v1/animals/{animal_id}`
+
+**Información Mostrada:**
+1. **Datos Generales**
+   - Caravana, nombre, raza, género
+   - Fecha de nacimiento, edad
+   - Estado actual
+   - Foto del animal
+
+2. **Timeline de Eventos**
+   - Registro del animal
+   - Nacimiento
+   - Estimaciones de peso
+   - Cambios de estado
+   - Observaciones
+
+3. **Linaje**
+   - Padre (si existe)
+   - Madre (si existe)
+   - Descendientes (hijos)
+
+4. **Historial de Pesos**
+   - Gráfico de evolución
+   - Tabla de estimaciones
+   - Cálculo de GDP (Ganancia Diaria Promedio)
+
+### Timeline de Eventos
+
+**Endpoint Backend:** `GET /api/v1/animals/{animal_id}/timeline`
+
+**Response:**
+```json
+{
+  "animal_id": "550e8400-e29b-41d4-a716-446655440000",
+  "events": [
+    {
+      "type": "registration",
+      "date": "2024-12-20T10:00:00Z",
+      "description": "Animal registrado"
+    },
+    {
+      "type": "weight_estimation",
+      "date": "2024-12-20T10:25:00Z",
+      "description": "Peso estimado: 487.3 kg",
+      "weight_kg": 487.3,
+      "confidence": 0.97
+    }
+  ]
+}
+```
+
+**Componente:** `CattleTraceabilityTimeline`
+- Visualización cronológica de eventos
+- Filtros por tipo de evento
+- Iconos por tipo de evento
+- Enlaces a detalles (ej: ver estimación completa)
+
+### Linaje
+
+**Endpoint Backend:** `GET /api/v1/animals/{animal_id}/lineage`
+
+**Response:**
+```json
+{
+  "animal_id": "550e8400-e29b-41d4-a716-446655440000",
+  "father": {
+    "id": "aa0e8400-e29b-41d4-a716-446655440000",
+    "ear_tag": "HG-NEL-001",
+    "breed": "nelore"
+  },
+  "mother": {
+    "id": "bb0e8400-e29b-41d4-a716-446655440000",
+    "ear_tag": "HG-BRA-002",
+    "breed": "brahman"
+  },
+  "offspring": []
+}
+```
+
+**Componente:** `CattleLineageTree`
+- Árbol genealógico visual
+- Navegación a padres/hijos
+- Información de razas
+
+### Historial de Pesos
+
+**Endpoint Backend:** `GET /api/v1/weighings/animal/{animal_id}`
+
+**Componente:** `CattleWeightHistoryChart`
+- Gráfico de línea (recharts)
+- Tabla de estimaciones
+- Filtros por fecha
+- Cálculo de GDP
+
+**Transformador:** `src/utils/transformers/weightEstimationToChartData.js`
+
+```javascript
+export const weightEstimationToChartData = (estimations) => {
+  return estimations.map((est) => ({
+    date: new Date(est.timestamp),
+    weight: est.estimated_weight_kg,
+    confidence: est.confidence,
+    label: `${est.estimated_weight_kg} kg`,
+  }));
+};
+```
+
+---
+
+## 📊 Sistema de Reportes
+
+### Endpoints Backend
+
+Todos los reportes requieren autenticación y retornan archivos como `StreamingResponse`.
+
+#### 1. Reporte de Trazabilidad Individual
+
+**POST** `/api/v1/reports/traceability/{animal_id}`
+
+**Request:**
+```json
+{
+  "format": "pdf"  // o "excel"
+}
+```
+
+**Response:** Archivo PDF o Excel descargable
+
+**Servicio:** `src/services/reports/generateTraceabilityReport.js`
+
+```javascript
+import apiClient from '../../api/axiosClient';
+
+export const generateTraceabilityReport = async (animalId, format = 'pdf') => {
+  const response = await apiClient.post(
+    `/api/v1/reports/traceability/${animalId}`,
+    { format },
+    {
+      responseType: 'blob', // Importante para descargar archivo
+    }
+  );
+
+  // Crear URL del blob y descargar
+  const url = window.URL.createObjectURL(new Blob([response.data]));
+  const link = document.createElement('a');
+  link.href = url;
+  link.setAttribute('download', `trazabilidad_${animalId}.${format}`);
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+};
+```
+
+#### 2. Reporte de Inventario
+
+**POST** `/api/v1/reports/inventory`
+
+**Request:**
+```json
+{
+  "farm_id": "770e8400-e29b-41d4-a716-446655440000",
+  "format": "excel",
+  "status": "active",
+  "breed": "brahman",
+  "date_from": "2024-01-01T00:00:00Z",
+  "date_to": "2024-12-31T23:59:59Z"
+}
+```
+
+#### 3. Reporte de Movimientos
+
+**POST** `/api/v1/reports/movements`
+
+**Request:**
+```json
+{
+  "farm_id": "770e8400-e29b-41d4-a716-446655440000",
+  "format": "pdf",
+  "movement_type": "sold",  // "sold", "deceased", o null (todos)
+  "date_from": "2024-01-01T00:00:00Z",
+  "date_to": "2024-12-31T23:59:59Z"
+}
+```
+
+#### 4. Reporte de Crecimiento
+
+**POST** `/api/v1/reports/growth`
+
+**Request:**
+```json
+{
+  "animal_id": "550e8400-e29b-41d4-a716-446655440000",  // Opcional
+  "farm_id": "770e8400-e29b-41d4-a716-446655440000",  // Opcional (si no animal_id)
+  "format": "excel"
+}
+```
+
+### Componente: CattleReportGenerator
+
+**Uso en CattleDetailView:**
+
+```javascript
+import { generateTraceabilityReport } from '../../services/reports/generateTraceabilityReport';
+
+const handleGenerateReport = async (format) => {
+  try {
+    await generateTraceabilityReport(animalId, format);
+    showSuccess('Reporte generado exitosamente');
+  } catch (error) {
+    showError('Error al generar reporte');
+  }
+};
+
+// En el componente
+<Button
+  onClick={() => handleGenerateReport('pdf')}
+  startIcon={<PictureAsPdfIcon />}
+>
+  Generar Reporte PDF
+</Button>
+```
+
+---
+
+## 🔐 Autenticación y Autorización
+
+### Roles del Sistema
+
+- **Administrador**: Acceso completo
+- **Usuario**: Dashboard, Ganado, Estimaciones, Reportes
+- **Invitado**: Solo Dashboard (lectura)
+
+### Protección de Rutas
+
+**Archivo:** `src/components/auth/ProtectedRoute.js`
+
+```javascript
+import { Navigate } from 'react-router-dom';
+import { useSelector } from 'react-redux'; // O tu sistema de estado
+
+const ProtectedRoute = ({ children, requiredRoles = [] }) => {
+  const user = useSelector((state) => state.auth.user);
+
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
+
+  if (requiredRoles.length > 0 && !requiredRoles.includes(user.role.name)) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  return children;
+};
+```
+
+---
+
+## ✅ Checklist de Implementación
+
+### Fase 1: Configuración y Autenticación ✅
+- [x] Configurar axiosClient con interceptors
+- [x] Implementar servicio de login
+- [x] Protección de rutas
+- [x] Manejo de tokens JWT
+
+### Fase 2: Vistas Principales
+- [x] DashboardView con estadísticas
+- [x] CattleView con lista de animales
+- [x] CattleDetailView con trazabilidad completa
+- [x] WeightEstimationsView
+- [x] WeightEstimationFromWebView
+- [x] SyncStatusView (solo visualización)
+- [x] UserView y RoleView
+
+### Fase 3: Servicios API
+- [x] Servicios de autenticación
+- [x] Servicios de animales (CRUD)
+- [x] Servicios de estimaciones
+- [x] Servicio de estimación desde web (ML)
+- [x] Servicios de reportes
+- [x] Servicios de sincronización (solo lectura)
+
+### Fase 4: Componentes de Trazabilidad
+- [x] CattleTraceabilityTimeline
+- [x] CattleLineageTree
+- [x] CattleWeightHistoryChart (tabla implementada)
+- [ ] Gráfico de evolución de peso (recharts)
+
+### Fase 5: Componentes de Estimación ML
+- [x] ImageUploader
+- [x] EstimationResult
+- [x] CreateWeightEstimation organism
+- [x] Integración con backend `/api/v1/ml/estimate`
+
+### Fase 6: Sistema de Reportes
+- [ ] Generador de reporte de trazabilidad
+- [ ] Generador de reporte de inventario
+- [ ] Generador de reporte de movimientos
+- [ ] Generador de reporte de crecimiento
+- [ ] Manejo de descarga de archivos
+
+### Fase 7: Búsqueda y Filtros Avanzados
+- [ ] Búsqueda avanzada en CattleView
+- [ ] Filtros múltiples (raza, género, estado, fecha)
+- [ ] Ordenamiento
+- [ ] Paginación
+
+### Fase 8: Mejoras y Optimizaciones
+- [ ] Manejo de errores robusto
+- [ ] Loading states
+- [ ] Caché de datos
+- [ ] Optimización de imágenes
+- [ ] Testing
+
+---
+
+## 📝 Notas Importantes
+
+1. **Sincronización**: Los endpoints de sincronización (`/api/v1/sync/*`) son principalmente para la app móvil. El panel web solo muestra estado (health check, stats).
+
+2. **Estimación ML**: 
+   - Mobile usa `/api/v1/ml/predict` (sin guardar)
+   - Web usa `/api/v1/ml/estimate` (con guardado automático)
+
+3. **Timestamps**: Todos los timestamps están en formato ISO 8601 UTC
+
+4. **UUIDs**: Todos los IDs son UUIDs v4
+
+5. **Formatos de Imagen**: JPEG, PNG, WEBP (para estimaciones ML)
+
+6. **Razas Válidas**: Solo las 7 razas definidas en el backend
+
+---
+
+## 🔗 Referencias
+
+- **Documentación API Backend**: [`API_INTEGRATION_GUIDE.md`](./API_INTEGRATION_GUIDE.md)
+- **Documentación Modelo ML**: [`../backend/INTEGRATION_GUIDE.md`](../../backend/INTEGRATION_GUIDE.md)
+- **Documentación Mobile Sync**: [`FLUTTER_SYNC_GUIDE.md`](./FLUTTER_SYNC_GUIDE.md)
+
+---
+
+**Última actualización**: 2024-12-30  
+**Versión Frontend**: 1.0.0  
+**React Version**: 18+  
+**Material-UI Version**: 5+
+
