@@ -6,7 +6,8 @@ Lógica de negocio para gestión de fincas
 from uuid import UUID
 
 from ..core.exceptions import AlreadyExistsException, NotFoundException
-from ..models import FarmModel, UserModel
+from ..data.models.user_model import UserModel
+from ..models import FarmModel
 from ..schemas.farm_schemas import (
     FarmCreateRequest,
     FarmResponse,

@@ -8,59 +8,122 @@
 
 ## 🏗️ Arquitectura Backend (Clean Architecture)
 
+El proyecto sigue **Clean Architecture** con separación clara de responsabilidades:
+
 ```
 backend/app/
-├── core/                      # Core Layer (independiente)
-│   ├── config.py              # Configuración (Pydantic Settings)
-│   ├── constants/             # Constantes del dominio
-│   │   ├── breeds.py          # 7 razas exactas
-│   │   ├── age_categories.py  # 4 categorías de edad
-│   │   ├── metrics.py         # Métricas del sistema
-│   │   └── hacienda.py        # Datos Hacienda Gamelera
-│   └── errors/
-│       └── exceptions.py      # Excepciones personalizadas
+├── domain/                      # Domain Layer (Lógica de negocio pura)
+│   ├── entities/                # Entidades del dominio (sin dependencias)
+│   │   ├── animal.py            # Entidad Animal
+│   │   ├── user.py              # Entidad User
+│   │   └── role.py              # Entidad Role
+│   ├── repositories/            # Interfaces de repositorios (ABC)
+│   │   ├── animal_repository.py
+│   │   ├── user_repository.py
+│   │   └── role_repository.py
+│   ├── usecases/                # Casos de uso (lógica de negocio)
+│   │   ├── animals/             # Use cases de animales
+│   │   ├── users/                # Use cases de usuarios
+│   │   ├── roles/                # Use cases de roles
+│   │   └── auth/                 # Use cases de autenticación
+│   └── shared/                  # Código compartido del dominio
+│       └── constants/           # Constantes del dominio
+│           ├── breeds.py
+│           ├── age_categories.py
+│           ├── metrics.py
+│           └── hacienda.py
 │
-├── models/                    # Data Layer (Beanie ODM)
-│   ├── alert_model.py         # Alertas y cronograma
-│   ├── animal_model.py        # Modelo MongoDB de animales
-│   ├── farm_model.py          # Modelo de fincas
-│   ├── role_model.py          # Modelo de roles
-│   ├── user_model.py          # Modelo de usuarios
-│   └── weight_estimation_model.py  # Modelo de pesajes
+├── data/                        # Data Layer (Infraestructura)
+│   ├── models/                  # Modelos Beanie ODM (persistencia)
+│   │   ├── animal_model.py      # AnimalModel (Document)
+│   │   ├── user_model.py         # UserModel (Document)
+│   │   └── role_model.py         # RoleModel (Document)
+│   └── repositories/            # Implementaciones de repositorios
+│       ├── animal_repository_impl.py
+│       ├── user_repository_impl.py
+│       └── role_repository_impl.py
 │
-├── schemas/                   # API Layer (Pydantic DTOs)
-│   ├── alert_schemas.py       # Request/Response alertas
-│   ├── animal_schemas.py      # Request/Response animales
-│   ├── auth_schemas.py        # Request/Response autenticación
-│   ├── farm_schemas.py        # Request/Response fincas
-│   ├── role_schemas.py        # Request/Response roles
-│   ├── sync_schemas.py        # DTOs sincronización
-│   ├── user_schemas.py        # Request/Response usuarios
-│   └── weighing_schemas.py    # Request/Response pesajes
+├── api/                         # Presentation Layer (FastAPI)
+│   ├── routes/                  # Endpoints REST
+│   │   ├── animals.py           # CRUD animales
+│   │   ├── users.py             # CRUD usuarios
+│   │   ├── roles.py             # CRUD roles
+│   │   ├── auth.py              # Autenticación
+│   │   ├── farm.py              # CRUD fincas
+│   │   ├── weighings.py         # Pesajes
+│   │   ├── alert.py             # Alertas
+│   │   ├── ml.py                # ML/predicción
+│   │   └── sync.py              # Sincronización
+│   ├── schemas/                 # Pydantic DTOs (Request/Response)
+│   │   ├── animal_schemas.py
+│   │   ├── user_schemas.py
+│   │   ├── role_schemas.py
+│   │   └── ...
+│   └── dependencies.py          # Dependencias FastAPI (auth, etc.)
 │
-├── services/                  # Business Logic Layer
-│   ├── alert_service.py        # Lógica de negocio alertas
-│   ├── animal_service.py      # Lógica de negocio animales
-│   ├── auth_service.py        # Lógica de autenticación
-│   ├── farm_service.py        # Lógica de negocio fincas
-│   ├── ml_service.py          # Lógica de ML/inferencia
-│   ├── role_service.py        # Lógica de negocio roles
-│   ├── sync_service.py        # Lógica sincronización
-│   ├── user_service.py        # Lógica de negocio usuarios
-│   └── weighing_service.py    # Lógica de negocio pesajes
+├── services/                    # Service Layer (Orquestadores)
+│   ├── animal_service.py        # Orquesta use cases de animales
+│   ├── user_service.py          # Orquesta use cases de usuarios
+│   ├── role_service.py          # Orquesta use cases de roles
+│   ├── auth_service.py          # Orquesta use cases de autenticación
+│   ├── farm_service.py          # Lógica de fincas
+│   ├── weighing_service.py     # Lógica de pesajes
+│   ├── alert_service.py         # Lógica de alertas
+│   ├── sync_service.py          # Lógica de sincronización
+│   └── ml_service.py            # Lógica de ML/inferencia
 │
-├── api/routes/                # Presentation Layer (Routers)
-│   ├── alert.py               # Endpoints alertas y cronograma
-│   ├── animals.py             # Endpoints CRUD animales
-│   ├── auth.py                # Endpoints autenticación
-│   ├── farm.py                # Endpoints CRUD fincas
-│   ├── ml.py                  # Endpoints ML/predicción
-│   ├── role.py                # Endpoints CRUD roles
-│   ├── sync.py                # Endpoints sincronización
-│   ├── user.py                # Endpoints CRUD usuarios
-│   └── weighings.py           # Endpoints pesajes
+├── core/                        # Core Layer (Compartido)
+│   ├── config.py                # Configuración (Pydantic Settings)
+│   ├── database.py              # Configuración MongoDB/Beanie
+│   ├── exceptions.py            # Excepciones del dominio
+│   ├── lifespan.py              # Lifecycle de FastAPI
+│   ├── middleware.py            # Middlewares (CORS, etc.)
+│   └── routes.py                # Registro de rutas
 │
-└── main.py                    # Application entry point
+├── models/                      # ⚠️ LEGACY (coexistencia temporal)
+│   ├── alert_model.py           # Pendiente migrar
+│   ├── farm_model.py            # Pendiente migrar
+│   └── weight_estimation_model.py  # Pendiente migrar
+│
+├── ml/                          # Machine Learning
+│   ├── model_loader.py           # Carga de modelos TFLite
+│   ├── inference.py             # Motor de inferencia
+│   ├── preprocessing.py         # Preprocesamiento de imágenes
+│   └── strategies/              # Estrategias de estimación
+│       ├── deep_learning_strategy.py    # TFLite (primaria)
+│       └── morphometric_strategy.py     # YOLO (fallback)
+│
+└── main.py                      # Application entry point
+```
+
+### 📐 Principios de Clean Architecture
+
+1. **Domain Layer** (Independiente):
+   - ✅ Sin dependencias externas (no Beanie, no FastAPI)
+   - ✅ Solo lógica de negocio pura
+   - ✅ Interfaces (ABC) para repositorios
+   - ✅ Use Cases con Single Responsibility
+
+2. **Data Layer** (Implementación):
+   - ✅ Implementa interfaces de Domain
+   - ✅ Usa Beanie para persistencia
+   - ✅ Convierte entre Entities y Models
+
+3. **Presentation Layer** (API):
+   - ✅ Solo maneja HTTP requests/responses
+   - ✅ Convierte entre Schemas y Use Cases
+   - ✅ No contiene lógica de negocio
+
+4. **Service Layer** (Orquestadores):
+   - ✅ Coordina múltiples use cases
+   - ✅ Convierte entre Domain Entities y API Schemas
+
+### 🔄 Flujo de Datos
+
+```
+API Route → Service → Use Case → Repository Interface
+                                      ↓
+                              Repository Implementation → Model (Beanie) → MongoDB
 ```
 
 ---
@@ -129,18 +192,20 @@ open http://localhost:8000/api/docs
 
 ---
 
-## 📊 Modelos Implementados
+## 📊 Módulos Implementados con Clean Architecture
 
-| Modelo | Estado | Archivo | Servicio | Rutas |
-|--------|--------|---------|----------|-------|
-| `AlertModel` | ✅ | `alert_model.py` | ✅ | ✅ |
-| `AnimalModel` | ✅ | `animal_model.py` | ✅ | ✅ |
-| `WeightEstimationModel` | ✅ | `weight_estimation_model.py` | ✅ | ✅ |
-| `UserModel` | ✅ | `user_model.py` | ✅ | ✅ |
-| `FarmModel` | ✅ | `farm_model.py` | ✅ | ✅ |
-| `RoleModel` | ✅ | `role_model.py` | ✅ | ✅ |
+| Módulo | Domain | Data | Services | Routes | Estado |
+|--------|--------|------|----------|--------|--------|
+| **Animal** | ✅ | ✅ | ✅ | ✅ | ✅ Completado |
+| **User** | ✅ | ✅ | ✅ | ✅ | ✅ Completado |
+| **Role** | ✅ | ✅ | ✅ | ✅ | ✅ Completado |
+| **Auth** | ✅ | ✅ | ✅ | ✅ | ✅ Completado |
+| **Weighing** | ⏳ | ⏳ | ✅ | ✅ | ⏳ Pendiente |
+| **Alert** | ⏳ | ⏳ | ✅ | ✅ | ⏳ Pendiente |
+| **Farm** | ⏳ | ⏳ | ✅ | ✅ | ⏳ Pendiente |
+| **Sync** | ⏳ | ⏳ | ✅ | ✅ | ⏳ Pendiente |
 
-**Total**: 6 modelos completamente implementados con CRUD completo.
+**Total**: 3 módulos completamente migrados a Clean Architecture (Animal, User, Role, Auth)
 
 ---
 
@@ -260,6 +325,7 @@ ML_DEFAULT_MODEL=generic-cattle-v1.0.0.tflite
 ## 📚 Documentación Adicional
 
 - **Integración TFLite**: [`INTEGRATION_GUIDE.md`](INTEGRATION_GUIDE.md) - Guía completa para integrar modelo desde Colab
+- **Migración Clean Architecture**: [`MIGRACION_CLEAN_ARCHITECTURE.md`](MIGRACION_CLEAN_ARCHITECTURE.md) - Registro de cambios y progreso de migración
 - **Scripts**: [`scripts/README.md`](scripts/README.md) - Documentación de scripts de utilidad
 
 ---
@@ -268,6 +334,7 @@ ML_DEFAULT_MODEL=generic-cattle-v1.0.0.tflite
 
 ### ✅ Completado
 
+- ✅ Migración a Clean Architecture (Animal, User, Role, Auth)
 - ✅ Todos los modelos implementados (Alert, Animal, WeightEstimation, User, Farm, Role)
 - ✅ AlertModel con cronograma completo
 - ✅ API de consulta de alertas (today, upcoming, scheduled/list)
@@ -275,6 +342,10 @@ ML_DEFAULT_MODEL=generic-cattle-v1.0.0.tflite
 - ✅ Scripts de utilidad (seed_data, setup_production, download_model_from_drive)
 - ✅ Endpoints REST completos (CRUD para todos los modelos)
 - ✅ Integración en main.py
+
+### ⏳ En Progreso
+
+- ⏳ Migración de módulos restantes a Clean Architecture (Weighing, Alert, Farm, Sync)
 
 ### 📱 Próximos Pasos (Móvil)
 

@@ -1,6 +1,6 @@
 """
 API Dependencies
-Dependencias para autenticación y autorización en FastAPI
+Dependencias para autenticación y autorización usando casos de uso
 """
 
 from typing import Annotated
@@ -9,7 +9,10 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 from ..core.exceptions import AuthenticationException
-from ..models import UserModel
+from ..data.repositories.user_repository_impl import UserRepositoryImpl
+from ..domain.entities.user import User
+from ..domain.repositories.user_repository import UserRepository
+from ..domain.usecases.auth import GetUserByTokenUseCase
 from ..schemas.auth_schemas import TokenData
 from ..services import AuthService
 
@@ -17,30 +20,57 @@ from ..services import AuthService
 security = HTTPBearer()
 
 
+def get_user_repository() -> UserRepository:
+    """
+    Dependency para obtener UserRepository.
+
+    Returns:
+        UserRepository implementación
+    """
+    return UserRepositoryImpl()
+
+
+def get_get_user_by_token_usecase(
+    user_repository: Annotated[UserRepository, Depends(get_user_repository)],
+) -> GetUserByTokenUseCase:
+    """
+    Dependency para obtener GetUserByTokenUseCase.
+
+    Args:
+        user_repository: Repositorio de usuarios
+
+    Returns:
+        GetUserByTokenUseCase
+    """
+    return GetUserByTokenUseCase(user_repository=user_repository)
+
+
 async def get_current_user(
     credentials: Annotated[HTTPAuthorizationCredentials, Depends(security)],
-    auth_service: Annotated[AuthService, Depends(lambda: AuthService())],
-) -> UserModel:
+    get_user_by_token_usecase: Annotated[
+        GetUserByTokenUseCase, Depends(get_get_user_by_token_usecase)
+    ],
+) -> User:
     """
-    Dependency para obtener el usuario actual desde el token JWT.
+    Dependency para obtener el usuario actual desde el token JWT usando caso de uso.
 
     Args:
         credentials: Credenciales del header Authorization
-        auth_service: Servicio de autenticación
+        get_user_by_token_usecase: Caso de uso para obtener usuario por token
 
     Returns:
-        UserModel del usuario autenticado
+        User entity del dominio
 
     Raises:
         HTTPException 401: Si el token es inválido o el usuario no existe
     """
     try:
-        # Decodificar token
+        # Decodificar token usando AuthService (solo para decodificación)
+        auth_service = AuthService()
         token_data: TokenData = auth_service.decode_access_token(
             credentials.credentials
         )
 
-        # Buscar usuario
         if token_data.user_id is None:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
@@ -48,21 +78,8 @@ async def get_current_user(
                 headers={"WWW-Authenticate": "Bearer"},
             )
 
-        user = await UserModel.get(token_data.user_id)
-        if user is None:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Usuario no encontrado",
-                headers={"WWW-Authenticate": "Bearer"},
-            )
-
-        if not user.is_active:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="Usuario inactivo",
-            )
-
-        return user
+        # Usar caso de uso directamente para obtener usuario
+        return await get_user_by_token_usecase.execute(token_data.user_id)
 
     except AuthenticationException as e:
         raise HTTPException(
@@ -70,11 +87,17 @@ async def get_current_user(
             detail=str(e),
             headers={"WWW-Authenticate": "Bearer"},
         )
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail=f"Error al validar token: {str(e)}",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
 
 
 async def get_current_active_user(
-    current_user: Annotated[UserModel, Depends(get_current_user)],
-) -> UserModel:
+    current_user: Annotated[User, Depends(get_current_user)],
+) -> User:
     """
     Dependency para obtener usuario activo.
 
@@ -82,7 +105,7 @@ async def get_current_active_user(
         current_user: Usuario actual
 
     Returns:
-        UserModel del usuario activo
+        User entity del dominio activo
 
     Raises:
         HTTPException 403: Si el usuario no está activo
@@ -95,8 +118,8 @@ async def get_current_active_user(
 
 
 async def get_current_superuser(
-    current_user: Annotated[UserModel, Depends(get_current_user)],
-) -> UserModel:
+    current_user: Annotated[User, Depends(get_current_user)],
+) -> User:
     """
     Dependency para obtener usuario superusuario.
 
@@ -104,7 +127,7 @@ async def get_current_superuser(
         current_user: Usuario actual
 
     Returns:
-        UserModel del superusuario
+        User entity del dominio superusuario
 
     Raises:
         HTTPException 403: Si el usuario no es superusuario
@@ -115,3 +138,13 @@ async def get_current_superuser(
             detail="No tienes permisos suficientes",
         )
     return current_user
+
+
+__all__ = [
+    "get_user_repository",
+    "get_get_user_by_token_usecase",
+    "get_current_user",
+    "get_current_active_user",
+    "get_current_superuser",
+    "security",
+]

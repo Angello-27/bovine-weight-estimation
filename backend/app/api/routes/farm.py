@@ -8,9 +8,9 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 
-from ...api.dependencies import get_current_active_user
 from ...core.exceptions import AlreadyExistsException, NotFoundException
-from ...models import FarmModel, UserModel
+from ...domain.entities.user import User
+from ...models import FarmModel
 from ...schemas.farm_schemas import (
     FarmCreateRequest,
     FarmResponse,
@@ -18,6 +18,7 @@ from ...schemas.farm_schemas import (
     FarmUpdateRequest,
 )
 from ...services import FarmService
+from ..dependencies import get_current_active_user
 
 # Router con prefijo /farm
 router = APIRouter(
@@ -59,7 +60,7 @@ def get_farm_service() -> FarmService:
 async def create_farm(
     request: FarmCreateRequest,
     farm_service: Annotated[FarmService, Depends(get_farm_service)],
-    current_user: Annotated[UserModel, Depends(get_current_active_user)],
+    current_user: Annotated[User, Depends(get_current_active_user)],
 ) -> FarmResponse:
     """
     Endpoint para crear una finca.
@@ -99,11 +100,11 @@ async def create_farm(
     """,
 )
 async def get_all_farms(
+    current_user: Annotated[User, Depends(get_current_active_user)],
+    farm_service: Annotated[FarmService, Depends(get_farm_service)],
     skip: int = Query(0, ge=0, description="Número de registros a saltar"),
     limit: int = Query(50, ge=1, le=100, description="Número máximo de registros"),
     owner_id: UUID | None = Query(None, description="Filtrar por propietario"),
-    farm_service: Annotated[FarmService, Depends(get_farm_service)] = None,
-    current_user: Annotated[UserModel, Depends(get_current_active_user)] = None,
 ) -> FarmsListResponse:
     """
     Endpoint para listar fincas.
@@ -143,7 +144,7 @@ async def get_all_farms(
 async def get_farm(
     farm_id: UUID,
     farm_service: Annotated[FarmService, Depends(get_farm_service)],
-    current_user: Annotated[UserModel, Depends(get_current_active_user)],
+    current_user: Annotated[User, Depends(get_current_active_user)],
 ) -> FarmResponse:
     """
     Endpoint para obtener una finca por ID.
@@ -184,7 +185,7 @@ async def update_farm(
     farm_id: UUID,
     request: FarmUpdateRequest,
     farm_service: Annotated[FarmService, Depends(get_farm_service)],
-    current_user: Annotated[UserModel, Depends(get_current_active_user)],
+    current_user: Annotated[User, Depends(get_current_active_user)],
 ) -> FarmResponse:
     """
     Endpoint para actualizar una finca.
@@ -226,7 +227,7 @@ async def update_farm(
 async def delete_farm(
     farm_id: UUID,
     farm_service: Annotated[FarmService, Depends(get_farm_service)],
-    current_user: Annotated[UserModel, Depends(get_current_active_user)],
+    current_user: Annotated[User, Depends(get_current_active_user)],
 ) -> None:
     """
     Endpoint para eliminar una finca.

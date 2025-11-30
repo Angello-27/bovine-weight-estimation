@@ -2,7 +2,7 @@
 
 **Fecha de inicio**: Diciembre 2024  
 **Estrategia**: Migración incremental por módulo  
-**Estado**: En progreso - Módulo Animal completado
+**Estado**: En progreso - 4 módulos completados
 
 ---
 
@@ -10,11 +10,14 @@
 
 ### **Módulos Migrados**:
 - ✅ **Animal** (completado)
+- ✅ **User** (completado)
+- ✅ **Role** (completado)
+- ✅ **Auth** (completado)
 
 ### **Módulos Pendientes**:
 - ⏳ Weighing
 - ⏳ Alert
-- ⏳ User/Farm/Role
+- ⏳ Farm
 - ⏳ Sync
 - ⏳ Schemas (mover a api/schemas/)
 
@@ -31,22 +34,50 @@ backend/app/domain/
 ├── __init__.py                                    ✅ NUEVO
 ├── entities/
 │   ├── __init__.py                               ✅ NUEVO
-│   └── animal.py                                 ✅ NUEVO (Entidad pura)
+│   ├── animal.py                                  ✅ NUEVO (Entidad pura)
+│   ├── user.py                                    ✅ NUEVO (Entidad pura)
+│   └── role.py                                    ✅ NUEVO (Entidad pura)
 ├── repositories/
 │   ├── __init__.py                               ✅ NUEVO
-│   └── animal_repository.py                      ✅ NUEVO (Interfaz ABC)
-└── usecases/
-    ├── __init__.py                               ✅ NUEVO
-    └── animals/
-        ├── __init__.py                           ✅ NUEVO
-        ├── create_animal_usecase.py              ✅ NUEVO
-        ├── get_animal_by_id_usecase.py           ✅ NUEVO
-        ├── get_animals_by_farm_usecase.py        ✅ NUEVO
-        ├── update_animal_usecase.py              ✅ NUEVO
-        └── delete_animal_usecase.py               ✅ NUEVO
+│   ├── animal_repository.py                      ✅ NUEVO (Interfaz ABC)
+│   ├── user_repository.py                         ✅ NUEVO (Interfaz ABC)
+│   └── role_repository.py                         ✅ NUEVO (Interfaz ABC)
+├── usecases/
+│   ├── __init__.py                               ✅ NUEVO
+│   ├── animals/
+│   │   ├── __init__.py                           ✅ NUEVO
+│   │   ├── create_animal_usecase.py              ✅ NUEVO
+│   │   ├── get_animal_by_id_usecase.py           ✅ NUEVO
+│   │   ├── get_animals_by_farm_usecase.py        ✅ NUEVO
+│   │   ├── update_animal_usecase.py              ✅ NUEVO
+│   │   └── delete_animal_usecase.py              ✅ NUEVO
+│   ├── users/
+│   │   ├── __init__.py                           ✅ NUEVO
+│   │   ├── create_user_usecase.py                ✅ NUEVO
+│   │   ├── get_user_by_id_usecase.py             ✅ NUEVO
+│   │   ├── get_all_users_usecase.py              ✅ NUEVO
+│   │   ├── update_user_usecase.py                ✅ NUEVO
+│   │   └── delete_user_usecase.py                ✅ NUEVO
+│   ├── roles/
+│   │   ├── __init__.py                           ✅ NUEVO
+│   │   ├── create_role_usecase.py               ✅ NUEVO
+│   │   ├── get_role_by_id_usecase.py             ✅ NUEVO
+│   │   ├── get_all_roles_usecase.py              ✅ NUEVO
+│   │   ├── update_role_usecase.py                ✅ NUEVO
+│   │   └── delete_role_usecase.py                ✅ NUEVO
+│   └── auth/
+│       ├── __init__.py                           ✅ NUEVO
+│       ├── authenticate_user_usecase.py          ✅ NUEVO
+│       └── get_user_by_token_usecase.py          ✅ NUEVO
+└── shared/
+    └── constants/                                 ✅ NUEVO (movido desde core/)
+        ├── breeds.py
+        ├── age_categories.py
+        ├── metrics.py
+        └── hacienda.py
 ```
 
-**Total**: 11 archivos nuevos
+**Total**: ~35 archivos nuevos
 
 **Propósito**: Lógica de negocio pura sin dependencias externas
 
@@ -61,13 +92,17 @@ backend/app/data/
 ├── __init__.py                                    ✅ NUEVO
 ├── models/
 │   ├── __init__.py                               ✅ NUEVO
-│   └── animal_model.py                           ✅ NUEVO (Movido desde models/)
+│   ├── animal_model.py                           ✅ NUEVO (Movido desde models/)
+│   ├── user_model.py                             ✅ NUEVO (Movido desde models/)
+│   └── role_model.py                              ✅ NUEVO (Movido desde models/)
 └── repositories/
     ├── __init__.py                               ✅ NUEVO
-    └── animal_repository_impl.py                 ✅ NUEVO (Implementación)
+    ├── animal_repository_impl.py                  ✅ NUEVO (Implementación)
+    ├── user_repository_impl.py                    ✅ NUEVO (Implementación)
+    └── role_repository_impl.py                    ✅ NUEVO (Implementación)
 ```
 
-**Total**: 5 archivos nuevos
+**Total**: 11 archivos nuevos
 
 **Propósito**: Implementación de infraestructura (MongoDB, Beanie)
 
@@ -79,107 +114,174 @@ backend/app/data/
 
 ```
 backend/app/services/
-└── animal_service.py                              🔄 MODIFICADO
+├── animal_service.py                              🔄 MODIFICADO
+│   - Refactorizado para usar Use Cases
+│   - Eliminado acceso directo a Beanie
+│   - Ahora orquesta casos de uso del dominio
+├── user_service.py                                🔄 MODIFICADO
+│   - Refactorizado para usar Use Cases
+│   - Eliminado acceso directo a Beanie
+│   - Usa casos de uso de usuarios
+├── role_service.py                                🔄 MODIFICADO
+│   - Refactorizado para usar Use Cases
+│   - Eliminado acceso directo a Beanie
+│   - Usa casos de uso de roles
+└── auth_service.py                                🔄 MODIFICADO
     - Refactorizado para usar Use Cases
-    - Eliminado acceso directo a Beanie
-    - Ahora orquesta casos de uso del dominio
+    - Usa AuthenticateUserUseCase y GetUserByTokenUseCase
+    - Mantiene métodos estáticos para JWT y password hashing
 ```
 
 **Cambios principales**:
-- ✅ Usa `CreateAnimalUseCase`, `GetAnimalByIdUseCase`, etc.
-- ✅ Inyecta `AnimalRepository` (interfaz)
-- ✅ Convierte entre Domain Entities y API Schemas
+- ✅ Services usan Use Cases en lugar de acceso directo a Beanie
+- ✅ Inyectan Repository interfaces (Dependency Inversion)
+- ✅ Convierten entre Domain Entities y API Schemas
 
 ---
 
-### **4. API Routes** (SIN CAMBIOS)
-
-#### **Archivos**:
-
-```
-backend/app/api/routes/
-└── animals.py                                     ✅ SIN CAMBIOS
-    - No requiere cambios (usa AnimalService)
-```
-
-**Razón**: Las rutas ya usan `AnimalService`, que ahora usa Clean Architecture internamente.
-
----
-
-### **5. Main** (MODIFICADO)
+### **4. API Routes** (MODIFICADO)
 
 #### **Archivos Modificados**:
 
 ```
-backend/app/main.py                                🔄 MODIFICADO
-    - Importa AnimalModel desde data/models/
-    - Mantiene compatibilidad con otros modelos
+backend/app/api/routes/
+├── animals.py                                     ✅ SIN CAMBIOS (usa AnimalService)
+├── user.py                                        🔄 MODIFICADO
+│   - Actualizado para usar entidad User del dominio
+│   - Imports actualizados
+├── role.py                                        🔄 MODIFICADO
+│   - Actualizado para usar entidad User del dominio
+│   - Imports actualizados
+└── farm.py                                        🔄 MODIFICADO
+    - Actualizado para usar entidad User del dominio
+    - Imports actualizados
+```
+
+**Razón**: Las rutas usan Services que ahora usan Clean Architecture internamente. Solo se actualizaron tipos e imports.
+
+---
+
+### **5. Core** (MODIFICADO)
+
+#### **Archivos Modificados**:
+
+```
+backend/app/core/
+├── config.py                                      🔄 MODIFICADO
+│   - Actualizado para usar Pydantic Settings con Field()
+│   - Removidas configuraciones AWS
+├── database.py                                    🔄 MODIFICADO
+│   - Importa modelos desde data/models/ (Animal, User, Role)
+│   - Mantiene compatibilidad con modelos legacy
+├── lifespan.py                                    ✅ NUEVO
+│   - Gestiona ciclo de vida de FastAPI
+├── middleware.py                                  ✅ NUEVO
+│   - Configuración de middlewares (CORS)
+└── routes.py                                      ✅ NUEVO
+    - Registro centralizado de rutas
+```
+
+**Cambios principales**:
+- ✅ Separación de responsabilidades en `main.py`
+- ✅ Configuración mejorada con Pydantic Settings
+- ✅ Imports actualizados para modelos migrados
+
+---
+
+### **6. API Dependencies** (MODIFICADO)
+
+#### **Archivos Modificados**:
+
+```
+backend/app/api/
+├── dependencies.py                                🔄 MODIFICADO
+│   - Usa casos de uso directamente (GetUserByTokenUseCase)
+│   - Retorna entidades del dominio (User)
+│   - Eliminada carpeta dependencies/ (consolidado)
+└── dependencies/                                  ❌ ELIMINADO
+    └── auth.py                                    ❌ ELIMINADO (consolidado en dependencies.py)
+```
+
+**Cambios principales**:
+- ✅ `get_current_user` usa `GetUserByTokenUseCase` directamente
+- ✅ Retorna entidad `User` del dominio (no `UserModel`)
+- ✅ Consolidado en un solo archivo `dependencies.py`
+
+---
+
+### **7. Main** (REFACTORIZADO)
+
+#### **Archivos Modificados**:
+
+```
+backend/app/main.py                                🔄 REFACTORIZADO
+    - Separado en módulos: database.py, lifespan.py, middleware.py, routes.py
+    - Importa modelos desde data/models/ (Animal, User, Role)
+    - Mantiene compatibilidad con modelos legacy
 ```
 
 **Cambios**:
 ```python
-# ANTES:
-from app.models import AnimalModel
-
-# DESPUÉS (Coexistencia temporal):
-from app.data.models.animal_model import AnimalModel  # Nuevo (para uso en código)
-from app.models import (
-    AlertModel,  # Aún en models/ (pendiente migrar)
-    FarmModel,
-    RoleModel,
-    UserModel,
-    WeightEstimationModel,
-    # AnimalModel también se importa aquí para init_beanie (temporal)
-)
+# ANTES: Todo en main.py
+# DESPUÉS: Separado en módulos
+from app.core.database import connect_to_mongodb, init_database
+from app.core.lifespan import lifespan
+from app.core.middleware import setup_middleware
+from app.core.routes import setup_routes
 ```
-
-**Nota**: `init_beanie` requiere todos los modelos en la lista. Durante la migración, algunos modelos estarán en `data/models/` y otros en `models/`. Una vez migrados todos, actualizar `init_beanie` para importar todos desde `data/models/`.
 
 ---
 
-### **6. Models** (LEGACY - Coexistencia Temporal)
+### **8. Models** (LEGACY - Coexistencia Temporal)
 
 #### **Estado Actual**:
 
 ```
 backend/app/models/
-├── __init__.py                                    ⚠️  MANTENER (exporta todos los modelos)
-├── animal_model.py                                ⚠️  MANTENER (temporalmente)
+├── __init__.py                                    ⚠️  MANTENER (re-exporta desde data/models/)
+├── animal_model.py                                ⚠️  MANTENER (temporalmente, para init_beanie)
 ├── alert_model.py                                 ✅ MANTENER (pendiente migrar)
 ├── farm_model.py                                  ✅ MANTENER (pendiente migrar)
-├── role_model.py                                  ✅ MANTENER (pendiente migrar)
-├── user_model.py                                  ✅ MANTENER (pendiente migrar)
+├── role_model.py                                  ⚠️  MANTENER (temporalmente, para init_beanie)
+├── user_model.py                                  ⚠️  MANTENER (temporalmente, para init_beanie)
 └── weight_estimation_model.py                    ✅ MANTENER (pendiente migrar)
 ```
 
 **⚠️ IMPORTANTE**: 
-- **NO eliminar `animal_model.py` todavía** - `main.py` aún lo importa para `init_beanie`
-- El modelo nuevo está en `data/models/animal_model.py` (usado por repositorio)
-- Ambos modelos coexisten temporalmente durante la migración
-- Eliminar `models/animal_model.py` solo cuando:
+- Los modelos migrados (Animal, User, Role) están en `data/models/` (usados por repositorios)
+- Los modelos en `models/` se mantienen temporalmente para `init_beanie` en `database.py`
+- `models/__init__.py` re-exporta desde `data/models/` para compatibilidad
+- Eliminar modelos de `models/` solo cuando:
   1. Todos los módulos estén migrados
-  2. `main.py` importe todos los modelos desde `data/models/`
+  2. `database.py` importe todos los modelos desde `data/models/`
   3. No haya referencias al modelo antiguo
-
-**Referencias actuales a `AnimalModel`**:
-- ✅ `main.py` - Importa desde `data/models/` (nuevo)
-- ✅ `data/repositories/animal_repository_impl.py` - Usa modelo nuevo
-- ⚠️ `main.py` - También importa desde `models/` para `init_beanie` (temporal)
 
 ---
 
-## 📊 Estadísticas de Migración - Módulo Animal
+## 📊 Estadísticas de Migración
 
-### **Archivos Creados**: 16
-- Domain Layer: 11 archivos
-- Data Layer: 5 archivos
+### **Archivos Creados**: ~50
+- Domain Layer: ~35 archivos (entities, repositories, usecases)
+- Data Layer: 11 archivos (models, repositories)
+- Core: 4 archivos nuevos (lifespan, middleware, routes, database)
 
-### **Archivos Modificados**: 2
+### **Archivos Modificados**: 9
 - `services/animal_service.py`
-- `main.py`
+- `services/user_service.py`
+- `services/role_service.py`
+- `services/auth_service.py`
+- `api/dependencies.py`
+- `api/routes/user.py`
+- `api/routes/role.py`
+- `api/routes/farm.py`
+- `core/database.py`
+- `core/config.py`
+- `main.py` (refactorizado)
 
-### **Archivos a Eliminar** (futuro): 1
+### **Archivos a Eliminar** (futuro): 3
 - `models/animal_model.py` (después de migración completa)
+- `models/user_model.py` (después de migración completa)
+- `models/role_model.py` (después de migración completa)
 
 ---
 
@@ -239,9 +341,46 @@ API Route → Service → Use Case → Repository Interface
 
 ---
 
-### **⏳ Módulos User/Farm/Role** (PENDIENTE)
+### **✅ Módulo User** (COMPLETADO)
 
-- [ ] Similar a Animal (3 módulos)
+- [x] Crear `domain/entities/user.py`
+- [x] Crear `domain/repositories/user_repository.py` (interfaz)
+- [x] Crear `domain/usecases/users/` (5 use cases)
+- [x] Mover `models/user_model.py` → `data/models/user_model.py`
+- [x] Crear `data/repositories/user_repository_impl.py`
+- [x] Refactorizar `services/user_service.py`
+- [x] Actualizar `main.py` (imports)
+- [x] Actualizar `api/dependencies.py` para usar use cases
+- [x] Verificar que funciona (sin errores de linter)
+
+---
+
+### **✅ Módulo Role** (COMPLETADO)
+
+- [x] Crear `domain/entities/role.py`
+- [x] Crear `domain/repositories/role_repository.py` (interfaz)
+- [x] Crear `domain/usecases/roles/` (5 use cases)
+- [x] Mover `models/role_model.py` → `data/models/role_model.py`
+- [x] Crear `data/repositories/role_repository_impl.py`
+- [x] Refactorizar `services/role_service.py`
+- [x] Actualizar `main.py` (imports)
+- [x] Verificar que funciona (sin errores de linter)
+
+---
+
+### **✅ Módulo Auth** (COMPLETADO)
+
+- [x] Crear `domain/usecases/auth/` (2 use cases)
+- [x] Refactorizar `services/auth_service.py` para usar use cases
+- [x] Actualizar `api/dependencies.py` para usar use cases directamente
+- [x] Eliminar carpeta `api/dependencies/` (consolidado en `dependencies.py`)
+- [x] Verificar que funciona (sin errores de linter)
+
+---
+
+### **⏳ Módulo Farm** (PENDIENTE)
+
+- [ ] Similar a Animal (1 módulo)
 
 ---
 
@@ -329,12 +468,15 @@ grep -r "from.*app\.models.*AnimalModel" backend/app/
 | Módulo | Estado | Archivos Creados | Archivos Modificados | Tiempo Estimado |
 |--------|--------|------------------|----------------------|-----------------|
 | Animal | ✅ Completado | 16 | 2 | 4-6 horas |
+| User | ✅ Completado | 16 | 3 | 4-6 horas |
+| Role | ✅ Completado | 16 | 2 | 4-6 horas |
+| Auth | ✅ Completado | 2 | 2 | 2-3 horas |
 | Weighing | ⏳ Pendiente | - | - | 4-6 horas |
 | Alert | ⏳ Pendiente | - | - | 3-4 horas |
-| User/Farm/Role | ⏳ Pendiente | - | - | 6-8 horas |
+| Farm | ⏳ Pendiente | - | - | 3-4 horas |
 | Sync | ⏳ Pendiente | - | - | 4-6 horas |
 | Schemas | ⏳ Pendiente | - | - | 2-3 horas |
-| **TOTAL** | **1/6** | **16** | **2** | **~24-33 horas** |
+| **TOTAL** | **4/9** | **50** | **9** | **~26-41 horas** |
 
 ---
 
@@ -378,4 +520,25 @@ grep -r "from.*app\.models.*AnimalModel" backend/app/
 
 **Última actualización**: Diciembre 2024  
 **Próxima actualización**: Después de migrar módulo Weighing
+
+---
+
+## 📚 Documentos de Migración
+
+### **Documentos a Mantener**:
+
+- ✅ **`MIGRACION_CLEAN_ARCHITECTURE.md`** (este archivo) - Registro detallado de cambios
+- ✅ **`INTEGRATION_GUIDE.md`** - Guía de integración TFLite (útil para ML)
+
+### **Documentos a Consolidar/Eliminar**:
+
+- ⚠️ **`PLAN_MIGRACION.md`** - Plan inicial (ya en ejecución, puede consolidarse)
+- ⚠️ **`CAMBIOS_MIGRACION.md`** - Resumen de cambios (consolidado en este documento)
+- ⚠️ **`ANALISIS_ARQUITECTURA.md`** - Análisis inicial (ya no necesario, fue pre-migración)
+
+**Recomendación**: 
+- Mantener `MIGRACION_CLEAN_ARCHITECTURE.md` como registro principal
+- Mantener `INTEGRATION_GUIDE.md` (útil para TFLite)
+- Consolidar información de `PLAN_MIGRACION.md` y `CAMBIOS_MIGRACION.md` en este documento
+- Eliminar `ANALISIS_ARQUITECTURA.md` (análisis pre-migración, ya no relevante)
 

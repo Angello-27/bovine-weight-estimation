@@ -8,11 +8,11 @@ from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
 
 from app.core.config import settings
 from app.data.models.animal_model import AnimalModel
+from app.data.models.role_model import RoleModel
+from app.data.models.user_model import UserModel
 from app.models import (
     AlertModel,
     FarmModel,
-    RoleModel,
-    UserModel,
     WeightEstimationModel,
 )
 

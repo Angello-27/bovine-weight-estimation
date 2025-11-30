@@ -8,9 +8,8 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 
-from ...api.dependencies import get_current_active_user
 from ...core.exceptions import AlreadyExistsException, NotFoundException
-from ...models import UserModel
+from ...domain.entities.user import User
 from ...schemas.user_schemas import (
     UserCreateRequest,
     UserResponse,
@@ -18,6 +17,7 @@ from ...schemas.user_schemas import (
     UserUpdateRequest,
 )
 from ...services import UserService
+from ..dependencies import get_current_active_user
 
 # Router con prefijo /user
 router = APIRouter(
@@ -59,7 +59,7 @@ def get_user_service() -> UserService:
 async def create_user(
     request: UserCreateRequest,
     user_service: Annotated[UserService, Depends(get_user_service)],
-    current_user: Annotated[UserModel, Depends(get_current_active_user)],
+    current_user: Annotated[User, Depends(get_current_active_user)],
 ) -> UserResponse:
     """
     Endpoint para crear un usuario.
@@ -96,10 +96,10 @@ async def create_user(
     """,
 )
 async def get_all_users(
+    current_user: Annotated[User, Depends(get_current_active_user)],
+    user_service: Annotated[UserService, Depends(get_user_service)],
     skip: int = Query(0, ge=0, description="Número de registros a saltar"),
     limit: int = Query(50, ge=1, le=100, description="Número máximo de registros"),
-    user_service: Annotated[UserService, Depends(get_user_service)] = None,
-    current_user: Annotated[UserModel, Depends(get_current_active_user)] = None,
 ) -> UsersListResponse:
     """
     Endpoint para listar usuarios.
@@ -114,7 +114,8 @@ async def get_all_users(
         UsersListResponse con lista de usuarios
     """
     users = await user_service.get_all_users(skip=skip, limit=limit)
-    total = await UserModel.find_all().count()
+    # TODO: Agregar método count() al repositorio para obtener total
+    total = len(users)  # Por ahora usar longitud de resultados
     return UsersListResponse(
         total=total, users=users, page=skip // limit + 1, page_size=limit
     )
@@ -134,7 +135,7 @@ async def get_all_users(
 async def get_user(
     user_id: UUID,
     user_service: Annotated[UserService, Depends(get_user_service)],
-    current_user: Annotated[UserModel, Depends(get_current_active_user)],
+    current_user: Annotated[User, Depends(get_current_active_user)],
 ) -> UserResponse:
     """
     Endpoint para obtener un usuario por ID.
@@ -171,7 +172,7 @@ async def update_user(
     user_id: UUID,
     request: UserUpdateRequest,
     user_service: Annotated[UserService, Depends(get_user_service)],
-    current_user: Annotated[UserModel, Depends(get_current_active_user)],
+    current_user: Annotated[User, Depends(get_current_active_user)],
 ) -> UserResponse:
     """
     Endpoint para actualizar un usuario.
@@ -210,7 +211,7 @@ async def update_user(
 async def delete_user(
     user_id: UUID,
     user_service: Annotated[UserService, Depends(get_user_service)],
-    current_user: Annotated[UserModel, Depends(get_current_active_user)],
+    current_user: Annotated[User, Depends(get_current_active_user)],
 ) -> None:
     """
     Endpoint para eliminar un usuario.

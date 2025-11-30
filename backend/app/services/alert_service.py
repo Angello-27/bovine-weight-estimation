@@ -8,7 +8,8 @@ from typing import Any, cast
 from uuid import UUID
 
 from ..core.exceptions import NotFoundException
-from ..models import AlertModel, UserModel
+from ..data.models.user_model import UserModel
+from ..models import AlertModel
 from ..schemas.alert_schemas import (
     AlertCreateRequest,
     AlertResponse,

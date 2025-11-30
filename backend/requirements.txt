@@ -22,6 +22,7 @@ email-validator==2.1.0
 # ===== Autenticación y Seguridad =====
 python-jose[cryptography]==3.3.0
 passlib[bcrypt]==1.7.4
+types-passlib==1.7.7.20250602  # Stubs de tipos para passlib
 python-dotenv==1.0.0
 
 # ===== Machine Learning =====

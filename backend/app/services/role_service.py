@@ -1,12 +1,19 @@
 """
-Role Service - Business Logic
-Lógica de negocio para gestión de roles
+Role Service - Business Logic (Refactorizado para Clean Architecture)
+Orquesta casos de uso del dominio
 """
 
 from uuid import UUID
 
-from ..core.exceptions import AlreadyExistsException, NotFoundException
-from ..models import RoleModel
+from ..data.repositories.role_repository_impl import RoleRepositoryImpl
+from ..domain.repositories.role_repository import RoleRepository
+from ..domain.usecases.roles import (
+    CreateRoleUseCase,
+    DeleteRoleUseCase,
+    GetAllRolesUseCase,
+    GetRoleByIdUseCase,
+    UpdateRoleUseCase,
+)
 from ..schemas.role_schemas import (
     RoleCreateRequest,
     RoleResponse,
@@ -16,10 +23,27 @@ from ..schemas.role_schemas import (
 
 class RoleService:
     """
-    Servicio de gestión de roles.
+    Servicio de gestión de roles (refactorizado).
 
-    Single Responsibility: Business logic de roles.
+    Single Responsibility: Orquestar casos de uso y convertir entre capas.
+    Ahora usa Clean Architecture con Use Cases.
     """
+
+    def __init__(self, role_repository: RoleRepository | None = None):
+        """
+        Inicializa el servicio.
+
+        Args:
+            role_repository: Repositorio de roles (inyección de dependencia)
+        """
+        self._repository = role_repository or RoleRepositoryImpl()
+
+        # Inicializar use cases
+        self._create_usecase = CreateRoleUseCase(self._repository)
+        self._get_by_id_usecase = GetRoleByIdUseCase(self._repository)
+        self._get_all_usecase = GetAllRolesUseCase(self._repository)
+        self._update_usecase = UpdateRoleUseCase(self._repository)
+        self._delete_usecase = DeleteRoleUseCase(self._repository)
 
     async def create_role(self, request: RoleCreateRequest) -> RoleResponse:
         """
@@ -30,35 +54,15 @@ class RoleService:
 
         Returns:
             RoleResponse con el rol creado
-
-        Raises:
-            AlreadyExistsException: Si el nombre del rol ya existe
         """
-        # Validar que el nombre no exista
-        existing = await RoleModel.find_one(RoleModel.name == request.name)
-        if existing is not None:
-            raise AlreadyExistsException(
-                resource="Role", field="name", value=request.name
-            )
-
-        # Crear rol
-        role = RoleModel(
+        role = await self._create_usecase.execute(
             name=request.name,
             description=request.description,
             priority=request.priority,
-            permissions=request.permissions or [],
+            permissions=request.permissions,
         )
-        await role.insert()
 
-        return RoleResponse(
-            id=role.id,
-            name=role.name,
-            description=role.description,
-            priority=role.priority,
-            permissions=role.permissions,
-            created_at=role.created_at,
-            last_updated=role.last_updated,
-        )
+        return self._entity_to_response(role)
 
     async def get_role_by_id(self, role_id: UUID) -> RoleResponse:
         """
@@ -68,26 +72,14 @@ class RoleService:
             role_id: ID del rol
 
         Returns:
-            RoleResponse con el rol
-
-        Raises:
-            NotFoundException: Si el rol no existe
+            RoleResponse
         """
-        role = await RoleModel.get(role_id)
-        if role is None:
-            raise NotFoundException(resource="Role", field="id", value=str(role_id))
+        role = await self._get_by_id_usecase.execute(role_id)
+        return self._entity_to_response(role)
 
-        return RoleResponse(
-            id=role.id,
-            name=role.name,
-            description=role.description,
-            priority=role.priority,
-            permissions=role.permissions,
-            created_at=role.created_at,
-            last_updated=role.last_updated,
-        )
-
-    async def get_all_roles(self, skip: int = 0, limit: int = 50) -> list[RoleResponse]:
+    async def get_all_roles(
+        self, skip: int = 0, limit: int = 50
+    ) -> list[RoleResponse]:
         """
         Obtiene todos los roles con paginación.
 
@@ -98,19 +90,8 @@ class RoleService:
         Returns:
             Lista de RoleResponse
         """
-        roles = await RoleModel.find_all().skip(skip).limit(limit).to_list()
-        return [
-            RoleResponse(
-                id=role.id,
-                name=role.name,
-                description=role.description,
-                priority=role.priority,
-                permissions=role.permissions,
-                created_at=role.created_at,
-                last_updated=role.last_updated,
-            )
-            for role in roles
-        ]
+        roles = await self._get_all_usecase.execute(skip=skip, limit=limit)
+        return [self._entity_to_response(role) for role in roles]
 
     async def update_role(
         self, role_id: UUID, request: RoleUpdateRequest
@@ -124,35 +105,36 @@ class RoleService:
 
         Returns:
             RoleResponse con el rol actualizado
-
-        Raises:
-            NotFoundException: Si el rol no existe
-            AlreadyExistsException: Si el nombre ya existe
         """
-        role = await RoleModel.get(role_id)
-        if role is None:
-            raise NotFoundException(resource="Role", field="id", value=str(role_id))
+        role = await self._update_usecase.execute(
+            role_id=role_id,
+            name=request.name,
+            description=request.description,
+            priority=request.priority,
+            permissions=request.permissions,
+        )
 
-        # Validar nombre único si se está actualizando
-        if request.name is not None and request.name != role.name:
-            existing = await RoleModel.find_one(RoleModel.name == request.name)
-            if existing is not None:
-                raise AlreadyExistsException(
-                    resource="Role", field="name", value=request.name
-                )
-            role.name = request.name
+        return self._entity_to_response(role)
 
-        # Actualizar otros campos
-        if request.description is not None:
-            role.description = request.description
-        if request.priority is not None:
-            role.priority = request.priority
-        if request.permissions is not None:
-            role.permissions = request.permissions
+    async def delete_role(self, role_id: UUID) -> None:
+        """
+        Elimina un rol.
 
-        role.update_timestamp()
-        await role.save()
+        Args:
+            role_id: ID del rol
+        """
+        await self._delete_usecase.execute(role_id)
 
+    def _entity_to_response(self, role) -> RoleResponse:
+        """
+        Convierte entidad Role a RoleResponse.
+
+        Args:
+            role: Entidad Role del dominio
+
+        Returns:
+            RoleResponse
+        """
         return RoleResponse(
             id=role.id,
             name=role.name,
@@ -162,19 +144,3 @@ class RoleService:
             created_at=role.created_at,
             last_updated=role.last_updated,
         )
-
-    async def delete_role(self, role_id: UUID) -> None:
-        """
-        Elimina un rol.
-
-        Args:
-            role_id: ID del rol
-
-        Raises:
-            NotFoundException: Si el rol no existe
-        """
-        role = await RoleModel.get(role_id)
-        if role is None:
-            raise NotFoundException(resource="Role", field="id", value=str(role_id))
-
-        await role.delete()

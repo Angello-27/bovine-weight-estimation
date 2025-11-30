@@ -8,9 +8,8 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 
-from ...api.dependencies import get_current_active_user
 from ...core.exceptions import AlreadyExistsException, NotFoundException
-from ...models import RoleModel, UserModel
+from ...domain.entities.user import User
 from ...schemas.role_schemas import (
     RoleCreateRequest,
     RoleResponse,
@@ -18,6 +17,7 @@ from ...schemas.role_schemas import (
     RoleUpdateRequest,
 )
 from ...services import RoleService
+from ..dependencies import get_current_active_user
 
 # Router con prefijo /role
 router = APIRouter(
@@ -57,7 +57,7 @@ def get_role_service() -> RoleService:
 async def create_role(
     request: RoleCreateRequest,
     role_service: Annotated[RoleService, Depends(get_role_service)],
-    current_user: Annotated[UserModel, Depends(get_current_active_user)],
+    current_user: Annotated[User, Depends(get_current_active_user)],
 ) -> RoleResponse:
     """
     Endpoint para crear un rol.
@@ -91,10 +91,10 @@ async def create_role(
     """,
 )
 async def get_all_roles(
+    current_user: Annotated[User, Depends(get_current_active_user)],
+    role_service: Annotated[RoleService, Depends(get_role_service)],
     skip: int = Query(0, ge=0, description="Número de registros a saltar"),
     limit: int = Query(50, ge=1, le=100, description="Número máximo de registros"),
-    role_service: Annotated[RoleService, Depends(get_role_service)] = None,
-    current_user: Annotated[UserModel, Depends(get_current_active_user)] = None,
 ) -> RolesListResponse:
     """
     Endpoint para listar roles.
@@ -109,7 +109,8 @@ async def get_all_roles(
         RolesListResponse con lista de roles
     """
     roles = await role_service.get_all_roles(skip=skip, limit=limit)
-    total = await RoleModel.find_all().count()
+    # TODO: Agregar método count() al repositorio para obtener total
+    total = len(roles)  # Por ahora usar longitud de resultados
     return RolesListResponse(
         total=total, roles=roles, page=skip // limit + 1, page_size=limit
     )
@@ -129,7 +130,7 @@ async def get_all_roles(
 async def get_role(
     role_id: UUID,
     role_service: Annotated[RoleService, Depends(get_role_service)],
-    current_user: Annotated[UserModel, Depends(get_current_active_user)],
+    current_user: Annotated[User, Depends(get_current_active_user)],
 ) -> RoleResponse:
     """
     Endpoint para obtener un rol por ID.
@@ -166,7 +167,7 @@ async def update_role(
     role_id: UUID,
     request: RoleUpdateRequest,
     role_service: Annotated[RoleService, Depends(get_role_service)],
-    current_user: Annotated[UserModel, Depends(get_current_active_user)],
+    current_user: Annotated[User, Depends(get_current_active_user)],
 ) -> RoleResponse:
     """
     Endpoint para actualizar un rol.
@@ -205,7 +206,7 @@ async def update_role(
 async def delete_role(
     role_id: UUID,
     role_service: Annotated[RoleService, Depends(get_role_service)],
-    current_user: Annotated[UserModel, Depends(get_current_active_user)],
+    current_user: Annotated[User, Depends(get_current_active_user)],
 ) -> None:
     """
     Endpoint para eliminar un rol.

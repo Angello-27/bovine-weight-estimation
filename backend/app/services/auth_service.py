@@ -1,17 +1,26 @@
 """
-Auth Service - Business Logic
-Lógica de negocio para autenticación y autorización
+Auth Service - Business Logic (Refactorizado para Clean Architecture)
+Orquesta casos de uso de autenticación
 """
 
-from datetime import datetime, timedelta
-from uuid import UUID
+from datetime import timedelta
 
-from jose import JWTError, jwt
+from jose import (  # type: ignore  # No hay stubs oficiales para python-jose
+    JWTError,
+    jwt,
+)
 from passlib.context import CryptContext
 
 from ..core.config import settings
-from ..core.exceptions import AuthenticationException, NotFoundException
-from ..models import RoleModel, UserModel
+from ..core.exceptions import AuthenticationException
+from ..data.repositories.role_repository_impl import RoleRepositoryImpl
+from ..data.repositories.user_repository_impl import UserRepositoryImpl
+from ..domain.repositories.role_repository import RoleRepository
+from ..domain.repositories.user_repository import UserRepository
+from ..domain.usecases.auth import (
+    AuthenticateUserUseCase,
+    GetUserByTokenUseCase,
+)
 from ..schemas.auth_schemas import LoginRequest, LoginResponse, TokenData
 
 # Contexto para hashing de contraseñas
@@ -20,11 +29,36 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 class AuthService:
     """
-    Servicio de autenticación y autorización.
+    Servicio de autenticación y autorización (refactorizado).
 
-    Single Responsibility: Business logic de autenticación.
-    Maneja JWT tokens y verificación de contraseñas.
+    Single Responsibility: Orquestar casos de uso de autenticación y manejar JWT.
+    Ahora usa Clean Architecture con Use Cases.
     """
+
+    def __init__(
+        self,
+        user_repository: UserRepository | None = None,
+        role_repository: RoleRepository | None = None,
+    ):
+        """
+        Inicializa el servicio.
+
+        Args:
+            user_repository: Repositorio de usuarios (inyección de dependencia)
+            role_repository: Repositorio de roles (inyección de dependencia)
+        """
+        self._user_repository = user_repository or UserRepositoryImpl()
+        self._role_repository = role_repository or RoleRepositoryImpl()
+
+        # Inicializar use cases
+        self._authenticate_usecase = AuthenticateUserUseCase(
+            user_repository=self._user_repository,
+            role_repository=self._role_repository,
+            password_verifier=self.verify_password,
+        )
+        self._get_user_by_token_usecase = GetUserByTokenUseCase(
+            user_repository=self._user_repository
+        )
 
     @staticmethod
     def verify_password(plain_password: str, hashed_password: str) -> bool:
@@ -65,6 +99,8 @@ class AuthService:
         Returns:
             Token JWT como string
         """
+        from datetime import datetime
+
         to_encode = data.copy()
         if expires_delta:
             expire = datetime.utcnow() + expires_delta
@@ -91,6 +127,8 @@ class AuthService:
         Raises:
             AuthenticationException: Si el token es inválido
         """
+        from uuid import UUID
+
         try:
             payload = jwt.decode(
                 token, settings.SECRET_KEY, algorithms=[settings.JWT_ALGORITHM]
@@ -124,30 +162,11 @@ class AuthService:
         Raises:
             AuthenticationException: Si las credenciales son inválidas
         """
-        # Buscar usuario por username
-        user = await UserModel.find_one(UserModel.username == login_data.username)
-
-        if user is None:
-            raise AuthenticationException("Usuario o contraseña incorrectos")
-
-        # Verificar contraseña
-        if not self.verify_password(login_data.password, user.hashed_password):
-            raise AuthenticationException("Usuario o contraseña incorrectos")
-
-        # Verificar que el usuario esté activo
-        if not user.is_active:
-            raise AuthenticationException("Usuario inactivo")
-
-        # Obtener rol del usuario
-        role = await RoleModel.find_one(RoleModel.id == user.role_id)
-        if role is None:
-            raise NotFoundException(
-                resource="Role", field="id", value=str(user.role_id)
-            )
-
-        # Actualizar último login
-        user.update_last_login()
-        await user.save()
+        # Usar use case para autenticar
+        user, role = await self._authenticate_usecase.execute(
+            username=login_data.username,
+            password=login_data.password,
+        )
 
         # Crear token JWT
         access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
@@ -164,3 +183,25 @@ class AuthService:
             access_token=access_token,
             token_type="bearer",
         )
+
+    async def get_user_from_token(self, token: str):
+        """
+        Obtiene un usuario desde un token JWT.
+
+        Args:
+            token: Token JWT
+
+        Returns:
+            User entity del dominio
+
+        Raises:
+            AuthenticationException: Si el token es inválido o el usuario no existe
+        """
+        # Decodificar token
+        token_data = self.decode_access_token(token)
+
+        if token_data.user_id is None:
+            raise AuthenticationException("Token inválido: ID de usuario faltante")
+
+        # Usar use case para obtener usuario
+        return await self._get_user_by_token_usecase.execute(token_data.user_id)
