@@ -2,6 +2,8 @@
 
 **Objetivo**: Integrar el modelo TFLite exportado desde Colab al backend FastAPI.
 
+> ✅ **Nota**: El código del backend ya está completamente implementado y listo para usar el modelo TFLite. Solo necesitas descargar el modelo desde Google Drive usando el script proporcionado.
+
 ---
 
 ## 📋 Resumen del Flujo
@@ -138,7 +140,18 @@ backend/
 
 ### 4.1 Actualizar `model_loader.py`
 
-Reemplazar la carga mock con carga real de TFLite:
+✅ **Ya implementado**: El código ya carga modelos TFLite reales.
+
+El archivo `backend/app/ml/model_loader.py` ya está completamente implementado con:
+- Carga de modelos TFLite usando `tensorflow-lite-runtime`
+- Singleton pattern para mantener modelos en memoria
+- Cache de modelos cargados
+- Manejo de errores adecuado
+- Logging informativo
+
+El código actual es funcional y sigue las mejores prácticas. Solo requiere que el modelo TFLite esté descargado en `ml_models/`.
+
+**Ejemplo del código actual** (para referencia):
 
 ```python
 # backend/app/ml/model_loader.py
@@ -247,88 +260,14 @@ class MLModelLoader:
 
 ### 4.2 Actualizar `deep_learning_strategy.py`
 
-Usar el modelo TFLite real para inferencia:
+✅ **Ya implementado**: El código ya usa el modelo TFLite real para inferencia.
 
-```python
-# backend/app/ml/strategies/deep_learning_strategy.py
-
-import numpy as np
-from typing import Dict, Any
-from PIL import Image
-import io
-
-from app.core.constants import BreedType
-from app.ml.model_loader import MLModelLoader
-from app.ml.preprocessing import ImagePreprocessor
-from .base_strategy import BaseWeightEstimationStrategy
-
-
-class DeepLearningWeightEstimationStrategy(BaseWeightEstimationStrategy):
-    """Estrategia de Deep Learning usando modelo TFLite."""
-    
-    def __init__(self):
-        """Inicializa la estrategia."""
-        self.model_loader = MLModelLoader()
-        self.preprocessor = ImagePreprocessor()
-        self._model = None
-    
-    def _ensure_model_loaded(self):
-        """Asegura que el modelo esté cargado."""
-        if self._model is None:
-            self._model = self.model_loader.load_generic_model()
-    
-    def estimate_weight(self, image_bytes: bytes, breed: BreedType) -> dict:
-        """
-        Estima peso usando modelo TFLite.
-        
-        Args:
-            image_bytes: Bytes de imagen (JPEG/PNG)
-            breed: Raza del animal (usado para validación, modelo es genérico)
-            
-        Returns:
-            Dict con peso estimado, confianza, método y metadatos
-        """
-        try:
-            # 1. Cargar modelo si no está cargado
-            self._ensure_model_loaded()
-            
-            # 2. Preprocesar imagen
-            preprocessed_image = self.preprocessor.preprocess_image(
-                image_bytes=image_bytes,
-                target_size=(224, 224)  # Tamaño esperado por el modelo
-            )
-            
-            # 3. Ejecutar inferencia TFLite
-            interpreter = self._model["interpreter"]
-            input_details = self._model["input_details"]
-            output_details = self._model["output_details"]
-            
-            # Preparar input (normalizar a float32)
-            input_data = np.expand_dims(preprocessed_image, axis=0).astype(np.float32)
-            
-            # Ejecutar inferencia
-            interpreter.set_tensor(input_details[0]['index'], input_data)
-            interpreter.invoke()
-            
-            # Obtener output
-            output_data = interpreter.get_tensor(output_details[0]['index'])
-            estimated_weight = float(output_data[0][0])  # Modelo retorna peso directamente
-            
-            # 4. Calcular confidence (simulado por ahora, puede mejorarse)
-            # En producción, el modelo podría retornar confidence también
-            confidence = self._calculate_confidence(estimated_weight, breed)
-            
-            return {
-                'weight': round(estimated_weight, 2),
-                'confidence': confidence,
-                'method': 'tflite_model',
-                'model_version': self._model["version"],
-                'strategy': self.get_strategy_name(),
-                'detection_quality': 'good' if confidence > 0.85 else 'acceptable',
-            }
-            
-        except Exception as e:
-            raise ValueError(f"Error en inferencia TFLite: {str(e)}")
+El archivo `backend/app/ml/strategies/deep_learning_strategy.py` ya está implementado correctamente:
+- Usa `MLModelLoader` para cargar el modelo TFLite
+- Usa `ImagePreprocessor.preprocess_from_bytes()` para preprocesar imágenes
+- Ejecuta inferencia TFLite correctamente
+- Retorna `ml_model_version` (no `model_version`) para evitar conflictos con Pydantic
+- Incluye fallback a mock solo si hay error (para desarrollo)
     
     def _calculate_confidence(self, weight: float, breed: BreedType) -> float:
         """
@@ -372,55 +311,16 @@ class DeepLearningWeightEstimationStrategy(BaseWeightEstimationStrategy):
 
 ### 4.3 Actualizar `preprocessing.py`
 
-Asegurar que el preprocesamiento sea compatible con TFLite:
+✅ **Ya implementado**: El preprocesamiento ya es compatible con TFLite.
 
-```python
-# backend/app/ml/preprocessing.py
+El archivo `backend/app/ml/preprocessing.py` ya está completamente implementado con:
+- Preprocesamiento a 224x224 (tamaño esperado por el modelo)
+- Normalización ImageNet (mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+- Conversión a RGB automática
+- Expansión de dimensión de batch para (1, 224, 224, 3)
+- Métodos: `preprocess_from_bytes()` y `preprocess_from_pil()`
 
-import numpy as np
-from PIL import Image
-import io
-
-from ..core.config import settings
-
-
-class ImagePreprocessor:
-    """Preprocesador de imágenes para modelos ML."""
-    
-    def preprocess_image(
-        self,
-        image_bytes: bytes,
-        target_size: tuple[int, int] = (224, 224)
-    ) -> np.ndarray:
-        """
-        Preprocesa imagen para modelo TFLite.
-        
-        Args:
-            image_bytes: Bytes de imagen (JPEG/PNG)
-            target_size: Tamaño objetivo (height, width)
-            
-        Returns:
-            np.ndarray normalizado (0-1) shape (H, W, 3)
-        """
-        # 1. Cargar imagen
-        image = Image.open(io.BytesIO(image_bytes))
-        
-        # 2. Convertir a RGB si es necesario
-        if image.mode != 'RGB':
-            image = image.convert('RGB')
-        
-        # 3. Resize
-        image = image.resize(target_size, Image.Resampling.LANCZOS)
-        
-        # 4. Convertir a numpy array
-        image_array = np.array(image, dtype=np.float32)
-        
-        # 5. Normalizar a [0, 1] (TFLite espera valores 0-1 o 0-255 según modelo)
-        # El modelo de Colab usa normalización 0-1
-        image_array = image_array / 255.0
-        
-        return image_array
-```
+El código actual es funcional y sigue las mejores prácticas para modelos TFLite con normalización ImageNet.
 
 ---
 
@@ -437,14 +337,49 @@ python -m app.main
 curl http://localhost:8000/api/v1/ml/models/status
 ```
 
+**Respuesta esperada**:
+```json
+{
+  "status": "ok",
+  "total_models": 1,
+  "loaded_models": ["generic"],
+  "strategy": "deep_learning_tflite",
+  "note": "Sistema de estrategias activo: ML entrenado + híbrido YOLO como fallback",
+  "method": "strategy_based"
+}
+```
+
 ### 5.2 Probar Inferencia
 
 ```bash
-# Probar endpoint de predicción
+# Probar endpoint de estimación (web upload)
+curl -X POST "http://localhost:8000/api/v1/ml/estimate" \
+  -F "image=@test_image.jpg" \
+  -F "breed=nelore" \
+  -H "Authorization: Bearer YOUR_TOKEN"
+
+# O probar endpoint de predicción (mobile)
 curl -X POST "http://localhost:8000/api/v1/ml/predict" \
   -F "image=@test_image.jpg" \
   -F "breed=nelore" \
   -F "device_id=test-device"
+```
+
+**Respuesta esperada**:
+```json
+{
+  "id": "...",
+  "animal_id": null,
+  "breed": "nelore",
+  "estimated_weight_kg": 485.75,
+  "confidence": 0.92,
+  "confidence_level": "high",
+  "ml_model_version": "1.0.0",
+  "method": "strategy_based",
+  "processing_time_ms": 2100,
+  "meets_quality_criteria": true,
+  "timestamp": "2024-..."
+}
 ```
 
 ---
@@ -518,16 +453,18 @@ pip install tensorflow-lite-runtime
 
 ## ✅ Checklist de Integración
 
-- [ ] Modelo TFLite exportado desde Colab (BLOQUE 16) ✅
+- [x] **Código del backend implementado** ✅ (model_loader.py, deep_learning_strategy.py, preprocessing.py)
+- [x] **Script de descarga disponible** ✅ (download_model_from_drive.py)
+- [x] **Configuración lista** ✅ (ML_MODELS_PATH, ML_DEFAULT_MODEL en settings)
+- [ ] Modelo TFLite exportado desde Colab (BLOQUE 16)
 - [ ] Modelo compartido en Google Drive con acceso público
 - [ ] FILE_ID extraído del link de Drive
 - [ ] Script `download_model_from_drive.py` ejecutado exitosamente
-- [ ] Modelo descargado en `backend/ml_models/generic-cattle-v1.0.0.tflite` (13.36 MB)
-- [ ] `tensorflow-lite-runtime` instalado (`pip install tensorflow-lite-runtime`)
-- [ ] Configuración actualizada: `ML_DEFAULT_MODEL=generic-cattle-v1.0.0.tflite` ✅
+- [ ] Modelo descargado en `backend/ml_models/generic-cattle-v1.0.0.tflite` (~13-14 MB)
+- [ ] `tensorflow-lite-runtime` instalado (`pip install tensorflow-lite-runtime`) - Nota: puede no estar disponible en macOS
 - [ ] Backend inicia sin errores (verifica logs de carga de modelo)
 - [ ] Endpoint `/api/v1/ml/models/status` muestra modelo cargado
-- [ ] Endpoint `/api/v1/ml/predict` funciona correctamente
+- [ ] Endpoint `/api/v1/ml/predict` funciona correctamente (mobile)
 - [ ] Endpoint `/api/v1/ml/estimate` funciona para web uploads
 - [ ] Métricas de calidad cumplidas (confidence ≥80%, tiempo <3s)
 

@@ -96,6 +96,7 @@ class MLModelLoader:
             print(f"✅ Modelo TFLite cargado: {model_filename}")
             print(f"   Input shape: {input_details[0]['shape']}")
             print(f"   Output shape: {output_details[0]['shape']}")
+            print(f"   Path: {model_path}")
 
             # Crear diccionario con modelo y metadatos
             model_data = {
@@ -186,6 +187,7 @@ class MLModelLoader:
         """
         if "generic" in self._models_cache:
             del self._models_cache["generic"]
+            self.model_loaded = False
             print("🗑️ Modelo genérico descargado de memoria")
 
     def unload_all_models(self) -> None:
