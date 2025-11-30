@@ -9,12 +9,12 @@ import os
 from pathlib import Path
 from typing import Any, Optional
 
-# Suprimir mensajes informativos de TensorFlow antes de importarlo
-os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"  # 0=all, 1=info, 2=warnings, 3=errors
-
 from ..core.config import settings
 from ..core.exceptions import MLModelException
 from ..domain.shared.constants import BreedType
+
+# Suprimir mensajes informativos de TensorFlow antes de importarlo
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"  # 0=all, 1=info, 2=warnings, 3=errors
 
 # Declarar variables globales con tipos explícitos
 TFLITE_AVAILABLE: bool = False
