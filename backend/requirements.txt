@@ -34,6 +34,7 @@ opencv-python==4.8.1.78  # Procesamiento de imágenes (YOLO)
 ultralytics==8.0.196  # YOLOv8 para detección de ganado
 scipy==1.11.4       # Optimización para calibración
 requests==2.31.0    # HTTP requests para APIs de generación
+gdown==4.7.1        # Descarga de archivos desde Google Drive (para modelos TFLite)
 
 # ===== ML Training Dependencies =====
 mlflow==2.8.1       # Experiment tracking

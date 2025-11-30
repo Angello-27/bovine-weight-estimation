@@ -196,9 +196,9 @@ open http://localhost:8000/api/docs
 | **WeightEstimation** | ✅ | ✅ | ✅ | ✅ | ✅ Completado |
 | **Sync** | ✅ | ✅ | ✅ | ✅ | ✅ Completado |
 | **Alert** | ✅ | ✅ | ✅ | ✅ | ✅ Completado |
-| **Farm** | ⏳ | ⏳ | ⏳ | ✅ | ⏳ Pendiente |
+| **Farm** | ✅ | ✅ | ✅ | ✅ | ✅ Completado |
 
-**Total**: 7 módulos completamente migrados a Clean Architecture
+**Total**: 8 módulos completamente migrados a Clean Architecture
 **Patrón**: Routes → Use Cases → Repositories → Models (sin Application Services)
 
 ---
@@ -377,7 +377,7 @@ ML_DEFAULT_MODEL=generic-cattle-v1.0.0.tflite
 
 ### ✅ Completado
 
-- ✅ Migración completa a Clean Architecture (7 módulos: Animal, User, Role, Auth, WeightEstimation, Sync, Alert)
+- ✅ Migración completa a Clean Architecture (8 módulos: Animal, User, Role, Auth, WeightEstimation, Sync, Alert, Farm)
 - ✅ Eliminación de Application Services legacy (MLService, WeighingService)
 - ✅ Implementación de Use Cases para WeightEstimations
 - ✅ Mapper para WeightEstimation (DTO ↔ Entity)

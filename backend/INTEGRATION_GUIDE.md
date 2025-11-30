@@ -39,32 +39,58 @@ Colab (BLOQUE 16) → Exporta TFLite → Google Drive → Backend → Carga mode
    cp ~/Downloads/generic-cattle-v1.0.0.tflite backend/ml_models/
    ```
 
-### Opción B: Script Automático (Recomendado)
+### Opción B: Script Automático (Recomendado) ✅
 
-Crea un script para descargar desde Drive:
+El proyecto ya incluye un script Python que usa la configuración del proyecto:
 
 ```bash
-# backend/scripts/download_model_from_drive.sh
-#!/bin/bash
+# 1. Instalar gdown si no está instalado
+pip install gdown
 
-# Configurar variables
-DRIVE_FILE_ID="TU_FILE_ID_AQUI"  # Obtener desde link de Drive
-MODEL_NAME="generic-cattle-v1.0.0.tflite"
-OUTPUT_DIR="ml_models"
+# 2. Obtener FILE_ID del modelo en Google Drive
+#    - Abre el archivo en Drive: generic-cattle-v1.0.0.tflite
+#    - Comparte con "cualquiera con el enlace"
+#    - Copia el link: https://drive.google.com/file/d/FILE_ID_AQUI/view?usp=sharing
+#    - Extrae el FILE_ID_AQUI del link
 
-# Crear directorio
-mkdir -p "$OUTPUT_DIR"
+# 3. Ejecutar script (desde el directorio raíz del proyecto)
+cd backend
+python scripts/download_model_from_drive.py --file-id TU_FILE_ID_AQUI
 
-# Descargar usando gdown (instalar: pip install gdown)
-gdown "https://drive.google.com/uc?id=$DRIVE_FILE_ID" -O "$OUTPUT_DIR/$MODEL_NAME"
+# El script automáticamente:
+# - Usa ML_MODELS_PATH de settings (./ml_models por defecto)
+# - Usa ML_DEFAULT_MODEL de settings (generic-cattle-v1.0.0.tflite)
+# - Crea el directorio si no existe
+# - Valida que el archivo se descargó correctamente
+```
 
-echo "✅ Modelo descargado: $OUTPUT_DIR/$MODEL_NAME"
+**Ejemplo completo**:
+```bash
+# Desde el directorio backend/
+python scripts/download_model_from_drive.py --file-id 1AbCdEfGhIjKlMnOpQrStUvWxYz1234567
+
+# Output esperado:
+# 📋 Usando configuración del proyecto:
+#    ML_MODELS_PATH: ./ml_models
+#    ML_DEFAULT_MODEL: generic-cattle-v1.0.0.tflite
+#
+# 📥 Descargando modelo desde Google Drive...
+#    File ID: 1AbCdEfGhIjKlMnOpQrStUvWxYz1234567
+#    Output: ml_models/generic-cattle-v1.0.0.tflite
+# ...
+# ✅ Modelo descargado exitosamente
+#    Tamaño: 13.36 MB
+#    Ubicación: /path/to/backend/ml_models/generic-cattle-v1.0.0.tflite
 ```
 
 **Para obtener FILE_ID**:
-1. Comparte el archivo en Drive (cualquiera con link)
-2. Copia el link: `https://drive.google.com/file/d/FILE_ID_AQUI/view?usp=sharing`
-3. Extrae el `FILE_ID_AQUI`
+1. En Colab, después de exportar, el archivo está en:
+   `/content/drive/MyDrive/bovine-weight-estimation/models/generic-cattle-v1.0.0.tflite`
+2. Abre Google Drive en navegador y navega al archivo
+3. Click derecho → "Obtener enlace" o "Compartir"
+4. Configura compartir como "Cualquiera con el enlace"
+5. Copia el link: `https://drive.google.com/file/d/FILE_ID_AQUI/view?usp=sharing`
+6. Extrae el `FILE_ID_AQUI` (es la parte entre `/d/` y `/view`)
 
 ---
 
@@ -464,8 +490,13 @@ pip install tensorflow-lite-runtime
 ```
 
 ### Error: "Input shape mismatch"
-- Verifica que el preprocesamiento genere (224, 224, 3)
-- Verifica normalización (0-1 vs 0-255)
+- El modelo espera: `(None, 224, 224, 3), dtype=tf.float32`
+- El preprocessing ya está configurado correctamente:
+  - Redimensiona a 224x224 ✓
+  - Normaliza con ImageNet stats (mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]) ✓
+  - Expande batch dimension para (1, 224, 224, 3) ✓
+  - Convierte a float32 ✓
+- Si hay problemas, verifica que el modelo fue entrenado con preprocesamiento ImageNet estándar
 
 ### Modelo muy lento
 - Verifica que estés usando `tensorflow-lite-runtime` (no TensorFlow completo)
@@ -487,15 +518,17 @@ pip install tensorflow-lite-runtime
 
 ## ✅ Checklist de Integración
 
-- [ ] Modelo TFLite descargado desde Colab/Drive
-- [ ] Modelo copiado a `backend/ml_models/`
-- [ ] `tensorflow-lite-runtime` instalado
-- [ ] `model_loader.py` actualizado para cargar TFLite real
-- [ ] `deep_learning_strategy.py` actualizado para usar TFLite
-- [ ] `preprocessing.py` verificado (normalización 0-1)
-- [ ] Backend inicia sin errores
+- [ ] Modelo TFLite exportado desde Colab (BLOQUE 16) ✅
+- [ ] Modelo compartido en Google Drive con acceso público
+- [ ] FILE_ID extraído del link de Drive
+- [ ] Script `download_model_from_drive.py` ejecutado exitosamente
+- [ ] Modelo descargado en `backend/ml_models/generic-cattle-v1.0.0.tflite` (13.36 MB)
+- [ ] `tensorflow-lite-runtime` instalado (`pip install tensorflow-lite-runtime`)
+- [ ] Configuración actualizada: `ML_DEFAULT_MODEL=generic-cattle-v1.0.0.tflite` ✅
+- [ ] Backend inicia sin errores (verifica logs de carga de modelo)
 - [ ] Endpoint `/api/v1/ml/models/status` muestra modelo cargado
 - [ ] Endpoint `/api/v1/ml/predict` funciona correctamente
+- [ ] Endpoint `/api/v1/ml/estimate` funciona para web uploads
 - [ ] Métricas de calidad cumplidas (confidence ≥80%, tiempo <3s)
 
 ---

@@ -12,6 +12,8 @@ from ...core.dependencies import (
     get_create_animal_usecase,
     get_delete_animal_usecase,
     get_get_animal_by_id_usecase,
+    get_get_animal_lineage_usecase,
+    get_get_animal_timeline_usecase,
     get_get_animals_by_farm_usecase,
     get_update_animal_usecase,
 )
@@ -19,13 +21,17 @@ from ...domain.usecases.animals import (
     CreateAnimalUseCase,
     DeleteAnimalUseCase,
     GetAnimalByIdUseCase,
+    GetAnimalLineageUseCase,
     GetAnimalsByFarmUseCase,
+    GetAnimalTimelineUseCase,
     UpdateAnimalUseCase,
 )
 from ...schemas.animal_schemas import (
     AnimalCreateRequest,
+    AnimalLineageResponse,
     AnimalResponse,
     AnimalsListResponse,
+    AnimalTimelineResponse,
     AnimalUpdateRequest,
 )
 from ..mappers import AnimalMapper
@@ -156,17 +162,104 @@ async def update_animal(
     summary="Eliminar animal",
     description="Elimina un animal (soft delete - marca como inactive).",
 )
+@handle_domain_exceptions
 async def delete_animal(
     animal_id: UUID,
     delete_usecase: Annotated[DeleteAnimalUseCase, Depends(get_delete_animal_usecase)],
 ) -> Response:
     """Elimina un animal (soft delete)."""
-    from fastapi import HTTPException
+    await delete_usecase.execute(animal_id)
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
 
-    from ...core.exceptions import NotFoundException
 
-    try:
-        await delete_usecase.execute(animal_id)
-        return Response(status_code=status.HTTP_204_NO_CONTENT)
-    except NotFoundException as e:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+# ===== Trazabilidad Endpoints =====
+
+
+@router.get(
+    "/{animal_id}/lineage",
+    response_model=AnimalLineageResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Obtener linaje de un animal",
+    description="""
+    Obtiene información completa del linaje de un animal.
+
+    **Incluye**:
+    - Animal principal
+    - Padre (si está registrado)
+    - Madre (si está registrada)
+    - Descendientes (hijos del animal)
+
+    **US-004**: Trazabilidad del Ganado
+    """,
+)
+@handle_domain_exceptions
+async def get_animal_lineage(
+    animal_id: UUID,
+    lineage_usecase: Annotated[
+        GetAnimalLineageUseCase, Depends(get_get_animal_lineage_usecase)
+    ],
+) -> AnimalLineageResponse:
+    """Obtiene el linaje completo de un animal."""
+    from ..mappers import AnimalMapper
+
+    result = await lineage_usecase.execute(animal_id)
+
+    return AnimalLineageResponse(
+        animal=AnimalMapper.to_response(result["animal"]),
+        mother=AnimalMapper.to_response(result["mother"]) if result["mother"] else None,
+        father=AnimalMapper.to_response(result["father"]) if result["father"] else None,
+        descendants=[AnimalMapper.to_response(desc) for desc in result["descendants"]],
+        descendants_count=len(result["descendants"]),
+    )
+
+
+@router.get(
+    "/{animal_id}/timeline",
+    response_model=AnimalTimelineResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Obtener timeline de eventos de un animal",
+    description="""
+    Obtiene el timeline completo de eventos de un animal.
+
+    **Eventos incluidos**:
+    - 📅 Registro del animal
+    - 👶 Nacimiento
+    - ⚖️ Estimaciones de peso (con GPS si disponible)
+    - 🔄 Actualizaciones de datos
+    - 📊 Cambios de estado
+
+    **Orden**: Eventos ordenados cronológicamente (más antiguo primero)
+
+    **US-004**: Trazabilidad del Ganado
+    """,
+)
+@handle_domain_exceptions
+async def get_animal_timeline(
+    animal_id: UUID,
+    timeline_usecase: Annotated[
+        GetAnimalTimelineUseCase, Depends(get_get_animal_timeline_usecase)
+    ],
+) -> AnimalTimelineResponse:
+    """Obtiene el timeline completo de eventos de un animal."""
+    from ...schemas.animal_schemas import TimelineEvent, TimelineEventData
+    from ..mappers import AnimalMapper
+
+    result = await timeline_usecase.execute(animal_id)
+
+    # Convertir eventos a schemas
+    timeline_events = [
+        TimelineEvent(
+            type=event["type"],
+            timestamp=event["timestamp"],
+            description=event["description"],
+            data=TimelineEventData(**event["data"]),
+        )
+        for event in result["events"]
+    ]
+
+    return AnimalTimelineResponse(
+        animal=AnimalMapper.to_response(result["animal"]),
+        events=timeline_events,
+        total_events=result["total_events"],
+        weight_estimations_count=result["weight_estimations_count"],
+    )

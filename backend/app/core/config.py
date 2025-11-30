@@ -89,7 +89,7 @@ class Settings(BaseSettings):
         description="Path local para modelos TFLite",
     )
     ML_DEFAULT_MODEL: str = Field(
-        default="generic-v1.0.0.tflite",
+        default="generic-cattle-v1.0.0.tflite",
         description="Nombre del modelo TFLite por defecto",
     )
     ML_INPUT_SIZE: int = Field(

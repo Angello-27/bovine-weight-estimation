@@ -22,6 +22,8 @@ from .animals import (
     get_create_animal_usecase,
     get_delete_animal_usecase,
     get_get_animal_by_id_usecase,
+    get_get_animal_lineage_usecase,
+    get_get_animal_timeline_usecase,
     get_get_animals_by_farm_usecase,
     get_get_animals_by_filter_criteria_usecase,
     get_update_animal_usecase,
@@ -114,6 +116,8 @@ __all__ = [
     "get_get_animal_by_id_usecase",
     "get_get_animals_by_farm_usecase",
     "get_get_animals_by_filter_criteria_usecase",
+    "get_get_animal_lineage_usecase",
+    "get_get_animal_timeline_usecase",
     "get_update_animal_usecase",
     "get_delete_animal_usecase",
     # Alert Use Cases

@@ -8,16 +8,24 @@ from typing import Annotated
 from fastapi import Depends
 
 from app.domain.repositories.animal_repository import AnimalRepository
+from app.domain.repositories.weight_estimation_repository import (
+    WeightEstimationRepository,
+)
 from app.domain.usecases.animals import (
     CreateAnimalUseCase,
     DeleteAnimalUseCase,
     GetAnimalByIdUseCase,
+    GetAnimalLineageUseCase,
     GetAnimalsByFarmUseCase,
     GetAnimalsByFilterCriteriaUseCase,
+    GetAnimalTimelineUseCase,
     UpdateAnimalUseCase,
 )
 
-from .repositories import get_animal_repository
+from .repositories import (
+    get_animal_repository,
+    get_weight_estimation_repository,
+)
 
 
 def get_create_animal_usecase(
@@ -60,3 +68,23 @@ def get_get_animals_by_filter_criteria_usecase(
 ) -> GetAnimalsByFilterCriteriaUseCase:
     """Dependency para GetAnimalsByFilterCriteriaUseCase."""
     return GetAnimalsByFilterCriteriaUseCase(animal_repository=animal_repository)
+
+
+def get_get_animal_lineage_usecase(
+    animal_repository: Annotated[AnimalRepository, Depends(get_animal_repository)],
+) -> GetAnimalLineageUseCase:
+    """Dependency para GetAnimalLineageUseCase."""
+    return GetAnimalLineageUseCase(animal_repository=animal_repository)
+
+
+def get_get_animal_timeline_usecase(
+    animal_repository: Annotated[AnimalRepository, Depends(get_animal_repository)],
+    weight_estimation_repository: Annotated[
+        WeightEstimationRepository, Depends(get_weight_estimation_repository)
+    ],
+) -> GetAnimalTimelineUseCase:
+    """Dependency para GetAnimalTimelineUseCase."""
+    return GetAnimalTimelineUseCase(
+        animal_repository=animal_repository,
+        weight_estimation_repository=weight_estimation_repository,
+    )

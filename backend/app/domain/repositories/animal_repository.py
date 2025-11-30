@@ -126,3 +126,45 @@ class AnimalRepository(ABC):
             Número total de animales
         """
         pass
+
+    @abstractmethod
+    async def find_by_mother_id(self, mother_id: str) -> Animal | None:
+        """
+        Busca la madre de un animal por ID de madre.
+
+        Args:
+            mother_id: ID de la madre
+
+        Returns:
+            Animal madre si existe, None si no existe
+        """
+        pass
+
+    @abstractmethod
+    async def find_by_father_id(self, father_id: str) -> Animal | None:
+        """
+        Busca el padre de un animal por ID de padre.
+
+        Args:
+            father_id: ID del padre
+
+        Returns:
+            Animal padre si existe, None si no existe
+        """
+        pass
+
+    @abstractmethod
+    async def find_descendants(
+        self, parent_id: UUID, parent_role: str = "mother"
+    ) -> list[Animal]:
+        """
+        Busca los descendientes (hijos) de un animal.
+
+        Args:
+            parent_id: ID del animal padre/madre
+            parent_role: "mother" o "father" para buscar por mother_id o father_id
+
+        Returns:
+            Lista de Animal que son hijos del animal especificado
+        """
+        pass

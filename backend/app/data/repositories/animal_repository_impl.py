@@ -236,3 +236,77 @@ class AnimalRepositoryImpl(AnimalRepository):
             Número total de animales
         """
         return await AnimalModel.count()
+
+    async def find_by_mother_id(self, mother_id: str) -> Animal | None:
+        """
+        Busca la madre de un animal por ID de madre.
+
+        Args:
+            mother_id: ID de la madre
+
+        Returns:
+            Animal madre si existe, None si no existe
+        """
+        try:
+            mother_uuid = UUID(mother_id)
+            model = await AnimalModel.get(mother_uuid)
+            if model is None:
+                return None
+            return self._to_entity(model)
+        except (ValueError, TypeError):
+            return None
+
+    async def find_by_father_id(self, father_id: str) -> Animal | None:
+        """
+        Busca el padre de un animal por ID de padre.
+
+        Args:
+            father_id: ID del padre
+
+        Returns:
+            Animal padre si existe, None si no existe
+        """
+        try:
+            father_uuid = UUID(father_id)
+            model = await AnimalModel.get(father_uuid)
+            if model is None:
+                return None
+            return self._to_entity(model)
+        except (ValueError, TypeError):
+            return None
+
+    async def find_descendants(
+        self, parent_id: UUID, parent_role: str = "mother"
+    ) -> list[Animal]:
+        """
+        Busca los descendientes (hijos) de un animal.
+
+        Args:
+            parent_id: ID del animal padre/madre
+            parent_role: "mother" o "father" para buscar por mother_id o father_id
+
+        Returns:
+            Lista de Animal que son hijos del animal especificado
+        """
+        parent_id_str = str(parent_id)
+        if parent_role == "mother":
+            models = await AnimalModel.find(
+                AnimalModel.mother_id == parent_id_str
+            ).to_list()
+        elif parent_role == "father":
+            models = await AnimalModel.find(
+                AnimalModel.father_id == parent_id_str
+            ).to_list()
+        else:
+            # Buscar por ambos
+            mother_models = await AnimalModel.find(
+                AnimalModel.mother_id == parent_id_str
+            ).to_list()
+            father_models = await AnimalModel.find(
+                AnimalModel.father_id == parent_id_str
+            ).to_list()
+            # Combinar y eliminar duplicados
+            all_models = {model.id: model for model in mother_models + father_models}
+            models = list(all_models.values())
+
+        return [self._to_entity(model) for model in models]

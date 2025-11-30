@@ -95,3 +95,65 @@ class AnimalsListResponse(BaseModel):
     animals: list[AnimalResponse]
     page: int = 1
     page_size: int = 50
+
+
+# ===== Trazabilidad Schemas =====
+
+
+class AnimalLineageResponse(BaseModel):
+    """Response de linaje de un animal."""
+
+    animal: AnimalResponse
+    mother: AnimalResponse | None = None
+    father: AnimalResponse | None = None
+    descendants: list[AnimalResponse] = Field(default_factory=list)
+    descendants_count: int = 0
+
+    class Config:
+        from_attributes = True
+
+
+class TimelineEventData(BaseModel):
+    """Datos adicionales de un evento del timeline."""
+
+    ear_tag: str | None = None
+    farm_id: str | None = None
+    breed: str | None = None
+    gender: str | None = None
+    birth_weight_kg: float | None = None
+    estimated_weight_kg: float | None = None
+    confidence: float | None = None
+    method: str | None = None
+    model_version: str | None = None
+    gps_latitude: float | None = None
+    gps_longitude: float | None = None
+    frame_image_path: str | None = None
+    processing_time_ms: int | None = None
+    status: str | None = None
+
+
+class TimelineEvent(BaseModel):
+    """Evento individual del timeline."""
+
+    type: str = Field(
+        ...,
+        description="Tipo de evento: registration, birth, weight_estimation, update, status_change",
+    )
+    timestamp: datetime
+    description: str
+    data: TimelineEventData = Field(default_factory=TimelineEventData)
+
+    class Config:
+        from_attributes = True
+
+
+class AnimalTimelineResponse(BaseModel):
+    """Response del timeline completo de un animal."""
+
+    animal: AnimalResponse
+    events: list[TimelineEvent]
+    total_events: int
+    weight_estimations_count: int
+
+    class Config:
+        from_attributes = True
