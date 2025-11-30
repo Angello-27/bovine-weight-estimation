@@ -7,14 +7,12 @@ from beanie import init_beanie
 from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
 
 from app.core.config import settings
+from app.data.models.alert_model import AlertModel
 from app.data.models.animal_model import AnimalModel
 from app.data.models.farm_model import FarmModel
 from app.data.models.role_model import RoleModel
 from app.data.models.user_model import UserModel
-from app.models import (
-    AlertModel,  # TODO: Migrar a data/models/
-    WeightEstimationModel,  # TODO: Migrar a data/models/
-)
+from app.models import WeightEstimationModel  # TODO: Migrar a data/models/
 
 
 async def connect_to_mongodb() -> AsyncIOMotorClient:
