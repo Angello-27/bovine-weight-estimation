@@ -164,7 +164,7 @@ async def get_models_status():
     - /estimate: Hace inferencia Y guarda automáticamente (para web)
 
     **US-002**: Estimación de Peso por Raza con IA
-    **WEIGHT_ESTIMATION_WEB_PLAN**: Estimación desde panel web
+    **Frontend Integration**: Ver `docs/integration/FRONTEND_INTEGRATION_GUIDE.md`
     """,
     response_description="Estimación guardada con peso, confidence y metadatos",
 )

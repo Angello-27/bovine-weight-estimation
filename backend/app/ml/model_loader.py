@@ -5,7 +5,10 @@ Carga y gestión de modelos TensorFlow/TFLite
 Single Responsibility: Cargar modelos ML en memoria
 """
 
+import logging
 import os
+from contextlib import redirect_stderr
+from io import StringIO
 from pathlib import Path
 from typing import Any, Optional
 
@@ -14,7 +17,13 @@ from ..core.exceptions import MLModelException
 from ..domain.shared.constants import BreedType
 
 # Suprimir mensajes informativos de TensorFlow antes de importarlo
-os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"  # 0=all, 1=info, 2=warnings, 3=errors
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = (
+    "3"  # 0=all, 1=info, 2=warnings, 3=errors (solo errors críticos)
+)
+
+# Suprimir logs de TensorFlow a nivel de Python también
+logging.getLogger("tensorflow").setLevel(logging.ERROR)
+logging.getLogger("tflite_runtime").setLevel(logging.ERROR)
 
 # Declarar variables globales con tipos explícitos
 TFLITE_AVAILABLE: bool = False
@@ -114,10 +123,16 @@ class MLModelLoader:
                 )
 
             # Cargar TFLite Interpreter
+            # Nota: TensorFlow Lite puede imprimir mensajes INFO/WARNING durante la carga,
+            # estos son normales y no indican errores (delegados, optimizaciones, etc.)
             if tflite is None:
                 raise MLModelException("TFLite runtime no disponible")
-            interpreter = tflite.Interpreter(model_path=str(model_path))  # type: ignore[union-attr]
-            interpreter.allocate_tensors()  # type: ignore[union-attr]
+
+            # Redirigir temporalmente stderr para suprimir mensajes de carga del modelo
+            stderr_buffer = StringIO()
+            with redirect_stderr(stderr_buffer):
+                interpreter = tflite.Interpreter(model_path=str(model_path))  # type: ignore[union-attr]
+                interpreter.allocate_tensors()  # type: ignore[union-attr]
 
             # Obtener input/output details
             input_details = interpreter.get_input_details()  # type: ignore[union-attr]

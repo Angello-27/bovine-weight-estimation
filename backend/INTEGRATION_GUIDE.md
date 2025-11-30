@@ -4,6 +4,8 @@
 
 > ✅ **Nota**: El código del backend ya está completamente implementado y listo para usar el modelo TFLite. Solo necesitas descargar el modelo desde Google Drive usando el script proporcionado.
 
+> 📚 **Para documentación completa de endpoints API**: Ver [`docs/integration/API_INTEGRATION_GUIDE.md`](../../docs/integration/API_INTEGRATION_GUIDE.md)
+
 ---
 
 ## 📋 Resumen del Flujo
@@ -337,7 +339,7 @@ El código actual es funcional y sigue las mejores prácticas para modelos TFLit
 cd backend
 python -m app.main
 
-# En otra terminal, verificar estado
+# En otra terminal, verificar estado del modelo
 curl http://localhost:8000/api/v1/ml/models/status
 ```
 
@@ -345,46 +347,35 @@ curl http://localhost:8000/api/v1/ml/models/status
 ```json
 {
   "status": "ok",
-  "total_models": 1,
-  "loaded_models": ["generic"],
-  "strategy": "deep_learning_tflite",
-  "note": "Sistema de estrategias activo: ML entrenado + híbrido YOLO como fallback",
-  "method": "strategy_based"
+  "total_loaded": 1,
+  "breeds_loaded": ["generic"],
+  "strategies": {
+    "strategy_details": [
+      {
+        "strategy_name": "deep_learning_tflite",
+        "available": true
+      }
+    ]
+  }
 }
 ```
 
+Si `"available": true` y `"breeds_loaded": ["generic"]`, el modelo está correctamente integrado ✅
+
 ### 5.2 Probar Inferencia
 
-```bash
-# Probar endpoint de estimación (web upload)
-curl -X POST "http://localhost:8000/api/v1/ml/estimate" \
-  -F "image=@test_image.jpg" \
-  -F "breed=nelore" \
-  -H "Authorization: Bearer YOUR_TOKEN"
+> 📚 **Para detalles completos de uso de endpoints**: Ver [`docs/integration/API_INTEGRATION_GUIDE.md`](../../docs/integration/API_INTEGRATION_GUIDE.md)
 
-# O probar endpoint de predicción (mobile)
+**Verificación rápida**:
+```bash
+# Probar endpoint de predicción (sin guardar)
 curl -X POST "http://localhost:8000/api/v1/ml/predict" \
   -F "image=@test_image.jpg" \
   -F "breed=nelore" \
   -F "device_id=test-device"
 ```
 
-**Respuesta esperada**:
-```json
-{
-  "id": "...",
-  "animal_id": null,
-  "breed": "nelore",
-  "estimated_weight_kg": 485.75,
-  "confidence": 0.92,
-  "confidence_level": "high",
-  "ml_model_version": "1.0.0",
-  "method": "strategy_based",
-  "processing_time_ms": 2100,
-  "meets_quality_criteria": true,
-  "timestamp": "2024-..."
-}
-```
+Si retorna `estimated_weight_kg`, `confidence` y `meets_quality_criteria: true`, la inferencia funciona correctamente ✅
 
 ---
 
