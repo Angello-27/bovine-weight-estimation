@@ -1,25 +1,22 @@
 """
 Services Module - Business Logic Layer
-Lógica de negocio separada de controllers y models
+Lógica de negocio para módulos complejos (Auth, Sync, ML, Alert, Animal, Weighing)
+
+Nota: Los CRUDs simples (User, Role, Farm) ya no usan Application Services,
+sino que las routes inyectan directamente los Use Cases desde core.dependencies.
 """
 
 from .alert_service import AlertService
 from .animal_service import AnimalService
 from .auth_service import AuthService
-from .farm_service import FarmService
 from .ml_service import MLService
-from .role_service import RoleService
 from .sync_service import SyncService
-from .user_service import UserService
 from .weighing_service import WeighingService
 
 __all__ = [
     "AlertService",
     "AnimalService",
     "AuthService",
-    "FarmService",
-    "RoleService",
-    "UserService",
     "WeighingService",
     "MLService",
     "SyncService",
