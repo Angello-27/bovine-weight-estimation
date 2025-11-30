@@ -60,6 +60,39 @@ class WeightEstimationRepositoryImpl(WeightEstimationRepository):
         """Retorna el conteo total de estimaciones."""
         return await WeightEstimationModel.count()
 
+    async def find_by_animal_id(
+        self,
+        animal_id: str,
+        skip: int = 0,
+        limit: int = 100,
+    ) -> list[WeightEstimation]:
+        """Busca estimaciones por ID de animal."""
+        models = (
+            await WeightEstimationModel.find(
+                WeightEstimationModel.animal_id == animal_id
+            )
+            .sort(-WeightEstimationModel.timestamp)
+            .skip(skip)
+            .limit(limit)
+            .to_list()
+        )
+        return [self._to_entity(model) for model in models]
+
+    async def find_all(
+        self,
+        skip: int = 0,
+        limit: int = 50,
+    ) -> list[WeightEstimation]:
+        """Obtiene todas las estimaciones con paginación."""
+        models = (
+            await WeightEstimationModel.find_all()
+            .sort(-WeightEstimationModel.timestamp)
+            .skip(skip)
+            .limit(limit)
+            .to_list()
+        )
+        return [self._to_entity(model) for model in models]
+
     def _to_entity(self, model: WeightEstimationModel) -> WeightEstimation:
         """Convierte Model a Entity."""
         return WeightEstimation(

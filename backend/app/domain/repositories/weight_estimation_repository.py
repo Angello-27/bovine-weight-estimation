@@ -64,3 +64,41 @@ class WeightEstimationRepository(ABC):
             Número total de estimaciones
         """
         pass
+
+    @abstractmethod
+    async def find_by_animal_id(
+        self,
+        animal_id: str,
+        skip: int = 0,
+        limit: int = 100,
+    ) -> list[WeightEstimation]:
+        """
+        Busca estimaciones por ID de animal.
+
+        Args:
+            animal_id: ID del animal
+            skip: Offset para paginación
+            limit: Límite de resultados
+
+        Returns:
+            Lista de WeightEstimation ordenada por timestamp DESC
+        """
+        pass
+
+    @abstractmethod
+    async def find_all(
+        self,
+        skip: int = 0,
+        limit: int = 50,
+    ) -> list[WeightEstimation]:
+        """
+        Obtiene todas las estimaciones con paginación.
+
+        Args:
+            skip: Offset para paginación
+            limit: Límite de resultados
+
+        Returns:
+            Lista de WeightEstimation ordenada por timestamp DESC
+        """
+        pass

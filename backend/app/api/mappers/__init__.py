@@ -10,6 +10,7 @@ from .farm_mapper import FarmMapper
 from .role_mapper import RoleMapper
 from .sync_mapper import SyncMapper
 from .user_mapper import UserMapper
+from .weight_estimation_mapper import WeightEstimationMapper
 
 __all__ = [
     "AlertMapper",
@@ -19,4 +20,5 @@ __all__ = [
     "RoleMapper",
     "SyncMapper",
     "UserMapper",
+    "WeightEstimationMapper",
 ]

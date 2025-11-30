@@ -68,6 +68,13 @@ from .users import (
     get_get_user_by_id_usecase,
     get_update_user_usecase,
 )
+from .weight_estimations import (
+    get_all_weight_estimations_usecase,
+    get_create_weight_estimation_usecase,
+    get_estimate_weight_from_image_usecase,
+    get_weight_estimation_by_id_usecase,
+    get_weight_estimations_by_animal_id_usecase,
+)
 
 __all__ = [
     # Repositories
@@ -125,6 +132,12 @@ __all__ = [
     "get_sync_cattle_batch_usecase",
     "get_sync_weight_estimations_batch_usecase",
     "get_sync_health_usecase",
+    # Weight Estimation Use Cases
+    "get_create_weight_estimation_usecase",
+    "get_estimate_weight_from_image_usecase",
+    "get_weight_estimation_by_id_usecase",
+    "get_weight_estimations_by_animal_id_usecase",
+    "get_all_weight_estimations_usecase",
     # Repositories
     "get_weight_estimation_repository",
 ]

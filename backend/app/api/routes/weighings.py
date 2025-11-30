@@ -6,15 +6,28 @@ Endpoints REST para estimaciones de peso
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, Query, status
 
-from ...application import WeighingService
-from ...core.exceptions import NotFoundException, ValidationException
+from ...core.dependencies.weight_estimations import (
+    get_all_weight_estimations_usecase,
+    get_create_weight_estimation_usecase,
+    get_weight_estimation_by_id_usecase,
+    get_weight_estimations_by_animal_id_usecase,
+)
+from ...domain.usecases.weight_estimations import (
+    CreateWeightEstimationUseCase,
+    GetAllWeightEstimationsUseCase,
+    GetWeightEstimationByIdUseCase,
+    GetWeightEstimationsByAnimalIdUseCase,
+)
 from ...schemas.weighing_schemas import (
     WeighingCreateRequest,
     WeighingResponse,
     WeighingsListResponse,
 )
+from ..mappers import WeightEstimationMapper
+from ..utils.exception_handlers import handle_domain_exceptions
+from ..utils.pagination import calculate_skip
 
 # Router con prefijo /api/v1/weighings
 router = APIRouter(
@@ -26,12 +39,6 @@ router = APIRouter(
         500: {"description": "Error interno del servidor"},
     },
 )
-
-
-# Dependency injection del servicio
-def get_weighing_service() -> WeighingService:
-    """Dependency para inyectar WeighingService."""
-    return WeighingService()
 
 
 @router.post(
@@ -52,28 +59,17 @@ def get_weighing_service() -> WeighingService:
     **US-004**: Historial de Pesajes
     """,
 )
+@handle_domain_exceptions
 async def create_weighing(
     request: WeighingCreateRequest,
-    service: Annotated[WeighingService, Depends(get_weighing_service)],
+    create_usecase: Annotated[
+        CreateWeightEstimationUseCase, Depends(get_create_weight_estimation_usecase)
+    ],
 ) -> WeighingResponse:
     """Crea una nueva estimación de peso."""
-    try:
-        return await service.create_weighing(request)
-    except NotFoundException as e:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=e.message,
-        )
-    except ValidationException as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=e.message,
-        )
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error al crear estimación: {str(e)}",
-        )
+    params = WeightEstimationMapper.create_request_to_params(request)
+    estimation = await create_usecase.execute(**params)
+    return WeightEstimationMapper.to_response(estimation)
 
 
 @router.get(
@@ -82,23 +78,16 @@ async def create_weighing(
     summary="Obtener estimación por ID",
     description="Obtiene los datos de una estimación específica.",
 )
+@handle_domain_exceptions
 async def get_weighing(
     weighing_id: UUID,
-    service: Annotated[WeighingService, Depends(get_weighing_service)],
+    get_by_id_usecase: Annotated[
+        GetWeightEstimationByIdUseCase, Depends(get_weight_estimation_by_id_usecase)
+    ],
 ) -> WeighingResponse:
     """Obtiene una estimación por ID."""
-    try:
-        return await service.get_weighing(weighing_id)
-    except NotFoundException as e:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=e.message,
-        )
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error al obtener estimación: {str(e)}",
-        )
+    estimation = await get_by_id_usecase.execute(weighing_id)
+    return WeightEstimationMapper.to_response(estimation)
 
 
 @router.get(
@@ -113,34 +102,30 @@ async def get_weighing(
     **US-004**: Historial de Pesajes con Gráficos
     """,
 )
+@handle_domain_exceptions
 async def get_animal_weighings(
-    service: Annotated[WeighingService, Depends(get_weighing_service)],
+    get_by_animal_usecase: Annotated[
+        GetWeightEstimationsByAnimalIdUseCase,
+        Depends(get_weight_estimations_by_animal_id_usecase),
+    ],
     animal_id: UUID,
     page: int = Query(1, ge=1, description="Número de página"),
     page_size: int = Query(50, ge=1, le=100, description="Tamaño de página"),
 ) -> WeighingsListResponse:
     """Obtiene historial de pesajes de un animal."""
-    try:
-        skip = (page - 1) * page_size
-        weighings = await service.get_weighings_by_animal(
-            animal_id=animal_id,
-            skip=skip,
-            limit=page_size,
-        )
+    skip = calculate_skip(page=page, page_size=page_size)
+    estimations = await get_by_animal_usecase.execute(
+        animal_id=animal_id, skip=skip, limit=page_size
+    )
 
-        total = len(weighings)
+    weighings = [WeightEstimationMapper.to_response(e) for e in estimations]
 
-        return WeighingsListResponse(
-            total=total,
-            weighings=weighings,
-            page=page,
-            page_size=page_size,
-        )
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error al obtener historial: {str(e)}",
-        )
+    return WeighingsListResponse(
+        total=len(weighings),
+        weighings=weighings,
+        page=page,
+        page_size=page_size,
+    )
 
 
 @router.get(
@@ -149,26 +134,23 @@ async def get_animal_weighings(
     summary="Listar todas las estimaciones",
     description="Lista todas las estimaciones con paginación (admin).",
 )
+@handle_domain_exceptions
 async def list_weighings(
-    service: Annotated[WeighingService, Depends(get_weighing_service)],
+    get_all_usecase: Annotated[
+        GetAllWeightEstimationsUseCase, Depends(get_all_weight_estimations_usecase)
+    ],
     page: int = Query(1, ge=1),
     page_size: int = Query(50, ge=1, le=100),
 ) -> WeighingsListResponse:
     """Lista todas las estimaciones."""
-    try:
-        skip = (page - 1) * page_size
-        weighings = await service.get_all_weighings(skip=skip, limit=page_size)
+    skip = calculate_skip(page=page, page_size=page_size)
+    estimations = await get_all_usecase.execute(skip=skip, limit=page_size)
 
-        total = len(weighings)
+    weighings = [WeightEstimationMapper.to_response(e) for e in estimations]
 
-        return WeighingsListResponse(
-            total=total,
-            weighings=weighings,
-            page=page,
-            page_size=page_size,
-        )
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error al listar estimaciones: {str(e)}",
-        )
+    return WeighingsListResponse(
+        total=len(weighings),
+        weighings=weighings,
+        page=page,
+        page_size=page_size,
+    )

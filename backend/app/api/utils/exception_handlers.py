@@ -10,6 +10,7 @@ from fastapi import HTTPException, status
 
 from app.core.exceptions import (
     AlreadyExistsException,
+    MLModelException,
     NotFoundException,
     ValidationException,
 )
@@ -27,6 +28,7 @@ def handle_domain_exceptions(
     - NotFoundException → HTTP 404
     - AlreadyExistsException → HTTP 400
     - ValidationException → HTTP 400
+    - MLModelException → HTTP 500
     - ValueError → HTTP 400
 
     Args:
@@ -54,6 +56,11 @@ def handle_domain_exceptions(
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
         except ValidationException as e:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+        except MLModelException as e:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=f"Error en modelo ML: {e.message}",
+            )
         except ValueError as e:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 

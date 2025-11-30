@@ -61,16 +61,8 @@ backend/app/
 │   │   └── ...
 │   └── dependencies.py          # Dependencias FastAPI (auth, etc.)
 │
-├── services/                    # Service Layer (Orquestadores)
-│   ├── animal_service.py        # Orquesta use cases de animales
-│   ├── user_service.py          # Orquesta use cases de usuarios
-│   ├── role_service.py          # Orquesta use cases de roles
-│   ├── auth_service.py          # Orquesta use cases de autenticación
-│   ├── farm_service.py          # Lógica de fincas
-│   ├── weighing_service.py     # Lógica de pesajes
-│   ├── alert_service.py         # Lógica de alertas
-│   ├── sync_service.py          # Lógica de sincronización
-│   └── ml_service.py            # Lógica de ML/inferencia
+├── services/                    # ⚠️ DEPRECATED - Ya no se usa
+│   └── (Módulos migrados directamente a Use Cases)
 │
 ├── core/                        # Core Layer (Compartido)
 │   ├── config.py                # Configuración (Pydantic Settings)
@@ -80,10 +72,6 @@ backend/app/
 │   ├── middleware.py            # Middlewares (CORS, etc.)
 │   └── routes.py                # Registro de rutas
 │
-├── models/                      # ⚠️ LEGACY (coexistencia temporal)
-│   ├── alert_model.py           # Pendiente migrar
-│   ├── farm_model.py            # Pendiente migrar
-│   └── weight_estimation_model.py  # Pendiente migrar
 │
 ├── ml/                          # Machine Learning
 │   ├── model_loader.py           # Carga de modelos TFLite
@@ -121,10 +109,15 @@ backend/app/
 ### 🔄 Flujo de Datos
 
 ```
-API Route → Service → Use Case → Repository Interface
-                                      ↓
-                              Repository Implementation → Model (Beanie) → MongoDB
+API Route → Use Case → Repository Interface
+                          ↓
+              Repository Implementation → Model (Beanie) → MongoDB
+              ↑
+        Mappers (DTO ↔ Entity)
+        Utils (funciones auxiliares)
 ```
+
+**Nota**: Los Application Services han sido eliminados. Las rutas ahora inyectan directamente los Use Cases siguiendo el patrón de Clean Architecture.
 
 ---
 
@@ -194,18 +187,19 @@ open http://localhost:8000/api/docs
 
 ## 📊 Módulos Implementados con Clean Architecture
 
-| Módulo | Domain | Data | Services | Routes | Estado |
-|--------|--------|------|----------|--------|--------|
+| Módulo | Domain | Data | Use Cases | Routes | Estado |
+|--------|--------|------|-----------|--------|--------|
 | **Animal** | ✅ | ✅ | ✅ | ✅ | ✅ Completado |
 | **User** | ✅ | ✅ | ✅ | ✅ | ✅ Completado |
 | **Role** | ✅ | ✅ | ✅ | ✅ | ✅ Completado |
 | **Auth** | ✅ | ✅ | ✅ | ✅ | ✅ Completado |
-| **Weighing** | ⏳ | ⏳ | ✅ | ✅ | ⏳ Pendiente |
-| **Alert** | ⏳ | ⏳ | ✅ | ✅ | ⏳ Pendiente |
-| **Farm** | ⏳ | ⏳ | ✅ | ✅ | ⏳ Pendiente |
-| **Sync** | ⏳ | ⏳ | ✅ | ✅ | ⏳ Pendiente |
+| **WeightEstimation** | ✅ | ✅ | ✅ | ✅ | ✅ Completado |
+| **Sync** | ✅ | ✅ | ✅ | ✅ | ✅ Completado |
+| **Alert** | ✅ | ✅ | ✅ | ✅ | ✅ Completado |
+| **Farm** | ⏳ | ⏳ | ⏳ | ✅ | ⏳ Pendiente |
 
-**Total**: 3 módulos completamente migrados a Clean Architecture (Animal, User, Role, Auth)
+**Total**: 7 módulos completamente migrados a Clean Architecture
+**Patrón**: Routes → Use Cases → Repositories → Models (sin Application Services)
 
 ---
 
@@ -374,7 +368,7 @@ ML_DEFAULT_MODEL=generic-cattle-v1.0.0.tflite
 ## 📚 Documentación Adicional
 
 - **Integración TFLite**: [`INTEGRATION_GUIDE.md`](INTEGRATION_GUIDE.md) - Guía completa para integrar modelo desde Colab
-- **Migración Clean Architecture**: [`MIGRACION_CLEAN_ARCHITECTURE.md`](MIGRACION_CLEAN_ARCHITECTURE.md) - Registro de cambios y progreso de migración
+- **Flujo Clean Architecture**: [`FLUJO_CLEAN_ARCHITECTURE.md`](FLUJO_CLEAN_ARCHITECTURE.md) - Flujo de datos y responsabilidades por capa
 - **Scripts**: [`scripts/README.md`](scripts/README.md) - Documentación de scripts de utilidad
 
 ---
@@ -383,18 +377,23 @@ ML_DEFAULT_MODEL=generic-cattle-v1.0.0.tflite
 
 ### ✅ Completado
 
-- ✅ Migración a Clean Architecture (Animal, User, Role, Auth)
+- ✅ Migración completa a Clean Architecture (7 módulos: Animal, User, Role, Auth, WeightEstimation, Sync, Alert)
+- ✅ Eliminación de Application Services legacy (MLService, WeighingService)
+- ✅ Implementación de Use Cases para WeightEstimations
+- ✅ Mapper para WeightEstimation (DTO ↔ Entity)
+- ✅ Utils ML inference en core/utils/
+- ✅ Endpoint `/api/v1/ml/estimate` para estimación desde web
 - ✅ Todos los modelos implementados (Alert, Animal, WeightEstimation, User, Farm, Role)
 - ✅ AlertModel con cronograma completo
 - ✅ API de consulta de alertas (today, upcoming, scheduled/list)
-- ✅ Preparación para TFLite real
 - ✅ Scripts de utilidad (seed_data, setup_production, download_model_from_drive)
 - ✅ Endpoints REST completos (CRUD para todos los modelos)
 - ✅ Integración en main.py
+- ✅ Preparado para integración de modelo TFLite real
 
 ### ⏳ En Progreso
 
-- ⏳ Migración de módulos restantes a Clean Architecture (Weighing, Alert, Farm, Sync)
+- ⏳ Integración de modelo TFLite real desde Google Drive
 
 ### 📱 Próximos Pasos (Móvil)
 
