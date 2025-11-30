@@ -5,14 +5,19 @@ import Alert from '@mui/material/Alert';
 
 /**
  * ErrorState molecule - Estado de error reutilizable
- * @param {string|null} error - Mensaje de error
+ * @param {string|Object|null} error - Mensaje de error (string o objeto Error)
  */
 function ErrorState({ error }) {
     if (!error) return null;
 
+    // Convertir error a string si es un objeto
+    const errorMessage = typeof error === 'string' 
+        ? error 
+        : error?.message || error?.toString() || 'Ocurrió un error';
+
     return (
         <Grid container mt={2}>
-            <Alert severity="error">{error}</Alert>
+            <Alert severity="error">{errorMessage}</Alert>
         </Grid>
     );
 }

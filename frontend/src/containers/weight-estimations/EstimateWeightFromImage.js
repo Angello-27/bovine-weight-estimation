@@ -76,8 +76,8 @@ function EstimateWeightFromImage() {
         try {
             const result = await estimateWeightFromImage(
                 formData.image,
-                formData.cattle_id || null,
-                formData.breed || null
+                formData.breed,
+                formData.cattle_id || null
             );
 
             setEstimationResult(result);

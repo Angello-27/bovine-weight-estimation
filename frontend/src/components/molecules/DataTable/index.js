@@ -42,13 +42,27 @@ function DataTable({ columns, rows, onRowClick, emptyMessage = 'No hay datos dis
                                 onClick={() => onRowClick && onRowClick(row)}
                                 sx={{ cursor: onRowClick ? 'pointer' : 'default' }}
                             >
-                                {columns.map((column) => (
-                                    <TableCell key={column.field}>
-                                        {column.render
-                                            ? column.render(row[column.field], row)
-                                            : row[column.field] || '-'}
-                                    </TableCell>
-                                ))}
+                                {columns.map((column) => {
+                                    const cellValue = row[column.field];
+                                    let displayValue;
+                                    
+                                    if (column.render) {
+                                        displayValue = column.render(cellValue, row);
+                                    } else if (cellValue == null || cellValue === '') {
+                                        displayValue = '-';
+                                    } else if (typeof cellValue === 'object') {
+                                        // Si es un objeto, intentar extraer un ID o mostrar una representación útil
+                                        displayValue = cellValue.id || cellValue.name || cellValue.toString() || '-';
+                                    } else {
+                                        displayValue = cellValue;
+                                    }
+                                    
+                                    return (
+                                        <TableCell key={column.field}>
+                                            {displayValue}
+                                        </TableCell>
+                                    );
+                                })}
                             </TableRow>
                         ))}
                     </TableBody>

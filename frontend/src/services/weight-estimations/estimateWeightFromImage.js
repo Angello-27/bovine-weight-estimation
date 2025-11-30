@@ -6,21 +6,22 @@ import apiClient from '../../api/axiosClient';
  * Estima el peso de un animal desde una imagen subida
  * 
  * @param {File} imageFile - Archivo de imagen del animal
- * @param {string|null} cattleId - ID del animal (opcional)
- * @param {string|null} breed - Raza del animal (opcional)
+ * @param {string} breed - Raza del animal (requerido según API)
+ * @param {string|null} animalId - ID del animal (opcional)
  * @returns {Promise<Object>} Resultado de la estimación
  */
-const estimateWeightFromImage = async (imageFile, cattleId = null, breed = null) => {
+const estimateWeightFromImage = async (imageFile, breed, animalId = null) => {
   try {
+    if (!breed) {
+      throw new Error('La raza es requerida para la estimación');
+    }
+
     const formData = new FormData();
     formData.append('image', imageFile);
+    formData.append('breed', breed);
     
-    if (cattleId) {
-      formData.append('cattle_id', cattleId);
-    }
-    
-    if (breed) {
-      formData.append('breed', breed);
+    if (animalId) {
+      formData.append('animal_id', animalId);
     }
 
     const response = await apiClient.post('/api/v1/ml/estimate', formData, {
