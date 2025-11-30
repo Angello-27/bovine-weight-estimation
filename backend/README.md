@@ -241,6 +241,55 @@ El móvil puede consultar alertas programadas:
 
 ---
 
+## 🔄 Sincronización Offline-First (US-005)
+
+### Endpoints de Sincronización
+
+El backend proporciona endpoints para sincronización bidireccional con la app móvil:
+
+- **`POST /api/v1/sync/cattle`** - Sincronizar batch de animales (máximo 100 items)
+  ```bash
+  POST /api/v1/sync/cattle
+  {
+    "items": [...],
+    "device_id": "android-device-123",
+    "sync_timestamp": "2024-12-20T10:30:00Z"
+  }
+  ```
+
+- **`POST /api/v1/sync/weight-estimations`** - Sincronizar batch de estimaciones (máximo 100 items)
+  ```bash
+  POST /api/v1/sync/weight-estimations
+  {
+    "items": [...],
+    "device_id": "android-device-123",
+    "sync_timestamp": "2024-12-20T10:30:00Z"
+  }
+  ```
+
+- **`GET /api/v1/sync/health`** - Health check del servicio de sincronización
+  ```bash
+  GET /api/v1/sync/health
+  ```
+
+### Estrategia Last-Write-Wins
+
+- Compara timestamps UTC de mobile vs backend
+- El dato más reciente prevalece automáticamente
+- Retorna conflictos para que mobile actualice su copia local si es necesario
+
+### Guía de Integración Flutter
+
+Ver documentación completa: [`../docs/integration/FLUTTER_SYNC_GUIDE.md`](../docs/integration/FLUTTER_SYNC_GUIDE.md)
+
+**Resumen**:
+- Flutter guarda estimaciones primero en SQLite (offline-first)
+- Agrega items a cola de sincronización automáticamente
+- Sincroniza en batches de hasta 100 items cuando hay conectividad
+- Resuelve conflictos automáticamente con last-write-wins
+
+---
+
 ## 🤖 Machine Learning - TFLite
 
 ### Estado Actual

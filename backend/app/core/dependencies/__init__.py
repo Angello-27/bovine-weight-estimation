@@ -47,6 +47,7 @@ from .repositories import (
     get_farm_repository,
     get_role_repository,
     get_user_repository,
+    get_weight_estimation_repository,
 )
 from .roles import (
     get_create_role_usecase,
@@ -54,6 +55,11 @@ from .roles import (
     get_get_all_roles_usecase,
     get_get_role_by_id_usecase,
     get_update_role_usecase,
+)
+from .sync import (
+    get_sync_cattle_batch_usecase,
+    get_sync_health_usecase,
+    get_sync_weight_estimations_batch_usecase,
 )
 from .users import (
     get_create_user_usecase,
@@ -70,6 +76,7 @@ __all__ = [
     "get_farm_repository",
     "get_animal_repository",
     "get_alert_repository",
+    "get_weight_estimation_repository",
     # Auth
     "get_authenticate_user_usecase",
     "get_get_user_by_token_usecase",
@@ -114,4 +121,10 @@ __all__ = [
     "get_get_scheduled_alerts_usecase",
     "get_get_today_alerts_usecase",
     "get_get_upcoming_alerts_usecase",
+    # Sync Use Cases
+    "get_sync_cattle_batch_usecase",
+    "get_sync_weight_estimations_batch_usecase",
+    "get_sync_health_usecase",
+    # Repositories
+    "get_weight_estimation_repository",
 ]

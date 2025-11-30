@@ -187,7 +187,7 @@ async def delete_user(
 ) -> Response:
     """Elimina un usuario."""
     from ...core.exceptions import NotFoundException
-    
+
     try:
         await delete_usecase.execute(user_id)
         return Response(status_code=status.HTTP_204_NO_CONTENT)

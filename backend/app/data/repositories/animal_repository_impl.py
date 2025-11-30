@@ -227,3 +227,12 @@ class AnimalRepositoryImpl(AnimalRepository):
             models = models[:limit]
 
         return [self._to_entity(model) for model in models]
+
+    async def count(self) -> int:
+        """
+        Retorna el conteo total de animales.
+
+        Returns:
+            Número total de animales
+        """
+        return await AnimalModel.count()

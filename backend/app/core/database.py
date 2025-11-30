@@ -12,7 +12,7 @@ from app.data.models.animal_model import AnimalModel
 from app.data.models.farm_model import FarmModel
 from app.data.models.role_model import RoleModel
 from app.data.models.user_model import UserModel
-from app.models import WeightEstimationModel  # TODO: Migrar a data/models/
+from app.data.models.weight_estimation_model import WeightEstimationModel
 
 
 async def connect_to_mongodb() -> AsyncIOMotorClient:

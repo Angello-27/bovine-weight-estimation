@@ -8,6 +8,7 @@ from .animal_model import AnimalModel
 from .farm_model import FarmModel
 from .role_model import RoleModel
 from .user_model import UserModel
+from .weight_estimation_model import WeightEstimationModel
 
 __all__ = [
     "AlertModel",
@@ -15,4 +16,5 @@ __all__ = [
     "FarmModel",
     "RoleModel",
     "UserModel",
+    "WeightEstimationModel",
 ]

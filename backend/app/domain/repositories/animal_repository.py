@@ -116,3 +116,13 @@ class AnimalRepository(ABC):
             Lista de Animal que cumplen los criterios
         """
         pass
+
+    @abstractmethod
+    async def count(self) -> int:
+        """
+        Retorna el conteo total de animales.
+
+        Returns:
+            Número total de animales
+        """
+        pass
