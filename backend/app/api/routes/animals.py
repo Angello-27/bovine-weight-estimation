@@ -6,12 +6,21 @@ Endpoints REST para gestión de animales
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, Query, status
 
-from ...core.exceptions import (
-    AlreadyExistsException,
-    NotFoundException,
-    ValidationException,
+from ...core.dependencies import (
+    get_create_animal_usecase,
+    get_delete_animal_usecase,
+    get_get_animal_by_id_usecase,
+    get_get_animals_by_farm_usecase,
+    get_update_animal_usecase,
+)
+from ...domain.usecases.animals import (
+    CreateAnimalUseCase,
+    DeleteAnimalUseCase,
+    GetAnimalByIdUseCase,
+    GetAnimalsByFarmUseCase,
+    UpdateAnimalUseCase,
 )
 from ...schemas.animal_schemas import (
     AnimalCreateRequest,
@@ -19,7 +28,8 @@ from ...schemas.animal_schemas import (
     AnimalsListResponse,
     AnimalUpdateRequest,
 )
-from ...services import AnimalService
+from ..mappers import AnimalMapper
+from ..utils import handle_domain_exceptions
 
 # Router con prefijo /api/v1/animals
 router = APIRouter(
@@ -31,12 +41,6 @@ router = APIRouter(
         500: {"description": "Error interno del servidor"},
     },
 )
-
-
-# Dependency injection del servicio
-def get_animal_service() -> AnimalService:
-    """Dependency para inyectar AnimalService."""
-    return AnimalService()
 
 
 @router.post(
@@ -56,28 +60,15 @@ def get_animal_service() -> AnimalService:
     **US-003**: Registro Automático de Animales
     """,
 )
+@handle_domain_exceptions
 async def create_animal(
     request: AnimalCreateRequest,
-    service: Annotated[AnimalService, Depends(get_animal_service)],
+    create_usecase: Annotated[CreateAnimalUseCase, Depends(get_create_animal_usecase)],
 ) -> AnimalResponse:
     """Crea un nuevo animal."""
-    try:
-        return await service.create_animal(request)
-    except AlreadyExistsException as e:
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail=e.message,
-        )
-    except ValidationException as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=e.message,
-        )
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error al crear animal: {str(e)}",
-        )
+    params = AnimalMapper.create_request_to_params(request)
+    animal = await create_usecase.execute(**params)
+    return AnimalMapper.to_response(animal)
 
 
 @router.get(
@@ -86,23 +77,16 @@ async def create_animal(
     summary="Obtener animal por ID",
     description="Obtiene los datos completos de un animal específico.",
 )
+@handle_domain_exceptions
 async def get_animal(
     animal_id: UUID,
-    service: Annotated[AnimalService, Depends(get_animal_service)],
+    get_by_id_usecase: Annotated[
+        GetAnimalByIdUseCase, Depends(get_get_animal_by_id_usecase)
+    ],
 ) -> AnimalResponse:
     """Obtiene un animal por ID."""
-    try:
-        return await service.get_animal(animal_id)
-    except NotFoundException as e:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=e.message,
-        )
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error al obtener animal: {str(e)}",
-        )
+    animal = await get_by_id_usecase.execute(animal_id)
+    return AnimalMapper.to_response(animal)
 
 
 @router.get(
@@ -120,37 +104,31 @@ async def get_animal(
     - page_size: Tamaño de página (default: 50, max: 100)
     """,
 )
+@handle_domain_exceptions
 async def list_animals(
-    service: Annotated[AnimalService, Depends(get_animal_service)],
     farm_id: UUID = Query(..., description="ID de la hacienda"),
     status: str | None = Query(None, description="Filtro por estado"),
     page: int = Query(1, ge=1, description="Número de página"),
     page_size: int = Query(50, ge=1, le=100, description="Tamaño de página"),
+    get_by_farm_usecase: Annotated[
+        GetAnimalsByFarmUseCase, Depends(get_get_animals_by_farm_usecase)
+    ] = Depends(get_get_animals_by_farm_usecase),
 ) -> AnimalsListResponse:
     """Lista animales con paginación."""
-    try:
-        skip = (page - 1) * page_size
-        animals = await service.get_animals_by_farm(
-            farm_id=farm_id,
-            skip=skip,
-            limit=page_size,
-            status=status,
-        )
+    skip = (page - 1) * page_size
+    animals = await get_by_farm_usecase.execute(
+        farm_id=farm_id, skip=skip, limit=page_size, status=status
+    )
 
-        # TODO: Calcular total count para paginación correcta
-        total = len(animals)
+    # TODO: Calcular total count para paginación correcta
+    total = len(animals)
 
-        return AnimalsListResponse(
-            total=total,
-            animals=animals,
-            page=page,
-            page_size=page_size,
-        )
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error al listar animales: {str(e)}",
-        )
+    return AnimalsListResponse(
+        total=total,
+        animals=[AnimalMapper.to_response(animal) for animal in animals],
+        page=page,
+        page_size=page_size,
+    )
 
 
 @router.put(
@@ -159,24 +137,16 @@ async def list_animals(
     summary="Actualizar animal",
     description="Actualiza datos de un animal existente (solo campos proporcionados).",
 )
+@handle_domain_exceptions
 async def update_animal(
     animal_id: UUID,
     request: AnimalUpdateRequest,
-    service: Annotated[AnimalService, Depends(get_animal_service)],
+    update_usecase: Annotated[UpdateAnimalUseCase, Depends(get_update_animal_usecase)],
 ) -> AnimalResponse:
     """Actualiza un animal."""
-    try:
-        return await service.update_animal(animal_id, request)
-    except NotFoundException as e:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=e.message,
-        )
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error al actualizar animal: {str(e)}",
-        )
+    params = AnimalMapper.update_request_to_params(request)
+    animal = await update_usecase.execute(animal_id=animal_id, **params)
+    return AnimalMapper.to_response(animal)
 
 
 @router.delete(
@@ -185,21 +155,11 @@ async def update_animal(
     summary="Eliminar animal",
     description="Elimina un animal (soft delete - marca como inactive).",
 )
+@handle_domain_exceptions
 async def delete_animal(
     animal_id: UUID,
-    service: Annotated[AnimalService, Depends(get_animal_service)],
+    delete_usecase: Annotated[DeleteAnimalUseCase, Depends(get_delete_animal_usecase)],
 ):
     """Elimina un animal (soft delete)."""
-    try:
-        await service.delete_animal(animal_id)
-        return
-    except NotFoundException as e:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=e.message,
-        )
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error al eliminar animal: {str(e)}",
-        )
+    await delete_usecase.execute(animal_id)
+    return
