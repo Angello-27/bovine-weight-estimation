@@ -6,19 +6,32 @@ Endpoints REST para gestión de fincas
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, Query, status
 
-from ...core.exceptions import AlreadyExistsException, NotFoundException
+from ...core.dependencies import (
+    get_create_farm_usecase,
+    get_current_active_user,
+    get_delete_farm_usecase,
+    get_get_all_farms_usecase,
+    get_get_farm_by_id_usecase,
+    get_update_farm_usecase,
+)
 from ...domain.entities.user import User
-from ...models import FarmModel
+from ...domain.usecases.farms import (
+    CreateFarmUseCase,
+    DeleteFarmUseCase,
+    GetAllFarmsUseCase,
+    GetFarmByIdUseCase,
+    UpdateFarmUseCase,
+)
 from ...schemas.farm_schemas import (
     FarmCreateRequest,
     FarmResponse,
     FarmsListResponse,
     FarmUpdateRequest,
 )
-from ...services import FarmService
-from ..dependencies import get_current_active_user
+from ..mappers import FarmMapper
+from ..utils import handle_domain_exceptions
 
 # Router con prefijo /farm
 router = APIRouter(
@@ -32,12 +45,6 @@ router = APIRouter(
         500: {"description": "Error interno del servidor"},
     },
 )
-
-
-# Dependency injection del servicio
-def get_farm_service() -> FarmService:
-    """Dependency para inyectar FarmService."""
-    return FarmService()
 
 
 @router.post(
@@ -57,32 +64,16 @@ def get_farm_service() -> FarmService:
     **Permisos**: Requiere autenticación
     """,
 )
+@handle_domain_exceptions
 async def create_farm(
     request: FarmCreateRequest,
-    farm_service: Annotated[FarmService, Depends(get_farm_service)],
+    create_usecase: Annotated[CreateFarmUseCase, Depends(get_create_farm_usecase)],
     current_user: Annotated[User, Depends(get_current_active_user)],
 ) -> FarmResponse:
-    """
-    Endpoint para crear una finca.
-
-    Args:
-        request: Datos de la finca a crear
-        farm_service: Servicio de fincas (inyectado)
-        current_user: Usuario actual (inyectado)
-
-    Returns:
-        FarmResponse con la finca creada
-
-    Raises:
-        HTTPException 400: Si el nombre ya existe para ese propietario
-        HTTPException 404: Si el owner_id no existe
-    """
-    try:
-        return await farm_service.create_farm(request)
-    except AlreadyExistsException as e:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
-    except NotFoundException as e:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+    """Crea una nueva finca."""
+    params = FarmMapper.create_request_to_params(request)
+    farm = await create_usecase.execute(**params)
+    return FarmMapper.to_response(farm)
 
 
 @router.get(
@@ -99,34 +90,23 @@ async def create_farm(
     **Permisos**: Requiere autenticación
     """,
 )
+@handle_domain_exceptions
 async def get_all_farms(
     current_user: Annotated[User, Depends(get_current_active_user)],
-    farm_service: Annotated[FarmService, Depends(get_farm_service)],
+    get_all_usecase: Annotated[GetAllFarmsUseCase, Depends(get_get_all_farms_usecase)],
     skip: int = Query(0, ge=0, description="Número de registros a saltar"),
     limit: int = Query(50, ge=1, le=100, description="Número máximo de registros"),
     owner_id: UUID | None = Query(None, description="Filtrar por propietario"),
 ) -> FarmsListResponse:
-    """
-    Endpoint para listar fincas.
-
-    Args:
-        skip: Número de registros a saltar
-        limit: Número máximo de registros
-        owner_id: Filtrar por propietario (opcional)
-        farm_service: Servicio de fincas (inyectado)
-        current_user: Usuario actual (inyectado)
-
-    Returns:
-        FarmsListResponse con lista de fincas
-    """
-    farms = await farm_service.get_all_farms(skip=skip, limit=limit, owner_id=owner_id)
-    total = (
-        await FarmModel.find_all().count()
-        if owner_id is None
-        else await FarmModel.find(FarmModel.owner_id == owner_id).count()
-    )
+    """Lista fincas con paginación."""
+    farms = await get_all_usecase.execute(skip=skip, limit=limit, owner_id=owner_id)
+    # TODO: Agregar método count() al repositorio para obtener total
+    total = len(farms)
     return FarmsListResponse(
-        total=total, farms=farms, page=skip // limit + 1, page_size=limit
+        total=total,
+        farms=[FarmMapper.to_response(farm) for farm in farms],
+        page=skip // limit + 1,
+        page_size=limit,
     )
 
 
@@ -141,29 +121,17 @@ async def get_all_farms(
     **Permisos**: Requiere autenticación
     """,
 )
+@handle_domain_exceptions
 async def get_farm(
     farm_id: UUID,
-    farm_service: Annotated[FarmService, Depends(get_farm_service)],
+    get_by_id_usecase: Annotated[
+        GetFarmByIdUseCase, Depends(get_get_farm_by_id_usecase)
+    ],
     current_user: Annotated[User, Depends(get_current_active_user)],
 ) -> FarmResponse:
-    """
-    Endpoint para obtener una finca por ID.
-
-    Args:
-        farm_id: ID de la finca
-        farm_service: Servicio de fincas (inyectado)
-        current_user: Usuario actual (inyectado)
-
-    Returns:
-        FarmResponse con la finca
-
-    Raises:
-        HTTPException 404: Si la finca no existe
-    """
-    try:
-        return await farm_service.get_farm_by_id(farm_id)
-    except NotFoundException as e:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+    """Obtiene una finca por ID."""
+    farm = await get_by_id_usecase.execute(farm_id)
+    return FarmMapper.to_response(farm)
 
 
 @router.put(
@@ -181,34 +149,17 @@ async def get_farm(
     **Permisos**: Requiere autenticación
     """,
 )
+@handle_domain_exceptions
 async def update_farm(
     farm_id: UUID,
     request: FarmUpdateRequest,
-    farm_service: Annotated[FarmService, Depends(get_farm_service)],
+    update_usecase: Annotated[UpdateFarmUseCase, Depends(get_update_farm_usecase)],
     current_user: Annotated[User, Depends(get_current_active_user)],
 ) -> FarmResponse:
-    """
-    Endpoint para actualizar una finca.
-
-    Args:
-        farm_id: ID de la finca
-        request: Datos a actualizar
-        farm_service: Servicio de fincas (inyectado)
-        current_user: Usuario actual (inyectado)
-
-    Returns:
-        FarmResponse con la finca actualizada
-
-    Raises:
-        HTTPException 404: Si la finca no existe
-        HTTPException 400: Si el nombre ya existe o capacidad inválida
-    """
-    try:
-        return await farm_service.update_farm(farm_id, request)
-    except NotFoundException as e:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
-    except (AlreadyExistsException, ValueError) as e:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+    """Actualiza una finca."""
+    params = FarmMapper.update_request_to_params(request)
+    farm = await update_usecase.execute(farm_id=farm_id, **params)
+    return FarmMapper.to_response(farm)
 
 
 @router.delete(
@@ -224,26 +175,11 @@ async def update_farm(
     **Permisos**: Requiere autenticación
     """,
 )
+@handle_domain_exceptions
 async def delete_farm(
     farm_id: UUID,
-    farm_service: Annotated[FarmService, Depends(get_farm_service)],
+    delete_usecase: Annotated[DeleteFarmUseCase, Depends(get_delete_farm_usecase)],
     current_user: Annotated[User, Depends(get_current_active_user)],
 ) -> None:
-    """
-    Endpoint para eliminar una finca.
-
-    Args:
-        farm_id: ID de la finca
-        farm_service: Servicio de fincas (inyectado)
-        current_user: Usuario actual (inyectado)
-
-    Raises:
-        HTTPException 404: Si la finca no existe
-        HTTPException 400: Si la finca tiene animales registrados
-    """
-    try:
-        await farm_service.delete_farm(farm_id)
-    except NotFoundException as e:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
-    except ValueError as e:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+    """Elimina una finca."""
+    await delete_usecase.execute(farm_id)

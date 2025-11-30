@@ -6,18 +6,33 @@ Endpoints REST para gestión de usuarios
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, Query, status
 
-from ...core.exceptions import AlreadyExistsException, NotFoundException
+from ...core.dependencies import (
+    get_create_user_usecase,
+    get_current_active_user,
+    get_delete_user_usecase,
+    get_get_all_users_usecase,
+    get_get_user_by_id_usecase,
+    get_update_user_usecase,
+)
 from ...domain.entities.user import User
+from ...domain.usecases.users import (
+    CreateUserUseCase,
+    DeleteUserUseCase,
+    GetAllUsersUseCase,
+    GetUserByIdUseCase,
+    UpdateUserUseCase,
+)
 from ...schemas.user_schemas import (
     UserCreateRequest,
     UserResponse,
     UsersListResponse,
     UserUpdateRequest,
 )
-from ...services import UserService
-from ..dependencies import get_current_active_user
+from ...services import AuthService
+from ..mappers import UserMapper
+from ..utils import handle_domain_exceptions
 
 # Router con prefijo /user
 router = APIRouter(
@@ -31,12 +46,6 @@ router = APIRouter(
         500: {"description": "Error interno del servidor"},
     },
 )
-
-
-# Dependency injection del servicio
-def get_user_service() -> UserService:
-    """Dependency para inyectar UserService."""
-    return UserService()
 
 
 @router.post(
@@ -56,32 +65,22 @@ def get_user_service() -> UserService:
     **Permisos**: Requiere autenticación
     """,
 )
+@handle_domain_exceptions
 async def create_user(
     request: UserCreateRequest,
-    user_service: Annotated[UserService, Depends(get_user_service)],
+    create_usecase: Annotated[CreateUserUseCase, Depends(get_create_user_usecase)],
     current_user: Annotated[User, Depends(get_current_active_user)],
 ) -> UserResponse:
-    """
-    Endpoint para crear un usuario.
+    """Crea un nuevo usuario."""
+    # Hash de contraseña
+    hashed_password = AuthService.get_password_hash(request.password)
 
-    Args:
-        request: Datos del usuario a crear
-        user_service: Servicio de usuarios (inyectado)
-        current_user: Usuario actual (inyectado)
+    # Convertir request a parámetros y ejecutar use case
+    params = UserMapper.create_request_to_params(request, hashed_password)
+    user = await create_usecase.execute(**params)
 
-    Returns:
-        UserResponse con el usuario creado
-
-    Raises:
-        HTTPException 400: Si el usuario o email ya existe
-        HTTPException 404: Si el rol no existe
-    """
-    try:
-        return await user_service.create_user(request)
-    except AlreadyExistsException as e:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
-    except NotFoundException as e:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+    # Convertir entity a response
+    return UserMapper.to_response(user)
 
 
 @router.get(
@@ -95,29 +94,22 @@ async def create_user(
     **Permisos**: Requiere autenticación
     """,
 )
+@handle_domain_exceptions
 async def get_all_users(
     current_user: Annotated[User, Depends(get_current_active_user)],
-    user_service: Annotated[UserService, Depends(get_user_service)],
+    get_all_usecase: Annotated[GetAllUsersUseCase, Depends(get_get_all_users_usecase)],
     skip: int = Query(0, ge=0, description="Número de registros a saltar"),
     limit: int = Query(50, ge=1, le=100, description="Número máximo de registros"),
 ) -> UsersListResponse:
-    """
-    Endpoint para listar usuarios.
-
-    Args:
-        skip: Número de registros a saltar
-        limit: Número máximo de registros
-        user_service: Servicio de usuarios (inyectado)
-        current_user: Usuario actual (inyectado)
-
-    Returns:
-        UsersListResponse con lista de usuarios
-    """
-    users = await user_service.get_all_users(skip=skip, limit=limit)
+    """Lista usuarios con paginación."""
+    users = await get_all_usecase.execute(skip=skip, limit=limit)
     # TODO: Agregar método count() al repositorio para obtener total
-    total = len(users)  # Por ahora usar longitud de resultados
+    total = len(users)
     return UsersListResponse(
-        total=total, users=users, page=skip // limit + 1, page_size=limit
+        total=total,
+        users=[UserMapper.to_response(user) for user in users],
+        page=skip // limit + 1,
+        page_size=limit,
     )
 
 
@@ -132,29 +124,17 @@ async def get_all_users(
     **Permisos**: Requiere autenticación
     """,
 )
+@handle_domain_exceptions
 async def get_user(
     user_id: UUID,
-    user_service: Annotated[UserService, Depends(get_user_service)],
+    get_by_id_usecase: Annotated[
+        GetUserByIdUseCase, Depends(get_get_user_by_id_usecase)
+    ],
     current_user: Annotated[User, Depends(get_current_active_user)],
 ) -> UserResponse:
-    """
-    Endpoint para obtener un usuario por ID.
-
-    Args:
-        user_id: ID del usuario
-        user_service: Servicio de usuarios (inyectado)
-        current_user: Usuario actual (inyectado)
-
-    Returns:
-        UserResponse con el usuario
-
-    Raises:
-        HTTPException 404: Si el usuario no existe
-    """
-    try:
-        return await user_service.get_user_by_id(user_id)
-    except NotFoundException as e:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+    """Obtiene un usuario por ID."""
+    user = await get_by_id_usecase.execute(user_id)
+    return UserMapper.to_response(user)
 
 
 @router.put(
@@ -168,34 +148,25 @@ async def get_user(
     **Permisos**: Requiere autenticación
     """,
 )
+@handle_domain_exceptions
 async def update_user(
     user_id: UUID,
     request: UserUpdateRequest,
-    user_service: Annotated[UserService, Depends(get_user_service)],
+    update_usecase: Annotated[UpdateUserUseCase, Depends(get_update_user_usecase)],
     current_user: Annotated[User, Depends(get_current_active_user)],
 ) -> UserResponse:
-    """
-    Endpoint para actualizar un usuario.
+    """Actualiza un usuario."""
+    # Hash de contraseña si se proporciona
+    hashed_password = None
+    if request.password is not None:
+        hashed_password = AuthService.get_password_hash(request.password)
 
-    Args:
-        user_id: ID del usuario
-        request: Datos a actualizar
-        user_service: Servicio de usuarios (inyectado)
-        current_user: Usuario actual (inyectado)
+    # Convertir request a parámetros y ejecutar use case
+    params = UserMapper.update_request_to_params(request, hashed_password)
+    user = await update_usecase.execute(user_id=user_id, **params)
 
-    Returns:
-        UserResponse con el usuario actualizado
-
-    Raises:
-        HTTPException 404: Si el usuario no existe
-        HTTPException 400: Si el email ya existe
-    """
-    try:
-        return await user_service.update_user(user_id, request)
-    except NotFoundException as e:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
-    except AlreadyExistsException as e:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+    # Convertir entity a response
+    return UserMapper.to_response(user)
 
 
 @router.delete(
@@ -208,23 +179,11 @@ async def update_user(
     **Permisos**: Requiere autenticación
     """,
 )
+@handle_domain_exceptions
 async def delete_user(
     user_id: UUID,
-    user_service: Annotated[UserService, Depends(get_user_service)],
+    delete_usecase: Annotated[DeleteUserUseCase, Depends(get_delete_user_usecase)],
     current_user: Annotated[User, Depends(get_current_active_user)],
 ) -> None:
-    """
-    Endpoint para eliminar un usuario.
-
-    Args:
-        user_id: ID del usuario
-        user_service: Servicio de usuarios (inyectado)
-        current_user: Usuario actual (inyectado)
-
-    Raises:
-        HTTPException 404: Si el usuario no existe
-    """
-    try:
-        await user_service.delete_user(user_id)
-    except NotFoundException as e:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+    """Elimina un usuario."""
+    await delete_usecase.execute(user_id)

@@ -6,18 +6,32 @@ Endpoints REST para gestión de roles
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, Query, status
 
-from ...core.exceptions import AlreadyExistsException, NotFoundException
+from ...core.dependencies import (
+    get_create_role_usecase,
+    get_current_active_user,
+    get_delete_role_usecase,
+    get_get_all_roles_usecase,
+    get_get_role_by_id_usecase,
+    get_update_role_usecase,
+)
 from ...domain.entities.user import User
+from ...domain.usecases.roles import (
+    CreateRoleUseCase,
+    DeleteRoleUseCase,
+    GetAllRolesUseCase,
+    GetRoleByIdUseCase,
+    UpdateRoleUseCase,
+)
 from ...schemas.role_schemas import (
     RoleCreateRequest,
     RoleResponse,
     RolesListResponse,
     RoleUpdateRequest,
 )
-from ...services import RoleService
-from ..dependencies import get_current_active_user
+from ..mappers import RoleMapper
+from ..utils import handle_domain_exceptions
 
 # Router con prefijo /role
 router = APIRouter(
@@ -31,12 +45,6 @@ router = APIRouter(
         500: {"description": "Error interno del servidor"},
     },
 )
-
-
-# Dependency injection del servicio
-def get_role_service() -> RoleService:
-    """Dependency para inyectar RoleService."""
-    return RoleService()
 
 
 @router.post(
@@ -54,29 +62,16 @@ def get_role_service() -> RoleService:
     **Permisos**: Requiere autenticación
     """,
 )
+@handle_domain_exceptions
 async def create_role(
     request: RoleCreateRequest,
-    role_service: Annotated[RoleService, Depends(get_role_service)],
+    create_usecase: Annotated[CreateRoleUseCase, Depends(get_create_role_usecase)],
     current_user: Annotated[User, Depends(get_current_active_user)],
 ) -> RoleResponse:
-    """
-    Endpoint para crear un rol.
-
-    Args:
-        request: Datos del rol a crear
-        role_service: Servicio de roles (inyectado)
-        current_user: Usuario actual (inyectado)
-
-    Returns:
-        RoleResponse con el rol creado
-
-    Raises:
-        HTTPException 400: Si el nombre del rol ya existe
-    """
-    try:
-        return await role_service.create_role(request)
-    except AlreadyExistsException as e:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+    """Crea un nuevo rol."""
+    params = RoleMapper.create_request_to_params(request)
+    role = await create_usecase.execute(**params)
+    return RoleMapper.to_response(role)
 
 
 @router.get(
@@ -90,29 +85,22 @@ async def create_role(
     **Permisos**: Requiere autenticación
     """,
 )
+@handle_domain_exceptions
 async def get_all_roles(
     current_user: Annotated[User, Depends(get_current_active_user)],
-    role_service: Annotated[RoleService, Depends(get_role_service)],
+    get_all_usecase: Annotated[GetAllRolesUseCase, Depends(get_get_all_roles_usecase)],
     skip: int = Query(0, ge=0, description="Número de registros a saltar"),
     limit: int = Query(50, ge=1, le=100, description="Número máximo de registros"),
 ) -> RolesListResponse:
-    """
-    Endpoint para listar roles.
-
-    Args:
-        skip: Número de registros a saltar
-        limit: Número máximo de registros
-        role_service: Servicio de roles (inyectado)
-        current_user: Usuario actual (inyectado)
-
-    Returns:
-        RolesListResponse con lista de roles
-    """
-    roles = await role_service.get_all_roles(skip=skip, limit=limit)
+    """Lista roles con paginación."""
+    roles = await get_all_usecase.execute(skip=skip, limit=limit)
     # TODO: Agregar método count() al repositorio para obtener total
-    total = len(roles)  # Por ahora usar longitud de resultados
+    total = len(roles)
     return RolesListResponse(
-        total=total, roles=roles, page=skip // limit + 1, page_size=limit
+        total=total,
+        roles=[RoleMapper.to_response(role) for role in roles],
+        page=skip // limit + 1,
+        page_size=limit,
     )
 
 
@@ -127,29 +115,17 @@ async def get_all_roles(
     **Permisos**: Requiere autenticación
     """,
 )
+@handle_domain_exceptions
 async def get_role(
     role_id: UUID,
-    role_service: Annotated[RoleService, Depends(get_role_service)],
+    get_by_id_usecase: Annotated[
+        GetRoleByIdUseCase, Depends(get_get_role_by_id_usecase)
+    ],
     current_user: Annotated[User, Depends(get_current_active_user)],
 ) -> RoleResponse:
-    """
-    Endpoint para obtener un rol por ID.
-
-    Args:
-        role_id: ID del rol
-        role_service: Servicio de roles (inyectado)
-        current_user: Usuario actual (inyectado)
-
-    Returns:
-        RoleResponse con el rol
-
-    Raises:
-        HTTPException 404: Si el rol no existe
-    """
-    try:
-        return await role_service.get_role_by_id(role_id)
-    except NotFoundException as e:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+    """Obtiene un rol por ID."""
+    role = await get_by_id_usecase.execute(role_id)
+    return RoleMapper.to_response(role)
 
 
 @router.put(
@@ -163,34 +139,17 @@ async def get_role(
     **Permisos**: Requiere autenticación
     """,
 )
+@handle_domain_exceptions
 async def update_role(
     role_id: UUID,
     request: RoleUpdateRequest,
-    role_service: Annotated[RoleService, Depends(get_role_service)],
+    update_usecase: Annotated[UpdateRoleUseCase, Depends(get_update_role_usecase)],
     current_user: Annotated[User, Depends(get_current_active_user)],
 ) -> RoleResponse:
-    """
-    Endpoint para actualizar un rol.
-
-    Args:
-        role_id: ID del rol
-        request: Datos a actualizar
-        role_service: Servicio de roles (inyectado)
-        current_user: Usuario actual (inyectado)
-
-    Returns:
-        RoleResponse con el rol actualizado
-
-    Raises:
-        HTTPException 404: Si el rol no existe
-        HTTPException 400: Si el nombre ya existe
-    """
-    try:
-        return await role_service.update_role(role_id, request)
-    except NotFoundException as e:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
-    except AlreadyExistsException as e:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+    """Actualiza un rol."""
+    params = RoleMapper.update_request_to_params(request)
+    role = await update_usecase.execute(role_id=role_id, **params)
+    return RoleMapper.to_response(role)
 
 
 @router.delete(
@@ -203,23 +162,11 @@ async def update_role(
     **Permisos**: Requiere autenticación
     """,
 )
+@handle_domain_exceptions
 async def delete_role(
     role_id: UUID,
-    role_service: Annotated[RoleService, Depends(get_role_service)],
+    delete_usecase: Annotated[DeleteRoleUseCase, Depends(get_delete_role_usecase)],
     current_user: Annotated[User, Depends(get_current_active_user)],
 ) -> None:
-    """
-    Endpoint para eliminar un rol.
-
-    Args:
-        role_id: ID del rol
-        role_service: Servicio de roles (inyectado)
-        current_user: Usuario actual (inyectado)
-
-    Raises:
-        HTTPException 404: Si el rol no existe
-    """
-    try:
-        await role_service.delete_role(role_id)
-    except NotFoundException as e:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+    """Elimina un rol."""
+    await delete_usecase.execute(role_id)
