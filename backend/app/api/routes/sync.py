@@ -65,10 +65,10 @@ router = APIRouter(
 )
 @handle_domain_exceptions
 async def sync_cattle_batch(
-    request: CattleSyncBatchRequest,
     sync_usecase: Annotated[
         SyncCattleBatchUseCase, Depends(get_sync_cattle_batch_usecase)
-    ] = Depends(get_sync_cattle_batch_usecase),
+    ],
+    request: CattleSyncBatchRequest,
 ) -> CattleSyncBatchResponse:
     """
     Endpoint para sincronizar batch de ganado.
@@ -126,11 +126,11 @@ async def sync_cattle_batch(
 )
 @handle_domain_exceptions
 async def sync_weight_estimations_batch(
-    request: WeightEstimationSyncBatchRequest,
     sync_usecase: Annotated[
         SyncWeightEstimationsBatchUseCase,
         Depends(get_sync_weight_estimations_batch_usecase),
-    ] = Depends(get_sync_weight_estimations_batch_usecase),
+    ],
+    request: WeightEstimationSyncBatchRequest,
 ) -> WeightEstimationSyncBatchResponse:
     """
     Endpoint para sincronizar batch de estimaciones de peso.
@@ -182,9 +182,7 @@ async def sync_weight_estimations_batch(
 )
 @handle_domain_exceptions
 async def sync_health_check(
-    health_usecase: Annotated[
-        GetSyncHealthUseCase, Depends(get_sync_health_usecase)
-    ] = Depends(get_sync_health_usecase),
+    health_usecase: Annotated[GetSyncHealthUseCase, Depends(get_sync_health_usecase)],
 ) -> HealthCheckResponse:
     """
     Health check del servicio de sincronización.
