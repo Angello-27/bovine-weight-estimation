@@ -79,21 +79,48 @@ def create_directories():
     print("✅ Directorios creados\n")
 
 
-def check_ml_models():
-    """Verifica modelos ML."""
+def check_ml_models(download_if_missing: bool = False):
+    """
+    Verifica modelos ML.
+
+    Args:
+        download_if_missing: Si True, intenta descargar el modelo si no existe
+    """
     print("🤖 Verificando modelos ML...")
 
     models_path = Path(settings.ML_MODELS_PATH)
     default_model = models_path / settings.ML_DEFAULT_MODEL
 
     if default_model.exists():
-        file_size = default_model.stat().st_size / (1024 * 1024)  # MB
+        file_size_mb = float(default_model.stat().st_size) / (1024 * 1024)  # MB
         print(f"   ✅ Modelo encontrado: {settings.ML_DEFAULT_MODEL}")
-        print(f"      Tamaño: {file_size:.2f} MB")
+        print(f"      Tamaño: {file_size_mb:.2f} MB")
     else:
         print(f"   ⚠️  Modelo no encontrado: {default_model}")
-        print("      Descarga el modelo desde Colab/Drive")
-        print("      Ver guía: backend/INTEGRATION_GUIDE.md")
+
+        if download_if_missing:
+            print("   📥 Intentando descargar modelo desde Google Drive...")
+            try:
+                from scripts.download_model_from_drive import download_model_from_drive
+
+                download_model_from_drive()
+                if default_model.exists():
+                    file_size_mb = float(default_model.stat().st_size) / (1024 * 1024)
+                    print(f"   ✅ Modelo descargado: {file_size_mb:.2f} MB")
+                else:
+                    print("   ❌ No se pudo descargar el modelo automáticamente")
+                    print(
+                        "      Ejecuta manualmente: python scripts/download_model_from_drive.py"
+                    )
+            except Exception as e:
+                print(f"   ❌ Error al descargar: {e}")
+                print(
+                    "      Ejecuta manualmente: python scripts/download_model_from_drive.py"
+                )
+        else:
+            print("      Descarga el modelo desde Colab/Drive")
+            print("      Ejecuta: python scripts/download_model_from_drive.py")
+            print("      Ver guía: backend/INTEGRATION_GUIDE.md")
 
     print()
 
@@ -134,6 +161,16 @@ def validate_config():
 
 def main():
     """Función principal."""
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Setup de producción para el backend")
+    parser.add_argument(
+        "--download-model",
+        action="store_true",
+        help="Descargar modelo TFLite automáticamente si no existe",
+    )
+    args = parser.parse_args()
+
     print("=" * 70)
     print("🚀 Setup de Producción - Backend FastAPI")
     print("=" * 70)
@@ -146,8 +183,8 @@ def main():
     # Crear directorios
     create_directories()
 
-    # Verificar modelos ML
-    check_ml_models()
+    # Verificar modelos ML (con opción de descarga automática)
+    check_ml_models(download_if_missing=args.download_model)
 
     # Validar configuración
     validate_config()
@@ -157,7 +194,12 @@ def main():
     print()
     print("📝 Próximos pasos:")
     print("   1. Configurar variables de entorno (.env)")
-    print("   2. Descargar modelo TFLite desde Colab/Drive")
+    if not (Path(settings.ML_MODELS_PATH) / settings.ML_DEFAULT_MODEL).exists():
+        print("   2. Descargar modelo TFLite:")
+        print("      python scripts/download_model_from_drive.py")
+        print(
+            "      O ejecutar setup con: python scripts/setup_production.py --download-model"
+        )
     print("   3. Ejecutar: python -m app.main")
     print("=" * 70)
 

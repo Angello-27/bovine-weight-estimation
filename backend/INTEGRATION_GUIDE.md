@@ -407,7 +407,139 @@ Cuando entrenes un nuevo modelo en Colab:
 
 ---
 
-## 📊 Paso 7: Monitoreo y Logs
+## 📊 Paso 7: Despliegue en Servidor (Producción)
+
+### ❌ NO subir el modelo al repositorio
+
+**Razones**:
+- El modelo es grande (~13-14 MB) y aumentaría innecesariamente el tamaño del repo
+- Google Drive es la fuente única de verdad para modelos
+- Facilita actualizar modelos sin hacer commits grandes
+- Ya está configurado en `.gitignore` ✅
+
+### ✅ Descargar el modelo en el servidor
+
+**Estrategia recomendada**: Descargar el modelo durante el proceso de despliegue usando el script.
+
+#### Opción A: Script de Setup Automático (Recomendado) ✅
+
+El script `setup_production.py` puede descargar el modelo automáticamente:
+
+```bash
+# En el servidor, durante el despliegue:
+cd /opt/bovine-weight-estimation/backend
+
+# 1. Clonar/pull código (sin modelo)
+git pull origin main
+
+# 2. Instalar dependencias
+pip install -r requirements.txt
+
+# 3. Setup con descarga automática del modelo
+python scripts/setup_production.py --download-model
+
+# O descargar modelo manualmente
+python scripts/download_model_from_drive.py
+
+# 4. Iniciar backend
+python -m app.main
+# O si usas Docker: docker-compose up -d
+```
+
+#### Opción B: Dockerfile con descarga automática
+
+Si usas Docker, puedes agregar al `Dockerfile`:
+
+```dockerfile
+# Dockerfile (ejemplo)
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# Copiar código
+COPY . .
+
+# Instalar dependencias
+RUN pip install -r requirements.txt
+
+# Descargar modelo TFLite durante build
+RUN python scripts/download_model_from_drive.py
+
+# ... resto del Dockerfile
+```
+
+**Nota**: Este método descarga el modelo cada vez que se construye la imagen. Puede ser lento pero asegura que siempre tenga la versión correcta.
+
+#### Opción C: Script de despliegue separado
+
+Crear `scripts/deploy.sh`:
+
+```bash
+#!/bin/bash
+# scripts/deploy.sh
+
+set -e
+
+echo "🚀 Iniciando despliegue..."
+
+cd "$(dirname "$0")/.."
+
+# 1. Actualizar código
+git pull origin main
+
+# 2. Instalar/actualizar dependencias
+pip install -r requirements.txt
+
+# 3. Descargar modelo si no existe o está desactualizado
+if [ ! -f "ml_models/generic-cattle-v1.0.0.tflite" ]; then
+    echo "📥 Descargando modelo TFLite..."
+    python scripts/download_model_from_drive.py
+else
+    echo "✅ Modelo ya existe, omitiendo descarga"
+fi
+
+# 4. Verificar configuración
+python scripts/setup_production.py
+
+# 5. Reiniciar servicio (según tu setup)
+# systemctl restart bovine-backend
+# O: docker-compose restart backend
+
+echo "✅ Despliegue completado"
+```
+
+### Actualizar modelo existente
+
+Si ya tienes un modelo y quieres actualizarlo:
+
+```bash
+# En el servidor
+cd /opt/bovine-weight-estimation/backend
+
+# 1. Eliminar modelo antiguo
+rm ml_models/generic-cattle-v1.0.0.tflite
+
+# 2. Descargar nuevo modelo
+python scripts/download_model_from_drive.py
+
+# 3. Reiniciar backend para cargar nuevo modelo
+# systemctl restart bovine-backend
+# O: docker-compose restart backend
+```
+
+### Checklist de Despliegue
+
+- [ ] Configurar `ML_MODEL_FILE_ID` en `.env` del servidor
+- [ ] Verificar que `gdown` o `requests` esté instalado (`pip install gdown requests`)
+- [ ] Verificar conectividad a Google Drive desde el servidor
+- [ ] Ejecutar script de descarga: `python scripts/download_model_from_drive.py`
+- [ ] Verificar que el modelo existe: `ls -lh ml_models/generic-cattle-v1.0.0.tflite`
+- [ ] Iniciar backend y verificar logs de carga de modelo
+- [ ] Probar endpoint: `curl http://localhost:8000/api/v1/ml/models/status`
+
+---
+
+## 📊 Paso 8: Monitoreo y Logs
 
 El backend ya tiene logging integrado. Verifica:
 
@@ -452,6 +584,8 @@ pip install tensorflow-lite-runtime
 3. **Performance**: `tensorflow-lite-runtime` es ~10x más ligero que TensorFlow completo.
 
 4. **Confidence**: Por ahora se calcula basado en rangos. Mejora futura: que el modelo retorne confidence directamente.
+
+5. **Despliegue**: **NO subir el modelo al repositorio**. Descargarlo en el servidor durante el despliegue usando `scripts/download_model_from_drive.py`.
 
 ---
 

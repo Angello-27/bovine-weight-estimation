@@ -71,11 +71,16 @@ ml-training/src/data/raw/*.png
 ml-training/src/data/processed/*.npy
 ml-training/src/data/augmented/*.jpg
 
-# Models (NO versionar modelos grandes, usar DVC)
+# Models (NO versionar modelos grandes, usar DVC o descargar en servidor)
 ml-training/src/models/**/*.h5
 ml-training/src/models/**/*.keras
 ml-training/src/models/**/*.tflite
 ml-training/src/models/**/*.pb
+
+# Backend ML Models (NO versionar, descargar con script en servidor)
+backend/ml_models/**/*.tflite
+backend/ml_models/**/*.h5
+backend/ml_models/**/*.keras
 
 # Virtual Environment
 ml-training/venv/

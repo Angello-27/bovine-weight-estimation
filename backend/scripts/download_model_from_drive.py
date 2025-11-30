@@ -105,12 +105,12 @@ def download_model_from_drive(
 
             # Verificar que el archivo se descargó correctamente
             if output_file.exists():
-                file_size = output_file.stat().st_size
+                file_size_bytes = output_file.stat().st_size
                 # Si el archivo es muy pequeño (< 1KB), probablemente es un error HTML
-                if file_size < 1024:
+                if file_size_bytes < 1024:
                     output_file.unlink()  # Eliminar archivo pequeño
                     raise Exception(
-                        f"El archivo descargado es muy pequeño ({file_size} bytes). "
+                        f"El archivo descargado es muy pequeño ({file_size_bytes} bytes). "
                         "Verifica que el archivo esté compartido públicamente."
                     )
         except Exception as gdown_error:
@@ -167,9 +167,9 @@ def download_model_from_drive(
             )
 
         if output_file.exists():
-            file_size = output_file.stat().st_size / (1024 * 1024)  # MB
+            file_size_mb = float(output_file.stat().st_size) / (1024 * 1024)  # MB
             print("\n✅ Modelo descargado exitosamente")
-            print(f"   Tamaño: {file_size:.2f} MB")
+            print(f"   Tamaño: {file_size_mb:.2f} MB")
             print(f"   Ubicación: {output_file.absolute()}")
             print("\n💡 El modelo está listo para usar en el backend.")
             print(
@@ -194,9 +194,11 @@ def download_model_from_drive(
                 gdown.download(share_url, str(output_file), quiet=False, fuzzy=True)
 
                 if output_file.exists() and output_file.stat().st_size > 1024:
-                    file_size = output_file.stat().st_size / (1024 * 1024)  # MB
+                    file_size_mb = float(output_file.stat().st_size) / (
+                        1024 * 1024
+                    )  # MB
                     print("\n✅ Modelo descargado exitosamente (método alternativo)")
-                    print(f"   Tamaño: {file_size:.2f} MB")
+                    print(f"   Tamaño: {file_size_mb:.2f} MB")
                     print(f"   Ubicación: {output_file.absolute()}")
                     print("\n💡 El modelo está listo para usar en el backend.")
                     print(
@@ -219,7 +221,7 @@ def download_model_from_drive(
         print("   5. Verifica que tengas conexión a internet estable")
         print("\n📝 Si el problema persiste, puedes descargar manualmente:")
         print(f"   - Abre: https://drive.google.com/file/d/{file_id}/view?usp=sharing")
-        print(f"   - Descarga el archivo")
+        print("   - Descarga el archivo")
         print(f"   - Copia a: {output_file.absolute()}")
         sys.exit(1)
 
