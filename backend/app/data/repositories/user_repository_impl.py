@@ -146,6 +146,62 @@ class UserRepositoryImpl(UserRepository):
         models = await UserModel.find_all().skip(skip).limit(limit).to_list()
         return [self._to_entity(model) for model in models]
 
+    async def find_by_criteria(
+        self,
+        filters: dict,
+        skip: int = 0,
+        limit: int = 50,
+    ) -> list[User]:
+        """
+        Busca usuarios por criterios de filtrado.
+
+        Args:
+            filters: Diccionario con criterios de filtrado (ej: {"role_id": UUID, "is_active": bool})
+            skip: Offset para paginación
+            limit: Límite de resultados
+
+        Returns:
+            Lista de User que coinciden con los criterios
+        """
+        # Construir filtros para Beanie
+        beanie_filters = {}
+        for key, value in filters.items():
+            if value is not None and hasattr(UserModel, key):
+                beanie_filters[key] = value
+
+        # Si no hay filtros, usar find_all(), de lo contrario usar find()
+        if not beanie_filters:
+            query = UserModel.find_all()
+        else:
+            query = UserModel.find(beanie_filters)
+
+        models = await query.skip(skip).limit(limit).to_list()
+        return [self._to_entity(model) for model in models]
+
+    async def count_by_criteria(self, filters: dict) -> int:
+        """
+        Cuenta usuarios que coinciden con criterios de filtrado.
+
+        Args:
+            filters: Diccionario con criterios de filtrado
+
+        Returns:
+            Número total de usuarios que coinciden con los criterios
+        """
+        # Construir filtros para Beanie
+        beanie_filters = {}
+        for key, value in filters.items():
+            if value is not None and hasattr(UserModel, key):
+                beanie_filters[key] = value
+
+        # Si no hay filtros, contar todos, de lo contrario contar con filtros
+        if not beanie_filters:
+            count = await UserModel.find_all().count()
+        else:
+            count = await UserModel.find(beanie_filters).count()
+
+        return count
+
     async def delete(self, user_id: UUID) -> bool:
         """
         Elimina un usuario.

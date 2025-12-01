@@ -61,7 +61,6 @@ class FarmRepository(ABC):
         self,
         skip: int = 0,
         limit: int = 50,
-        owner_id: UUID | None = None,
     ) -> list[Farm]:
         """
         Obtiene todas las fincas con paginación.
@@ -69,10 +68,42 @@ class FarmRepository(ABC):
         Args:
             skip: Offset para paginación
             limit: Límite de resultados
-            owner_id: Filtrar por propietario (opcional)
 
         Returns:
             Lista de Farm
+        """
+        pass
+
+    @abstractmethod
+    async def find_by_criteria(
+        self,
+        filters: dict,
+        skip: int = 0,
+        limit: int = 50,
+    ) -> list[Farm]:
+        """
+        Busca fincas por criterios de filtrado.
+
+        Args:
+            filters: Diccionario con criterios de filtrado (ej: {"owner_id": UUID})
+            skip: Offset para paginación
+            limit: Límite de resultados
+
+        Returns:
+            Lista de Farm que coinciden con los criterios
+        """
+        pass
+
+    @abstractmethod
+    async def count_by_criteria(self, filters: dict) -> int:
+        """
+        Cuenta fincas que coinciden con criterios de filtrado.
+
+        Args:
+            filters: Diccionario con criterios de filtrado
+
+        Returns:
+            Número total de fincas que coinciden con los criterios
         """
         pass
 

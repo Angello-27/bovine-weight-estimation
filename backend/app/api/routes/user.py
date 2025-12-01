@@ -3,10 +3,10 @@ User Routes - API Endpoints
 Endpoints REST para gestión de usuarios
 """
 
-from typing import Annotated
+from typing import Annotated, Any
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 
 from ...core.dependencies import (
     get_create_user_usecase,
@@ -14,6 +14,7 @@ from ...core.dependencies import (
     get_delete_user_usecase,
     get_get_all_users_usecase,
     get_get_user_by_id_usecase,
+    get_get_users_by_criteria_usecase,
     get_update_user_usecase,
 )
 from ...core.utils.password import get_password_hash
@@ -23,6 +24,7 @@ from ...domain.usecases.users import (
     DeleteUserUseCase,
     GetAllUsersUseCase,
     GetUserByIdUseCase,
+    GetUsersByCriteriaUseCase,
     UpdateUserUseCase,
 )
 from ...schemas.user_schemas import (
@@ -105,6 +107,54 @@ async def get_all_users(
     users = await get_all_usecase.execute(skip=skip, limit=limit)
     # TODO: Agregar método count() al repositorio para obtener total
     total = len(users)
+    return UsersListResponse(
+        total=total,
+        users=[UserMapper.to_response(user) for user in users],
+        page=skip // limit + 1,
+        page_size=limit,
+    )
+
+
+@router.get(
+    "/by-criteria",
+    response_model=UsersListResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Buscar usuarios por criterios",
+    description="""
+    Busca usuarios aplicando filtros específicos.
+
+    **Filtros disponibles**:
+    - `role_id` (UUID, opcional): Filtrar por ID de rol
+    - `is_active` (bool, opcional): Filtrar por estado activo/inactivo
+    - `farm_id` (UUID, opcional): Filtrar por ID de finca asignada
+
+    **Permisos**: Requiere autenticación
+    """,
+)
+@handle_domain_exceptions
+async def get_users_by_criteria(
+    current_user: Annotated[User, Depends(get_current_active_user)],
+    get_by_criteria_usecase: Annotated[
+        GetUsersByCriteriaUseCase, Depends(get_get_users_by_criteria_usecase)
+    ],
+    skip: int = Query(0, ge=0, description="Número de registros a saltar"),
+    limit: int = Query(50, ge=1, le=100, description="Número máximo de registros"),
+    role_id: UUID | None = Query(None, description="Filtrar por ID de rol"),
+    is_active: bool | None = Query(None, description="Filtrar por estado activo"),
+    farm_id: UUID | None = Query(None, description="Filtrar por ID de finca"),
+) -> UsersListResponse:
+    """Busca usuarios por criterios de filtrado."""
+    filters: dict[str, Any] = {}
+    if role_id is not None:
+        filters["role_id"] = role_id
+    if is_active is not None:
+        filters["is_active"] = is_active
+    if farm_id is not None:
+        filters["farm_id"] = farm_id
+
+    users, total = await get_by_criteria_usecase.execute(
+        filters=filters, skip=skip, limit=limit
+    )
     return UsersListResponse(
         total=total,
         users=[UserMapper.to_response(user) for user in users],

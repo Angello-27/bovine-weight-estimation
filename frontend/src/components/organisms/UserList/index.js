@@ -1,12 +1,16 @@
 // frontend/src/components/organisms/UserList/index.js
 
 import DataTable from '../../molecules/DataTable';
-import ActionButton from '../../molecules/ActionButton';
+import CustomIconButton from '../../atoms/IconButton';
+import LinkButton from '../../atoms/LinkButton';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import Chip from '@mui/material/Chip';
+import Box from '@mui/material/Box';
+import { useNavigate } from 'react-router-dom';
 
-function UserList({ items, roles, farms, onEditClick, onDeleteClick }) {
+function UserList({ items, roles, farms, onEditClick, onDeleteClick, pagination, onPageChange, onPageSizeChange }) {
+    const navigate = useNavigate();
     const getRoleName = (roleId) => {
         if (!roles || !roleId) return '-';
         const role = roles.find(r => r.id === roleId);
@@ -19,8 +23,29 @@ function UserList({ items, roles, farms, onEditClick, onDeleteClick }) {
         return farm ? farm.name : '-';
     };
 
+    const getUserDisplayName = (user) => {
+        if (user.first_name && user.last_name) {
+            return `${user.first_name} ${user.last_name}`;
+        }
+        return user.first_name || user.last_name || user.username || '-';
+    };
+
     const columns = [
-        { label: 'Usuario', field: 'username' },
+        { 
+            label: 'Usuario', 
+            field: 'username',
+            render: (value, row) => (
+                <LinkButton
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        navigate(`/users/${row.id}`);
+                    }}
+                >
+                    {value || '-'}
+                </LinkButton>
+            )
+        },
+        { label: 'Nombre', field: 'first_name', render: (value, row) => getUserDisplayName(row) },
         { label: 'Email', field: 'email' },
         {
             label: 'Rol',
@@ -47,33 +72,43 @@ function UserList({ items, roles, farms, onEditClick, onDeleteClick }) {
             )
         },
         {
+            label: 'Estado',
+            field: 'is_active',
+            render: (value) => (
+                <Chip
+                    label={value ? 'Activo' : 'Inactivo'}
+                    size="small"
+                    color={value ? 'success' : 'default'}
+                    variant="outlined"
+                />
+            )
+        },
+        {
             label: 'Acciones',
             field: 'id',
             render: (value, row) => (
-                <>
-                    <ActionButton
+                <Box sx={{ display: 'flex', gap: 0.5 }}>
+                    <CustomIconButton
                         icon={<EditIcon />}
-                        label="Editar"
+                        tooltip="Editar usuario"
+                        color="primary"
+                        size="small"
                         onClick={(e) => {
                             e.stopPropagation();
                             onEditClick && onEditClick(value, row);
                         }}
-                        variant="outlined"
-                        size="small"
-                        sx={{ mr: 1 }}
                     />
-                    <ActionButton
+                    <CustomIconButton
                         icon={<DeleteIcon />}
-                        label="Eliminar"
+                        tooltip="Eliminar usuario"
+                        color="error"
+                        size="small"
                         onClick={(e) => {
                             e.stopPropagation();
                             onDeleteClick && onDeleteClick(value, row);
                         }}
-                        variant="outlined"
-                        color="error"
-                        size="small"
                     />
-                </>
+                </Box>
             ),
         },
     ];
@@ -81,8 +116,11 @@ function UserList({ items, roles, farms, onEditClick, onDeleteClick }) {
     return (
         <DataTable
             columns={columns}
-            rows={items}
+            rows={items || []}
             emptyMessage="No hay usuarios registrados."
+            pagination={pagination}
+            onPageChange={onPageChange}
+            onPageSizeChange={onPageSizeChange}
         />
     );
 }

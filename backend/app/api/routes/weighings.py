@@ -11,6 +11,7 @@ from fastapi import APIRouter, Depends, Query, status
 from ...core.dependencies.weight_estimations import (
     get_all_weight_estimations_usecase,
     get_create_weight_estimation_usecase,
+    get_get_weight_estimations_by_criteria_usecase,
     get_weight_estimation_by_id_usecase,
     get_weight_estimations_by_animal_id_usecase,
 )
@@ -19,6 +20,7 @@ from ...domain.usecases.weight_estimations import (
     GetAllWeightEstimationsUseCase,
     GetWeightEstimationByIdUseCase,
     GetWeightEstimationsByAnimalIdUseCase,
+    GetWeightEstimationsByCriteriaUseCase,
 )
 from ...schemas.weighing_schemas import (
     WeighingCreateRequest,
@@ -122,6 +124,56 @@ async def get_animal_weighings(
 
     return WeighingsListResponse(
         total=len(weighings),
+        weighings=weighings,
+        page=page,
+        page_size=page_size,
+    )
+
+
+@router.get(
+    "/by-criteria",
+    response_model=WeighingsListResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Buscar estimaciones por criterios",
+    description="""
+    Busca estimaciones de peso aplicando filtros específicos.
+
+    **Filtros disponibles**:
+    - `animal_id` (UUID, opcional): Filtrar por animal
+    - `breed` (string, opcional): Filtrar por raza
+
+    **Permisos**: Requiere autenticación
+    """,
+)
+@handle_domain_exceptions
+async def get_weighings_by_criteria(
+    get_by_criteria_usecase: Annotated[
+        GetWeightEstimationsByCriteriaUseCase,
+        Depends(get_get_weight_estimations_by_criteria_usecase),
+    ],
+    animal_id: UUID | None = Query(None, description="Filtrar por animal"),
+    breed: str | None = Query(None, description="Filtrar por raza"),
+    page: int = Query(1, ge=1, description="Número de página"),
+    page_size: int = Query(50, ge=1, le=100, description="Tamaño de página"),
+) -> WeighingsListResponse:
+    """Busca estimaciones por criterios de filtrado."""
+    from typing import Any
+
+    skip = calculate_skip(page=page, page_size=page_size)
+    filters: dict[str, Any] = {}
+    if animal_id is not None:
+        filters["animal_id"] = animal_id
+    if breed is not None:
+        filters["breed"] = breed
+
+    estimations, total = await get_by_criteria_usecase.execute(
+        filters=filters, skip=skip, limit=page_size
+    )
+
+    weighings = [WeightEstimationMapper.to_response(e) for e in estimations]
+
+    return WeighingsListResponse(
+        total=total,
         weighings=weighings,
         page=page,
         page_size=page_size,

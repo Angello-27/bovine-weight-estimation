@@ -23,6 +23,7 @@ import BarChartIcon from '@mui/icons-material/BarChart';
 import PersonIcon from '@mui/icons-material/Person';
 import PlaceIcon from '@mui/icons-material/Place';
 import Divider from '@mui/material/Divider';
+import LinkButton from '../../components/atoms/LinkButton';
 
 function FarmDetailTemplate({ farm, stats, loading, error, farmId }) {
     const navigate = useNavigate();
@@ -76,15 +77,23 @@ function FarmDetailTemplate({ farm, stats, loading, error, farmId }) {
                                             
                                             {farm.owner_id && (
                                                 <Grid item xs={12} sm={6}>
-                                                    <InfoField
-                                                        label="Propietario"
-                                                        value={
-                                                            farm.owner?.first_name && farm.owner?.last_name
+                                                    <Box>
+                                                        <CustomTypography variant="body2" sx={{ mb: 1, fontWeight: 500, display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                                                            <PersonIcon fontSize="small" />
+                                                            Propietario
+                                                        </CustomTypography>
+                                                        <LinkButton
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                navigate(`/users/${farm.owner_id}`);
+                                                            }}
+                                                            sx={{ textTransform: 'none' }}
+                                                        >
+                                                            {farm.owner?.first_name && farm.owner?.last_name
                                                                 ? `${farm.owner.first_name} ${farm.owner.last_name}`
-                                                                : farm.owner?.first_name || farm.owner?.last_name || farm.owner?.username || '-'
-                                                        }
-                                                        icon={<PersonIcon fontSize="small" />}
-                                                    />
+                                                                : farm.owner?.first_name || farm.owner?.last_name || farm.owner?.username || '-'}
+                                                        </LinkButton>
+                                                    </Box>
                                                 </Grid>
                                             )}
                                             

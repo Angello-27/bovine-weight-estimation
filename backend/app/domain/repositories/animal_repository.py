@@ -103,6 +103,7 @@ class AnimalRepository(ABC):
     ) -> list[Animal]:
         """
         Busca animales por múltiples criterios de filtrado.
+        (Método legacy - usar find_by_criteria_dict para nuevo código)
 
         Args:
             farm_id: ID de la finca (requerido)
@@ -114,6 +115,39 @@ class AnimalRepository(ABC):
 
         Returns:
             Lista de Animal que cumplen los criterios
+        """
+        pass
+
+    @abstractmethod
+    async def find_by_criteria_dict(
+        self,
+        filters: dict,
+        skip: int = 0,
+        limit: int = 50,
+    ) -> list[Animal]:
+        """
+        Busca animales por criterios de filtrado genérico (patrón estándar).
+
+        Args:
+            filters: Diccionario con criterios de filtrado (ej: {"farm_id": UUID, "breed": str, "status": str})
+            skip: Offset para paginación
+            limit: Límite de resultados
+
+        Returns:
+            Lista de Animal que coinciden con los criterios
+        """
+        pass
+
+    @abstractmethod
+    async def count_by_criteria(self, filters: dict) -> int:
+        """
+        Cuenta animales que coinciden con criterios de filtrado.
+
+        Args:
+            filters: Diccionario con criterios de filtrado
+
+        Returns:
+            Número total de animales que coinciden con los criterios
         """
         pass
 

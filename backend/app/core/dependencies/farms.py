@@ -14,6 +14,7 @@ from app.domain.usecases.farms import (
     DeleteFarmUseCase,
     GetAllFarmsUseCase,
     GetFarmByIdUseCase,
+    GetFarmsByCriteriaUseCase,
     UpdateFarmUseCase,
 )
 
@@ -56,3 +57,10 @@ def get_delete_farm_usecase(
 ) -> DeleteFarmUseCase:
     """Dependency para DeleteFarmUseCase."""
     return DeleteFarmUseCase(farm_repository=farm_repository)
+
+
+def get_get_farms_by_criteria_usecase(
+    farm_repository: Annotated[FarmRepository, Depends(get_farm_repository)],
+) -> GetFarmsByCriteriaUseCase:
+    """Dependency para GetFarmsByCriteriaUseCase."""
+    return GetFarmsByCriteriaUseCase(farm_repository=farm_repository)

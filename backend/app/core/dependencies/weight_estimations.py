@@ -17,6 +17,7 @@ from ...domain.usecases.weight_estimations import (
     GetAllWeightEstimationsUseCase,
     GetWeightEstimationByIdUseCase,
     GetWeightEstimationsByAnimalIdUseCase,
+    GetWeightEstimationsByCriteriaUseCase,
 )
 from .repositories import (
     get_animal_repository,
@@ -80,4 +81,15 @@ def get_estimate_weight_from_image_usecase(
     return EstimateWeightFromImageUseCase(
         weight_estimation_repository=weight_estimation_repository,
         animal_repository=animal_repository,
+    )
+
+
+def get_get_weight_estimations_by_criteria_usecase(
+    weight_estimation_repository: Annotated[
+        WeightEstimationRepository, Depends(get_weight_estimation_repository)
+    ],
+) -> GetWeightEstimationsByCriteriaUseCase:
+    """Dependency para GetWeightEstimationsByCriteriaUseCase."""
+    return GetWeightEstimationsByCriteriaUseCase(
+        weight_estimation_repository=weight_estimation_repository
     )

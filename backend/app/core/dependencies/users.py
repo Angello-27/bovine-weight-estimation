@@ -14,6 +14,7 @@ from app.domain.usecases.users import (
     DeleteUserUseCase,
     GetAllUsersUseCase,
     GetUserByIdUseCase,
+    GetUsersByCriteriaUseCase,
     UpdateUserUseCase,
 )
 
@@ -59,3 +60,10 @@ def get_delete_user_usecase(
 ) -> DeleteUserUseCase:
     """Dependency para DeleteUserUseCase."""
     return DeleteUserUseCase(user_repository=user_repository)
+
+
+def get_get_users_by_criteria_usecase(
+    user_repository: Annotated[UserRepository, Depends(get_user_repository)],
+) -> GetUsersByCriteriaUseCase:
+    """Dependency para GetUsersByCriteriaUseCase."""
+    return GetUsersByCriteriaUseCase(user_repository=user_repository)

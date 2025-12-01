@@ -14,6 +14,7 @@ from ...core.dependencies import (
     get_delete_farm_usecase,
     get_get_all_farms_usecase,
     get_get_farm_by_id_usecase,
+    get_get_farms_by_criteria_usecase,
     get_update_farm_usecase,
 )
 from ...domain.entities.user import User
@@ -22,6 +23,7 @@ from ...domain.usecases.farms import (
     DeleteFarmUseCase,
     GetAllFarmsUseCase,
     GetFarmByIdUseCase,
+    GetFarmsByCriteriaUseCase,
     UpdateFarmUseCase,
 )
 from ...schemas.farm_schemas import (
@@ -84,9 +86,6 @@ async def create_farm(
     description="""
     Obtiene una lista de fincas con paginación.
 
-    **Filtros**:
-    - owner_id: Filtrar por propietario (opcional)
-
     **Permisos**: Requiere autenticación
     """,
 )
@@ -96,12 +95,53 @@ async def get_all_farms(
     get_all_usecase: Annotated[GetAllFarmsUseCase, Depends(get_get_all_farms_usecase)],
     skip: int = Query(0, ge=0, description="Número de registros a saltar"),
     limit: int = Query(50, ge=1, le=100, description="Número máximo de registros"),
-    owner_id: UUID | None = Query(None, description="Filtrar por propietario"),
 ) -> FarmsListResponse:
     """Lista fincas con paginación."""
-    farms = await get_all_usecase.execute(skip=skip, limit=limit, owner_id=owner_id)
+    farms = await get_all_usecase.execute(skip=skip, limit=limit)
     # TODO: Agregar método count() al repositorio para obtener total
     total = len(farms)
+    return FarmsListResponse(
+        total=total,
+        farms=[FarmMapper.to_response(farm) for farm in farms],
+        page=skip // limit + 1,
+        page_size=limit,
+    )
+
+
+@router.get(
+    "/by-criteria",
+    response_model=FarmsListResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Buscar fincas por criterios",
+    description="""
+    Busca fincas aplicando filtros específicos.
+
+    **Filtros disponibles**:
+    - `owner_id` (UUID, opcional): Filtrar por propietario
+
+    **Permisos**: Requiere autenticación
+    """,
+)
+@handle_domain_exceptions
+async def get_farms_by_criteria(
+    current_user: Annotated[User, Depends(get_current_active_user)],
+    get_by_criteria_usecase: Annotated[
+        GetFarmsByCriteriaUseCase, Depends(get_get_farms_by_criteria_usecase)
+    ],
+    skip: int = Query(0, ge=0, description="Número de registros a saltar"),
+    limit: int = Query(50, ge=1, le=100, description="Número máximo de registros"),
+    owner_id: UUID | None = Query(None, description="Filtrar por propietario"),
+) -> FarmsListResponse:
+    """Busca fincas por criterios de filtrado."""
+    from typing import Any
+
+    filters: dict[str, Any] = {}
+    if owner_id is not None:
+        filters["owner_id"] = owner_id
+
+    farms, total = await get_by_criteria_usecase.execute(
+        filters=filters, skip=skip, limit=limit
+    )
     return FarmsListResponse(
         total=total,
         farms=[FarmMapper.to_response(farm) for farm in farms],

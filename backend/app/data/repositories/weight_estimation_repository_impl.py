@@ -93,6 +93,68 @@ class WeightEstimationRepositoryImpl(WeightEstimationRepository):
         )
         return [self._to_entity(model) for model in models]
 
+    async def find_by_criteria(
+        self,
+        filters: dict,
+        skip: int = 0,
+        limit: int = 50,
+    ) -> list[WeightEstimation]:
+        """
+        Busca estimaciones por criterios de filtrado.
+
+        Args:
+            filters: Diccionario con criterios de filtrado
+            skip: Offset para paginación
+            limit: Límite de resultados
+
+        Returns:
+            Lista de WeightEstimation que coinciden con los criterios
+        """
+        # Construir filtros para Beanie
+        beanie_filters = {}
+        for key, value in filters.items():
+            if value is not None and hasattr(WeightEstimationModel, key):
+                beanie_filters[key] = value
+
+        # Si no hay filtros, usar find_all(), de lo contrario usar find()
+        if not beanie_filters:
+            query = WeightEstimationModel.find_all()
+        else:
+            query = WeightEstimationModel.find(beanie_filters)
+
+        # Ordenar por timestamp descendente (más recientes primero)
+        models = (
+            await query.sort(-WeightEstimationModel.timestamp)
+            .skip(skip)
+            .limit(limit)
+            .to_list()
+        )
+        return [self._to_entity(model) for model in models]
+
+    async def count_by_criteria(self, filters: dict) -> int:
+        """
+        Cuenta estimaciones que coinciden con criterios de filtrado.
+
+        Args:
+            filters: Diccionario con criterios de filtrado
+
+        Returns:
+            Número total de estimaciones que coinciden con los criterios
+        """
+        # Construir filtros para Beanie
+        beanie_filters = {}
+        for key, value in filters.items():
+            if value is not None and hasattr(WeightEstimationModel, key):
+                beanie_filters[key] = value
+
+        # Si no hay filtros, contar todos, de lo contrario contar con filtros
+        if not beanie_filters:
+            count = await WeightEstimationModel.find_all().count()
+        else:
+            count = await WeightEstimationModel.find(beanie_filters).count()
+
+        return count
+
     def _to_entity(self, model: WeightEstimationModel) -> WeightEstimation:
         """Convierte Model a Entity."""
         return WeightEstimation(

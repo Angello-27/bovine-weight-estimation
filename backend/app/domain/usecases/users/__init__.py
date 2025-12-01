@@ -7,12 +7,14 @@ from .create_user_usecase import CreateUserUseCase
 from .delete_user_usecase import DeleteUserUseCase
 from .get_all_users_usecase import GetAllUsersUseCase
 from .get_user_by_id_usecase import GetUserByIdUseCase
+from .get_users_by_criteria_usecase import GetUsersByCriteriaUseCase
 from .update_user_usecase import UpdateUserUseCase
 
 __all__ = [
     "CreateUserUseCase",
     "GetUserByIdUseCase",
     "GetAllUsersUseCase",
+    "GetUsersByCriteriaUseCase",
     "UpdateUserUseCase",
     "DeleteUserUseCase",
 ]

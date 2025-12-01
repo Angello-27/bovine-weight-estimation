@@ -14,6 +14,7 @@ from ...core.dependencies import (
     get_get_animal_by_id_usecase,
     get_get_animal_lineage_usecase,
     get_get_animal_timeline_usecase,
+    get_get_animals_by_criteria_usecase,
     get_get_animals_by_farm_usecase,
     get_update_animal_usecase,
 )
@@ -22,6 +23,7 @@ from ...domain.usecases.animals import (
     DeleteAnimalUseCase,
     GetAnimalByIdUseCase,
     GetAnimalLineageUseCase,
+    GetAnimalsByCriteriaUseCase,
     GetAnimalsByFarmUseCase,
     GetAnimalTimelineUseCase,
     UpdateAnimalUseCase,
@@ -129,6 +131,62 @@ async def list_animals(
     # TODO: Calcular total count para paginación correcta
     total = len(animals)
 
+    return AnimalsListResponse(
+        total=total,
+        animals=[AnimalMapper.to_response(animal) for animal in animals],
+        page=page,
+        page_size=page_size,
+    )
+
+
+@router.get(
+    "/by-criteria",
+    response_model=AnimalsListResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Buscar animales por criterios",
+    description="""
+    Busca animales aplicando filtros específicos.
+
+    **Filtros disponibles**:
+    - `farm_id` (UUID, requerido): Filtrar por finca
+    - `breed` (string, opcional): Filtrar por raza
+    - `status` (string, opcional): Filtrar por estado (active, inactive, sold, deceased)
+    - `gender` (string, opcional): Filtrar por género (male, female)
+    - `age_category` (string, opcional): Filtrar por categoría de edad
+
+    **Permisos**: Requiere autenticación
+    """,
+)
+@handle_domain_exceptions
+async def get_animals_by_criteria(
+    get_by_criteria_usecase: Annotated[
+        GetAnimalsByCriteriaUseCase, Depends(get_get_animals_by_criteria_usecase)
+    ],
+    farm_id: UUID = Query(..., description="ID de la finca (requerido)"),
+    breed: str | None = Query(None, description="Filtrar por raza"),
+    status: str | None = Query(None, description="Filtrar por estado"),
+    gender: str | None = Query(None, description="Filtrar por género"),
+    age_category: str | None = Query(None, description="Filtrar por categoría de edad"),
+    page: int = Query(1, ge=1, description="Número de página"),
+    page_size: int = Query(50, ge=1, le=100, description="Tamaño de página"),
+) -> AnimalsListResponse:
+    """Busca animales por criterios de filtrado."""
+    from typing import Any
+
+    skip = (page - 1) * page_size
+    filters: dict[str, Any] = {"farm_id": farm_id}
+    if breed is not None:
+        filters["breed"] = breed
+    if status is not None:
+        filters["status"] = status
+    if gender is not None:
+        filters["gender"] = gender
+    if age_category is not None:
+        filters["age_category"] = age_category
+
+    animals, total = await get_by_criteria_usecase.execute(
+        filters=filters, skip=skip, limit=page_size
+    )
     return AnimalsListResponse(
         total=total,
         animals=[AnimalMapper.to_response(animal) for animal in animals],

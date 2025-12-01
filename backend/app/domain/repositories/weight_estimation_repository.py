@@ -102,3 +102,36 @@ class WeightEstimationRepository(ABC):
             Lista de WeightEstimation ordenada por timestamp DESC
         """
         pass
+
+    @abstractmethod
+    async def find_by_criteria(
+        self,
+        filters: dict,
+        skip: int = 0,
+        limit: int = 50,
+    ) -> list[WeightEstimation]:
+        """
+        Busca estimaciones por criterios de filtrado.
+
+        Args:
+            filters: Diccionario con criterios de filtrado (ej: {"animal_id": UUID, "farm_id": UUID})
+            skip: Offset para paginación
+            limit: Límite de resultados
+
+        Returns:
+            Lista de WeightEstimation que coinciden con los criterios
+        """
+        pass
+
+    @abstractmethod
+    async def count_by_criteria(self, filters: dict) -> int:
+        """
+        Cuenta estimaciones que coinciden con criterios de filtrado.
+
+        Args:
+            filters: Diccionario con criterios de filtrado
+
+        Returns:
+            Número total de estimaciones que coinciden con los criterios
+        """
+        pass

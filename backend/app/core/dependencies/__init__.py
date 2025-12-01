@@ -24,6 +24,7 @@ from .animals import (
     get_get_animal_by_id_usecase,
     get_get_animal_lineage_usecase,
     get_get_animal_timeline_usecase,
+    get_get_animals_by_criteria_usecase,
     get_get_animals_by_farm_usecase,
     get_get_animals_by_filter_criteria_usecase,
     get_update_animal_usecase,
@@ -41,6 +42,7 @@ from .farms import (
     get_delete_farm_usecase,
     get_get_all_farms_usecase,
     get_get_farm_by_id_usecase,
+    get_get_farms_by_criteria_usecase,
     get_update_farm_usecase,
 )
 from .reports import (
@@ -74,12 +76,14 @@ from .users import (
     get_delete_user_usecase,
     get_get_all_users_usecase,
     get_get_user_by_id_usecase,
+    get_get_users_by_criteria_usecase,
     get_update_user_usecase,
 )
 from .weight_estimations import (
     get_all_weight_estimations_usecase,
     get_create_weight_estimation_usecase,
     get_estimate_weight_from_image_usecase,
+    get_get_weight_estimations_by_criteria_usecase,
     get_weight_estimation_by_id_usecase,
     get_weight_estimations_by_animal_id_usecase,
 )
@@ -103,6 +107,7 @@ __all__ = [
     "get_create_user_usecase",
     "get_get_user_by_id_usecase",
     "get_get_all_users_usecase",
+    "get_get_users_by_criteria_usecase",
     "get_update_user_usecase",
     "get_delete_user_usecase",
     # Role Use Cases
@@ -115,12 +120,14 @@ __all__ = [
     "get_create_farm_usecase",
     "get_get_farm_by_id_usecase",
     "get_get_all_farms_usecase",
+    "get_get_farms_by_criteria_usecase",
     "get_update_farm_usecase",
     "get_delete_farm_usecase",
     # Animal Use Cases
     "get_create_animal_usecase",
     "get_get_animal_by_id_usecase",
     "get_get_animals_by_farm_usecase",
+    "get_get_animals_by_criteria_usecase",
     "get_get_animals_by_filter_criteria_usecase",
     "get_get_animal_lineage_usecase",
     "get_get_animal_timeline_usecase",
@@ -147,6 +154,7 @@ __all__ = [
     "get_estimate_weight_from_image_usecase",
     "get_weight_estimation_by_id_usecase",
     "get_weight_estimations_by_animal_id_usecase",
+    "get_get_weight_estimations_by_criteria_usecase",
     "get_all_weight_estimations_usecase",
     # Reports Use Cases
     "get_generate_traceability_report_usecase",

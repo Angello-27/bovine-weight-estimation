@@ -87,6 +87,39 @@ class UserRepository(ABC):
         pass
 
     @abstractmethod
+    async def find_by_criteria(
+        self,
+        filters: dict,
+        skip: int = 0,
+        limit: int = 50,
+    ) -> list[User]:
+        """
+        Busca usuarios por criterios de filtrado.
+
+        Args:
+            filters: Diccionario con criterios de filtrado (ej: {"role_id": UUID, "is_active": bool})
+            skip: Offset para paginación
+            limit: Límite de resultados
+
+        Returns:
+            Lista de User que coinciden con los criterios
+        """
+        pass
+
+    @abstractmethod
+    async def count_by_criteria(self, filters: dict) -> int:
+        """
+        Cuenta usuarios que coinciden con criterios de filtrado.
+
+        Args:
+            filters: Diccionario con criterios de filtrado
+
+        Returns:
+            Número total de usuarios que coinciden con los criterios
+        """
+        pass
+
+    @abstractmethod
     async def delete(self, user_id: UUID) -> bool:
         """
         Elimina un usuario.

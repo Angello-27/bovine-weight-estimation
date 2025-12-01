@@ -7,12 +7,14 @@ from .create_farm_usecase import CreateFarmUseCase
 from .delete_farm_usecase import DeleteFarmUseCase
 from .get_all_farms_usecase import GetAllFarmsUseCase
 from .get_farm_by_id_usecase import GetFarmByIdUseCase
+from .get_farms_by_criteria_usecase import GetFarmsByCriteriaUseCase
 from .update_farm_usecase import UpdateFarmUseCase
 
 __all__ = [
     "CreateFarmUseCase",
     "GetFarmByIdUseCase",
     "GetAllFarmsUseCase",
+    "GetFarmsByCriteriaUseCase",
     "UpdateFarmUseCase",
     "DeleteFarmUseCase",
 ]

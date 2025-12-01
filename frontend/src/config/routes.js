@@ -19,8 +19,10 @@ import SyncStatusView from '../views/SyncStatusView';
 import CattleDetailView from '../views/CattleDetailView';
 import WeightEstimationFromWebView from '../views/WeightEstimationFromWebView';
 import WeightEstimationDetailView from '../views/WeightEstimationDetailView';
-import UserView from '../views/UserView';
-import RoleView from '../views/RoleView';
+import UserView from '../views/user/UserView';
+import UserDetailView from '../views/user/UserDetailView';
+import RoleView from '../views/role/RoleView';
+import RoleDetailView from '../views/role/RoleDetailView';
 import FarmView from '../views/farm/FarmView';
 import FarmDetailView from '../views/farm/FarmDetailView';
 // import StatisticsView from '../views/StatisticsView';
@@ -88,6 +90,22 @@ function AppRoutes() {
                     element={
                         <ProtectedRoute requiredRoles={['Administrador']}>
                             <FarmDetailView />
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/users/:id"
+                    element={
+                        <ProtectedRoute requiredRoles={['Administrador']}>
+                            <UserDetailView />
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/roles/:id"
+                    element={
+                        <ProtectedRoute requiredRoles={['Administrador']}>
+                            <RoleDetailView />
                         </ProtectedRoute>
                     }
                 />

@@ -2,17 +2,29 @@
 
 /**
  * Transforma la lista de roles a un formato para el ComboBox.
- * @param {Array} data - Lista de roles desde el servidor.
+ * @param {Array} data - Lista de roles desde el servidor (puede ser array directo o objeto con propiedad roles).
  * @return {Array} - Lista adaptada para el ComboBox.
  */
 export function roleToComboBox(data) {
-    if (data.roles) {  // Asegúrate de que estás recibiendo "roles" y no "companies" en tu respuesta.
-        var roles = data.roles;
-        return roles.map(role => ({
+    if (!data) return [];
+    
+    // Si data es un objeto con propiedad roles, usar esa propiedad
+    if (data.roles && Array.isArray(data.roles)) {
+        return data.roles.map(role => ({
             id: role.id,
-            label: role.name, // Usamos 'name' porque parece ser la propiedad más descriptiva para representar el rol en un ComboBox.
+            label: role.name || role.label || '-',
             level: role.priority
         }));
     }
+    
+    // Si data es un array directo, usar directamente
+    if (Array.isArray(data)) {
+        return data.map(role => ({
+            id: role.id,
+            label: role.name || role.label || '-',
+            level: role.priority
+        }));
+    }
+    
     return [];
 }

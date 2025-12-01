@@ -228,6 +228,111 @@ class AnimalRepositoryImpl(AnimalRepository):
 
         return [self._to_entity(model) for model in models]
 
+    async def find_by_criteria_dict(
+        self,
+        filters: dict,
+        skip: int = 0,
+        limit: int = 50,
+    ) -> list[Animal]:
+        """
+        Busca animales por criterios de filtrado genérico (patrón estándar).
+
+        Args:
+            filters: Diccionario con criterios de filtrado
+            skip: Offset para paginación
+            limit: Límite de resultados
+
+        Returns:
+            Lista de Animal que coinciden con los criterios
+        """
+        # Construir filtros para Beanie (campos directos)
+        beanie_filters = {}
+        age_category_filter = None
+
+        for key, value in filters.items():
+            if value is not None:
+                if key == "age_category":
+                    # age_category necesita procesamiento especial
+                    age_category_filter = value
+                elif hasattr(AnimalModel, key):
+                    beanie_filters[key] = value
+
+        # Si no hay filtros básicos, usar find_all(), de lo contrario usar find()
+        if not beanie_filters:
+            query = AnimalModel.find_all()
+        else:
+            query = AnimalModel.find(beanie_filters)
+
+        # Obtener modelos
+        models = (
+            await query.skip(skip)
+            .limit(limit * 2 if age_category_filter else limit)
+            .to_list()
+        )
+
+        # Si hay filtro de age_category, filtrar en memoria
+        if age_category_filter:
+            filtered_models = []
+            for model in models:
+                animal_entity = self._to_entity(model)
+                animal_age_category = animal_entity.calculate_age_category()
+                if animal_age_category.value == age_category_filter:
+                    filtered_models.append(model)
+                    if len(filtered_models) >= limit:
+                        break
+            models = filtered_models[:limit]
+        else:
+            models = models[:limit]
+
+        return [self._to_entity(model) for model in models]
+
+    async def count_by_criteria(self, filters: dict) -> int:
+        """
+        Cuenta animales que coinciden con criterios de filtrado.
+
+        Args:
+            filters: Diccionario con criterios de filtrado
+
+        Returns:
+            Número total de animales que coinciden con los criterios
+        """
+        # Construir filtros para Beanie (campos directos)
+        beanie_filters = {}
+        age_category_filter = None
+
+        for key, value in filters.items():
+            if value is not None:
+                if key == "age_category":
+                    age_category_filter = value
+                elif hasattr(AnimalModel, key):
+                    beanie_filters[key] = value
+
+        # Si hay filtro de age_category, necesitamos contar en memoria
+        if age_category_filter:
+            # Obtener todos los modelos que cumplen los filtros básicos
+            if not beanie_filters:
+                query = AnimalModel.find_all()
+            else:
+                query = AnimalModel.find(beanie_filters)
+
+            models = await query.to_list()
+
+            # Filtrar por age_category y contar
+            count = 0
+            for model in models:
+                animal_entity = self._to_entity(model)
+                animal_age_category = animal_entity.calculate_age_category()
+                if animal_age_category.value == age_category_filter:
+                    count += 1
+            return count
+
+        # Contar directamente en BD
+        if not beanie_filters:
+            count = await AnimalModel.find_all().count()
+        else:
+            count = await AnimalModel.find(beanie_filters).count()
+        return count
+
     async def count(self) -> int:
         """
         Retorna el conteo total de animales.

@@ -81,7 +81,6 @@ class FarmRepositoryImpl(FarmRepository):
         self,
         skip: int = 0,
         limit: int = 50,
-        owner_id: UUID | None = None,
     ) -> list[Farm]:
         """
         Obtiene todas las fincas con paginación.
@@ -89,22 +88,68 @@ class FarmRepositoryImpl(FarmRepository):
         Args:
             skip: Offset para paginación
             limit: Límite de resultados
-            owner_id: Filtrar por propietario (opcional)
 
         Returns:
             Lista de Farm
         """
-        if owner_id:
-            models = (
-                await FarmModel.find(FarmModel.owner_id == owner_id)
-                .skip(skip)
-                .limit(limit)
-                .to_list()
-            )
-        else:
-            models = await FarmModel.find_all().skip(skip).limit(limit).to_list()
-
+        models = await FarmModel.find_all().skip(skip).limit(limit).to_list()
         return [model.to_entity() for model in models]
+
+    async def find_by_criteria(
+        self,
+        filters: dict,
+        skip: int = 0,
+        limit: int = 50,
+    ) -> list[Farm]:
+        """
+        Busca fincas por criterios de filtrado.
+
+        Args:
+            filters: Diccionario con criterios de filtrado (ej: {"owner_id": UUID})
+            skip: Offset para paginación
+            limit: Límite de resultados
+
+        Returns:
+            Lista de Farm que coinciden con los criterios
+        """
+        # Construir filtros para Beanie
+        beanie_filters = {}
+        for key, value in filters.items():
+            if value is not None and hasattr(FarmModel, key):
+                beanie_filters[key] = value
+
+        # Si no hay filtros, usar find_all(), de lo contrario usar find()
+        if not beanie_filters:
+            query = FarmModel.find_all()
+        else:
+            query = FarmModel.find(beanie_filters)
+
+        models = await query.skip(skip).limit(limit).to_list()
+        return [model.to_entity() for model in models]
+
+    async def count_by_criteria(self, filters: dict) -> int:
+        """
+        Cuenta fincas que coinciden con criterios de filtrado.
+
+        Args:
+            filters: Diccionario con criterios de filtrado
+
+        Returns:
+            Número total de fincas que coinciden con los criterios
+        """
+        # Construir filtros para Beanie
+        beanie_filters = {}
+        for key, value in filters.items():
+            if value is not None and hasattr(FarmModel, key):
+                beanie_filters[key] = value
+
+        # Si no hay filtros, contar todos, de lo contrario contar con filtros
+        if not beanie_filters:
+            count = await FarmModel.find_all().count()
+        else:
+            count = await FarmModel.find(beanie_filters).count()
+
+        return count
 
     async def delete(self, farm_id: UUID) -> bool:
         """

@@ -12,12 +12,23 @@ const getRoleById = async (roleId) => {
         const response = await apiClient.get(`/role/${roleId}`);
         return response.data;
     } catch (error) {
+        // Extraer mensaje del backend si está disponible
+        let backendMessage = null;
+        if (error.response?.data?.detail) {
+            const detail = error.response.data.detail;
+            if (typeof detail === 'string') {
+                backendMessage = detail;
+            } else if (Array.isArray(detail) && detail.length > 0) {
+                backendMessage = detail[0]?.msg || detail[0]?.message || String(detail[0]);
+            } else if (typeof detail === 'object') {
+                backendMessage = detail.message || detail.msg || String(detail);
+            }
+        }
+        
         if (error.response && error.response.status === 404) {
-            throw new Error('Rol no encontrado');
-        } else if (error.response && error.response.status === 400) {
-            throw new Error('Error al obtener el rol. Por favor verifica e intenta de nuevo.');
+            throw new Error('Recurso no encontrado.');
         } else {
-            throw new Error('Ocurrió un error al intentar obtener el rol. Por favor intenta de nuevo más tarde.');
+            throw new Error(backendMessage || 'Ocurrió un error. Por favor intenta de nuevo.');
         }
     }
 };

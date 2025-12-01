@@ -29,7 +29,6 @@ class GetAllFarmsUseCase:
         self,
         skip: int = 0,
         limit: int = 50,
-        owner_id: UUID | None = None,
     ) -> list[Farm]:
         """
         Ejecuta el caso de uso para obtener todas las fincas.
@@ -37,11 +36,8 @@ class GetAllFarmsUseCase:
         Args:
             skip: Offset para paginación
             limit: Límite de resultados
-            owner_id: Filtrar por propietario (opcional)
 
         Returns:
             Lista de Farm
         """
-        return await self._farm_repository.get_all(
-            skip=skip, limit=limit, owner_id=owner_id
-        )
+        return await self._farm_repository.get_all(skip=skip, limit=limit)

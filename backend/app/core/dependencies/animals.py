@@ -16,6 +16,7 @@ from app.domain.usecases.animals import (
     DeleteAnimalUseCase,
     GetAnimalByIdUseCase,
     GetAnimalLineageUseCase,
+    GetAnimalsByCriteriaUseCase,
     GetAnimalsByFarmUseCase,
     GetAnimalsByFilterCriteriaUseCase,
     GetAnimalTimelineUseCase,
@@ -88,3 +89,10 @@ def get_get_animal_timeline_usecase(
         animal_repository=animal_repository,
         weight_estimation_repository=weight_estimation_repository,
     )
+
+
+def get_get_animals_by_criteria_usecase(
+    animal_repository: Annotated[AnimalRepository, Depends(get_animal_repository)],
+) -> GetAnimalsByCriteriaUseCase:
+    """Dependency para GetAnimalsByCriteriaUseCase."""
+    return GetAnimalsByCriteriaUseCase(animal_repository=animal_repository)

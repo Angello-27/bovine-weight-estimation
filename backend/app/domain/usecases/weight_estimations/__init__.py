@@ -10,11 +10,15 @@ from .get_weight_estimation_by_id_usecase import GetWeightEstimationByIdUseCase
 from .get_weight_estimations_by_animal_id_usecase import (
     GetWeightEstimationsByAnimalIdUseCase,
 )
+from .get_weight_estimations_by_criteria_usecase import (
+    GetWeightEstimationsByCriteriaUseCase,
+)
 
 __all__ = [
     "CreateWeightEstimationUseCase",
     "EstimateWeightFromImageUseCase",
     "GetWeightEstimationByIdUseCase",
     "GetWeightEstimationsByAnimalIdUseCase",
+    "GetWeightEstimationsByCriteriaUseCase",
     "GetAllWeightEstimationsUseCase",
 ]
