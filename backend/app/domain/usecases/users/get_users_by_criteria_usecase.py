@@ -3,8 +3,6 @@ Get Users By Criteria Use Case - Domain Layer
 Caso de uso para obtener usuarios por criterios de filtrado
 """
 
-from uuid import UUID
-
 from ...entities.user import User
 from ...repositories.user_repository import UserRepository
 

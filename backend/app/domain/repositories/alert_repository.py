@@ -5,7 +5,6 @@ Contrato para persistencia de alertas (Dependency Inversion)
 
 from abc import ABC, abstractmethod
 from datetime import datetime
-from typing import Any
 from uuid import UUID
 
 from ..entities.alert import Alert
