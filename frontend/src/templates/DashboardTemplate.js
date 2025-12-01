@@ -101,7 +101,7 @@ function DashboardTemplate({ stats, loading, error }) {
                                                 Resumen del Sistema
                                             </CustomTypography>
                                             <CustomTypography variant="body2" color="text.secondary" paragraph>
-                                                Sistema gestionando <strong>{stats.totalCattle || 0}</strong> animales 
+                                                Sistema gestionando <strong>{stats.totalCattle || 0}</strong> animales
                                                 {stats.totalBreeds > 0 && ` de ${stats.totalBreeds} razas diferentes`}.
                                                 {stats.totalEstimations > 0 && (
                                                     <> Se han realizado <strong>{stats.totalEstimations}</strong> estimaciones de peso.</>

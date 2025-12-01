@@ -6,7 +6,7 @@ Endpoints REST para gestión de roles
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 
 from ...core.dependencies import (
     get_create_role_usecase,

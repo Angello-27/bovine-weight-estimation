@@ -1,15 +1,20 @@
-// frontend/src/services/farm/getAllFarms.js
+// frontend/src/services/farm/getFarmsByCriteria.js
 
 import apiClient from '../../api/axiosClient';
 
 /**
- * Obtiene todas las haciendas del sistema
- * @param {Object} params - Parámetros opcionales (skip, limit)
+ * Busca haciendas por criterios de filtrado
+ * @param {Object} filters - Criterios de filtrado (owner_id)
+ * @param {Object} pagination - Parámetros de paginación (skip, limit)
  * @returns {Promise<Object>} Objeto con total, farms, page, page_size
  */
-const getAllFarms = async (params = {}) => {
+const getFarmsByCriteria = async (filters = {}, pagination = {}) => {
     try {
-        const response = await apiClient.get('/farm', { params });
+        const params = {
+            ...pagination,
+            ...filters,
+        };
+        const response = await apiClient.get('/farm/by-criteria', { params });
         return response.data;
     } catch (error) {
         // Extraer mensaje del backend si está disponible
@@ -26,13 +31,13 @@ const getAllFarms = async (params = {}) => {
         }
         
         if (error.response && error.response.status === 400) {
-            const message = backendMessage || 'Error al obtener las haciendas. Por favor verifica e intenta de nuevo.';
+            const message = backendMessage || 'Los datos proporcionados son incorrectos.';
             throw new Error(message);
         } else {
-            throw new Error(backendMessage || 'Ocurrió un error al intentar obtener las haciendas. Por favor intenta de nuevo más tarde.');
+            throw new Error(backendMessage || 'Ocurrió un error. Por favor intenta de nuevo.');
         }
     }
 };
 
-export { getAllFarms };
+export { getFarmsByCriteria };
 

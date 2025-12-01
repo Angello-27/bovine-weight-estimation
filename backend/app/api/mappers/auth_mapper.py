@@ -40,6 +40,7 @@ class AuthMapper:
             id=user.id,
             username=user.username,
             role=role.name,
+            role_priority=role.priority,  # Incluir priority del rol
             role_id=role.id,
             farm_id=user.farm_id,  # Incluir farm_id del usuario
             access_token=access_token,

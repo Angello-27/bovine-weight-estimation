@@ -1,7 +1,8 @@
 // frontend/src/containers/cattle/GetAllCattle.js
 
 import { useState, useEffect } from 'react';
-import getAllCattle from '../../services/cattle/getAllCattle';
+import { getAnimalsByCriteria } from '../../services/cattle/getAnimalsByCriteria';
+import { getCurrentUser } from '../../services/auth/authService';
 import { getAllFarms } from '../../services/farm/getAllFarms';
 
 function GetAllCattle() {
@@ -13,17 +14,8 @@ function GetAllCattle() {
         async function fetchData() {
             try {
                 // Intentar obtener farm_id del usuario
-                const userStr = localStorage.getItem('user');
-                let farmId = null;
-                
-                if (userStr) {
-                    try {
-                        const user = JSON.parse(userStr);
-                        farmId = user.farm_id;
-                    } catch (e) {
-                        console.warn('Error al parsear usuario:', e);
-                    }
-                }
+                const currentUser = getCurrentUser();
+                let farmId = currentUser?.farm_id;
                 
                 // Si el usuario no tiene farm_id, obtener la primera hacienda disponible
                 if (!farmId) {
@@ -43,11 +35,13 @@ function GetAllCattle() {
                     throw new Error('No se encontró una hacienda. Por favor, contacta al administrador para asignarte una hacienda.');
                 }
                 
-                const filters = { farm_id: farmId };
-                const data = await getAllCattle(filters);
+                const data = await getAnimalsByCriteria(
+                    { farm_id: farmId },
+                    { page: 1, page_size: 1000 } // Obtener todos los animales
+                );
                 
                 // El servicio retorna { animals: [...], total, page, page_size }
-                const cattleList = data.animals || data || [];
+                const cattleList = data?.animals || [];
                 setItems(cattleList);
             } catch (err) {
                 // Asegurar que el error sea un string

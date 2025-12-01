@@ -75,62 +75,6 @@ async def create_weighing(
 
 
 @router.get(
-    "/{weighing_id}",
-    response_model=WeighingResponse,
-    summary="Obtener estimación por ID",
-    description="Obtiene los datos de una estimación específica.",
-)
-@handle_domain_exceptions
-async def get_weighing(
-    weighing_id: UUID,
-    get_by_id_usecase: Annotated[
-        GetWeightEstimationByIdUseCase, Depends(get_weight_estimation_by_id_usecase)
-    ],
-) -> WeighingResponse:
-    """Obtiene una estimación por ID."""
-    estimation = await get_by_id_usecase.execute(weighing_id)
-    return WeightEstimationMapper.to_response(estimation)
-
-
-@router.get(
-    "/animal/{animal_id}",
-    response_model=WeighingsListResponse,
-    summary="Historial de pesajes por animal",
-    description="""
-    Obtiene historial completo de pesajes de un animal.
-
-    Ordenado por fecha descendente (más reciente primero).
-
-    **US-004**: Historial de Pesajes con Gráficos
-    """,
-)
-@handle_domain_exceptions
-async def get_animal_weighings(
-    get_by_animal_usecase: Annotated[
-        GetWeightEstimationsByAnimalIdUseCase,
-        Depends(get_weight_estimations_by_animal_id_usecase),
-    ],
-    animal_id: UUID,
-    page: int = Query(1, ge=1, description="Número de página"),
-    page_size: int = Query(50, ge=1, le=100, description="Tamaño de página"),
-) -> WeighingsListResponse:
-    """Obtiene historial de pesajes de un animal."""
-    skip = calculate_skip(page=page, page_size=page_size)
-    estimations = await get_by_animal_usecase.execute(
-        animal_id=animal_id, skip=skip, limit=page_size
-    )
-
-    weighings = [WeightEstimationMapper.to_response(e) for e in estimations]
-
-    return WeighingsListResponse(
-        total=len(weighings),
-        weighings=weighings,
-        page=page,
-        page_size=page_size,
-    )
-
-
-@router.get(
     "/by-criteria",
     response_model=WeighingsListResponse,
     status_code=status.HTTP_200_OK,
@@ -178,6 +122,62 @@ async def get_weighings_by_criteria(
         page=page,
         page_size=page_size,
     )
+
+
+@router.get(
+    "/animal/{animal_id}",
+    response_model=WeighingsListResponse,
+    summary="Historial de pesajes por animal",
+    description="""
+    Obtiene historial completo de pesajes de un animal.
+
+    Ordenado por fecha descendente (más reciente primero).
+
+    **US-004**: Historial de Pesajes con Gráficos
+    """,
+)
+@handle_domain_exceptions
+async def get_animal_weighings(
+    get_by_animal_usecase: Annotated[
+        GetWeightEstimationsByAnimalIdUseCase,
+        Depends(get_weight_estimations_by_animal_id_usecase),
+    ],
+    animal_id: UUID,
+    page: int = Query(1, ge=1, description="Número de página"),
+    page_size: int = Query(50, ge=1, le=100, description="Tamaño de página"),
+) -> WeighingsListResponse:
+    """Obtiene historial de pesajes de un animal."""
+    skip = calculate_skip(page=page, page_size=page_size)
+    estimations = await get_by_animal_usecase.execute(
+        animal_id=animal_id, skip=skip, limit=page_size
+    )
+
+    weighings = [WeightEstimationMapper.to_response(e) for e in estimations]
+
+    return WeighingsListResponse(
+        total=len(weighings),
+        weighings=weighings,
+        page=page,
+        page_size=page_size,
+    )
+
+
+@router.get(
+    "/{weighing_id}",
+    response_model=WeighingResponse,
+    summary="Obtener estimación por ID",
+    description="Obtiene los datos de una estimación específica.",
+)
+@handle_domain_exceptions
+async def get_weighing(
+    weighing_id: UUID,
+    get_by_id_usecase: Annotated[
+        GetWeightEstimationByIdUseCase, Depends(get_weight_estimation_by_id_usecase)
+    ],
+) -> WeighingResponse:
+    """Obtiene una estimación por ID."""
+    estimation = await get_by_id_usecase.execute(weighing_id)
+    return WeightEstimationMapper.to_response(estimation)
 
 
 @router.get(

@@ -38,20 +38,33 @@ function useRoleDetail(roleId) {
 
                 // Obtener usuarios con este rol usando el nuevo endpoint de criterios
                 try {
+                    // Consulta 1: Obtener todos los usuarios con este rol (para la tabla)
                     const usersData = await getUsersByCriteria(
                         { role_id: roleId },
-                        { skip: 0, limit: 1000 }
+                        { skip: 0, limit: 1000 } // Obtener hasta 1000 usuarios para mostrar en la tabla
                     );
                     const usersWithRole = usersData.users || [];
+                    const totalUsers = usersData.total || 0; // Usar el total del backend, no el length del array
                     
                     setUsers(usersWithRole);
 
-                    // Calcular estadísticas
-                    const activeUsersCount = usersWithRole.filter(u => u.is_active === true).length;
+                    // Consulta 2: Obtener el total exacto de usuarios activos con este rol
+                    let totalActiveUsers = 0;
+                    try {
+                        const activeUsersData = await getUsersByCriteria(
+                            { role_id: roleId, is_active: true },
+                            { skip: 0, limit: 1 } // Solo necesitamos el total, no los datos
+                        );
+                        totalActiveUsers = activeUsersData.total || 0;
+                    } catch (activeUsersError) {
+                        console.warn('Error al obtener total de usuarios activos:', activeUsersError);
+                        // Si falla, contar los activos del array obtenido como fallback
+                        totalActiveUsers = usersWithRole.filter(u => u.is_active === true).length;
+                    }
 
                     setStats({
-                        totalUsers: usersWithRole.length,
-                        activeUsers: activeUsersCount,
+                        totalUsers: totalUsers, // Total real del backend
+                        activeUsers: totalActiveUsers, // Total real de usuarios activos del backend
                     });
                 } catch (usersError) {
                     console.error('Error al obtener usuarios del rol:', usersError);

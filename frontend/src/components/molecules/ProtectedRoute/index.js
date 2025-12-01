@@ -26,7 +26,8 @@ const ProtectedRoute = ({ children, requiredRoles = [] }) => {
 
     // Si se especifican roles requeridos, verificar que el usuario tenga uno de ellos
     if (requiredRoles.length > 0) {
-        const userRole = user.role?.name || user.role?.priority || user.role;
+        // Usar priority del rol (Invitado, Usuario, Administrador) en lugar del nombre
+        const userRole = user.role_priority || user.role?.priority || user.role?.name || user.role;
         
         // Si el usuario no tiene un rol válido o no coincide con los requeridos
         if (!userRole || !requiredRoles.includes(userRole)) {

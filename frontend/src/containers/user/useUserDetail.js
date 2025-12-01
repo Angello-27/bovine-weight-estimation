@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { getUserById } from '../../services/user/getUserById';
 import { getRoleById } from '../../services/role/getRoleById';
 import { getFarmById } from '../../services/farm/getFarmById';
-import { getAllFarms } from '../../services/farm/getAllFarms';
+import { getFarmsByCriteria } from '../../services/farm/getFarmsByCriteria';
 
 /**
  * Hook para obtener datos de detalle de un usuario y sus relaciones
@@ -58,20 +58,25 @@ function useUserDetail(userId) {
                 
                 setUser(userData);
 
-                // Obtener farms donde el usuario es propietario (relación inversa)
+                // Obtener farms donde el usuario es propietario usando el endpoint by-criteria
                 try {
-                    const farmsData = await getAllFarms({ 
-                        owner_id: userId, 
-                        page: 1, 
-                        page_size: 100 
-                    });
+                    const farmsData = await getFarmsByCriteria(
+                        { owner_id: userId },
+                        { skip: 0, limit: 1000 } // Obtener hasta 1000 farms para mostrar en la tabla
+                    );
                     const farms = farmsData.farms || [];
+                    const totalFarms = farmsData.total || 0; // Usar el total del backend
+                    
                     setOwnedFarms(farms);
                     setStats({
-                        ownedFarms: farms.length,
+                        ownedFarms: totalFarms, // Usar el total real del backend, no el length del array
                     });
                 } catch (statsError) {
                     console.warn('Error al obtener farms del usuario:', statsError);
+                    setOwnedFarms([]);
+                    setStats({
+                        ownedFarms: 0,
+                    });
                     // No detenemos la carga si fallan las farms
                 }
 

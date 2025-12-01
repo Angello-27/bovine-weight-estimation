@@ -1,10 +1,12 @@
 // frontend/src/containers/dashboard/DashboardStatsContainer.js
 
 import { useState, useEffect } from 'react';
-import getAllCattle from '../../services/cattle/getAllCattle';
-import getAllWeightEstimations from '../../services/weight-estimations/getAllWeightEstimations';
+import { getAnimalsByCriteria } from '../../services/cattle/getAnimalsByCriteria';
+import { getWeightEstimationsByCriteria } from '../../services/weight-estimations/getWeightEstimationsByCriteria';
+import { getCurrentUser } from '../../services/auth/authService';
 
 function DashboardStatsContainer() {
+
     const [stats, setStats] = useState({
         totalCattle: 0,
         averageWeight: 0,
@@ -18,36 +20,107 @@ function DashboardStatsContainer() {
         async function fetchStats() {
             try {
                 setError(null);
-                
-                // Obtener datos de animales con manejo de errores mejorado
+
+                // Obtener farm_id del usuario logueado
+                const currentUser = getCurrentUser();
+                const farmId = currentUser?.farm_id;
+
+                if (!farmId) {
+                    // Si el usuario no tiene farm_id asignado, mostrar estadísticas vacías
+                    setStats({
+                        totalCattle: 0,
+                        averageWeight: 0,
+                        totalBreeds: 0,
+                        totalEstimations: 0,
+                    });
+                    setLoading(false);
+                    return;
+                }
+
+                // Obtener datos de animales filtrados por farm_id
                 let cattleList = [];
                 try {
-                    const cattleData = await getAllCattle();
-                    // El backend puede retornar { animals: [], total: 0 } o directamente []
-                    cattleList = Array.isArray(cattleData) 
-                        ? cattleData 
-                        : (cattleData?.animals || []);
+                    // Obtener todos los animales usando paginación
+                    let page = 1;
+                    let hasMore = true;
+                    const pageSize = 100;
+
+                    while (hasMore) {
+                        const cattleData = await getAnimalsByCriteria(
+                            { farm_id: farmId },
+                            { page, page_size: pageSize }
+                        );
+
+                        const animals = cattleData?.animals || [];
+                        cattleList = [...cattleList, ...animals];
+
+                        // Verificar si hay más páginas
+                        const total = cattleData?.total || 0;
+                        hasMore = cattleList.length < total;
+                        page++;
+                    }
                 } catch (cattleError) {
-                    console.warn('Error al obtener animales (continuando):', cattleError);
+                    console.error('Error al obtener animales:', cattleError);
                     // Continuar aunque falle, mostrar 0
                 }
 
-                // Obtener datos de estimaciones con manejo de errores mejorado
+                // Obtener datos de estimaciones filtradas por los animales de la farm
                 let estimationsList = [];
                 try {
-                    const estimationsData = await getAllWeightEstimations();
-                    // El backend puede retornar { weighings: [], total: 0 } o directamente []
-                    estimationsList = Array.isArray(estimationsData)
-                        ? estimationsData
-                        : (estimationsData?.weighings || []);
+                    const animalIds = Array.from(new Set(cattleList.map(animal => animal.id)));
+                    console.log(`📊 Obteniendo estimaciones para ${animalIds.length} animales...`);
+
+                    if (animalIds.length > 0) {
+                        // Procesar en lotes para no sobrecargar el servidor
+                        const batchSize = 10; // Procesar 10 animales a la vez
+
+                        for (let i = 0; i < animalIds.length; i += batchSize) {
+                            const batch = animalIds.slice(i, i + batchSize);
+                            console.log(`📦 Procesando lote ${Math.floor(i / batchSize) + 1}/${Math.ceil(animalIds.length / batchSize)} (${batch.length} animales)`);
+
+                            const batchPromises = batch.map(async (animalId) => {
+                                try {
+                                    // Obtener todas las estimaciones de este animal con paginación
+                                    let animalEstimations = [];
+                                    let page = 1;
+                                    let hasMore = true;
+                                    const pageSize = 100;
+
+                                    while (hasMore) {
+                                        const result = await getWeightEstimationsByCriteria(
+                                            { animal_id: animalId },
+                                            { page, page_size: pageSize }
+                                        );
+
+                                        const weighings = result?.weighings || [];
+                                        animalEstimations = [...animalEstimations, ...weighings];
+
+                                        const total = result?.total || 0;
+                                        hasMore = animalEstimations.length < total;
+                                        page++;
+                                    }
+
+                                    return animalEstimations;
+                                } catch (error) {
+                                    console.error(`❌ Error obteniendo estimaciones para animal ${animalId}:`, error.message);
+                                    return []; // Continuar si falla para un animal
+                                }
+                            });
+
+                            const batchResults = await Promise.all(batchPromises);
+                            estimationsList = [...estimationsList, ...batchResults.flat()];
+                        }
+                    }
+
+                    console.log(`✅ Total de estimaciones obtenidas: ${estimationsList.length}`);
                 } catch (estimationsError) {
-                    console.warn('Error al obtener estimaciones (continuando):', estimationsError);
+                    console.error('Error al obtener estimaciones:', estimationsError);
                     // Continuar aunque falle, mostrar 0
                 }
 
                 // Calcular estadísticas
                 const totalCattle = cattleList.length;
-                
+
                 // Calcular peso promedio (de estimaciones más recientes por animal)
                 const weights = estimationsList
                     .map(est => est.estimated_weight_kg || est.estimated_weight)
@@ -61,6 +134,8 @@ function DashboardStatsContainer() {
                 const totalBreeds = uniqueBreeds.size;
 
                 const totalEstimations = estimationsList.length;
+
+
 
                 setStats({
                     totalCattle,

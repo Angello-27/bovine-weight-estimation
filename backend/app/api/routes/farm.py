@@ -6,7 +6,7 @@ Endpoints REST para gestión de fincas
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, Query, Response, status
+from fastapi import APIRouter, Depends, Query, status
 
 from ...core.dependencies import (
     get_create_farm_usecase,
