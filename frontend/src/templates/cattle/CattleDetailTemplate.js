@@ -238,7 +238,7 @@ function CattleDetailTemplate({
                                             </Grid>
                                             
                                             {cattle.observations && (
-                                                <Grid item xs={12}>
+                                <Grid item xs={12}>
                                                     <Box>
                                                         <CustomTypography variant="body2" sx={{ mb: 1, fontWeight: 500, display: 'flex', alignItems: 'center', gap: 0.5 }}>
                                                             <NotesIcon fontSize="small" />
@@ -356,14 +356,14 @@ function CattleDetailTemplate({
 
                             {tabValue === 2 && (
                                 <Box sx={{ minHeight: '400px', width: '100%' }}>
-                                    <CattleLineageTree
-                                        cattle={cattle}
-                                        father={father}
-                                        mother={mother}
+                                        <CattleLineageTree
+                                            cattle={cattle}
+                                            father={father}
+                                            mother={mother}
                                         descendants={lineage?.descendants || []}
-                                        onViewFather={onViewFather}
-                                        onViewMother={onViewMother}
-                                    />
+                                            onViewFather={onViewFather}
+                                            onViewMother={onViewMother}
+                                        />
                                 </Box>
                             )}
 
