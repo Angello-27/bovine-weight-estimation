@@ -14,7 +14,7 @@ import ErrorView from '../views/ErrorView';
 import LoginView from '../views/LoginView';
 import DashboardView from '../views/DashboardView';
 import CattleView from '../views/cattle/CattleView';
-import WeightEstimationsView from '../views/WeightEstimationsView';
+import WeightEstimationsView from '../views/weight-estimations/WeightEstimationsView';
 import SyncStatusView from '../views/SyncStatusView';
 import CattleDetailView from '../views/cattle/CattleDetailView';
 import WeightEstimationFromWebView from '../views/WeightEstimationFromWebView';
