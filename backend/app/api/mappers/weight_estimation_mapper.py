@@ -5,9 +5,11 @@ Convierte entre Weight Estimation DTOs y Entities
 
 from uuid import UUID
 
+from ...domain.entities.animal import Animal
 from ...domain.entities.weight_estimation import WeightEstimation
 from ...domain.shared.constants import BreedType
 from ...schemas.weighing_schemas import (
+    AnimalInfo,
     WeighingCreateRequest,
     WeighingResponse,
 )
@@ -21,12 +23,15 @@ class WeightEstimationMapper:
     """
 
     @staticmethod
-    def to_response(estimation: WeightEstimation) -> WeighingResponse:
+    def to_response(
+        estimation: WeightEstimation, animal: Animal | None = None
+    ) -> WeighingResponse:
         """
         Convierte WeightEstimation Entity a WeighingResponse DTO.
 
         Args:
             estimation: Entidad WeightEstimation del dominio
+            animal: Entidad Animal opcional para incluir información del animal
 
         Returns:
             WeighingResponse DTO
@@ -41,9 +46,19 @@ class WeightEstimationMapper:
         else:
             breed = breed_value
 
+        # Incluir información del animal si está disponible
+        animal_info = None
+        if animal:
+            animal_info = AnimalInfo(
+                id=animal.id,
+                name=animal.name,
+                ear_tag=animal.ear_tag,
+            )
+
         return WeighingResponse(
             id=estimation.id,
             animal_id=UUID(estimation.animal_id) if estimation.animal_id else None,
+            animal=animal_info,
             breed=breed,
             estimated_weight_kg=estimation.estimated_weight_kg,
             confidence=estimation.confidence,

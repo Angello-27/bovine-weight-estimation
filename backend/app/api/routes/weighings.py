@@ -8,15 +8,18 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, Query, status
 
+from ...core.dependencies.repositories import get_animal_repository
 from ...core.dependencies.weight_estimations import (
     get_all_weight_estimations_usecase,
     get_create_weight_estimation_usecase,
+    get_delete_weight_estimation_usecase,
     get_get_weight_estimations_by_criteria_usecase,
     get_weight_estimation_by_id_usecase,
     get_weight_estimations_by_animal_id_usecase,
 )
 from ...domain.usecases.weight_estimations import (
     CreateWeightEstimationUseCase,
+    DeleteWeightEstimationUseCase,
     GetAllWeightEstimationsUseCase,
     GetWeightEstimationByIdUseCase,
     GetWeightEstimationsByAnimalIdUseCase,
@@ -114,7 +117,18 @@ async def get_weighings_by_criteria(
         filters=filters, skip=skip, limit=page_size
     )
 
-    weighings = [WeightEstimationMapper.to_response(e) for e in estimations]
+    # Obtener información de animales para las estimaciones que tienen animal_id
+    animal_repo = get_animal_repository()
+    import contextlib
+    from uuid import UUID
+
+    weighings = []
+    for estimation in estimations:
+        animal = None
+        if estimation.animal_id:
+            with contextlib.suppress(Exception):
+                animal = await animal_repo.get_by_id(UUID(estimation.animal_id))
+        weighings.append(WeightEstimationMapper.to_response(estimation, animal))
 
     return WeighingsListResponse(
         total=total,
@@ -152,7 +166,15 @@ async def get_animal_weighings(
         animal_id=animal_id, skip=skip, limit=page_size
     )
 
-    weighings = [WeightEstimationMapper.to_response(e) for e in estimations]
+    # Obtener información del animal (es el mismo para todas las estimaciones)
+    animal_repo = get_animal_repository()
+    import contextlib
+
+    animal = None
+    with contextlib.suppress(Exception):
+        animal = await animal_repo.get_by_id(animal_id)
+
+    weighings = [WeightEstimationMapper.to_response(e, animal) for e in estimations]
 
     return WeighingsListResponse(
         total=len(weighings),
@@ -177,7 +199,18 @@ async def get_weighing(
 ) -> WeighingResponse:
     """Obtiene una estimación por ID."""
     estimation = await get_by_id_usecase.execute(weighing_id)
-    return WeightEstimationMapper.to_response(estimation)
+
+    # Obtener información del animal si existe
+    animal = None
+    if estimation.animal_id:
+        animal_repo = get_animal_repository()
+        import contextlib
+        from uuid import UUID
+
+        with contextlib.suppress(Exception):
+            animal = await animal_repo.get_by_id(UUID(estimation.animal_id))
+
+    return WeightEstimationMapper.to_response(estimation, animal)
 
 
 @router.get(
@@ -198,7 +231,18 @@ async def list_weighings(
     skip = calculate_skip(page=page, page_size=page_size)
     estimations = await get_all_usecase.execute(skip=skip, limit=page_size)
 
-    weighings = [WeightEstimationMapper.to_response(e) for e in estimations]
+    # Obtener información de animales para las estimaciones que tienen animal_id
+    animal_repo = get_animal_repository()
+    import contextlib
+    from uuid import UUID
+
+    weighings = []
+    for estimation in estimations:
+        animal = None
+        if estimation.animal_id:
+            with contextlib.suppress(Exception):
+                animal = await animal_repo.get_by_id(UUID(estimation.animal_id))
+        weighings.append(WeightEstimationMapper.to_response(estimation, animal))
 
     return WeighingsListResponse(
         total=len(weighings),
@@ -206,3 +250,28 @@ async def list_weighings(
         page=page,
         page_size=page_size,
     )
+
+
+@router.delete(
+    "/{weighing_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Eliminar estimación de peso",
+    description="""
+    Elimina una estimación de peso.
+
+    **Validaciones**:
+    - La estimación debe existir
+    - Requiere autenticación
+
+    **US-004**: Historial de Pesajes
+    """,
+)
+@handle_domain_exceptions
+async def delete_weighing(
+    weighing_id: UUID,
+    delete_usecase: Annotated[
+        DeleteWeightEstimationUseCase, Depends(get_delete_weight_estimation_usecase)
+    ],
+):
+    """Elimina una estimación de peso."""
+    await delete_usecase.execute(weighing_id)

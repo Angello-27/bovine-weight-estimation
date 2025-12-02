@@ -135,3 +135,16 @@ class WeightEstimationRepository(ABC):
             Número total de estimaciones que coinciden con los criterios
         """
         pass
+
+    @abstractmethod
+    async def delete(self, estimation_id: UUID) -> bool:
+        """
+        Elimina una estimación de peso.
+
+        Args:
+            estimation_id: ID de la estimación a eliminar
+
+        Returns:
+            True si se eliminó exitosamente, False si no se encontró
+        """
+        pass

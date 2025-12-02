@@ -23,8 +23,13 @@ function WeightEstimationsView() {
             content={
                 <WeightEstimationTemplate 
                     {...estimationsProps} 
-                    onViewClick={handleViewClick} 
+                    onViewClick={handleViewClick}
+                    onDeleteClick={estimationsProps.onDeleteClick}
                     onEstimateClick={handleEstimateClick}
+                    showDeleteDialog={estimationsProps.showDeleteDialog}
+                    deleteItem={estimationsProps.deleteItem}
+                    onCloseDeleteDialog={estimationsProps.onCloseDeleteDialog}
+                    onConfirmDelete={estimationsProps.onConfirmDelete}
                 />
             } 
         />

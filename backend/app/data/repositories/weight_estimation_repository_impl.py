@@ -155,6 +155,14 @@ class WeightEstimationRepositoryImpl(WeightEstimationRepository):
 
         return count
 
+    async def delete(self, estimation_id: UUID) -> bool:
+        """Elimina una estimación de peso."""
+        model = await WeightEstimationModel.get(estimation_id)
+        if model is None:
+            return False
+        await model.delete()
+        return True
+
     def _to_entity(self, model: WeightEstimationModel) -> WeightEstimation:
         """Convierte Model a Entity."""
         return WeightEstimation(

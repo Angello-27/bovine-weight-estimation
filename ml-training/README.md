@@ -1,9 +1,11 @@
 # 🐄 ML Training - Sistema de Estimación de Peso Bovino
 
 **Proyecto**: Hacienda Gamelera (Bruno Brito Macedo)  
-**Objetivo**: Entrenar 8 modelos TensorFlow Lite para estimación de peso por raza  
+**Objetivo**: Entrenar modelos TensorFlow Lite para estimación de peso (genérico multi-raza + opcional por raza)  
 **Stack**: TensorFlow 2.19+ | MLflow | DVC | Albumentations 2.0.8  
-**Estado**: ✅ **Listo para entrenamiento**
+**Estado**: ✅ **Modelo genérico en producción** | ⚠️ **Modelos por raza listos para entrenamiento**
+
+> **Nota importante**: El sistema actualmente usa un **modelo genérico multi-raza** (`generic-cattle-v1.0.0.tflite`) que funciona para las 7 razas tropicales. Los scripts para entrenar modelos específicos por raza están listos pero no se han ejecutado aún.
 
 ---
 
@@ -163,6 +165,17 @@ print(f"MAE: {metrics.mae_kg:.2f} kg")
    - Se combinan automáticamente en BLOQUE 8
 
 **Total combinado**: ~19,299+ imágenes para entrenamiento
+
+## 🎯 Modelo en Producción
+
+**Modelo Actual**: `generic-cattle-v1.0.0.tflite`
+- ✅ **Tipo**: Modelo genérico multi-raza
+- ✅ **Ubicación**: `backend/ml_models/generic-cattle-v1.0.0.tflite`
+- ✅ **Cobertura**: 7 razas tropicales (Nelore, Brahman, Guzerat, Senepol, Girolando, Gyr lechero, Sindi)
+- ✅ **Ventajas**: Menor tamaño, mejor generalización, más fácil de mantener
+- ✅ **Estado**: En producción y funcionando
+
+> **Nota**: Los scripts para entrenar modelos específicos por raza están disponibles pero no se han ejecutado. El modelo genérico cumple con los objetivos de precisión (R² ≥ 0.95, MAE < 5 kg).
 
 ---
 

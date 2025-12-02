@@ -107,10 +107,21 @@ frontend/
 │   │   ├── user/       # Servicios de usuarios
 │   │   ├── role/       # Servicios de roles
 │   │   ├── sync/       # Servicios de sincronización
-│   │   └── reports/    # Servicios de reportes
+│   │   ├── reports/    # Servicios de reportes
+│   │   ├── ml/         # Servicios de ML (estimación desde web)
+│   │   └── alerts/     # Servicios de alertas y cronograma
 │   ├── templates/      # Templates de páginas (layouts de vistas)
 │   ├── utils/          # Utilidades (transformers, helpers)
 │   └── views/          # Vistas principales (páginas de la aplicación)
+│       ├── DashboardView.js
+│       ├── cattle/     # CattleView.js, CattleDetailView.js
+│       ├── weight-estimations/  # WeightEstimationsView.js, WeightEstimationDetailView.js
+│       ├── WeightEstimationFromWebView.js  # Estimación de peso desde web (ML)
+│       ├── farm/       # FarmView.js, FarmDetailView.js
+│       ├── user/       # UserView.js, UserDetailView.js
+│       ├── role/       # RoleView.js, RoleDetailView.js
+│       ├── SyncStatusView.js
+│       └── LoginView.js
 └── package.json
 ```
 
@@ -120,7 +131,7 @@ frontend/
 - `axiosClient.js`: Configuración base, interceptores de request/response
 
 **Services (`src/services/`)**: Casos de uso que interactúan con el backend
-- Organizados por dominio: `auth/`, `cattle/`, `weight-estimations/`, etc.
+- Organizados por dominio: `auth/`, `cattle/`, `weight-estimations/`, `farm/`, `user/`, `role/`, `sync/`, `reports/`, `ml/`, `alerts/`
 - Cada servicio representa un caso de uso específico
 
 **Containers (`src/containers/`)**: Hooks personalizados que orquestan servicios

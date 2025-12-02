@@ -41,11 +41,23 @@ class WeighingCreateRequest(BaseModel):
         return v
 
 
+class AnimalInfo(BaseModel):
+    """Información básica del animal para incluir en la respuesta de estimación."""
+
+    id: UUID
+    name: str | None = None
+    ear_tag: str | None = None
+
+    class Config:
+        from_attributes = True
+
+
 class WeighingResponse(BaseModel):
     """Response de una estimación de peso."""
 
     id: UUID
     animal_id: UUID | None
+    animal: AnimalInfo | None = None  # Información del animal si está disponible
     breed: BreedType
     estimated_weight_kg: float
     confidence: float

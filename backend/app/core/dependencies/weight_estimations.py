@@ -13,6 +13,7 @@ from ...domain.repositories.weight_estimation_repository import (
 )
 from ...domain.usecases.weight_estimations import (
     CreateWeightEstimationUseCase,
+    DeleteWeightEstimationUseCase,
     EstimateWeightFromImageUseCase,
     GetAllWeightEstimationsUseCase,
     GetWeightEstimationByIdUseCase,
@@ -91,5 +92,16 @@ def get_get_weight_estimations_by_criteria_usecase(
 ) -> GetWeightEstimationsByCriteriaUseCase:
     """Dependency para GetWeightEstimationsByCriteriaUseCase."""
     return GetWeightEstimationsByCriteriaUseCase(
+        weight_estimation_repository=weight_estimation_repository
+    )
+
+
+def get_delete_weight_estimation_usecase(
+    weight_estimation_repository: Annotated[
+        WeightEstimationRepository, Depends(get_weight_estimation_repository)
+    ],
+) -> DeleteWeightEstimationUseCase:
+    """Dependency para DeleteWeightEstimationUseCase."""
+    return DeleteWeightEstimationUseCase(
         weight_estimation_repository=weight_estimation_repository
     )

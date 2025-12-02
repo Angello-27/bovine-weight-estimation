@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { getWeightEstimationsByCriteria } from '../../services/weight-estimations/getWeightEstimationsByCriteria';
+import { deleteWeightEstimation } from '../../services/weight-estimations/deleteWeightEstimation';
 
 function GetAllWeightEstimations() {
     const [items, setItems] = useState([]);
@@ -76,6 +77,7 @@ function GetAllWeightEstimations() {
 
             console.log(`✅ Carga completa: ${allEstimations.length} estimaciones cargadas`);
 
+            // La información del animal ya viene en la respuesta del backend
             setItems(allEstimations);
             setPagination({
                 page: 0,
@@ -127,13 +129,49 @@ function GetAllWeightEstimations() {
         total: items.length
     };
 
+    // Estado del diálogo de eliminación
+    const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+    const [deleteItem, setDeleteItem] = useState(null);
+
+    const handleDeleteClick = (estimationId, estimation) => {
+        setDeleteItem({ id: estimationId, estimation });
+        setShowDeleteDialog(true);
+    };
+
+    const handleCloseDeleteDialog = () => {
+        setShowDeleteDialog(false);
+        setDeleteItem(null);
+    };
+
+    const handleConfirmDelete = async () => {
+        if (!deleteItem) return;
+
+        try {
+            await deleteWeightEstimation(deleteItem.id);
+            // Cerrar el diálogo antes de recargar
+            handleCloseDeleteDialog();
+            // Recargar los datos después de eliminar
+            await fetchAllData();
+        } catch (error) {
+            // Cerrar el diálogo para que el usuario pueda ver el error
+            handleCloseDeleteDialog();
+            alert(`Error al eliminar la estimación: ${error.message}`);
+            console.error('Error al eliminar estimación:', error);
+        }
+    };
+
     return { 
         items: paginatedItems, 
         loading, 
         error,
         pagination: tablePagination,
         onPageChange: handlePageChange,
-        onPageSizeChange: handlePageSizeChange
+        onPageSizeChange: handlePageSizeChange,
+        onDeleteClick: handleDeleteClick,
+        showDeleteDialog,
+        deleteItem,
+        onCloseDeleteDialog: handleCloseDeleteDialog,
+        onConfirmDelete: handleConfirmDelete
     };
 }
 

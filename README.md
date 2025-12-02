@@ -147,7 +147,7 @@ Donde:
 
 1. **Mobile App**: Captura continua, procesamiento local, UI intuitiva, sincronización
 2. **Backend API**: Lógica de negocio, integraciones normativas, gestión de datos
-3. **ML Engine**: Modelo genérico TensorFlow Lite para todas las razas, inferencia optimizada
+3. **ML Engine**: Modelo genérico TensorFlow Lite (`generic-cattle-v1.0.0.tflite`) integrado y funcionando para todas las razas, inferencia optimizada
 4. **Database**: MongoDB (cloud) + SQLite (local offline)
 5. **Cloud Storage**: AWS S3 para modelos ML y manifest.json
 
@@ -346,7 +346,8 @@ cd ml-training && pytest tests/ -v
 - [🎯 Sprint 1 - Validación Core](docs/sprints/sprint-01/sprint-goal.md) - Captura, selección, estimación offline (✅ Completado)
 - [📊 Sprint 2 - Modernización + Análisis](docs/sprints/sprint-02/sprint-goal.md) - UI/UX moderna, análisis, sincronización (✅ Completado)
   - [📈 Sprint 2 Progress](docs/sprints/sprint-02/sprint-progress.md) - Detalles de modernización UI/UX
-- [🔗 Sprint 3 - Integraciones](docs/sprints/sprint-03/sprint-goal.md) - SENASAG, REGENSA, ASOCEBU (🔜 En progreso)
+- [🔗 Sprint 3 - Integraciones](docs/sprints/sprint-03/sprint-goal.md) - SENASAG, REGENSA, ASOCEBU (🔄 60% completado)
+  - [📈 Sprint 3 Progress](docs/sprints/sprint-03/sprint-progress.md) - Reportes backend completos, integraciones normativas en progreso
 
 ### 🏗️ Diseño y Arquitectura
 

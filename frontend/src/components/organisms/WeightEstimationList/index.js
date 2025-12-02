@@ -5,13 +5,16 @@ import LinkButton from '../../atoms/LinkButton';
 import CustomIconButton from '../../atoms/IconButton';
 import Chip from '@mui/material/Chip';
 import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
 import { useNavigate } from 'react-router-dom';
 import { breedToComboBox } from '../../../utils/transformers/breedToComboBox';
 import VisibilityIcon from '@mui/icons-material/Visibility';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 function WeightEstimationList({ 
     items, 
-    onViewClick, 
+    onViewClick,
+    onDeleteClick,
     pagination, 
     onPageChange, 
     onPageSizeChange
@@ -63,14 +66,37 @@ function WeightEstimationList({
             field: 'animal_id',
             render: (value, row) => {
                 if (!value) return '-';
+                const animalName = row.animal?.name;
+                const animalEarTag = row.animal?.ear_tag;
+                
+                if (!animalName && !animalEarTag) {
+                    return (
+                        <LinkButton
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                navigate(`/cattle/${value}`);
+                            }}
+                        >
+                            Ver Animal
+                        </LinkButton>
+                    );
+                }
+                
+                const displayText = animalEarTag 
+                    ? (animalName ? `${animalEarTag} - ${animalName}` : animalEarTag)
+                    : animalName;
+                
                 return (
                     <LinkButton
                         onClick={(e) => {
                             e.stopPropagation();
                             navigate(`/cattle/${value}`);
                         }}
+                        sx={{ textTransform: 'none' }}
                     >
-                        Ver Animal
+                        <Typography variant="body2" component="span">
+                            {displayText}
+                        </Typography>
                     </LinkButton>
                 );
             }
@@ -131,6 +157,20 @@ function WeightEstimationList({
                             }
                         }}
                     />
+                    {onDeleteClick && (
+                        <CustomIconButton
+                            icon={<DeleteIcon />}
+                            tooltip="Eliminar estimación"
+                            color="error"
+                            size="small"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                if (onDeleteClick && value) {
+                                    onDeleteClick(value, row);
+                                }
+                            }}
+                        />
+                    )}
                 </Box>
             )
         }

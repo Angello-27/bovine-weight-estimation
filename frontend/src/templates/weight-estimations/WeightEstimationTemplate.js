@@ -7,17 +7,23 @@ import CustomButton from '../../components/atoms/CustomButton';
 import CustomTypography from '../../components/atoms/CustomTypography';
 import LoadingState from '../../components/molecules/LoadingState';
 import ErrorState from '../../components/molecules/ErrorState';
+import ConfirmDialog from '../../components/molecules/ConfirmDialog';
 import AddIcon from '@mui/icons-material/Add';
 
 function WeightEstimationTemplate({ 
     items, 
     loading, 
     error, 
-    onViewClick, 
+    onViewClick,
+    onDeleteClick,
     onEstimateClick,
     pagination,
     onPageChange,
-    onPageSizeChange
+    onPageSizeChange,
+    showDeleteDialog,
+    deleteItem,
+    onCloseDeleteDialog,
+    onConfirmDelete
 }) {
     return (
         <Box sx={{ width: '100%' }}>
@@ -49,6 +55,7 @@ function WeightEstimationTemplate({
                             <WeightEstimationList 
                                 items={items} 
                                 onViewClick={onViewClick}
+                                onDeleteClick={onDeleteClick}
                                 pagination={pagination}
                                 onPageChange={onPageChange}
                                 onPageSizeChange={onPageSizeChange}
@@ -56,6 +63,22 @@ function WeightEstimationTemplate({
                         </Box>
                     )}
                 </LoadingState>
+
+                {/* Dialog de confirmación para eliminar */}
+                <ConfirmDialog
+                    open={showDeleteDialog || false}
+                    onClose={onCloseDeleteDialog}
+                    onConfirm={onConfirmDelete}
+                    title="Eliminar Estimación de Peso"
+                    message={
+                        deleteItem?.estimation
+                            ? `¿Estás seguro de que deseas eliminar esta estimación de peso (${deleteItem.estimation.estimated_weight_kg?.toFixed(1) || 'N/A'} kg)? Esta acción no se puede deshacer.`
+                            : '¿Estás seguro de que deseas eliminar esta estimación de peso? Esta acción no se puede deshacer.'
+                    }
+                    confirmText="Eliminar"
+                    cancelText="Cancelar"
+                    confirmColor="error"
+                />
             </Container>
         </Box>
     );
