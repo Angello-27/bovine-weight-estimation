@@ -134,7 +134,6 @@ function CreateCattle({
                     {/* Campos opcionales */}
                     <InputField 
                         xs={12} 
-                        md={6}
                         label="Nombre" 
                         name="name" 
                         value={formData.name || ''} 
