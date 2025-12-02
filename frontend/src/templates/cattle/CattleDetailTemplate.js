@@ -333,7 +333,6 @@ function CattleDetailTemplate({
                                     <Tab label="Trazabilidad" />
                                     <Tab label="Historial de Pesos" />
                                     <Tab label="Linaje" />
-                                    <Tab label="Descendencia" />
                                     <Tab label="Galería" />
                                 </Tabs>
                             </Box>
@@ -356,83 +355,19 @@ function CattleDetailTemplate({
                             )}
 
                             {tabValue === 2 && (
-                                <Grid container spacing={3}>
-                                    <Grid item xs={12}>
-                                        <CattleLineageTree
-                                            cattle={cattle}
-                                            father={father}
-                                            mother={mother}
-                                            descendants={lineage?.descendants || []}
-                                            onViewFather={onViewFather}
-                                            onViewMother={onViewMother}
-                                        />
-                                    </Grid>
-                                </Grid>
+                                <Box sx={{ minHeight: '400px', width: '100%' }}>
+                                    <CattleLineageTree
+                                        cattle={cattle}
+                                        father={father}
+                                        mother={mother}
+                                        descendants={lineage?.descendants || []}
+                                        onViewFather={onViewFather}
+                                        onViewMother={onViewMother}
+                                    />
+                                </Box>
                             )}
 
                             {tabValue === 3 && (
-                                <Grid container spacing={3}>
-                                    <Grid item xs={12}>
-                                        <Card sx={{ p: 3 }}>
-                                            <CustomTypography variant="h6" sx={{ mb: 3, display: 'flex', alignItems: 'center', gap: 1 }}>
-                                                <FamilyRestroomIcon />
-                                                Descendencia
-                                            </CustomTypography>
-                                            <Divider sx={{ mb: 3 }} />
-                                            {lineage?.descendants && lineage.descendants.length > 0 ? (
-                                                <Grid container spacing={2}>
-                                                    {lineage.descendants.map((descendant) => (
-                                                        <Grid item xs={12} sm={6} md={4} key={descendant.id}>
-                                                            <Card 
-                                                                sx={{ 
-                                                                    p: 2, 
-                                                                    cursor: 'pointer',
-                                                                    '&:hover': { boxShadow: 4 },
-                                                                    transition: 'box-shadow 0.3s ease'
-                                                                }}
-                                                                onClick={() => navigate(`/cattle/${descendant.id}`)}
-                                                            >
-                                                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-                                                                    <TagIcon fontSize="small" color="primary" />
-                                                                    <CustomTypography variant="subtitle1" sx={{ fontWeight: 600 }}>
-                                                                        {descendant.ear_tag || 'Sin caravana'}
-                                                                    </CustomTypography>
-                                                                </Box>
-                                                                {descendant.name && (
-                                                                    <CustomTypography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                                                                        {descendant.name}
-                                                                    </CustomTypography>
-                                                                )}
-                                                                <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', mt: 1 }}>
-                                                                    <CustomTypography variant="caption" color="text.secondary">
-                                                                        {getBreedLabel(descendant.breed)}
-                                                                    </CustomTypography>
-                                                                    <CustomTypography variant="caption" color="text.secondary">
-                                                                        {getGenderLabel(descendant.gender)}
-                                                                    </CustomTypography>
-                                                                    {descendant.birth_date && (
-                                                                        <CustomTypography variant="caption" color="text.secondary">
-                                                                            {formatDate(descendant.birth_date)}
-                                                                        </CustomTypography>
-                                                                    )}
-                                                                </Box>
-                                                            </Card>
-                                                        </Grid>
-                                                    ))}
-                                                </Grid>
-                                            ) : (
-                                                <Box sx={{ textAlign: 'center', py: 4 }}>
-                                                    <CustomTypography variant="body1" color="text.secondary">
-                                                        Este animal no tiene descendencia registrada.
-                                                    </CustomTypography>
-                                                </Box>
-                                            )}
-                                        </Card>
-                                    </Grid>
-                                </Grid>
-                            )}
-
-                            {tabValue === 4 && (
                                 <Grid container spacing={3}>
                                     <Grid item xs={12}>
                                         <ImageGallery 

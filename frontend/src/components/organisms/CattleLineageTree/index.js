@@ -67,7 +67,7 @@ function CattleLineageTree({ cattle, father, mother, descendants = [], onViewFat
     }
 
     return (
-        <Card sx={{ p: 3 }}>
+        <Card sx={{ p: 3, width: '100%', minHeight: 'auto' }}>
             <Box display="flex" alignItems="center" gap={1} mb={3}>
                 <FamilyRestroomIcon color="primary" />
                 <CustomTypography variant="h6">
@@ -81,8 +81,8 @@ function CattleLineageTree({ cattle, father, mother, descendants = [], onViewFat
                     <CustomTypography variant="subtitle1" sx={{ mb: 3, fontWeight: 600 }}>
                         Descendencia Directa ({descendants.length} {descendants.length === 1 ? 'hijo' : 'hijos'})
                     </CustomTypography>
-                    <Box>
-                        <Grid container spacing={2}>
+                    <Box sx={{ width: '100%' }}>
+                        <Grid container spacing={2} sx={{ width: '100%' }}>
                             {descendants.map((descendant) => {
                                 const getStatusColor = (status) => {
                                     const colorMap = {
