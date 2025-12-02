@@ -1,13 +1,14 @@
 // frontend/src/containers/weight-estimations/EstimateWeightFromImage.js
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import estimateWeightFromImage from '../../services/weight-estimations/estimateWeightFromImage';
 import createWeightEstimation from '../../services/weight-estimations/createWeightEstimation';
 
-function EstimateWeightFromImage(initialAnimalId = null) {
+function EstimateWeightFromImage(initialAnimalId = null, allCattle = []) {
     const navigate = useNavigate();
 
+    const [selectedBreed, setSelectedBreed] = useState('');
     const [formData, setFormData] = useState({
         image: null,
         cattle_id: initialAnimalId || '',
@@ -18,6 +19,14 @@ function EstimateWeightFromImage(initialAnimalId = null) {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [imagePreview, setImagePreview] = useState(null);
+
+    // Filtrar ganado por raza seleccionada
+    const filteredCattle = useMemo(() => {
+        if (!selectedBreed || !allCattle || allCattle.length === 0) {
+            return [];
+        }
+        return allCattle.filter(cattle => cattle.breed === selectedBreed);
+    }, [selectedBreed, allCattle]);
 
     const handleImageChange = (event) => {
         const file = event.target.files?.[0];
@@ -48,24 +57,32 @@ function EstimateWeightFromImage(initialAnimalId = null) {
         }
     };
 
-    const handleChange = (event) => {
-        const { name, value } = event.target;
+    const handleBreedSelect = (breedId) => {
+        setSelectedBreed(breedId);
         setFormData(prev => ({
             ...prev,
-            [name]: value
+            breed: breedId,
+            cattle_id: '' // Resetear selección de animal al cambiar raza
         }));
+        setEstimationResult(null);
+        setError(null);
     };
 
-    const handleComboBoxChange = (fieldName, value) => {
+    const handleCattleSelect = (cattleId) => {
         setFormData(prev => ({
             ...prev,
-            [fieldName]: value
+            cattle_id: cattleId || ''
         }));
     };
 
     const handleEstimate = async () => {
         if (!formData.image) {
             setError('Por favor seleccione una imagen.');
+            return;
+        }
+
+        if (!selectedBreed) {
+            setError('Por favor seleccione una raza primero.');
             return;
         }
 
@@ -76,7 +93,7 @@ function EstimateWeightFromImage(initialAnimalId = null) {
         try {
             const result = await estimateWeightFromImage(
                 formData.image,
-                formData.breed,
+                selectedBreed,
                 formData.cattle_id || null
             );
 
@@ -99,19 +116,18 @@ function EstimateWeightFromImage(initialAnimalId = null) {
 
         try {
             const estimationData = {
-                cattle_id: formData.cattle_id || null,
+                animal_id: formData.cattle_id || null,
                 breed: estimationResult.breed || formData.breed,
-                estimated_weight: estimationResult.estimated_weight,
-                confidence_score: estimationResult.confidence_score,
+                estimated_weight_kg: estimationResult.estimated_weight,
+                confidence: estimationResult.confidence_score,
                 frame_image_path: estimationResult.image_path || '',
-                timestamp: new Date().toISOString(),
                 method: 'web_upload',
-                model_version: estimationResult.model_version || '1.0.0',
+                ml_model_version: estimationResult.model_version || '1.0.0',
                 processing_time_ms: estimationResult.processing_time_ms || 0
             };
 
             await createWeightEstimation(estimationData);
-            
+
             // Redirigir a la lista de estimaciones
             navigate('/weight-estimations');
         } catch (err) {
@@ -122,6 +138,7 @@ function EstimateWeightFromImage(initialAnimalId = null) {
     };
 
     const handleReset = () => {
+        setSelectedBreed('');
         setFormData({
             image: null,
             cattle_id: '',
@@ -138,12 +155,14 @@ function EstimateWeightFromImage(initialAnimalId = null) {
         loading,
         error,
         imagePreview,
-        handleImageChange,
-        handleChange,
-        handleComboBoxChange,
-        handleEstimate,
-        handleSaveEstimation,
-        handleReset
+        selectedBreed,
+        filteredCattle,
+        onImageChange: handleImageChange,
+        onBreedSelect: handleBreedSelect,
+        onCattleSelect: handleCattleSelect,
+        onEstimate: handleEstimate,
+        onSaveEstimation: handleSaveEstimation,
+        onReset: handleReset
     };
 }
 

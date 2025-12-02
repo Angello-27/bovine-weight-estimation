@@ -3,28 +3,42 @@
 import Box from "@mui/material/Box";
 import CustomButton from '../../atoms/CustomButton';
 import CustomTypography from '../../atoms/CustomTypography';
-import Card from '../../atoms/Card';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import { useTheme } from "@mui/material/styles";
 
-function ImageUploader({ imagePreview, onImageChange, loading }) {
+function ImageUploader({ imagePreview, onImageChange, loading, showTitle = true }) {
+    const theme = useTheme();
+
     return (
-        <Card>
-            <CustomTypography variant="h6" mb={2}>
-                Subir Imagen
-            </CustomTypography>
-            
+        <Box>
+            {showTitle && (
+                <CustomTypography variant="h6" mb={2}>
+                    Subir Imagen
+                </CustomTypography>
+            )}
+
             <Box
                 sx={{
-                    border: '2px dashed',
-                    borderColor: 'primary.main',
-                    borderRadius: 2,
+                    position: 'relative',
+                    border: '3px dashed',
+                    borderColor: imagePreview ? theme.palette.success.main : theme.palette.primary.main,
+                    borderRadius: 3,
                     p: 3,
                     textAlign: 'center',
                     cursor: loading ? 'not-allowed' : 'pointer',
                     opacity: loading ? 0.6 : 1,
+                    backgroundColor: imagePreview
+                        ? `${theme.palette.success.main}05`
+                        : `${theme.palette.primary.main}05`,
+                    transition: 'all 0.3s ease',
                     '&:hover': {
-                        borderColor: loading ? 'primary.main' : 'primary.dark',
-                        bgcolor: loading ? 'transparent' : 'action.hover'
+                        borderColor: loading
+                            ? (imagePreview ? theme.palette.success.main : theme.palette.primary.main)
+                            : (imagePreview ? theme.palette.success.dark : theme.palette.primary.dark),
+                        backgroundColor: loading
+                            ? (imagePreview ? `${theme.palette.success.main}05` : `${theme.palette.primary.main}05`)
+                            : (imagePreview ? `${theme.palette.success.main}10` : `${theme.palette.primary.main}10`),
+                        transform: loading ? 'none' : 'scale(1.01)',
                     }
                 }}
                 onClick={() => !loading && document.getElementById('image-upload').click()}
@@ -37,7 +51,7 @@ function ImageUploader({ imagePreview, onImageChange, loading }) {
                     style={{ display: 'none' }}
                     disabled={loading}
                 />
-                
+
                 {imagePreview ? (
                     <Box>
                         <img
@@ -45,36 +59,104 @@ function ImageUploader({ imagePreview, onImageChange, loading }) {
                             alt="Preview"
                             style={{
                                 maxWidth: '100%',
-                                maxHeight: '300px',
-                                borderRadius: '8px',
-                                marginBottom: '16px'
+                                maxHeight: '400px',
+                                borderRadius: '12px',
+                                boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
+                                objectFit: 'contain',
                             }}
                         />
-                        <CustomTypography variant="body2" color="text.secondary">
+                        <CustomTypography
+                            variant="caption"
+                            color="text.secondary"
+                            sx={{
+                                display: 'block',
+                                mt: 2,
+                                opacity: 0.8,
+                            }}
+                        >
                             Click para cambiar imagen
                         </CustomTypography>
                     </Box>
                 ) : (
                     <Box>
-                        <Box display="flex" alignItems="center" justifyContent="center" gap={1} mb={1}>
-                            <CloudUploadIcon color="primary" />
-                            <CustomTypography variant="body1">
-                                Arrastra imagen aquí o
+                        <Box
+                            sx={{
+                                display: 'inline-flex',
+                                p: 3,
+                                borderRadius: '50%',
+                                backgroundColor: `${theme.palette.primary.main}15`,
+                                mb: 2,
+                            }}
+                        >
+                            <CloudUploadIcon
+                                sx={{
+                                    fontSize: 56,
+                                    color: theme.palette.primary.main,
+                                }}
+                            />
+                        </Box>
+
+                        <CustomTypography
+                            variant="h6"
+                            sx={{
+                                mb: 1,
+                                color: theme.palette.text.primary,
+                                fontWeight: 600,
+                            }}
+                        >
+                            Arrastra tu imagen aquí
+                        </CustomTypography>
+
+                        <CustomTypography
+                            variant="body2"
+                            color="text.secondary"
+                            sx={{ mb: 3 }}
+                        >
+                            o haz click para seleccionar
+                        </CustomTypography>
+
+                        <CustomButton
+                            variant="contained"
+                            component="span"
+                            disabled={loading}
+                            size="large"
+                            startIcon={<CloudUploadIcon />}
+                            sx={{
+                                px: 4,
+                                py: 1.5,
+                                borderRadius: 2,
+                            }}
+                        >
+                            Seleccionar Imagen
+                        </CustomButton>
+
+                        <Box
+                            sx={{
+                                mt: 3,
+                                pt: 2,
+                                borderTop: `1px solid ${theme.palette.grey[200]}`,
+                            }}
+                        >
+                            <CustomTypography
+                                variant="caption"
+                                color="text.secondary"
+                                sx={{ display: 'block' }}
+                            >
+                                <strong>Formatos aceptados:</strong> JPG, PNG, WEBP
+                            </CustomTypography>
+                            <CustomTypography
+                                variant="caption"
+                                color="text.secondary"
+                                sx={{ display: 'block', mt: 0.5 }}
+                            >
+                                <strong>Tamaño máximo:</strong> 10MB
                             </CustomTypography>
                         </Box>
-                        <CustomButton variant="outlined" component="span" disabled={loading}>
-                            Seleccionar archivo
-                        </CustomButton>
-                        <CustomTypography variant="body2" color="text.secondary" mt={2}>
-                            Formatos: JPG, PNG, WEBP<br />
-                            Tamaño máximo: 10MB
-                        </CustomTypography>
                     </Box>
                 )}
             </Box>
-        </Card>
+        </Box>
     );
 }
 
 export default ImageUploader;
-
