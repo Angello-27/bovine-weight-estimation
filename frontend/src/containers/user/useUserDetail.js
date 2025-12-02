@@ -60,19 +60,44 @@ function useUserDetail(userId) {
 
                 // Obtener farms donde el usuario es propietario usando el endpoint by-criteria
                 try {
-                    const farmsData = await getFarmsByCriteria(
-                        { owner_id: userId },
-                        { skip: 0, limit: 1000 } // Obtener hasta 1000 farms para mostrar en la tabla
-                    );
-                    const farms = farmsData.farms || [];
-                    const totalFarms = farmsData.total || 0; // Usar el total del backend
+                    // Obtener farms con paginación (el backend tiene límite de 100 por petición)
+                    let allFarms = [];
+                    let totalFarms = 0;
+                    let skip = 0;
+                    const limit = 100; // Límite máximo del backend
                     
-                    setOwnedFarms(farms);
+                    // Primera petición para obtener el total
+                    const firstPage = await getFarmsByCriteria(
+                        { owner_id: userId },
+                        { skip: 0, limit: limit }
+                    );
+                    
+                    totalFarms = firstPage?.total || 0;
+                    const firstPageFarms = firstPage?.farms || [];
+                    allFarms = [...allFarms, ...firstPageFarms];
+                    
+                    // Si hay más farms, obtener las siguientes páginas
+                    if (totalFarms > limit) {
+                        skip = limit;
+                        while (skip < totalFarms && allFarms.length < 500) { // Limitar a 500 farms para no sobrecargar
+                            const nextPage = await getFarmsByCriteria(
+                                { owner_id: userId },
+                                { skip: skip, limit: limit }
+                            );
+                            const nextPageFarms = nextPage?.farms || [];
+                            allFarms = [...allFarms, ...nextPageFarms];
+                            skip += limit;
+                            
+                            if (nextPageFarms.length === 0) break; // No hay más farms
+                        }
+                    }
+                    
+                    setOwnedFarms(allFarms);
                     setStats({
-                        ownedFarms: totalFarms, // Usar el total real del backend, no el length del array
+                        ownedFarms: totalFarms, // Total real del backend
                     });
                 } catch (statsError) {
-                    console.warn('Error al obtener farms del usuario:', statsError);
+                    console.error('Error al obtener farms del usuario:', statsError);
                     setOwnedFarms([]);
                     setStats({
                         ownedFarms: 0,

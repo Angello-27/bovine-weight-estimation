@@ -162,12 +162,20 @@ function RoleDetailTemplate({ role, users, stats, loading, error, roleId }) {
                                         </Grid>
                                     </Card>
 
-                                    {/* Tabla de usuarios con este rol */}
+                                    {/* Tabla de usuarios con este rol - Solo mostrar si hay usuarios */}
                                     {users && users.length > 0 && (
                                         <Card sx={{ p: 3 }}>
                                             <CustomTypography variant="h6" sx={{ mb: 3, display: 'flex', alignItems: 'center', gap: 1 }}>
                                                 <PeopleIcon />
                                                 Usuarios con este Rol
+                                                {stats.totalUsers > 0 && (
+                                                    <Chip 
+                                                        label={stats.totalUsers} 
+                                                        size="small" 
+                                                        color="primary" 
+                                                        sx={{ ml: 1 }}
+                                                    />
+                                                )}
                                             </CustomTypography>
                                             <Divider sx={{ mb: 3 }} />
                                             

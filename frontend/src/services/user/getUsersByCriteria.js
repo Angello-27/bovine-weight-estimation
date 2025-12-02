@@ -14,6 +14,7 @@ const getUsersByCriteria = async (filters = {}, pagination = {}) => {
             ...pagination,
             ...filters,
         };
+        
         const response = await apiClient.get('/user/by-criteria', { params });
         return response.data;
     } catch (error) {
@@ -30,7 +31,7 @@ const getUsersByCriteria = async (filters = {}, pagination = {}) => {
             }
         }
         
-        if (error.response && error.response.status === 400) {
+        if (error.response && (error.response.status === 400 || error.response.status === 422)) {
             const message = backendMessage || 'Los datos proporcionados son incorrectos.';
             throw new Error(message);
         } else {

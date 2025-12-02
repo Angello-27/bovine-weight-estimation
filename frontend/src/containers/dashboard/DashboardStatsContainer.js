@@ -67,54 +67,63 @@ function DashboardStatsContainer() {
                 // Obtener datos de estimaciones filtradas por los animales de la farm
                 let estimationsList = [];
                 try {
-                    const animalIds = Array.from(new Set(cattleList.map(animal => animal.id)));
-                    console.log(`📊 Obteniendo estimaciones para ${animalIds.length} animales...`);
+                    const animalIds = new Set(cattleList.map(animal => animal.id));
 
-                    if (animalIds.length > 0) {
-                        // Procesar en lotes para no sobrecargar el servidor
-                        const batchSize = 10; // Procesar 10 animales a la vez
-
-                        for (let i = 0; i < animalIds.length; i += batchSize) {
-                            const batch = animalIds.slice(i, i + batchSize);
-                            console.log(`📦 Procesando lote ${Math.floor(i / batchSize) + 1}/${Math.ceil(animalIds.length / batchSize)} (${batch.length} animales)`);
-
-                            const batchPromises = batch.map(async (animalId) => {
-                                try {
-                                    // Obtener todas las estimaciones de este animal con paginación
-                                    let animalEstimations = [];
+                    // Obtener todas las estimaciones sin filtrar por animal_id
+                    // Esto es más eficiente que hacer una consulta por cada animal
+                    let allEstimations = [];
                                     let page = 1;
                                     let hasMore = true;
                                     const pageSize = 100;
 
                                     while (hasMore) {
+                        try {
+                            // Obtener estimaciones sin filtro de animal_id
                                         const result = await getWeightEstimationsByCriteria(
-                                            { animal_id: animalId },
+                                {}, // Sin filtros
                                             { page, page_size: pageSize }
                                         );
 
+                            if (!result || typeof result !== 'object') {
+                                console.warn(`⚠️ Respuesta inválida en página ${page}:`, result);
+                                break;
+                            }
+
                                         const weighings = result?.weighings || [];
-                                        animalEstimations = [...animalEstimations, ...weighings];
+                            allEstimations = [...allEstimations, ...weighings];
 
                                         const total = result?.total || 0;
-                                        hasMore = animalEstimations.length < total;
-                                        page++;
-                                    }
 
-                                    return animalEstimations;
-                                } catch (error) {
-                                    console.error(`❌ Error obteniendo estimaciones para animal ${animalId}:`, error.message);
-                                    return []; // Continuar si falla para un animal
-                                }
+                            // Verificar si hay más páginas
+                            hasMore = total > 0 && allEstimations.length < total;
+                            
+                            // Prevenir loops infinitos
+                            if (page > 1000) {
+                                console.warn(`⚠️ Límite de páginas alcanzado (1000)`);
+                                break;
+                            }
+                            
+                            page++;
+                        } catch (pageError) {
+                            console.error(`❌ Error obteniendo página ${page} de estimaciones:`, {
+                                message: pageError.message,
+                                response: pageError.response?.data
                             });
-
-                            const batchResults = await Promise.all(batchPromises);
-                            estimationsList = [...estimationsList, ...batchResults.flat()];
+                            break;
                         }
                     }
 
-                    console.log(`✅ Total de estimaciones obtenidas: ${estimationsList.length}`);
+                    // Filtrar estimaciones por los animales de la farm
+                    estimationsList = allEstimations.filter(estimation => {
+                        const estAnimalId = estimation?.animal_id || estimation?.animalId;
+                        return estAnimalId && animalIds.has(estAnimalId);
+                    });
                 } catch (estimationsError) {
-                    console.error('Error al obtener estimaciones:', estimationsError);
+                    console.error('Error al obtener estimaciones:', {
+                        message: estimationsError.message,
+                        stack: estimationsError.stack,
+                        response: estimationsError.response?.data
+                    });
                     // Continuar aunque falle, mostrar 0
                 }
 

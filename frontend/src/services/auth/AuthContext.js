@@ -70,7 +70,8 @@ export const AuthProvider = ({ children }) => {
     // Valores derivados para compatibilidad con código existente
     const id = user?.id || null;
     const username = user?.username || null;
-    const role = user?.role?.name || user?.role?.priority || user?.role || null;
+    // Priorizar priority sobre name para el filtrado por prioridad
+    const role = user?.role_priority || user?.role?.priority || user?.role?.name || user?.role || null;
 
     // Función login mantenida para compatibilidad (pero ya no guarda en sessionStorage)
     const login = (id, username, role) => {

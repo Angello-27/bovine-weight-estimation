@@ -20,12 +20,13 @@ import AddCircleIcon from '@mui/icons-material/AddCircle';
 
 /**
  * Definición de rutas de la aplicación
- * Cada ruta incluye: path, roles requeridos, y configuración para sidebar
+ * Cada ruta incluye: path, roles requeridos (por prioridad), y configuración para sidebar
+ * Nota: Los roles se filtran por prioridad (Administrador, Usuario, Invitado), no por nombre
  */
 export const appRoutes = [
     {
         path: '/home',
-        roles: ['Administrador', 'Usuario', 'Invitado'],
+        roles: ['Administrador', 'Usuario', 'Invitado'], // Prioridades de rol
         sidebar: {
             text: 'Dashboard',
             icon: <DashboardIcon />,
@@ -107,13 +108,13 @@ export const appRoutes = [
 ];
 
 /**
- * Obtiene los items del sidebar filtrados por rol
- * @param {string} userRole - Rol del usuario actual
- * @returns {Array} Items del sidebar visibles para el rol
+ * Obtiene los items del sidebar filtrados por prioridad del rol
+ * @param {string} userRolePriority - Prioridad del rol del usuario actual (Administrador, Usuario, Invitado)
+ * @returns {Array} Items del sidebar visibles para la prioridad del rol
  */
-export const getSidebarItems = (userRole) => {
+export const getSidebarItems = (userRolePriority) => {
     return appRoutes
-        .filter(route => route.sidebar && route.roles.includes(userRole))
+        .filter(route => route.sidebar && route.roles.includes(userRolePriority))
         .map(route => route.sidebar)
         // Eliminar duplicados basados en 'to'
         .filter((item, index, self) => 
@@ -146,12 +147,12 @@ export const getRouteConfig = (path) => {
 /**
  * Verifica si un usuario tiene acceso a una ruta
  * @param {string} path - Path de la ruta
- * @param {string} userRole - Rol del usuario
+ * @param {string} userRolePriority - Prioridad del rol del usuario (Administrador, Usuario, Invitado)
  * @returns {boolean} true si tiene acceso
  */
-export const hasAccess = (path, userRole) => {
+export const hasAccess = (path, userRolePriority) => {
     const route = getRouteConfig(path);
-    return route ? route.roles.includes(userRole) : false;
+    return route ? route.roles.includes(userRolePriority) : false;
 };
 
 /**
