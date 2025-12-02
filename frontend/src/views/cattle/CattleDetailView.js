@@ -54,6 +54,7 @@ function CattleDetailView() {
                 galleryImages={transformedData.galleryImages}
                 father={animalDetailProps.lineage?.father}
                 mother={animalDetailProps.lineage?.mother}
+                lineage={animalDetailProps.lineage}
                 loading={animalDetailProps.loading}
                 error={animalDetailProps.error}
                 onViewFather={handleViewFather}

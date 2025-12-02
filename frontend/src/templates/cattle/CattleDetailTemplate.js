@@ -44,6 +44,7 @@ function CattleDetailTemplate({
     galleryImages,
     father,
     mother,
+    lineage,
     loading,
     error,
     onViewFather,
@@ -250,7 +251,7 @@ function CattleDetailTemplate({
                                                 </Grid>
                                             )}
 
-                                            {/* Vínculos a elementos relacionados */}
+                                            {/* Vínculo a hacienda */}
                                             {cattle.farm_id && (
                                                 <Grid item xs={12} sm={6}>
                                                     <Box>
@@ -270,66 +271,59 @@ function CattleDetailTemplate({
                                                     </Box>
                                                 </Grid>
                                             )}
-
-                                            {(father || cattle?.father_id) && (
-                                                <Grid item xs={12} sm={6}>
-                                                    <Box>
-                                                        <CustomTypography variant="body2" sx={{ mb: 1, fontWeight: 500, display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                                                            <FamilyRestroomIcon fontSize="small" />
-                                                            Padre
-                                                        </CustomTypography>
-                                                        <LinkButton
-                                                            onClick={(e) => {
-                                                                e.stopPropagation();
-                                                                const fatherId = father?.id || cattle?.father_id;
-                                                                if (fatherId) {
-                                                                    onViewFather && onViewFather(fatherId);
-                                                                }
-                                                            }}
-                                                            sx={{ textTransform: 'none' }}
-                                                        >
-                                                            {father ? (father.ear_tag || father.name || 'Ver Padre') : 'Ver Padre'}
-                                                        </LinkButton>
-                                                    </Box>
-                                                </Grid>
-                                            )}
-
-                                            {(mother || cattle?.mother_id) && (
-                                                <Grid item xs={12} sm={6}>
-                                                    <Box>
-                                                        <CustomTypography variant="body2" sx={{ mb: 1, fontWeight: 500, display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                                                            <FamilyRestroomIcon fontSize="small" />
-                                                            Madre
-                                                        </CustomTypography>
-                                                        <LinkButton
-                                                            onClick={(e) => {
-                                                                e.stopPropagation();
-                                                                const motherId = mother?.id || cattle?.mother_id;
-                                                                if (motherId) {
-                                                                    onViewMother && onViewMother(motherId);
-                                                                }
-                                                            }}
-                                                            sx={{ textTransform: 'none' }}
-                                                        >
-                                                            {mother ? (mother.ear_tag || mother.name || 'Ver Madre') : 'Ver Madre'}
-                                                        </LinkButton>
-                                                    </Box>
-                                                </Grid>
-                                            )}
                                         </Grid>
                                     </Card>
                                 </Grid>
 
-                                {/* Card de Estimación de Peso (componente libre) */}
+                                {/* Columna derecha: Cards de acciones y parentesco */}
                                 <Grid item xs={12} md={4}>
-                                    <NavigationCard
-                                        icon={<CameraAltIcon sx={{ fontSize: 32 }} />}
-                                        title="Estimar Peso por Imagen"
-                                        description="Sube una imagen del animal para estimar su peso usando inteligencia artificial"
-                                        onClick={handleEstimateWeight}
-                                        iconBgColor="primary.light"
-                                        iconColor="primary.contrastText"
-                                    />
+                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                                        {/* Card de Estimación de Peso */}
+                                        <NavigationCard
+                                            icon={<CameraAltIcon sx={{ fontSize: 32 }} />}
+                                            title="Estimar Peso por Imagen"
+                                            description="Sube una imagen del animal para estimar su peso usando inteligencia artificial"
+                                            onClick={handleEstimateWeight}
+                                            iconBgColor="primary.light"
+                                            iconColor="primary.contrastText"
+                                        />
+
+                                        {/* Card de Padre */}
+                                        {(father || cattle?.father_id) && (
+                                            <NavigationCard
+                                                icon={<FamilyRestroomIcon sx={{ fontSize: 32 }} />}
+                                                title="Padre"
+                                                description={father ? `${father.ear_tag || 'Sin caravana'}${father.name ? ` - ${father.name}` : ''}` : 'Ver información del padre'}
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    const fatherId = father?.id || cattle?.father_id;
+                                                    if (fatherId) {
+                                                        onViewFather && onViewFather(fatherId);
+                                                    }
+                                                }}
+                                                iconBgColor="info.light"
+                                                iconColor="info.contrastText"
+                                            />
+                                        )}
+
+                                        {/* Card de Madre */}
+                                        {(mother || cattle?.mother_id) && (
+                                            <NavigationCard
+                                                icon={<FamilyRestroomIcon sx={{ fontSize: 32 }} />}
+                                                title="Madre"
+                                                description={mother ? `${mother.ear_tag || 'Sin caravana'}${mother.name ? ` - ${mother.name}` : ''}` : 'Ver información de la madre'}
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    const motherId = mother?.id || cattle?.mother_id;
+                                                    if (motherId) {
+                                                        onViewMother && onViewMother(motherId);
+                                                    }
+                                                }}
+                                                iconBgColor="success.light"
+                                                iconColor="success.contrastText"
+                                            />
+                                        )}
+                                    </Box>
                                 </Grid>
                             </Grid>
 
@@ -339,6 +333,7 @@ function CattleDetailTemplate({
                                     <Tab label="Trazabilidad" />
                                     <Tab label="Historial de Pesos" />
                                     <Tab label="Linaje" />
+                                    <Tab label="Descendencia" />
                                     <Tab label="Galería" />
                                 </Tabs>
                             </Box>
@@ -375,6 +370,68 @@ function CattleDetailTemplate({
                             )}
 
                             {tabValue === 3 && (
+                                <Grid container spacing={3}>
+                                    <Grid item xs={12}>
+                                        <Card sx={{ p: 3 }}>
+                                            <CustomTypography variant="h6" sx={{ mb: 3, display: 'flex', alignItems: 'center', gap: 1 }}>
+                                                <FamilyRestroomIcon />
+                                                Descendencia
+                                            </CustomTypography>
+                                            <Divider sx={{ mb: 3 }} />
+                                            {lineage?.descendants && lineage.descendants.length > 0 ? (
+                                                <Grid container spacing={2}>
+                                                    {lineage.descendants.map((descendant) => (
+                                                        <Grid item xs={12} sm={6} md={4} key={descendant.id}>
+                                                            <Card 
+                                                                sx={{ 
+                                                                    p: 2, 
+                                                                    cursor: 'pointer',
+                                                                    '&:hover': { boxShadow: 4 },
+                                                                    transition: 'box-shadow 0.3s ease'
+                                                                }}
+                                                                onClick={() => navigate(`/cattle/${descendant.id}`)}
+                                                            >
+                                                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                                                                    <TagIcon fontSize="small" color="primary" />
+                                                                    <CustomTypography variant="subtitle1" sx={{ fontWeight: 600 }}>
+                                                                        {descendant.ear_tag || 'Sin caravana'}
+                                                                    </CustomTypography>
+                                                                </Box>
+                                                                {descendant.name && (
+                                                                    <CustomTypography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                                                                        {descendant.name}
+                                                                    </CustomTypography>
+                                                                )}
+                                                                <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', mt: 1 }}>
+                                                                    <CustomTypography variant="caption" color="text.secondary">
+                                                                        {getBreedLabel(descendant.breed)}
+                                                                    </CustomTypography>
+                                                                    <CustomTypography variant="caption" color="text.secondary">
+                                                                        {getGenderLabel(descendant.gender)}
+                                                                    </CustomTypography>
+                                                                    {descendant.birth_date && (
+                                                                        <CustomTypography variant="caption" color="text.secondary">
+                                                                            {formatDate(descendant.birth_date)}
+                                                                        </CustomTypography>
+                                                                    )}
+                                                                </Box>
+                                                            </Card>
+                                                        </Grid>
+                                                    ))}
+                                                </Grid>
+                                            ) : (
+                                                <Box sx={{ textAlign: 'center', py: 4 }}>
+                                                    <CustomTypography variant="body1" color="text.secondary">
+                                                        Este animal no tiene descendencia registrada.
+                                                    </CustomTypography>
+                                                </Box>
+                                            )}
+                                        </Card>
+                                    </Grid>
+                                </Grid>
+                            )}
+
+                            {tabValue === 4 && (
                                 <Grid container spacing={3}>
                                     <Grid item xs={12}>
                                         <ImageGallery 
