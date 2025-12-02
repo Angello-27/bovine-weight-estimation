@@ -1,10 +1,10 @@
-// frontend/src/views/WeightEstimationDetailView.js
+// frontend/src/views/weight-estimations/WeightEstimationDetailView.js
 
 import React from 'react';
 import { useParams } from 'react-router-dom';
-import PanelTemplate from '../templates/PanelTemplate';
-import WeightEstimationDetailTemplate from '../templates/WeightEstimationDetailTemplate';
-import GetWeightEstimationById from '../containers/weight-estimations/GetWeightEstimationById';
+import PanelTemplate from '../../templates/PanelTemplate';
+import WeightEstimationDetailTemplate from '../../templates/weight-estimations/WeightEstimationDetailTemplate';
+import GetWeightEstimationById from '../../containers/weight-estimations/GetWeightEstimationById';
 
 function WeightEstimationDetailView() {
     const { id } = useParams();

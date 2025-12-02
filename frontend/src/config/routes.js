@@ -18,7 +18,7 @@ import WeightEstimationsView from '../views/weight-estimations/WeightEstimations
 import SyncStatusView from '../views/SyncStatusView';
 import CattleDetailView from '../views/cattle/CattleDetailView';
 import WeightEstimationFromWebView from '../views/WeightEstimationFromWebView';
-import WeightEstimationDetailView from '../views/WeightEstimationDetailView';
+import WeightEstimationDetailView from '../views/weight-estimations/WeightEstimationDetailView';
 import UserView from '../views/user/UserView';
 import UserDetailView from '../views/user/UserDetailView';
 import RoleView from '../views/role/RoleView';

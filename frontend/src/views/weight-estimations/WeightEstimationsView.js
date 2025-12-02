@@ -11,9 +11,7 @@ function WeightEstimationsView() {
     const estimationsProps = GetAllWeightEstimations();
 
     const handleViewClick = (estimationId) => {
-        // TODO: Navegar a WeightEstimationDetailView cuando se cree
-        // navigate(`/weight-estimations/${estimationId}`);
-        console.log('Ver estimación:', estimationId);
+        navigate(`/weight-estimations/${estimationId}`);
     };
 
     const handleEstimateClick = () => {

@@ -13,7 +13,7 @@ function GetAllWeightEstimations() {
         total: 0
     });
 
-    const fetchData = async (page = 0, pageSize = 10) => {
+    const fetchData = async (page = 0, pageSize = 50) => {
         try {
             setLoading(true);
             setError(null);
@@ -49,7 +49,7 @@ function GetAllWeightEstimations() {
     };
 
     useEffect(() => {
-        fetchData(0, 10);
+        fetchData(0, 50);
     }, []);
 
     const handlePageChange = (newPage, newPageSize) => {
