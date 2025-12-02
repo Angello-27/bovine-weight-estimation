@@ -11,7 +11,6 @@ import TablePagination from '@mui/material/TablePagination';
 import Paper from '@mui/material/Paper';
 import Box from '@mui/material/Box';
 import SearchField from '../../atoms/SearchField';
-import EmptyState from '../EmptyState';
 
 /**
  * DataTable molecule - Tabla reutilizable con estilo consistente y paginación
@@ -47,12 +46,15 @@ function DataTable({
 
     const page = isControlled ? pagination.page : internalPage;
     const pageSize = isControlled ? pagination.pageSize : internalPageSize;
-    const total = isControlled ? pagination.total : rows.length;
+    const total = isControlled ? pagination.total : (rows?.length || 0);
 
     // Para paginación no controlada, mostrar solo las filas de la página actual
+    const safeRows = rows || [];
     const paginatedRows = isControlled 
-        ? rows 
-        : rows.slice(page * pageSize, page * pageSize + pageSize);
+        ? safeRows 
+        : safeRows.slice(page * pageSize, page * pageSize + pageSize);
+    
+    const hasPaginatedRows = paginatedRows && paginatedRows.length > 0;
 
     const handleChangePage = (event, newPage) => {
         if (isControlled && onPageChange) {
@@ -71,10 +73,6 @@ function DataTable({
             setInternalPage(0);
         }
     };
-
-    if (!rows || rows.length === 0) {
-        return <EmptyState message={emptyMessage} />;
-    }
 
     return (
         <Box sx={{ width: '100%' }}>
@@ -141,43 +139,58 @@ function DataTable({
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {paginatedRows.map((row, index) => (
-                            <TableRow
-                                key={row.id || index}
-                                hover={!!onRowClick}
-                                onClick={() => onRowClick && onRowClick(row)}
-                                sx={{ 
-                                    cursor: onRowClick ? 'pointer' : 'default',
-                                    '&:nth-of-type(odd)': {
-                                        backgroundColor: (theme) => 
-                                            theme.palette.mode === 'dark' 
-                                                ? 'rgba(255, 255, 255, 0.02)' 
-                                                : 'rgba(0, 0, 0, 0.02)',
-                                    },
-                                }}
-                            >
-                                {columns.map((column) => {
-                                    const cellValue = row[column.field];
-                                    let displayValue;
-                                    
-                                    if (column.render) {
-                                        displayValue = column.render(cellValue, row);
-                                    } else if (cellValue == null || cellValue === '') {
-                                        displayValue = '-';
-                                    } else if (typeof cellValue === 'object') {
-                                        displayValue = cellValue.id || cellValue.name || cellValue.toString() || '-';
-                                    } else {
-                                        displayValue = cellValue;
-                                    }
-                                    
-                                    return (
-                                        <TableCell key={column.field}>
-                                            {displayValue}
-                                        </TableCell>
-                                    );
-                                })}
+                        {hasPaginatedRows ? (
+                            paginatedRows.map((row, index) => (
+                                <TableRow
+                                    key={row.id || index}
+                                    hover={!!onRowClick}
+                                    onClick={() => onRowClick && onRowClick(row)}
+                                    sx={{ 
+                                        cursor: onRowClick ? 'pointer' : 'default',
+                                        '&:nth-of-type(odd)': {
+                                            backgroundColor: (theme) => 
+                                                theme.palette.mode === 'dark' 
+                                                    ? 'rgba(255, 255, 255, 0.02)' 
+                                                    : 'rgba(0, 0, 0, 0.02)',
+                                        },
+                                    }}
+                                >
+                                    {columns.map((column) => {
+                                        const cellValue = row[column.field];
+                                        let displayValue;
+                                        
+                                        if (column.render) {
+                                            displayValue = column.render(cellValue, row);
+                                        } else if (cellValue == null || cellValue === '') {
+                                            displayValue = '-';
+                                        } else if (typeof cellValue === 'object') {
+                                            displayValue = cellValue.id || cellValue.name || cellValue.toString() || '-';
+                                        } else {
+                                            displayValue = cellValue;
+                                        }
+                                        
+                                        return (
+                                            <TableCell key={column.field}>
+                                                {displayValue}
+                                            </TableCell>
+                                        );
+                                    })}
+                                </TableRow>
+                            ))
+                        ) : (
+                            <TableRow>
+                                <TableCell 
+                                    colSpan={columns.length} 
+                                    align="center"
+                                    sx={{ 
+                                        py: 4,
+                                        color: 'text.secondary'
+                                    }}
+                                >
+                                    {emptyMessage}
+                                </TableCell>
                             </TableRow>
-                        ))}
+                        )}
                     </TableBody>
                 </Table>
                 {pagination && (
