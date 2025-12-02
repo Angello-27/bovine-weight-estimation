@@ -17,7 +17,7 @@ beanie==1.23.6     # ODM para MongoDB (Pydantic v2 compatible)
 # ===== Validación y Serialización =====
 pydantic==2.5.0
 pydantic-settings==2.1.0  # Settings desde .env
-email-validator==2.1.0
+email-validator>=2.2.0  # Versión 2.1.0 fue yanked (actualizado a 2.2.0+ para evitar warning)
 
 # ===== Autenticación y Seguridad =====
 python-jose[cryptography]==3.3.0
