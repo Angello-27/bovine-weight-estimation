@@ -1,6 +1,6 @@
 // frontend/src/components/molecules/DataTable/index.js
 
-import React, { useState } from 'react';
+import React from 'react';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
@@ -10,11 +10,7 @@ import TableRow from '@mui/material/TableRow';
 import TablePagination from '@mui/material/TablePagination';
 import Paper from '@mui/material/Paper';
 import Box from '@mui/material/Box';
-import TextField from '@mui/material/TextField';
-import InputAdornment from '@mui/material/InputAdornment';
-import IconButton from '@mui/material/IconButton';
-import SearchIcon from '@mui/icons-material/Search';
-import ClearIcon from '@mui/icons-material/Clear';
+import SearchField from '../../atoms/SearchField';
 import EmptyState from '../EmptyState';
 
 /**
@@ -44,13 +40,6 @@ function DataTable({
     onSearchChange,
     searchPlaceholder = 'Buscar...'
 }) {
-    // Estado interno para el valor del input (para permitir escribir sin buscar)
-    const [inputValue, setInputValue] = React.useState(searchValue);
-    
-    // Sincronizar con el prop cuando cambia externamente (ej: cuando se limpia)
-    React.useEffect(() => {
-        setInputValue(searchValue);
-    }, [searchValue]);
     // Si hay paginación controlada, usar esos valores
     const isControlled = pagination !== undefined;
     const [internalPage, setInternalPage] = React.useState(0);
@@ -100,83 +89,33 @@ function DataTable({
                 {/* Barra de búsqueda integrada */}
                 {searchable && (
                     <Box sx={{ p: 2, borderBottom: (theme) => `1px solid ${theme.palette.divider}` }}>
-                        <TextField
-                            fullWidth
-                            variant="outlined"
-                            size="small"
+                        <SearchField
+                            value={searchValue}
                             placeholder={searchPlaceholder}
-                            value={inputValue}
                             onChange={(e) => {
-                                // Solo actualizar el valor del input local, no buscar aún
-                                setInputValue(e.target.value);
-                                // Notificar el cambio para que el componente padre pueda actualizar su estado
+                                // Solo actualizar el valor del input, no buscar aún
                                 if (onSearchChange) {
                                     onSearchChange(e);
                                 }
                             }}
-                            onKeyPress={(e) => {
-                                // Permitir buscar con Enter
-                                if (e.key === 'Enter' && onSearchChange) {
+                            onSearch={(value) => {
+                                // Aplicar búsqueda cuando se presiona el botón o Enter
+                                if (onSearchChange) {
                                     const syntheticEvent = {
-                                        ...e,
-                                        type: 'search',
-                                        target: { value: inputValue }
+                                        target: { value },
+                                        type: 'search'
                                     };
                                     onSearchChange(syntheticEvent);
                                 }
                             }}
-                            InputProps={{
-                                startAdornment: (
-                                    <InputAdornment position="start">
-                                        <IconButton
-                                            size="small"
-                                            onClick={() => {
-                                                // Aplicar búsqueda al hacer click en el icono
-                                                if (onSearchChange) {
-                                                    const syntheticEvent = {
-                                                        target: { value: inputValue },
-                                                        type: 'search'
-                                                    };
-                                                    onSearchChange(syntheticEvent);
-                                                }
-                                            }}
-                                            edge="start"
-                                            sx={{ mr: 0 }}
-                                            aria-label="Buscar"
-                                        >
-                                            <SearchIcon color="action" fontSize="small" />
-                                        </IconButton>
-                                    </InputAdornment>
-                                ),
-                                endAdornment: inputValue && (
-                                    <InputAdornment position="end">
-                                        <IconButton
-                                            size="small"
-                                            onClick={() => {
-                                                // Limpiar búsqueda
-                                                setInputValue('');
-                                                if (onSearchChange) {
-                                                    const syntheticEvent = {
-                                                        target: { value: '' },
-                                                        type: 'clear'
-                                                    };
-                                                    onSearchChange(syntheticEvent);
-                                                }
-                                            }}
-                                            edge="end"
-                                            aria-label="Limpiar búsqueda"
-                                        >
-                                            <ClearIcon fontSize="small" />
-                                        </IconButton>
-                                    </InputAdornment>
-                                ),
-                            }}
-                            sx={{
-                                '& .MuiOutlinedInput-root': {
-                                    backgroundColor: (theme) => 
-                                        theme.palette.mode === 'dark' 
-                                            ? theme.palette.grey[800] 
-                                            : theme.palette.grey[50],
+                            onClear={() => {
+                                // Limpiar búsqueda
+                                if (onSearchChange) {
+                                    const syntheticEvent = {
+                                        target: { value: '' },
+                                        type: 'clear'
+                                    };
+                                    onSearchChange(syntheticEvent);
                                 }
                             }}
                         />
