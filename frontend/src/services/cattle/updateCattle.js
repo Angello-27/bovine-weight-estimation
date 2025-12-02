@@ -10,9 +10,7 @@ import apiClient from '../../api/axiosClient';
  */
 const updateCattle = async (id, cattleData) => {
     try {
-        console.log(`Enviando datos al backend (PUT /api/v1/animals/${id}):`, JSON.stringify(cattleData, null, 2));
         const response = await apiClient.put(`/api/v1/animals/${id}`, cattleData);
-        console.log('Respuesta del backend:', JSON.stringify(response.data, null, 2));
         return response.data;
     } catch (error) {
         // Extraer mensaje del backend si está disponible

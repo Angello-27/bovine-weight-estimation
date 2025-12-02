@@ -3,6 +3,8 @@ Animal Mapper - DTO ↔ Entity Conversion
 Convierte entre Animal DTOs y Animal Entities
 """
 
+from uuid import UUID
+
 from ...domain.entities.animal import Animal
 from ...domain.shared.constants import BreedType
 from ...schemas.animal_schemas import (
@@ -36,8 +38,6 @@ class AnimalMapper:
         if animal.farm_id is None:
             raise ValueError("Animal must have a farm_id")
 
-        from uuid import UUID as UUIDType
-
         return AnimalResponse(
             id=animal.id,
             ear_tag=animal.ear_tag,
@@ -51,8 +51,8 @@ class AnimalMapper:
             name=animal.name,
             color=animal.color,
             birth_weight_kg=animal.birth_weight_kg,
-            mother_id=UUIDType(animal.mother_id) if animal.mother_id else None,
-            father_id=UUIDType(animal.father_id) if animal.father_id else None,
+            mother_id=UUID(animal.mother_id) if animal.mother_id else None,
+            father_id=UUID(animal.father_id) if animal.father_id else None,
             status=animal.status,
             farm_id=animal.farm_id,
             registration_date=animal.registration_date,
