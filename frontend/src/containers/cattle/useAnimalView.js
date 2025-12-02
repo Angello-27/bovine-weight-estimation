@@ -12,9 +12,31 @@ import ManageCattleForm from './ManageCattleForm';
  */
 function useAnimalView() {
     const navigate = useNavigate();
-    const animalsProps = GetAllCattle();
+    
+    // Estado para filtros y búsqueda
+    const [filters, setFilters] = useState({
+        breed: '',
+        gender: '',
+        status: ''
+    });
+    const [searchQuery, setSearchQuery] = useState('');
+    
+    // Obtener animales con filtros y búsqueda
+    const animalsProps = GetAllCattle(filters, searchQuery);
     const formProps = CreateNewCattle();
     const formActions = ManageCattleForm(formProps);
+    
+    // Handlers para filtros y búsqueda
+    const handleFilterChange = (name, value) => {
+        setFilters(prev => ({
+            ...prev,
+            [name]: value
+        }));
+    };
+    
+    const handleSearchChange = (event) => {
+        setSearchQuery(event.target.value);
+    };
     
     const [errorSnackbar, setErrorSnackbar] = useState({
         open: false,
@@ -97,6 +119,12 @@ function useAnimalView() {
         // Props del formulario
         formProps,
         formActions,
+        
+        // Filtros y búsqueda
+        filters,
+        searchQuery,
+        handleFilterChange,
+        handleSearchChange,
         
         // Handlers
         handleSubmit,

@@ -45,6 +45,10 @@ function CattleView() {
                     deleteItem={formActions.deleteItem}
                     onCloseDeleteDialog={formActions.handleCloseDeleteDialog}
                     onConfirmDelete={handleConfirmDelete}
+                    filters={filters}
+                    searchQuery={searchQuery}
+                    handleFilterChange={handleFilterChange}
+                    handleSearchChange={handleSearchChange}
                 />
             } />
             

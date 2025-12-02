@@ -1,17 +1,29 @@
 // frontend/src/containers/cattle/GetAllCattle.js
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { getAnimalsByCriteria } from '../../services/cattle';
 import { getCurrentUser } from '../../services/auth/authService';
 import { getAllFarms } from '../../services/farm/getAllFarms';
 
-function GetAllCattle() {
+/**
+ * Hook para obtener todos los animales con filtros y búsqueda
+ * @param {Object} filters - Filtros { breed, gender, status, farm_id }
+ * @param {string} searchQuery - Texto de búsqueda (caravana, nombre)
+ */
+function GetAllCattle(filters = {}, searchQuery = '') {
     const [items, setItems] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [page, setPage] = useState(0);
     const [pageSize, setPageSize] = useState(10);
     const [totalItems, setTotalItems] = useState(0);
+
+    // Memoizar valores de filtros para evitar renders innecesarios
+    const breedFilter = filters?.breed || '';
+    const genderFilter = filters?.gender || '';
+    const statusFilter = filters?.status || '';
+    const farmIdFilter = filters?.farm_id || '';
+    const searchText = searchQuery || '';
 
     const fetchData = async () => {
         try {
@@ -20,7 +32,7 @@ function GetAllCattle() {
 
             // Intentar obtener farm_id del usuario
             const currentUser = getCurrentUser();
-            let farmId = currentUser?.farm_id;
+            let farmId = filters.farm_id || currentUser?.farm_id;
             
             // Si el usuario no tiene farm_id, obtener la primera hacienda disponible
             if (!farmId) {
@@ -39,13 +51,42 @@ function GetAllCattle() {
                 throw new Error('No se encontró una hacienda. Por favor, contacta al administrador para asignarte una hacienda.');
             }
             
+            // Construir filtros para el backend
+            const backendFilters = {
+                farm_id: farmId,
+            };
+
+            // Agregar filtros opcionales solo si tienen valor
+            if (breedFilter) backendFilters.breed = breedFilter;
+            if (genderFilter) backendFilters.gender = genderFilter;
+            if (statusFilter) backendFilters.status = statusFilter;
+
+            // Si hay búsqueda por texto, agregarla como filtro
+            // Nota: El backend puede necesitar un parámetro específico para búsqueda
+            // Por ahora, si el backend no soporta búsqueda, se filtrará en el frontend
+            if (searchText && searchText.trim()) {
+                // Si el backend soporta búsqueda, agregar aquí
+                // backendFilters.search = searchText.trim();
+            }
+            
             const data = await getAnimalsByCriteria(
-                { farm_id: farmId },
+                backendFilters,
                 { page: page + 1, page_size: pageSize } // Backend usa página basada en 1
             );
             
             // El servicio retorna { animals: [...], total, page, page_size }
-            const cattleList = data?.animals || [];
+            let cattleList = data?.animals || [];
+
+            // Filtrar por búsqueda en el frontend si el backend no lo soporta
+            if (searchText && searchText.trim()) {
+                const query = searchText.toLowerCase().trim();
+                cattleList = cattleList.filter(animal => 
+                    animal.ear_tag?.toLowerCase().includes(query) ||
+                    animal.name?.toLowerCase().includes(query) ||
+                    animal.breed?.toLowerCase().includes(query)
+                );
+            }
+
             setItems(cattleList);
             setTotalItems(data?.total || 0);
         } catch (err) {
@@ -59,7 +100,8 @@ function GetAllCattle() {
 
     useEffect(() => {
         fetchData();
-    }, [page, pageSize]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [page, pageSize, breedFilter, genderFilter, statusFilter, farmIdFilter, searchText]);
 
     const pagination = {
         page,
@@ -67,8 +109,8 @@ function GetAllCattle() {
         total: totalItems,
     };
 
-    const onPageChange = (newPage, pageSize) => {
-        // DataTable pasa (newPage, pageSize) desde handleChangePage
+    const onPageChange = (newPage) => {
+        // DataTable pasa (newPage) desde handleChangePage
         setPage(newPage);
     };
 

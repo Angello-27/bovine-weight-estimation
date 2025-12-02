@@ -11,7 +11,7 @@ import { breedToComboBox } from '../../../utils/transformers/breedToComboBox';
 
 /**
  * CattleFilters molecule - Filtros para la lista de ganado
- * @param {Object} filters - Objeto con los valores de los filtros { breed, gender }
+ * @param {Object} filters - Objeto con los valores de los filtros { breed, gender, status }
  * @param {Function} onChange - Callback cuando cambia un filtro (name, value)
  */
 function CattleFilters({ filters, onChange }) {
@@ -28,7 +28,7 @@ function CattleFilters({ filters, onChange }) {
                 Filtros
             </CustomTypography>
             <Grid container spacing={2}>
-                <Grid item xs={12} md={4}>
+                <Grid item xs={12} md={3}>
                     <FormControl fullWidth>
                         <InputLabel>Raza</InputLabel>
                         <Select
@@ -39,7 +39,7 @@ function CattleFilters({ filters, onChange }) {
                         >
                             <MenuItem value="">Todas las razas</MenuItem>
                             {breeds.map((breed) => (
-                                <MenuItem key={breed.id} value={breed.label}>
+                                <MenuItem key={breed.id} value={breed.id}>
                                     {breed.label}
                                 </MenuItem>
                             ))}
@@ -47,7 +47,7 @@ function CattleFilters({ filters, onChange }) {
                     </FormControl>
                 </Grid>
                 
-                <Grid item xs={12} md={4}>
+                <Grid item xs={12} md={3}>
                     <FormControl fullWidth>
                         <InputLabel>Género</InputLabel>
                         <Select
@@ -59,6 +59,24 @@ function CattleFilters({ filters, onChange }) {
                             <MenuItem value="">Todos</MenuItem>
                             <MenuItem value="male">Macho</MenuItem>
                             <MenuItem value="female">Hembra</MenuItem>
+                        </Select>
+                    </FormControl>
+                </Grid>
+
+                <Grid item xs={12} md={3}>
+                    <FormControl fullWidth>
+                        <InputLabel>Estado</InputLabel>
+                        <Select
+                            name="status"
+                            value={filters.status || ''}
+                            label="Estado"
+                            onChange={handleChange}
+                        >
+                            <MenuItem value="">Todos los estados</MenuItem>
+                            <MenuItem value="active">Activo</MenuItem>
+                            <MenuItem value="inactive">Inactivo</MenuItem>
+                            <MenuItem value="sold">Vendido</MenuItem>
+                            <MenuItem value="deceased">Fallecido</MenuItem>
                         </Select>
                     </FormControl>
                 </Grid>

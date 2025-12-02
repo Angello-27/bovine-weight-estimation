@@ -4,6 +4,8 @@ import Box from "@mui/material/Box";
 import Container from "@mui/material/Container";
 import CreateCattle from '../../components/organisms/CreateCattle';
 import CattleList from '../../components/organisms/CattleList';
+import CattleFilters from '../../components/molecules/CattleFilters';
+import SearchBar from '../../components/molecules/SearchBar';
 import CustomButton from '../../components/atoms/CustomButton';
 import CustomTypography from '../../components/atoms/CustomTypography';
 import LoadingState from '../../components/molecules/LoadingState';
@@ -35,7 +37,11 @@ function CattleTemplate({
     showDeleteDialog,
     deleteItem,
     onCloseDeleteDialog,
-    onConfirmDelete
+    onConfirmDelete,
+    filters = {},
+    searchQuery = '',
+    handleFilterChange,
+    handleSearchChange
 }) {
     return (
         <Box sx={{ width: '100%' }}>
@@ -64,6 +70,20 @@ function CattleTemplate({
                 <LoadingState loading={loading}>
                     {!error && (
                         <Box sx={{ width: '100%' }}>
+                            {/* Barra de búsqueda */}
+                            <SearchBar
+                                value={searchQuery}
+                                onChange={handleSearchChange}
+                                placeholder="Buscar por caravana, nombre o raza..."
+                            />
+                            
+                            {/* Filtros */}
+                            <CattleFilters
+                                filters={filters}
+                                onChange={handleFilterChange}
+                            />
+                            
+                            {/* Lista de animales */}
                             <CattleList
                                 items={items}
                                 onViewClick={onViewClick}
