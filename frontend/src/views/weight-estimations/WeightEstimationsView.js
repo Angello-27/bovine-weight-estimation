@@ -24,7 +24,7 @@ function WeightEstimationsView() {
                 <WeightEstimationTemplate 
                     {...estimationsProps} 
                     onViewClick={handleViewClick} 
-                    onEstimateClick={handleEstimateClick} 
+                    onEstimateClick={handleEstimateClick}
                 />
             } 
         />
