@@ -71,21 +71,15 @@
 
 ## ⚠️ **LO QUE ESTÁ PENDIENTE**
 
-### 1. **Búsqueda y Filtros en UI** ⚠️ PARCIAL
+### 1. **Búsqueda y Filtros en UI** ✅ COMPLETADO
 
 **Estado Actual**:
-- ✅ Componente `CattleFilters` existe pero **NO está integrado en `CattleTemplate.js`**
-- ✅ Hook `FilterCattle.js` existe pero **NO está siendo usado**
-- ✅ Servicio `getAnimalsByCriteria.js` soporta filtros pero **NO se están pasando desde la UI**
-- ✅ `GetAllCattle.js` solo filtra por `farm_id`, no por otros criterios
-
-**Pendiente**:
-- [ ] **Integrar `CattleFilters` en `CattleTemplate.js`** (antes de la lista)
-- [ ] **Integrar `SearchBar` en `CattleTemplate.js`** (búsqueda por texto)
-- [ ] **Conectar filtros con `GetAllCattle.js`** para que se apliquen en el backend
-- [ ] **Agregar filtro por estado** (`active`, `inactive`, `sold`, `deceased`)
-- [ ] **Agregar filtro por farm_id** (si el usuario tiene múltiples farms)
-- [ ] **Implementar búsqueda por texto** (caravana, nombre) que se envíe al backend
+- ✅ Componente `CattleFilters` integrado en `CattleTemplate.js`
+- ✅ `SearchBar` integrado dentro de `DataTable` para mejor diseño
+- ✅ Servicio `getAnimalsByCriteria.js` soporta filtros y se están pasando desde la UI
+- ✅ `GetAllCattle.js` filtra por `farm_id` y otros criterios (breed, gender, status)
+- ✅ Búsqueda por texto implementada con debounce y botón de limpiar
+- ✅ Filtro por estado (`active`, `inactive`, `sold`, `deceased`) implementado
 
 **Referencia**: Según `FRONTEND_INTEGRATION_GUIDE.md` línea 916:
 > "Búsqueda avanzada en CattleView (UI pendiente)"
@@ -112,21 +106,15 @@
 
 ---
 
-### 3. **Campos Faltantes en Formulario** ⚠️ PARCIAL
+### 3. **Campos Faltantes en Formulario** ✅ COMPLETADO
 
 **Estado Actual**:
 - ✅ Campos básicos: caravana, nombre, raza, fecha nacimiento, género, color, peso al nacer, observaciones
-- ❌ **Falta campo `farm_id`** (selección de hacienda)
-- ❌ **Falta campo `mother_id`** (selección de madre)
-- ❌ **Falta campo `father_id`** (selección de padre)
-- ❌ **Falta campo `status`** (estado del animal)
-
-**Pendiente**:
-- [ ] **Agregar `ComboBox` para `farm_id`** en `CreateCattle/index.js`
-- [ ] **Agregar `ComboBox` para `mother_id`** (búsqueda de animales hembra)
-- [ ] **Agregar `ComboBox` para `father_id`** (búsqueda de animales macho)
-- [ ] **Agregar `ComboBox` para `status`** (active, inactive, sold, deceased)
-- [ ] **Validar que `mother_id` sea hembra** y `father_id` sea macho
+- ✅ **Campo `farm_id`** - Implementado con `ComboBox` en `CreateCattle/index.js`
+- ✅ **Campo `mother_id`** - Implementado con `ComboBox` que filtra animales hembra
+- ✅ **Campo `father_id`** - Implementado con `ComboBox` que filtra animales macho
+- ✅ **Campo `status`** - Implementado con `ComboBox` (active, inactive, sold, deceased)
+- ✅ **Validación de género de padres** - El backend valida esto; el frontend muestra errores
 
 **Referencia**: Según `API_INTEGRATION_GUIDE.md` líneas 698-714, el backend acepta estos campos.
 
@@ -169,21 +157,18 @@
 
 ---
 
-### 6. **Validaciones Adicionales** ⚠️ PARCIAL
+### 6. **Validaciones Adicionales** ✅ COMPLETADO
 
 **Estado Actual**:
 - ✅ Validación de campos requeridos
 - ✅ Validación de tipos de datos básicos
-- ❌ **Falta validar unicidad de caravana** (verificar en backend antes de guardar)
-- ❌ **Falta validar que fecha de nacimiento no sea futura**
-- ❌ **Falta validar que peso al nacer sea positivo**
+- ✅ **Validar fecha de nacimiento** (no puede ser futura) - Implementado en `CreateNewCattle.js`
+- ✅ **Validar peso al nacer** (debe ser > 0 y < 100 kg) - Implementado en `CreateNewCattle.js`
+- ✅ **Validar que mother_id y father_id sean diferentes del animal actual** - Implementado en `CreateNewCattle.js`
+- ✅ **Unicidad de caravana** - Validado por el backend (error 400 si duplicada)
+- ℹ️ **Validación de género de padres** - El backend valida esto; el frontend muestra errores del backend
 
-**Pendiente**:
-- [ ] **Validar unicidad de caravana** (llamar a endpoint de verificación antes de guardar)
-- [ ] **Validar fecha de nacimiento** (no puede ser futura)
-- [ ] **Validar peso al nacer** (debe ser > 0)
-- [ ] **Validar que mother_id y father_id sean diferentes del animal actual**
-- [ ] **Validar que mother_id sea hembra y father_id sea macho**
+**Nota**: La validación de unicidad de caravana y género de padres se maneja en el backend. El frontend muestra los errores del backend cuando ocurren.
 
 ---
 
@@ -208,15 +193,15 @@
 
 ## 📊 **RESUMEN DE PRIORIDADES**
 
-### 🔴 **ALTA PRIORIDAD** (Funcionalidad básica faltante)
-1. **Búsqueda y Filtros en UI** - Integrar `CattleFilters` y `SearchBar` en `CattleTemplate.js`
-2. **Campos faltantes en formulario** - Agregar `farm_id`, `mother_id`, `father_id`, `status`
-3. **Validaciones adicionales** - Unicidad de caravana, validación de fechas
+### ✅ **COMPLETADO** (Funcionalidad básica implementada)
+1. ✅ **Búsqueda y Filtros en UI** - `CattleFilters` y `SearchBar` integrados
+2. ✅ **Campos del formulario** - `farm_id`, `mother_id`, `father_id`, `status` implementados
+3. ✅ **Validaciones adicionales** - Fechas, pesos, parentesco validados
 
-### 🟡 **MEDIA PRIORIDAD** (Mejoras de UX)
-4. **Ordenamiento** - Agregar UI de ordenamiento de columnas
-5. **Exportación de datos** - Exportar lista a Excel/CSV/PDF
-6. **Optimizaciones** - Debounce, caché, memoización
+### 🟡 **PENDIENTE PARA DESPUÉS** (Mejoras de UX - No críticas)
+4. **Ordenamiento** - Agregar UI de ordenamiento de columnas (dejado para después)
+5. **Exportación de datos** - Exportar lista a Excel/CSV/PDF (dejado para después)
+6. **Optimizaciones avanzadas** - Caché, memoización (debounce ya implementado)
 
 ### 🟢 **BAJA PRIORIDAD** (Mejoras futuras)
 7. **Testing** - Tests unitarios, integración, E2E
@@ -225,46 +210,46 @@
 
 ## 📝 **CHECKLIST DE IMPLEMENTACIÓN**
 
-### Fase 1: Búsqueda y Filtros (ALTA PRIORIDAD)
-- [ ] Integrar `CattleFilters` en `CattleTemplate.js`
-- [ ] Integrar `SearchBar` en `CattleTemplate.js`
-- [ ] Modificar `GetAllCattle.js` para aceptar filtros como parámetros
-- [ ] Conectar filtros con `getAnimalsByCriteria.js`
-- [ ] Agregar filtro por estado
-- [ ] Agregar filtro por farm_id (si aplica)
-- [ ] Implementar búsqueda por texto en backend
+### Fase 1: Búsqueda y Filtros ✅ COMPLETADO
+- [x] Integrar `CattleFilters` en `CattleTemplate.js`
+- [x] Integrar `SearchBar` dentro de `DataTable` para mejor diseño
+- [x] Modificar `GetAllCattle.js` para aceptar filtros como parámetros
+- [x] Conectar filtros con `getAnimalsByCriteria.js`
+- [x] Agregar filtro por estado
+- [x] Agregar filtro por farm_id (si aplica)
+- [x] Implementar búsqueda por texto con debounce
 
-### Fase 2: Campos del Formulario (ALTA PRIORIDAD)
-- [ ] Agregar `ComboBox` para `farm_id` en `CreateCattle/index.js`
-- [ ] Agregar `ComboBox` para `mother_id` (con búsqueda de animales hembra)
-- [ ] Agregar `ComboBox` para `father_id` (con búsqueda de animales macho)
-- [ ] Agregar `ComboBox` para `status`
-- [ ] Validar que mother_id sea hembra y father_id sea macho
-- [ ] Actualizar `CreateNewCattle.js` para manejar estos campos
+### Fase 2: Campos del Formulario ✅ COMPLETADO
+- [x] Agregar `ComboBox` para `farm_id` en `CreateCattle/index.js`
+- [x] Agregar `ComboBox` para `mother_id` (con búsqueda de animales hembra)
+- [x] Agregar `ComboBox` para `father_id` (con búsqueda de animales macho)
+- [x] Agregar `ComboBox` para `status`
+- [x] Validación de género de padres (manejada por backend)
+- [x] Actualizar `CreateNewCattle.js` para manejar estos campos
 
-### Fase 3: Validaciones (ALTA PRIORIDAD)
-- [ ] Crear servicio para verificar unicidad de caravana
-- [ ] Validar fecha de nacimiento (no futura)
-- [ ] Validar peso al nacer (> 0)
-- [ ] Validar que mother_id y father_id sean diferentes del animal actual
-- [ ] Agregar validaciones en `CreateNewCattle.js`
+### Fase 3: Validaciones ✅ COMPLETADO
+- [x] Validar unicidad de caravana (manejada por backend, frontend muestra errores)
+- [x] Validar fecha de nacimiento (no futura)
+- [x] Validar peso al nacer (> 0 y < 100 kg)
+- [x] Validar que mother_id y father_id sean diferentes del animal actual
+- [x] Agregar validaciones en `CreateNewCattle.js`
 
-### Fase 4: Ordenamiento (MEDIA PRIORIDAD)
-- [ ] Agregar UI de ordenamiento en `CattleList` o `DataTable`
-- [ ] Agregar parámetros `sort_by` y `sort_order` en `getAnimalsByCriteria.js`
-- [ ] Conectar ordenamiento con backend en `GetAllCattle.js`
+### Fase 4: Ordenamiento ⏸️ POSTERGADO
+- [ ] Agregar UI de ordenamiento en `CattleList` o `DataTable` (dejado para después)
+- [ ] Agregar parámetros `sort_by` y `sort_order` en `getAnimalsByCriteria.js` (dejado para después)
+- [ ] Conectar ordenamiento con backend en `GetAllCattle.js` (dejado para después)
 
-### Fase 5: Exportación (MEDIA PRIORIDAD)
-- [ ] Agregar botón "Exportar" en `CattleTemplate.js`
-- [ ] Implementar exportación a Excel/CSV
-- [ ] Implementar exportación a PDF
-- [ ] Usar endpoint `/api/v1/reports/inventory` si está disponible
+### Fase 5: Exportación ⏸️ POSTERGADO
+- [ ] Agregar botón "Exportar" en `CattleTemplate.js` (dejado para después)
+- [ ] Implementar exportación a Excel/CSV (dejado para después)
+- [ ] Implementar exportación a PDF (dejado para después)
+- [ ] Usar endpoint `/api/v1/reports/inventory` si está disponible (dejado para después)
 
-### Fase 6: Optimizaciones (BAJA PRIORIDAD)
-- [ ] Implementar debounce en búsqueda
-- [ ] Agregar caché de datos (React Query)
-- [ ] Memoizar componentes pesados
-- [ ] Optimizar carga de imágenes
+### Fase 6: Optimizaciones ⚠️ PARCIAL
+- [x] Implementar debounce en búsqueda ✅
+- [ ] Agregar caché de datos (React Query) - Mejora futura
+- [ ] Memoizar componentes pesados - Mejora futura
+- [ ] Optimizar carga de imágenes - Mejora futura
 
 ### Fase 7: Testing (BAJA PRIORIDAD)
 - [ ] Tests unitarios para servicios
@@ -284,5 +269,7 @@
 
 ---
 
-**Última actualización**: 2025-01-02
+**Última actualización**: 2025-01-02  
+**Estado CRUD Básico**: ✅ **COMPLETADO** - Todas las fases de alta prioridad implementadas  
+**Pendiente**: Ordenamiento y Exportación (dejados para después, no críticos)
 
