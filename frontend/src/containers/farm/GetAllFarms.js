@@ -35,11 +35,18 @@ function GetAllFarms() {
             }
             
             // El backend devuelve { total, farms, page, page_size }
-            setItems(data.farms || data || []);
+            // Asegurar que items siempre sea un array
+            const farmsArray = Array.isArray(data.farms) 
+                ? data.farms 
+                : Array.isArray(data) 
+                    ? data 
+                    : [];
+            
+            setItems(farmsArray);
             setPagination({
                 page,
                 pageSize,
-                total: data.total || (data.farms ? data.farms.length : 0)
+                total: data.total || farmsArray.length
             });
             setError(null);
         } catch (err) {

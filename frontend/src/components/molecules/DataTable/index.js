@@ -49,7 +49,8 @@ function DataTable({
     const total = isControlled ? pagination.total : (rows?.length || 0);
 
     // Para paginación no controlada, mostrar solo las filas de la página actual
-    const safeRows = rows || [];
+    // Asegurar que rows siempre sea un array
+    const safeRows = Array.isArray(rows) ? rows : [];
     const paginatedRows = isControlled 
         ? safeRows 
         : safeRows.slice(page * pageSize, page * pageSize + pageSize);
