@@ -15,7 +15,10 @@ function CreateNewCattle() {
         color: '',
         birth_weight_kg: '',
         observations: '',
-        farm_id: ''
+        farm_id: '',
+        status: 'active',
+        mother_id: '',
+        father_id: ''
     });
 
     const [errors, setErrors] = useState({});
@@ -56,6 +59,26 @@ function CreateNewCattle() {
             const weight = parseFloat(formData.birth_weight_kg);
             if (isNaN(weight) || weight < 0 || weight > 100) {
                 newErrors.birth_weight_kg = 'El peso al nacer debe ser un número entre 0 y 100 kg';
+            }
+        }
+
+        // Validar farm_id (requerido en creación)
+        if (!formData.id && (!formData.farm_id || formData.farm_id === '')) {
+            newErrors.farm_id = 'La hacienda es requerida';
+        }
+
+        // Validar status
+        if (formData.status && !['active', 'inactive', 'sold', 'deceased'].includes(formData.status)) {
+            newErrors.status = 'El estado debe ser uno de: active, inactive, sold, deceased';
+        }
+
+        // Validar que mother_id y father_id sean diferentes del animal actual (si se está editando)
+        if (formData.id) {
+            if (formData.mother_id && formData.mother_id === formData.id) {
+                newErrors.mother_id = 'El animal no puede ser su propia madre';
+            }
+            if (formData.father_id && formData.father_id === formData.id) {
+                newErrors.father_id = 'El animal no puede ser su propio padre';
             }
         }
 
@@ -123,7 +146,10 @@ function CreateNewCattle() {
                 color: formData.color?.trim() || null,
                 birth_weight_kg: formData.birth_weight_kg ? parseFloat(formData.birth_weight_kg) : null,
                 observations: formData.observations?.trim() || null,
-                farm_id: farmId
+                farm_id: farmId,
+                status: formData.status || 'active',
+                mother_id: formData.mother_id || null,
+                father_id: formData.father_id || null
             };
 
             if (formData.id) {
@@ -131,12 +157,13 @@ function CreateNewCattle() {
                 const updateData = {
                     name: cattleData.name,
                     color: cattleData.color,
-                    observations: cattleData.observations
+                    observations: cattleData.observations,
+                    status: cattleData.status
                 };
                 const data = await updateCattle(formData.id, updateData);
                 console.log('Animal actualizado: ', data);
             } else {
-                // Crear
+                // Crear - enviar todos los campos
                 const data = await createCattle(cattleData);
                 console.log('Nuevo animal creado: ', data);
             }
@@ -152,7 +179,10 @@ function CreateNewCattle() {
                 color: '',
                 birth_weight_kg: '',
                 observations: '',
-                farm_id: ''
+                farm_id: '',
+                status: 'active',
+                mother_id: '',
+                father_id: ''
             });
             setErrors({});
             return true;

@@ -9,6 +9,9 @@ import useAnimalView from '../../containers/cattle/useAnimalView';
 function CattleView() {
     const {
         animalsProps,
+        farmsProps,
+        femaleAnimalsProps,
+        maleAnimalsProps,
         formProps,
         formActions,
         handleSubmit,
@@ -31,6 +34,9 @@ function CattleView() {
                     items={animalsProps.items}
                     loading={animalsProps.loading}
                     error={animalsProps.error}
+                    farms={farmsProps}
+                    femaleAnimals={femaleAnimalsProps.items || []}
+                    maleAnimals={maleAnimalsProps.items || []}
                     formData={formProps.formData}
                     formErrors={formProps.errors || {}}
                     handleChange={formProps.handleChange}

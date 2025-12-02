@@ -14,11 +14,15 @@ import AddIcon from '@mui/icons-material/Add';
 import Dialog from '@mui/material/Dialog';
 import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
+import { farmToComboBox } from '../../utils/transformers/farmToComboBox';
 
 function CattleTemplate({ 
     items, 
     loading, 
     error, 
+    farms,
+    femaleAnimals = [],
+    maleAnimals = [],
     formData,
     formErrors = {},
     handleChange, 
@@ -42,6 +46,7 @@ function CattleTemplate({
     handleFilterChange,
     handleSearchChange
 }) {
+    const transformedFarms = farmToComboBox(farms?.items || []);
     return (
         <Box sx={{ width: '100%' }}>
             <Container maxWidth="xl" sx={{ py: 3, px: { xs: 2, sm: 3 } }}>
@@ -118,6 +123,9 @@ function CattleTemplate({
                                 // El formulario se cierra automáticamente solo si el submit es exitoso
                             }}
                             onComboBoxChange={handleComboBoxChange}
+                            farms={transformedFarms}
+                            femaleAnimals={femaleAnimals}
+                            maleAnimals={maleAnimals}
                         />
                     </DialogContent>
                 </Dialog>

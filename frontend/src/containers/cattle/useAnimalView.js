@@ -3,6 +3,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import GetAllCattle from './GetAllCattle';
+import GetAllFarms from '../farm/GetAllFarms';
+import GetAnimalsByGender from './GetAnimalsByGender';
 import CreateNewCattle from './CreateNewCattle';
 import ManageCattleForm from './ManageCattleForm';
 
@@ -24,6 +26,9 @@ function useAnimalView() {
     
     // Obtener animales con filtros y búsqueda
     const animalsProps = GetAllCattle(filters, searchQuery);
+    const farmsProps = GetAllFarms(); // Obtener farms para el formulario
+    const femaleAnimalsProps = GetAnimalsByGender('female'); // Animales hembra para mother_id
+    const maleAnimalsProps = GetAnimalsByGender('male'); // Animales macho para father_id
     const formProps = CreateNewCattle();
     const formActions = ManageCattleForm(formProps);
     
@@ -143,6 +148,9 @@ function useAnimalView() {
     return {
         // Props de las listas
         animalsProps,
+        farmsProps, // Farms para el formulario
+        femaleAnimalsProps, // Animales hembra para mother_id
+        maleAnimalsProps, // Animales macho para father_id
         
         // Props del formulario
         formProps,

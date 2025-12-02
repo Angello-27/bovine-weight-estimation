@@ -16,13 +16,33 @@ import DriveFileRenameOutlineIcon from '@mui/icons-material/DriveFileRenameOutli
 import PaletteIcon from '@mui/icons-material/Palette';
 import ScaleIcon from '@mui/icons-material/Scale';
 import NotesIcon from '@mui/icons-material/Notes';
+import BusinessIcon from '@mui/icons-material/Business';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import FamilyRestroomIcon from '@mui/icons-material/FamilyRestroom';
+import { animalToComboBox } from '../../../utils/transformers/animalToComboBox';
 
-function CreateCattle({ formData, errors = {}, onInputChange, onSubmit, onComboBoxChange }) {
+function CreateCattle({ 
+    formData, 
+    errors = {}, 
+    onInputChange, 
+    onSubmit, 
+    onComboBoxChange, 
+    farms = [],
+    femaleAnimals = [],
+    maleAnimals = []
+}) {
     const breeds = breedToComboBox();
 
     const genderOptions = [
         { id: 'male', label: 'Macho' },
         { id: 'female', label: 'Hembra' }
+    ];
+
+    const statusOptions = [
+        { id: 'active', label: 'Activo' },
+        { id: 'inactive', label: 'Inactivo' },
+        { id: 'sold', label: 'Vendido' },
+        { id: 'deceased', label: 'Fallecido' }
     ];
 
     return (
@@ -82,6 +102,34 @@ function CreateCattle({ formData, errors = {}, onInputChange, onSubmit, onComboB
                         error={!!errors.gender}
                         helperText={errors.gender}
                     />
+                    {farms && farms.length > 0 && (
+                        <ComboBox 
+                            xs={12} 
+                            md={6}
+                            options={farms} 
+                            label="Hacienda" 
+                            id="combo-box-farm" 
+                            fieldName="farm_id" 
+                            onChange={onComboBoxChange} 
+                            value={formData.farm_id || ''}
+                            startIcon={<BusinessIcon />}
+                            error={!!errors.farm_id}
+                            helperText={errors.farm_id}
+                        />
+                    )}
+                    <ComboBox 
+                        xs={12} 
+                        md={6}
+                        options={statusOptions} 
+                        label="Estado" 
+                        id="combo-box-status" 
+                        fieldName="status" 
+                        onChange={onComboBoxChange} 
+                        value={formData.status || 'active'}
+                        startIcon={<CheckCircleIcon />}
+                        error={!!errors.status}
+                        helperText={errors.status}
+                    />
                     
                     {/* Campos opcionales */}
                     <InputField 
@@ -123,6 +171,36 @@ function CreateCattle({ formData, errors = {}, onInputChange, onSubmit, onComboB
                         onChange={onInputChange}
                         startIcon={<NotesIcon />}
                     />
+                    {femaleAnimals && femaleAnimals.length > 0 && (
+                        <ComboBox 
+                            xs={12} 
+                            md={6}
+                            options={animalToComboBox(femaleAnimals)} 
+                            label="Madre (opcional)" 
+                            id="combo-box-mother" 
+                            fieldName="mother_id" 
+                            onChange={onComboBoxChange} 
+                            value={formData.mother_id || ''}
+                            startIcon={<FamilyRestroomIcon />}
+                            error={!!errors.mother_id}
+                            helperText={errors.mother_id}
+                        />
+                    )}
+                    {maleAnimals && maleAnimals.length > 0 && (
+                        <ComboBox 
+                            xs={12} 
+                            md={6}
+                            options={animalToComboBox(maleAnimals)} 
+                            label="Padre (opcional)" 
+                            id="combo-box-father" 
+                            fieldName="father_id" 
+                            onChange={onComboBoxChange} 
+                            value={formData.father_id || ''}
+                            startIcon={<FamilyRestroomIcon />}
+                            error={!!errors.father_id}
+                            helperText={errors.father_id}
+                        />
+                    )}
                 </Grid>
                 <Box sx={{ mt: 4, mb: 2 }}>
                     <CustomButton type="submit" fullWidth variant="contained">
