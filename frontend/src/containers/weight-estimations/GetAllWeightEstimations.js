@@ -1,7 +1,7 @@
 // frontend/src/containers/weight-estimations/GetAllWeightEstimations.js
 
 import { useState, useEffect } from 'react';
-import getAllWeightEstimations from '../../services/weight-estimations/getAllWeightEstimations';
+import { getWeightEstimationsByCriteria } from '../../services/weight-estimations/getWeightEstimationsByCriteria';
 
 function GetAllWeightEstimations() {
     const [items, setItems] = useState([]);
@@ -26,10 +26,11 @@ function GetAllWeightEstimations() {
 
             while (hasMore) {
                 try {
-                    const data = await getAllWeightEstimations({ 
-                        page, 
-                        page_size: pageSize 
-                    });
+                    // Usar getWeightEstimationsByCriteria como en el dashboard (sin filtros)
+                    const data = await getWeightEstimationsByCriteria(
+                        {}, // Sin filtros
+                        { page, page_size: pageSize }
+                    );
 
                     if (!data || typeof data !== 'object') {
                         console.warn(`⚠️ Respuesta inválida en página ${page}:`, data);
@@ -46,8 +47,16 @@ function GetAllWeightEstimations() {
 
                     const total = data.total || 0;
 
+                    console.log(`📊 Página ${page}: Obtenidos ${weighings.length} registros, Total acumulado: ${allEstimations.length}, Total del backend: ${total}`);
+
                     // Verificar si hay más páginas
                     hasMore = total > 0 && allEstimations.length < total;
+                    
+                    // Si no hay más registros en esta página, detener
+                    if (weighings.length === 0) {
+                        console.log(`✅ No hay más registros en la página ${page}, deteniendo carga`);
+                        break;
+                    }
                     
                     // Prevenir loops infinitos
                     if (page > 1000) {
@@ -64,6 +73,8 @@ function GetAllWeightEstimations() {
                     break;
                 }
             }
+
+            console.log(`✅ Carga completa: ${allEstimations.length} estimaciones cargadas`);
 
             setItems(allEstimations);
             setPagination({

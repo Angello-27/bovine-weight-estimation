@@ -2,10 +2,12 @@
 
 import DataTable from '../../molecules/DataTable';
 import LinkButton from '../../atoms/LinkButton';
+import CustomIconButton from '../../atoms/IconButton';
 import Chip from '@mui/material/Chip';
 import Box from '@mui/material/Box';
 import { useNavigate } from 'react-router-dom';
 import { breedToComboBox } from '../../../utils/transformers/breedToComboBox';
+import VisibilityIcon from '@mui/icons-material/Visibility';
 
 function WeightEstimationList({ 
     items, 
@@ -111,6 +113,26 @@ function WeightEstimationList({
             label: 'Tiempo (ms)',
             field: 'processing_time_ms',
             render: (value) => value ? `${value} ms` : '-'
+        },
+        {
+            label: 'Acciones',
+            field: 'id',
+            render: (value, row) => (
+                <Box sx={{ display: 'flex', gap: 0.5 }}>
+                    <CustomIconButton
+                        icon={<VisibilityIcon />}
+                        tooltip="Ver detalle de estimación"
+                        color="primary"
+                        size="small"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            if (onViewClick && value) {
+                                onViewClick(value, row);
+                            }
+                        }}
+                    />
+                </Box>
+            )
         }
     ];
 
