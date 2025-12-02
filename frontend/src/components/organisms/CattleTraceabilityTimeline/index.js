@@ -27,9 +27,16 @@ function CattleTraceabilityTimeline({ events }) {
             </Box>
             
             <Box>
-                {events.map((event) => (
-                    <TimelineEvent key={event.id} event={event} />
-                ))}
+                {events.map((event, index) => {
+                    // Generar key única: usar id si existe, sino usar tipo + timestamp + índice
+                    const eventKey = event.id 
+                        ? event.id 
+                        : `${event.type || 'event'}-${event.timestamp || event.date || index}-${index}`;
+                    
+                    return (
+                        <TimelineEvent key={eventKey} event={event} />
+                    );
+                })}
             </Box>
         </Card>
     );

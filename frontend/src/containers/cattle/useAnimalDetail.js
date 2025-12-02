@@ -65,15 +65,18 @@ function useAnimalDetail(animalId) {
                 );
                 setEstimationsLoading(true);
 
-                // Timeline
+                // Timeline (opcional - no debe bloquear la carga)
                 promises.push(
                     getAnimalTimeline(animalId)
                         .then(data => {
-                            setTimeline(data);
+                            // getAnimalTimeline ahora retorna null en caso de error
+                            setTimeline(data || null);
                             setTimelineLoading(false);
                         })
                         .catch(err => {
+                            // Fallback por si acaso (aunque getAnimalTimeline ya maneja errores)
                             console.warn('Error al obtener timeline:', err);
+                            setTimeline(null);
                             setTimelineLoading(false);
                         })
                 );

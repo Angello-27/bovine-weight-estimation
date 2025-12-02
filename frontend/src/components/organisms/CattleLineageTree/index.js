@@ -67,65 +67,66 @@ function CattleLineageTree({ cattle, father, mother, descendants = [], onViewFat
     }
 
     return (
-        <Card sx={{ p: 3, width: '100%', minHeight: 'auto', overflow: 'hidden' }}>
-            <Box display="flex" alignItems="center" gap={1} mb={3}>
-                <FamilyRestroomIcon color="primary" />
-                <CustomTypography variant="h6">
-                    Linaje - Descendencia
-                </CustomTypography>
-            </Box>
-            
-            {/* Sección de Descendencia (Hijos) */}
-            {descendants && descendants.length > 0 ? (
-                <>
-                    <CustomTypography variant="subtitle1" sx={{ mb: 3, fontWeight: 600 }}>
-                        Descendencia Directa ({descendants.length} {descendants.length === 1 ? 'hijo' : 'hijos'})
+        <Box sx={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
+            <Card sx={{ p: 3, width: '100%', flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+                <Box display="flex" alignItems="center" gap={1} mb={3}>
+                    <FamilyRestroomIcon color="primary" />
+                    <CustomTypography variant="h6">
+                        Linaje - Descendencia
                     </CustomTypography>
-                    <Box sx={{ width: '100%', overflow: 'hidden' }}>
-                        <Grid container spacing={2} sx={{ width: '100%', margin: 0 }}>
-                            {descendants.map((descendant) => {
-                                const getStatusColor = (status) => {
-                                    const colorMap = {
-                                        'active': 'success',
-                                        'inactive': 'default',
-                                        'sold': 'warning',
-                                        'deceased': 'error'
+                </Box>
+                
+                {/* Sección de Descendencia (Hijos) */}
+                {descendants && descendants.length > 0 ? (
+                    <>
+                        <CustomTypography variant="subtitle1" sx={{ mb: 3, fontWeight: 600 }}>
+                            Descendencia Directa ({descendants.length} {descendants.length === 1 ? 'hijo' : 'hijos'})
+                        </CustomTypography>
+                        <Box sx={{ width: '100%', flex: 1, overflow: 'hidden' }}>
+                            <Grid container spacing={2}>
+                                {descendants.map((descendant) => {
+                                    const getStatusColor = (status) => {
+                                        const colorMap = {
+                                            'active': 'success',
+                                            'inactive': 'default',
+                                            'sold': 'warning',
+                                            'deceased': 'error'
+                                        };
+                                        return colorMap[status] || 'default';
                                     };
-                                    return colorMap[status] || 'default';
-                                };
-                                
-                                return (
-                                    <Grid 
-                                        item 
-                                        xs={12} 
-                                        sm={6} 
-                                        md={4} 
-                                        key={descendant.id} 
-                                        sx={{ 
-                                            display: 'flex',
-                                            minWidth: 0,
-                                            padding: '8px !important'
-                                        }}
-                                    >
-                                        <DescendantCard
-                                            descendant={descendant}
-                                            getBreedLabel={getBreedLabel}
-                                            getGenderLabel={getGenderLabel}
-                                            getStatusLabel={getStatusLabel}
-                                            getStatusColor={getStatusColor}
-                                            formatDate={formatDate}
-                                            calculateAge={calculateAge}
-                                        />
-                                    </Grid>
-                                );
-                            })}
-                        </Grid>
-                    </Box>
-                </>
-            ) : (
-                <EmptyState message="Este animal no tiene descendencia registrada." />
-            )}
-        </Card>
+                                    
+                                    return (
+                                        <Grid 
+                                            item 
+                                            xs={12} 
+                                            sm={6} 
+                                            md={4} 
+                                            key={descendant.id} 
+                                            sx={{ 
+                                                display: 'flex',
+                                                minWidth: 0
+                                            }}
+                                        >
+                                            <DescendantCard
+                                                descendant={descendant}
+                                                getBreedLabel={getBreedLabel}
+                                                getGenderLabel={getGenderLabel}
+                                                getStatusLabel={getStatusLabel}
+                                                getStatusColor={getStatusColor}
+                                                formatDate={formatDate}
+                                                calculateAge={calculateAge}
+                                            />
+                                        </Grid>
+                                    );
+                                })}
+                            </Grid>
+                        </Box>
+                    </>
+                ) : (
+                    <EmptyState message="Este animal no tiene descendencia registrada." />
+                )}
+            </Card>
+        </Box>
     );
 }
 

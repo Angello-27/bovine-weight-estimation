@@ -355,15 +355,15 @@ function CattleDetailTemplate({
                             )}
 
                             {tabValue === 2 && (
-                                <Box sx={{ minHeight: '400px', width: '100%' }}>
-                                        <CattleLineageTree
-                                            cattle={cattle}
-                                            father={father}
-                                            mother={mother}
+                                <Box sx={{ width: '100%', height: '100%' }}>
+                                    <CattleLineageTree
+                                        cattle={cattle}
+                                        father={father}
+                                        mother={mother}
                                         descendants={lineage?.descendants || []}
-                                            onViewFather={onViewFather}
-                                            onViewMother={onViewMother}
-                                        />
+                                        onViewFather={onViewFather}
+                                        onViewMother={onViewMother}
+                                    />
                                 </Box>
                             )}
 

@@ -102,7 +102,7 @@ class GetAnimalTimelineUseCase:
                         "confidence": estimation.confidence,
                         "method": estimation.method,
                         "ml_model_version": estimation.ml_model_version,
-                        "gps_latitude": estimation.frame_image_path,  # TODO: agregar GPS a WeightEstimation
+                        "gps_latitude": None,  # TODO: agregar GPS a WeightEstimation cuando esté disponible
                         "gps_longitude": None,
                         "frame_image_path": estimation.frame_image_path,
                         "processing_time_ms": estimation.processing_time_ms,
