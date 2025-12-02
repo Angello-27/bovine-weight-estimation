@@ -31,6 +31,19 @@ export default defineConfig({
   build: {
     outDir: 'build',
     sourcemap: true,
+    // Configuración para mejorar chunking y reducir tamaño de bundles
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          // Separar vendor chunks grandes
+          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+          'ui-vendor': ['@mui/material', '@mui/icons-material'],
+          'chart-vendor': ['recharts', 'chart.js'],
+        },
+      },
+    },
+    // Aumentar límite de warning para chunks grandes (1.6MB es aceptable para esta app)
+    chunkSizeWarningLimit: 1000,
   },
   // Variables de entorno
   envPrefix: 'REACT_APP_',
