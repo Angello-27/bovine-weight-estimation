@@ -85,10 +85,14 @@ function GetAllCattle(filters = {}, searchQuery = '') {
                     animal.name?.toLowerCase().includes(query) ||
                     animal.breed?.toLowerCase().includes(query)
                 );
+                // Si hay búsqueda en frontend, el total debe ser el de la lista filtrada
+                setTotalItems(cattleList.length);
+            } else {
+                // Si no hay búsqueda, usar el total del backend
+                setTotalItems(data?.total || 0);
             }
 
             setItems(cattleList);
-            setTotalItems(data?.total || 0);
         } catch (err) {
             const errorMessage = err?.message || err?.toString() || 'Error al obtener animales';
             setError(errorMessage);

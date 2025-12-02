@@ -1,6 +1,6 @@
 // frontend/src/containers/cattle/useAnimalView.js
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import GetAllCattle from './GetAllCattle';
 import CreateNewCattle from './CreateNewCattle';
@@ -20,9 +20,28 @@ function useAnimalView() {
         status: ''
     });
     const [searchQuery, setSearchQuery] = useState('');
+    const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
     
-    // Obtener animales con filtros y búsqueda
-    const animalsProps = GetAllCattle(filters, searchQuery);
+    // Debounce para búsqueda (300ms)
+    const searchTimeoutRef = useRef(null);
+    useEffect(() => {
+        if (searchTimeoutRef.current) {
+            clearTimeout(searchTimeoutRef.current);
+        }
+        
+        searchTimeoutRef.current = setTimeout(() => {
+            setDebouncedSearchQuery(searchQuery);
+        }, 300);
+        
+        return () => {
+            if (searchTimeoutRef.current) {
+                clearTimeout(searchTimeoutRef.current);
+            }
+        };
+    }, [searchQuery]);
+    
+    // Obtener animales con filtros y búsqueda (usando debouncedSearchQuery)
+    const animalsProps = GetAllCattle(filters, debouncedSearchQuery);
     const formProps = CreateNewCattle();
     const formActions = ManageCattleForm(formProps);
     
