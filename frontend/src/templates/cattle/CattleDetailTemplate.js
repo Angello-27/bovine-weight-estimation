@@ -40,7 +40,6 @@ function CattleDetailTemplate({
     cattle,
     estimations,
     timelineEvents,
-    chartData,
     galleryImages,
     father,
     mother,
@@ -349,7 +348,7 @@ function CattleDetailTemplate({
                             {tabValue === 1 && (
                                 <Grid container spacing={3}>
                                     <Grid item xs={12}>
-                                        <CattleWeightHistoryChart chartData={chartData} />
+                                        <CattleWeightHistoryChart animalId={cattle?.id} />
                                     </Grid>
                                 </Grid>
                             )}

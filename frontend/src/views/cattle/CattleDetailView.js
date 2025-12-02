@@ -50,7 +50,6 @@ function CattleDetailView() {
                 cattle={animalDetailProps.cattle}
                 estimations={animalDetailProps.estimations}
                 timelineEvents={transformedData.timelineEvents}
-                chartData={transformedData.chartData}
                 galleryImages={transformedData.galleryImages}
                 father={animalDetailProps.lineage?.father}
                 mother={animalDetailProps.lineage?.mother}

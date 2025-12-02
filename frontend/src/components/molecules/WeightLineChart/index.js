@@ -2,6 +2,33 @@
 
 import Box from "@mui/material/Box";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
+import { Card, CardContent, Typography } from '@mui/material';
+
+/**
+ * Tooltip personalizado para el gráfico de peso
+ */
+const CustomTooltip = ({ active, payload, label }) => {
+    if (active && payload && payload.length) {
+        return (
+            <Card sx={{ p: 1.5, boxShadow: 3 }}>
+                <CardContent sx={{ p: '8px !important', '&:last-child': { pb: '8px' } }}>
+                    <Typography variant="body2" sx={{ fontWeight: 600, mb: 0.5 }}>
+                        Fecha: {label}
+                    </Typography>
+                    <Typography variant="body2" color="primary" sx={{ fontWeight: 600 }}>
+                        Peso: {payload[0].value?.toFixed(1)} kg
+                    </Typography>
+                    {payload[0].payload.confianza && (
+                        <Typography variant="caption" color="text.secondary">
+                            Confianza: {payload[0].payload.confianza}%
+                        </Typography>
+                    )}
+                </CardContent>
+            </Card>
+        );
+    }
+    return null;
+};
 
 /**
  * WeightLineChart molecule - Gráfico de línea para evolución de peso
@@ -28,10 +55,7 @@ function WeightLineChart({ data }) {
                         label={{ value: 'Peso (kg)', angle: -90, position: 'insideLeft' }}
                         tick={{ fontSize: 12 }}
                     />
-                    <Tooltip 
-                        formatter={(value) => [`${value} kg`, 'Peso']}
-                        labelFormatter={(label) => `Fecha: ${label}`}
-                    />
+                    <Tooltip content={<CustomTooltip />} />
                     <Legend />
                     <Line 
                         type="monotone" 

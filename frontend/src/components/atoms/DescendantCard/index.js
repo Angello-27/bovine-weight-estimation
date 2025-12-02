@@ -6,6 +6,7 @@ import CustomTypography from '../CustomTypography';
 import Chip from '@mui/material/Chip';
 import LinkButton from '../LinkButton';
 import TagIcon from '@mui/icons-material/Tag';
+import DriveFileRenameOutlineIcon from '@mui/icons-material/DriveFileRenameOutline';
 import PetsIcon from '@mui/icons-material/Pets';
 import WcIcon from '@mui/icons-material/Wc';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
@@ -39,7 +40,7 @@ function DescendantCard({
             sx={{
                 p: 2.5,
                 width: '100%',
-                height: '100%',
+                height: '80%',
                 display: 'flex',
                 flexDirection: 'column',
                 overflow: 'hidden',
@@ -105,19 +106,21 @@ function DescendantCard({
             
             {/* Nombre */}
             {descendant.name && (
-                <CustomTypography 
-                    variant="body2" 
-                    color="text.secondary" 
-                    sx={{ 
-                        mb: 1.5, 
-                        ml: 3.5,
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        whiteSpace: 'nowrap'
-                    }}
-                >
-                    {descendant.name}
-                </CustomTypography>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, minWidth: 0, mb: 1.5 }}>
+                    <DriveFileRenameOutlineIcon fontSize="small" color="action" sx={{ flexShrink: 0 }} />
+                    <CustomTypography 
+                        variant="body2" 
+                        color="text.secondary"
+                        sx={{
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap',
+                            minWidth: 0
+                        }}
+                    >
+                        {descendant.name}
+                    </CustomTypography>
+                </Box>
             )}
             
             {/* Información del animal */}
