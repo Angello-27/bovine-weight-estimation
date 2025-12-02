@@ -11,12 +11,31 @@ import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 
 function TimelineEvent({ event }) {
     const formatDate = (dateString) => {
-        return new Date(dateString).toLocaleDateString('es-ES', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric'
-        });
+        if (!dateString) return 'Fecha no disponible';
+        
+        try {
+            const date = new Date(dateString);
+            // Verificar si la fecha es válida
+            if (isNaN(date.getTime())) {
+                return 'Fecha inválida';
+            }
+            return date.toLocaleDateString('es-ES', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+        } catch (error) {
+            console.warn('Error al formatear fecha:', dateString, error);
+            return 'Fecha inválida';
+        }
     };
+
+    // Obtener la fecha del evento (puede ser 'date' o 'timestamp')
+    const eventDate = event.date || event.timestamp;
+    // Obtener el título (puede ser 'title' o 'description')
+    const eventTitle = event.title || event.description || 'Evento';
+    // Obtener la descripción
+    const eventDescription = event.description || '';
 
     const getEventIcon = () => {
         switch (event.type) {
@@ -70,19 +89,23 @@ function TimelineEvent({ event }) {
             </Box>
             
             <Box flex={1}>
-                <Box display="flex" alignItems="center" gap={1} mb={0.5}>
+                <Box display="flex" alignItems="center" gap={1} mb={0.5} flexWrap="wrap">
                     <CustomTypography variant="subtitle1" fontWeight="bold">
-                        {event.title}
+                        {eventTitle}
                     </CustomTypography>
-                    <Chip
-                        label={formatDate(event.date)}
-                        size="small"
-                        variant="outlined"
-                    />
+                    {eventDate && (
+                        <Chip
+                            label={formatDate(eventDate)}
+                            size="small"
+                            variant="outlined"
+                        />
+                    )}
                 </Box>
-                <CustomTypography variant="body2" color="text.secondary">
-                    {event.description}
-                </CustomTypography>
+                {eventDescription && (
+                    <CustomTypography variant="body2" color="text.secondary">
+                        {eventDescription}
+                    </CustomTypography>
+                )}
                 {event.metadata?.gps && (
                     <Box display="flex" alignItems="center" gap={0.5} mt={0.5}>
                         <LocationOnIcon fontSize="small" color="action" />

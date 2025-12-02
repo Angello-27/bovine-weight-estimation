@@ -68,7 +68,7 @@ function CattleLineageTree({ cattle, father, mother, descendants = [], onViewFat
 
     return (
         <Box sx={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
-            <Card sx={{ p: 3, width: '100%', flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+            <Card sx={{ p: 3, width: '100%', flex: 1, display: 'flex', flexDirection: 'column', overflow: 'visible' }}>
                 <Box display="flex" alignItems="center" gap={1} mb={3}>
                     <FamilyRestroomIcon color="primary" />
                     <CustomTypography variant="h6">
@@ -82,8 +82,8 @@ function CattleLineageTree({ cattle, father, mother, descendants = [], onViewFat
                         <CustomTypography variant="subtitle1" sx={{ mb: 3, fontWeight: 600 }}>
                             Descendencia Directa ({descendants.length} {descendants.length === 1 ? 'hijo' : 'hijos'})
                         </CustomTypography>
-                        <Box sx={{ width: '100%', flex: 1, overflow: 'hidden' }}>
-                            <Grid container spacing={2}>
+                        <Box sx={{ width: '100%', flex: 1, overflow: 'visible' }}>
+                            <Grid container spacing={2} sx={{ width: '100%', margin: 0 }}>
                                 {descendants.map((descendant) => {
                                     const getStatusColor = (status) => {
                                         const colorMap = {
@@ -104,7 +104,8 @@ function CattleLineageTree({ cattle, father, mother, descendants = [], onViewFat
                                             key={descendant.id} 
                                             sx={{ 
                                                 display: 'flex',
-                                                minWidth: 0
+                                                minWidth: 0,
+                                                width: '100%'
                                             }}
                                         >
                                             <DescendantCard

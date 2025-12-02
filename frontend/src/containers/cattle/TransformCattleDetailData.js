@@ -16,10 +16,26 @@ function TransformCattleDetailData(cattle, estimations, timeline = null) {
     const timelineEvents = useMemo(() => {
         if (!cattle) return [];
         
-        // Si hay timeline del backend, usarlo y ordenarlo
+        // Si hay timeline del backend, transformarlo al formato esperado
         if (timeline && timeline.events && Array.isArray(timeline.events)) {
-            // Ordenar eventos del backend por fecha (más reciente primero)
-            const sortedEvents = [...timeline.events].sort((a, b) => {
+            // Transformar eventos del backend al formato esperado por TimelineEvent
+            const transformedEvents = timeline.events.map((event, index) => ({
+                id: event.id || `timeline-${event.type}-${index}`,
+                type: event.type,
+                date: event.timestamp || event.date,
+                timestamp: event.timestamp || event.date,
+                title: event.type === 'registration' ? 'Registro' :
+                       event.type === 'birth' ? 'Nacimiento' :
+                       event.type === 'weight_estimation' ? 'Estimación de Peso' :
+                       event.type === 'update' ? 'Actualización' :
+                       event.type === 'status_change' ? 'Cambio de Estado' :
+                       'Evento',
+                description: event.description || '',
+                metadata: event.data || {}
+            }));
+            
+            // Ordenar eventos por fecha (más reciente primero)
+            const sortedEvents = [...transformedEvents].sort((a, b) => {
                 const dateA = new Date(a.timestamp || a.date || 0);
                 const dateB = new Date(b.timestamp || b.date || 0);
                 return dateB - dateA; // Más reciente primero
