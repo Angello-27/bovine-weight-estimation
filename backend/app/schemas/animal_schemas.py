@@ -54,6 +54,8 @@ class AnimalUpdateRequest(BaseModel):
     observations: str | None = None
     status: str | None = None
     photo_url: str | None = None
+    mother_id: UUID | None = None
+    father_id: UUID | None = None
 
     @field_validator("status")
     @classmethod
@@ -75,6 +77,8 @@ class AnimalResponse(BaseModel):
     name: str | None = None
     color: str | None = None
     birth_weight_kg: float | None = None
+    mother_id: UUID | None = None
+    father_id: UUID | None = None
     status: str
     farm_id: UUID
     registration_date: datetime

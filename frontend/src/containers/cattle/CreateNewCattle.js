@@ -152,6 +152,9 @@ function CreateNewCattle() {
                 father_id: formData.father_id && formData.father_id !== '' ? formData.father_id : null
             };
 
+            // Log para debugging
+            console.log('Datos a enviar (crear):', JSON.stringify(cattleData, null, 2));
+
             if (formData.id) {
                 // Editar - enviar campos actualizables incluyendo parentesco
                 const updateData = {
@@ -162,6 +165,8 @@ function CreateNewCattle() {
                     mother_id: cattleData.mother_id,
                     father_id: cattleData.father_id
                 };
+                // Log para debugging
+                console.log('Datos a enviar (actualizar):', JSON.stringify(updateData, null, 2));
                 const data = await updateCattle(formData.id, updateData);
                 console.log('Animal actualizado: ', data);
             } else {

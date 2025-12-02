@@ -34,6 +34,8 @@ class UpdateAnimalUseCase:
         observations: str | None = None,
         status: str | None = None,
         photo_url: str | None = None,
+        mother_id: UUID | None = None,
+        father_id: UUID | None = None,
     ) -> Animal:
         """
         Ejecuta el caso de uso para actualizar un animal.
@@ -45,6 +47,8 @@ class UpdateAnimalUseCase:
             observations: Observaciones (opcional)
             status: Estado (opcional)
             photo_url: URL de foto (opcional)
+            mother_id: ID de la madre (opcional)
+            father_id: ID del padre (opcional)
 
         Returns:
             Animal actualizado
@@ -69,6 +73,10 @@ class UpdateAnimalUseCase:
             animal.status = status
         if photo_url is not None:
             animal.photo_url = photo_url
+        if mother_id is not None:
+            animal.mother_id = str(mother_id)
+        if father_id is not None:
+            animal.father_id = str(father_id)
 
         # Actualizar timestamp
         animal.update_timestamp()
