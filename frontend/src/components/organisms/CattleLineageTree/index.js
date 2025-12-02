@@ -4,19 +4,12 @@ import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
 import CustomTypography from '../../atoms/CustomTypography';
 import Card from '../../atoms/Card';
-import Chip from '@mui/material/Chip';
 import EmptyState from '../../molecules/EmptyState';
 import FamilyRestroomIcon from '@mui/icons-material/FamilyRestroom';
-import TagIcon from '@mui/icons-material/Tag';
-import PetsIcon from '@mui/icons-material/Pets';
-import WcIcon from '@mui/icons-material/Wc';
-import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import { breedToComboBox } from '../../../utils/transformers/breedToComboBox';
-import { useNavigate } from 'react-router-dom';
-import LinkButton from '../../atoms/LinkButton';
+import DescendantCard from '../../atoms/DescendantCard';
 
 function CattleLineageTree({ cattle, father, mother, descendants = [], onViewFather, onViewMother }) {
-    const navigate = useNavigate();
     const hasLineage = descendants && descendants.length > 0;
 
     const formatDate = (dateString) => {
@@ -88,99 +81,35 @@ function CattleLineageTree({ cattle, father, mother, descendants = [], onViewFat
                     <CustomTypography variant="subtitle1" sx={{ mb: 3, fontWeight: 600 }}>
                         Descendencia Directa ({descendants.length} {descendants.length === 1 ? 'hijo' : 'hijos'})
                     </CustomTypography>
-                    <Grid container spacing={2}>
-                        {descendants.map((descendant) => {
-                            const age = calculateAge(descendant.birth_date);
-                            const getStatusColor = (status) => {
-                                const colorMap = {
-                                    'active': 'success',
-                                    'inactive': 'default',
-                                    'sold': 'warning',
-                                    'deceased': 'error'
+                    <Box>
+                        <Grid container spacing={2}>
+                            {descendants.map((descendant) => {
+                                const getStatusColor = (status) => {
+                                    const colorMap = {
+                                        'active': 'success',
+                                        'inactive': 'default',
+                                        'sold': 'warning',
+                                        'deceased': 'error'
+                                    };
+                                    return colorMap[status] || 'default';
                                 };
-                                return colorMap[status] || 'default';
-                            };
-                            
-                            return (
-                                <Grid item xs={12} sm={6} md={4} key={descendant.id}>
-                                    <Card
-                                        sx={{
-                                            p: 2.5,
-                                            height: '100%',
-                                            display: 'flex',
-                                            flexDirection: 'column',
-                                            '&:hover': { boxShadow: 4 },
-                                            transition: 'box-shadow 0.3s ease'
-                                        }}
-                                    >
-                                        {/* Caravana/Nombre como link */}
-                                        <Box sx={{ mb: 1.5 }}>
-                                            <LinkButton
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    navigate(`/cattle/${descendant.id}`);
-                                                }}
-                                                sx={{ 
-                                                    textTransform: 'none',
-                                                    p: 0,
-                                                    justifyContent: 'flex-start',
-                                                    fontSize: '1rem',
-                                                    fontWeight: 600
-                                                }}
-                                            >
-                                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                                                    <TagIcon fontSize="small" color="primary" />
-                                                    {descendant.ear_tag || 'Sin caravana'}
-                                                </Box>
-                                            </LinkButton>
-                                            {descendant.name && (
-                                                <CustomTypography variant="body2" color="text.secondary" sx={{ mt: 0.5, ml: 3.5 }}>
-                                                    {descendant.name}
-                                                </CustomTypography>
-                                            )}
-                                        </Box>
-                                        
-                                        {/* Información del animal */}
-                                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, flex: 1 }}>
-                                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                                <PetsIcon fontSize="small" color="action" />
-                                                <CustomTypography variant="body2" color="text.secondary">
-                                                    {getBreedLabel(descendant.breed)}
-                                                </CustomTypography>
-                                            </Box>
-                                            
-                                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                                <WcIcon fontSize="small" color="action" />
-                                                <CustomTypography variant="body2" color="text.secondary">
-                                                    {getGenderLabel(descendant.gender)}
-                                                </CustomTypography>
-                                            </Box>
-                                            
-                                            {descendant.birth_date && (
-                                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                                    <CalendarTodayIcon fontSize="small" color="action" />
-                                                    <CustomTypography variant="body2" color="text.secondary">
-                                                        {formatDate(descendant.birth_date)}
-                                                        {age !== null && ` (${age} meses)`}
-                                                    </CustomTypography>
-                                                </Box>
-                                            )}
-                                            
-                                            {/* Estado como Chip */}
-                                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 'auto' }}>
-                                                <Chip
-                                                    label={getStatusLabel(descendant.status)}
-                                                    size="small"
-                                                    color={getStatusColor(descendant.status)}
-                                                    variant="outlined"
-                                                />
-                                            </Box>
-                                        </Box>
-                                    </Card>
-                                </Grid>
-                            );
-                        })}
-                    </Grid>
+                                
+                                return (
+                                    <Grid item xs={12} sm={6} md={4} key={descendant.id} sx={{ display: 'flex' }}>
+                                        <DescendantCard
+                                            descendant={descendant}
+                                            getBreedLabel={getBreedLabel}
+                                            getGenderLabel={getGenderLabel}
+                                            getStatusLabel={getStatusLabel}
+                                            getStatusColor={getStatusColor}
+                                            formatDate={formatDate}
+                                            calculateAge={calculateAge}
+                                        />
+                                    </Grid>
+                                );
+                            })}
+                        </Grid>
+                    </Box>
                 </>
             ) : (
                 <EmptyState message="Este animal no tiene descendencia registrada." />
