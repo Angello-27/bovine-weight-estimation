@@ -362,6 +362,7 @@ function CattleDetailTemplate({
                                             cattle={cattle}
                                             father={father}
                                             mother={mother}
+                                            descendants={lineage?.descendants || []}
                                             onViewFather={onViewFather}
                                             onViewMother={onViewMother}
                                         />
