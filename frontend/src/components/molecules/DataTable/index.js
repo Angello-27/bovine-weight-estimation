@@ -1,6 +1,6 @@
 // frontend/src/components/molecules/DataTable/index.js
 
-import React from 'react';
+import React, { useState } from 'react';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
@@ -12,7 +12,9 @@ import Paper from '@mui/material/Paper';
 import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
 import InputAdornment from '@mui/material/InputAdornment';
+import IconButton from '@mui/material/IconButton';
 import SearchIcon from '@mui/icons-material/Search';
+import ClearIcon from '@mui/icons-material/Clear';
 import EmptyState from '../EmptyState';
 
 /**
@@ -42,6 +44,13 @@ function DataTable({
     onSearchChange,
     searchPlaceholder = 'Buscar...'
 }) {
+    // Estado interno para el valor del input (para permitir escribir sin buscar)
+    const [inputValue, setInputValue] = React.useState(searchValue);
+    
+    // Sincronizar con el prop cuando cambia externamente (ej: cuando se limpia)
+    React.useEffect(() => {
+        setInputValue(searchValue);
+    }, [searchValue]);
     // Si hay paginación controlada, usar esos valores
     const isControlled = pagination !== undefined;
     const [internalPage, setInternalPage] = React.useState(0);
@@ -96,16 +105,69 @@ function DataTable({
                             variant="outlined"
                             size="small"
                             placeholder={searchPlaceholder}
-                            value={searchValue}
+                            value={inputValue}
                             onChange={(e) => {
+                                // Solo actualizar el valor del input local, no buscar aún
+                                setInputValue(e.target.value);
+                                // Notificar el cambio para que el componente padre pueda actualizar su estado
                                 if (onSearchChange) {
                                     onSearchChange(e);
+                                }
+                            }}
+                            onKeyPress={(e) => {
+                                // Permitir buscar con Enter
+                                if (e.key === 'Enter' && onSearchChange) {
+                                    const syntheticEvent = {
+                                        ...e,
+                                        type: 'search',
+                                        target: { value: inputValue }
+                                    };
+                                    onSearchChange(syntheticEvent);
                                 }
                             }}
                             InputProps={{
                                 startAdornment: (
                                     <InputAdornment position="start">
-                                        <SearchIcon color="action" fontSize="small" />
+                                        <IconButton
+                                            size="small"
+                                            onClick={() => {
+                                                // Aplicar búsqueda al hacer click en el icono
+                                                if (onSearchChange) {
+                                                    const syntheticEvent = {
+                                                        target: { value: inputValue },
+                                                        type: 'search'
+                                                    };
+                                                    onSearchChange(syntheticEvent);
+                                                }
+                                            }}
+                                            edge="start"
+                                            sx={{ mr: 0 }}
+                                            aria-label="Buscar"
+                                        >
+                                            <SearchIcon color="action" fontSize="small" />
+                                        </IconButton>
+                                    </InputAdornment>
+                                ),
+                                endAdornment: inputValue && (
+                                    <InputAdornment position="end">
+                                        <IconButton
+                                            size="small"
+                                            onClick={() => {
+                                                // Limpiar búsqueda
+                                                setInputValue('');
+                                                if (onSearchChange) {
+                                                    const syntheticEvent = {
+                                                        target: { value: '' },
+                                                        type: 'clear'
+                                                    };
+                                                    onSearchChange(syntheticEvent);
+                                                }
+                                            }}
+                                            edge="end"
+                                            aria-label="Limpiar búsqueda"
+                                        >
+                                            <ClearIcon fontSize="small" />
+                                        </IconButton>
                                     </InputAdornment>
                                 ),
                             }}

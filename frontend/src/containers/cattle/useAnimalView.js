@@ -19,29 +19,11 @@ function useAnimalView() {
         gender: '',
         status: ''
     });
-    const [searchQuery, setSearchQuery] = useState('');
-    const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
+    const [searchInput, setSearchInput] = useState(''); // Valor del input (no aplicado aún)
+    const [searchQuery, setSearchQuery] = useState(''); // Búsqueda aplicada
     
-    // Debounce para búsqueda (300ms)
-    const searchTimeoutRef = useRef(null);
-    useEffect(() => {
-        if (searchTimeoutRef.current) {
-            clearTimeout(searchTimeoutRef.current);
-        }
-        
-        searchTimeoutRef.current = setTimeout(() => {
-            setDebouncedSearchQuery(searchQuery);
-        }, 300);
-        
-        return () => {
-            if (searchTimeoutRef.current) {
-                clearTimeout(searchTimeoutRef.current);
-            }
-        };
-    }, [searchQuery]);
-    
-    // Obtener animales con filtros y búsqueda (usando debouncedSearchQuery)
-    const animalsProps = GetAllCattle(filters, debouncedSearchQuery);
+    // Obtener animales con filtros y búsqueda
+    const animalsProps = GetAllCattle(filters, searchQuery);
     const formProps = CreateNewCattle();
     const formActions = ManageCattleForm(formProps);
     
@@ -53,8 +35,35 @@ function useAnimalView() {
         }));
     };
     
+    const handleSearchInputChange = (event) => {
+        // Solo actualizar el valor del input, no aplicar búsqueda
+        setSearchInput(event.target.value);
+    };
+    
+    const handleSearchApply = (value) => {
+        // Aplicar la búsqueda cuando se presiona el botón
+        const searchValue = value !== undefined ? value : searchInput;
+        setSearchInput(searchValue);
+        setSearchQuery(searchValue);
+    };
+    
+    const handleSearchClear = () => {
+        // Limpiar búsqueda
+        setSearchInput('');
+        setSearchQuery('');
+    };
+    
     const handleSearchChange = (event) => {
-        setSearchQuery(event.target.value);
+        // Manejar tanto cambios en el input como acciones (buscar/limpiar)
+        if (event.type === 'clear') {
+            handleSearchClear();
+        } else if (event.type === 'search') {
+            // Aplicar búsqueda con el valor del evento
+            handleSearchApply(event.target.value);
+        } else {
+            // Cambio normal en el input - solo actualizar el valor del input
+            handleSearchInputChange(event);
+        }
     };
     
     const [errorSnackbar, setErrorSnackbar] = useState({
@@ -141,7 +150,7 @@ function useAnimalView() {
         
         // Filtros y búsqueda
         filters,
-        searchQuery,
+        searchQuery: searchInput, // Pasar el valor del input para mostrar en el campo
         handleFilterChange,
         handleSearchChange,
         
