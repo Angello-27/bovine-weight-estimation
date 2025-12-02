@@ -57,6 +57,7 @@ class AnimalMapper:
             farm_id=animal.farm_id,
             registration_date=animal.registration_date,
             last_updated=animal.last_updated,
+            photo_url=animal.photo_url,
             age_months=animal.calculate_age_months(),
             age_category=animal.calculate_age_category().value,
         )

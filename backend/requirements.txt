@@ -33,6 +33,7 @@ python-dotenv==1.0.0
 tensorflow>=2.16.1,<2.17.0  # Para cargar modelos TFLite (requerido para producción)
 # Alternativa ligera (solo Linux): tensorflow-lite-runtime==2.16.0
 pillow==10.1.0      # Procesamiento de imágenes
+types-Pillow>=10.0.0  # Stubs de tipos para Pillow
 numpy==1.26.2       # Operaciones numéricas
 opencv-python==4.8.1.78  # Procesamiento de imágenes (YOLO)
 ultralytics==8.0.196  # YOLOv8 para detección de ganado

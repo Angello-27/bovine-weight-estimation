@@ -43,6 +43,136 @@ from app.data.models.alert_model import (
 )
 from app.domain.shared.constants import AgeCategory, BreedType
 
+# Cache de imágenes disponibles por raza
+IMAGE_CACHE: dict[str, dict[str, list[str]]] = {}
+
+
+def load_available_images(uploads_dir: Path) -> dict[str, dict[str, list[str]]]:
+    """
+    Carga las imágenes disponibles organizadas por raza y tipo (normal/cria).
+
+    Returns:
+        Dict con estructura: {breed: {"normal": [...], "cria": [...]}}
+    """
+    images_by_breed: dict[str, dict[str, list[str]]] = {}
+
+    for breed in BreedType:
+        breed_name = breed.value.lower()
+        breed_dir = uploads_dir / breed_name
+
+        if not breed_dir.exists():
+            print(
+                f"   ⚠️  Advertencia: No se encontró directorio para raza {breed_name}"
+            )
+            images_by_breed[breed_name] = {"normal": [], "cria": []}
+            continue
+
+        # Buscar imágenes normales y de crías
+        normal_images = []
+        cria_images = []
+
+        for img_file in breed_dir.iterdir():
+            if not img_file.is_file():
+                continue
+
+            filename = img_file.name.lower()
+            # Verificar que sea una imagen
+            if not filename.endswith((".jpg", ".jpeg", ".png")):
+                continue
+
+            # Path relativo desde backend/uploads
+            relative_path = f"{breed_name}/{img_file.name}"
+
+            if f"{breed_name}_cria_" in filename:
+                cria_images.append(relative_path)
+            else:
+                # Imágenes normales (formato: {breed}_{numero}.jpg)
+                if filename.startswith(f"{breed_name}_") and not filename.startswith(
+                    f"{breed_name}_cria_"
+                ):
+                    normal_images.append(relative_path)
+
+        images_by_breed[breed_name] = {
+            "normal": sorted(normal_images),
+            "cria": sorted(cria_images),
+        }
+
+        print(
+            f"   📸 {breed_name}: {len(normal_images)} normales, {len(cria_images)} crías"
+        )
+
+    return images_by_breed
+
+
+def get_animal_photo_url(
+    breed: BreedType, age_months: int, images_by_breed: dict[str, dict[str, list[str]]]
+) -> str | None:
+    """
+    Obtiene una URL de foto apropiada para un animal según su edad.
+
+    Args:
+        breed: Raza del animal
+        age_months: Edad en meses
+        images_by_breed: Diccionario de imágenes disponibles
+
+    Returns:
+        Path relativo de la imagen o None si no hay disponibles
+    """
+    breed_name = breed.value.lower()
+    breed_images = images_by_breed.get(breed_name, {"normal": [], "cria": []})
+
+    # Si es menor a 8 meses, usar imagen de cría
+    if age_months < 8:
+        cria_images = breed_images.get("cria", [])
+        if cria_images:
+            return random.choice(cria_images)
+        # Si no hay crías, usar normal
+        normal_images = breed_images.get("normal", [])
+        if normal_images:
+            return random.choice(normal_images)
+    else:
+        # Animal adulto, usar imagen normal
+        normal_images = breed_images.get("normal", [])
+        if normal_images:
+            return random.choice(normal_images)
+        # Si no hay normales, usar cría como fallback
+        cria_images = breed_images.get("cria", [])
+        if cria_images:
+            return random.choice(cria_images)
+
+    return None
+
+
+def get_estimation_frame_path(
+    breed: BreedType, images_by_breed: dict[str, dict[str, list[str]]]
+) -> str:
+    """
+    Obtiene un path de imagen para una estimación de peso.
+
+    Args:
+        breed: Raza del animal
+        images_by_breed: Diccionario de imágenes disponibles
+
+    Returns:
+        Path relativo de la imagen
+    """
+    breed_name = breed.value.lower()
+    breed_images = images_by_breed.get(breed_name, {"normal": [], "cria": []})
+
+    # Preferir imágenes normales para estimaciones
+    normal_images = breed_images.get("normal", [])
+    if normal_images:
+        return random.choice(normal_images)
+
+    # Fallback a crías si no hay normales
+    cria_images = breed_images.get("cria", [])
+    if cria_images:
+        return random.choice(cria_images)
+
+    # Fallback final si no hay imágenes
+    return f"{breed_name}/placeholder.jpg"
+
+
 # Suprimir warnings de bcrypt/passlib (son informativos, no afectan funcionalidad)
 warnings.filterwarnings("ignore", message=".*bcrypt.*")
 warnings.filterwarnings("ignore", message=".*trapped.*")
@@ -595,7 +725,9 @@ async def create_farm(owner: UserModel) -> FarmModel:
 
 
 def generate_animals(
-    farm_id: UUID, weight_loader: WeightDataLoader
+    farm_id: UUID,
+    weight_loader: WeightDataLoader,
+    images_by_breed: dict[str, dict[str, list[str]]],
 ) -> list[AnimalModel]:
     """Genera 200 animales con datos realistas y relaciones familiares validadas."""
     animals = []
@@ -621,6 +753,12 @@ def generate_animals(
             )
             name = get_unique_name(breed, "female", used_names)
 
+            # Calcular edad para seleccionar imagen apropiada
+            age_months = (now.year - birth_date.year) * 12 + (
+                now.month - birth_date.month
+            )
+            photo_url = get_animal_photo_url(breed, age_months, images_by_breed)
+
             animal = AnimalModel(
                 ear_tag=f"HG-{breed.value.upper()[:3]}-B{base_counter:03d}",
                 breed=breed.value,
@@ -629,6 +767,7 @@ def generate_animals(
                 name=name,
                 color=random.choice(BREED_COLORS[breed]),
                 birth_weight_kg=round(random.uniform(25, 40), 1),
+                photo_url=photo_url,
                 status="active",
                 farm_id=farm_id,
                 registration_date=birth_date + timedelta(days=random.randint(1, 30)),
@@ -648,6 +787,12 @@ def generate_animals(
             )
             name = get_unique_name(breed, "male", used_names)
 
+            # Calcular edad para seleccionar imagen apropiada
+            age_months = (now.year - birth_date.year) * 12 + (
+                now.month - birth_date.month
+            )
+            photo_url = get_animal_photo_url(breed, age_months, images_by_breed)
+
             animal = AnimalModel(
                 ear_tag=f"HG-{breed.value.upper()[:3]}-B{base_counter:03d}",
                 breed=breed.value,
@@ -656,6 +801,7 @@ def generate_animals(
                 name=name,
                 color=random.choice(BREED_COLORS[breed]),
                 birth_weight_kg=round(random.uniform(28, 45), 1),
+                photo_url=photo_url,
                 status="active",
                 farm_id=farm_id,
                 registration_date=birth_date + timedelta(days=random.randint(1, 30)),
@@ -694,6 +840,12 @@ def generate_animals(
 
             gender = "female" if random.random() < 0.55 else "male"
             name = get_unique_name(breed, gender, used_names)
+
+            # Calcular edad para seleccionar imagen apropiada
+            age_months = (now.year - birth_date.year) * 12 + (
+                now.month - birth_date.month
+            )
+            photo_url = get_animal_photo_url(breed, age_months, images_by_breed)
 
             mother_id = None
             father_id = None
@@ -747,6 +899,7 @@ def generate_animals(
                 name=name,
                 color=random.choice(BREED_COLORS[breed]),
                 birth_weight_kg=round(random.uniform(25, 45), 1),
+                photo_url=photo_url,
                 mother_id=mother_id,
                 father_id=father_id,
                 status=status,
@@ -786,7 +939,9 @@ def get_unique_name(
 
 
 def generate_weight_estimations(
-    animals: list[AnimalModel], weight_loader: WeightDataLoader
+    animals: list[AnimalModel],
+    weight_loader: WeightDataLoader,
+    images_by_breed: dict[str, dict[str, list[str]]],
 ) -> list[WeightEstimationModel]:
     """
     Genera estimaciones de peso con evolución temporal usando datos del CSV.
@@ -883,6 +1038,10 @@ def generate_weight_estimations(
             confidence = round(random.uniform(0.80, 0.96), 2)
             processing_time = random.randint(1200, 2800)
 
+            # Obtener imagen real para la estimación
+            breed_enum = BreedType(animal.breed)
+            frame_image_path = get_estimation_frame_path(breed_enum, images_by_breed)
+
             estimation = WeightEstimationModel(
                 animal_id=str(animal.id),
                 breed=animal.breed,
@@ -891,7 +1050,7 @@ def generate_weight_estimations(
                 method="tflite",
                 ml_model_version="1.0.0",
                 processing_time_ms=processing_time,
-                frame_image_path=f"/frames/{animal.ear_tag}_weighing_{i+1:03d}.jpg",
+                frame_image_path=frame_image_path,
                 latitude=-15.859500 + random.uniform(-0.001, 0.001),
                 longitude=-60.797889 + random.uniform(-0.001, 0.001),
                 timestamp=weighing_date,
@@ -1155,6 +1314,12 @@ async def seed_database():
     weight_loader = WeightDataLoader(str(csv_path))
     print("   ✅ CSV cargado exitosamente\n")
 
+    # Cargar imágenes disponibles
+    uploads_dir = Path(__file__).parent.parent / "uploads"
+    print("📸 Cargando imágenes disponibles por raza...")
+    images_by_breed = load_available_images(uploads_dir)
+    print("   ✅ Imágenes cargadas\n")
+
     client = AsyncIOMotorClient(settings.MONGODB_URL)
 
     try:
@@ -1193,14 +1358,16 @@ async def seed_database():
         print("✅ Finca creada\n")
 
         print("🐄 Generando 300 animales con datos realistas...")
-        animals = generate_animals(farm.id, weight_loader)
+        animals = generate_animals(farm.id, weight_loader, images_by_breed)
         await AnimalModel.insert_many(animals)
         print(f"✅ {len(animals)} animales insertados\n")
 
         farm.total_animals = len(animals)
         await farm.save()
 
-        estimations = generate_weight_estimations(animals, weight_loader)
+        estimations = generate_weight_estimations(
+            animals, weight_loader, images_by_breed
+        )
         await WeightEstimationModel.insert_many(estimations)
         print(f"✅ {len(estimations)} estimaciones insertadas\n")
 

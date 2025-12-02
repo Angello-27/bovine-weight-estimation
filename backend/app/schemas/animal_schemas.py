@@ -83,6 +83,7 @@ class AnimalResponse(BaseModel):
     farm_id: UUID
     registration_date: datetime
     last_updated: datetime
+    photo_url: str | None = Field(None, description="URL o path de la foto del animal")
 
     # Campos calculados
     age_months: int

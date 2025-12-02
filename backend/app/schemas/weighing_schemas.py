@@ -67,6 +67,9 @@ class WeighingResponse(BaseModel):
     processing_time_ms: int
     latitude: float | None
     longitude: float | None
+    frame_image_path: str = Field(
+        ..., description="Path de la imagen usada para la estimación"
+    )
     timestamp: datetime
     created_at: datetime
 

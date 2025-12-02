@@ -68,6 +68,7 @@ class WeightEstimationMapper:
             processing_time_ms=estimation.processing_time_ms,
             latitude=estimation.latitude,
             longitude=estimation.longitude,
+            frame_image_path=estimation.frame_image_path or "",
             timestamp=estimation.timestamp,
             created_at=estimation.timestamp,  # Usar timestamp como created_at
         )

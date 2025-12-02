@@ -66,3 +66,8 @@ warn_redundant_casts = true
 warn_unused_ignores = true
 warn_no_return = true
 
+# Ignorar imports faltantes para PIL (types-Pillow se instala por separado)
+[[tool.mypy.overrides]]
+module = "PIL.*"
+ignore_missing_imports = true
+

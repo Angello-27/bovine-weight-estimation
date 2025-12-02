@@ -169,7 +169,7 @@ dumps/
 .ruff_cache/
 
 # Uploads temporales
-uploads/
+# uploads/  # Comentado: ahora se versionan los uploads
 
 # Modelos YOLO descargados
 *.pt

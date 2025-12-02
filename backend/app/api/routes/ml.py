@@ -202,13 +202,23 @@ async def estimate_weight_from_web(
     # 2. Leer bytes de imagen
     image_bytes = await image.read()
 
-    # 3. Ejecutar caso de uso (inferencia + guardado)
+    # 3. Guardar imagen en backend/uploads
+    from ...core.utils.image_storage import save_estimation_frame
+
+    breed_value = breed.value if hasattr(breed, "value") else str(breed)
+    saved_image_path = save_estimation_frame(
+        image_bytes=image_bytes,
+        animal_id=animal_id,
+        breed=breed_value,
+    )
+
+    # 4. Ejecutar caso de uso (inferencia + guardado)
     saved_estimation = await estimate_usecase.execute(
         image_bytes=image_bytes,
         breed=breed,
         animal_id=animal_id,
         device_id="web_panel",  # Identificador para estimaciones desde web
-        frame_image_path=f"web_uploads/{animal_id or 'unknown'}_{image.filename}",
+        frame_image_path=saved_image_path,
     )
 
     # 4. Convertir a DTO usando mapper
