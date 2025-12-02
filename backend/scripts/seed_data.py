@@ -43,7 +43,7 @@ from app.data.models.alert_model import (
 )
 from app.domain.shared.constants import AgeCategory, BreedType
 
-# Suprimir warnings de bcrypt/passlib
+# Suprimir warnings de bcrypt/passlib (son informativos, no afectan funcionalidad)
 warnings.filterwarnings("ignore", message=".*bcrypt.*")
 warnings.filterwarnings("ignore", message=".*trapped.*")
 logging.getLogger("passlib").setLevel(logging.ERROR)
@@ -383,15 +383,16 @@ CATTLE_NAMES = {
     },
 }
 
-# Distribución de razas
+# Distribución de razas (TOTAL: 300 animales)
+# Proporciones: Nelore 35.39%, Brahman 21.07%, Guzerat 13.48%, Senepol 9.27%, Girolando 8.15%, Gyr Lechero 7.58%, Sindi 5.06%
 BREED_DISTRIBUTION = {
-    BreedType.NELORE: 84,
-    BreedType.BRAHMAN: 50,
-    BreedType.GUZERAT: 30,
-    BreedType.SENEPOL: 16,
-    BreedType.GIROLANDO: 10,
-    BreedType.GYR_LECHERO: 6,
-    BreedType.SINDI: 4,
+    BreedType.NELORE: 126,  # 35.39% de 356
+    BreedType.BRAHMAN: 75,  # 21.07% de 356
+    BreedType.GUZERAT: 48,  # 13.48% de 356
+    BreedType.SENEPOL: 33,  # 9.27% de 356
+    BreedType.GIROLANDO: 29,  # 8.15% de 356
+    BreedType.GYR_LECHERO: 27,  # 7.58% de 356
+    BreedType.SINDI: 18,  # 5.06% de 356
 }
 
 # Colores por raza
@@ -583,7 +584,7 @@ async def create_farm(owner: UserModel) -> FarmModel:
     )
     await farm.insert()
     print(f"   ✅ Finca creada: {farm.name}")
-    print(f"      📍 Ubicación: {settings.HACIENDA_LOCATION}")
+    print("      📍 Ubicación: San Ignacio de Velasco, Santa Cruz, Bolivia")
     print(f"      👤 Propietario: {owner.first_name} {owner.last_name}")
     print(f"      📊 Capacidad: {farm.capacity} animales")
 
@@ -698,10 +699,14 @@ def generate_animals(
             father_id = None
 
             if birth_date.year >= 2022 and random.random() < 0.75:
+                # Los padres deben tener al menos 24 meses (no pueden ser terneros/vaquillonas)
+                # Esto significa al menos 24 meses + 9 meses gestación = 33 meses de diferencia mínima
+                min_parent_age_days = 1005  # ~33 meses (24 meses + 9 gestación)
+
                 potential_mothers = [
                     a
                     for a in base_animals_by_breed[breed]["females"]
-                    if (birth_date - a.birth_date).days >= 730
+                    if (birth_date - a.birth_date).days >= min_parent_age_days
                 ]
                 if potential_mothers:
                     mother_id = str(random.choice(potential_mothers).id)
@@ -709,7 +714,7 @@ def generate_animals(
                 potential_fathers = [
                     a
                     for a in base_animals_by_breed[breed]["males"]
-                    if (birth_date - a.birth_date).days >= 730
+                    if (birth_date - a.birth_date).days >= min_parent_age_days
                 ]
                 if potential_fathers:
                     father_id = str(random.choice(potential_fathers).id)
@@ -786,6 +791,10 @@ def generate_weight_estimations(
     """
     Genera estimaciones de peso con evolución temporal usando datos del CSV.
     Confianza entre 80-96%.
+
+    Incluye:
+    - Pérdida de peso aleatoria (10-15% de pesajes)
+    - Decline progresivo para animales deceased
     """
     estimations = []
     now = datetime.now(UTC)
@@ -813,10 +822,8 @@ def generate_weight_estimations(
 
         # Verificar que hay suficiente tiempo para generar pesajes
         if (end_date - start_date).days < 30:
-            # Si el período es muy corto, solo un pesaje en fecha válida
             weighing_dates = [start_date] if start_date <= end_date else []
         else:
-            # Distribuir pesajes uniformemente
             days_span = (end_date - start_date).days
             interval = days_span / max(num_weighings, 1)
             for i in range(num_weighings):
@@ -827,15 +834,51 @@ def generate_weight_estimations(
 
         weighing_dates.sort()
 
+        # Rastrear el peso máximo alcanzado (para decline en deceased)
+        max_weight = 0.0  # Tipo peso máximo: float
+        previous_weight = 0.0  # Tipo peso anterior: float
+
+        # Determinar si este animal tendrá decline (solo deceased)
+        has_decline = animal.status == "deceased" and len(weighing_dates) > 3
+        decline_start_index = (
+            len(weighing_dates) - random.randint(2, 4)
+            if has_decline
+            else len(weighing_dates)
+        )
+
         for i, weighing_date in enumerate(weighing_dates):
             age_months = (weighing_date.year - animal.birth_date.year) * 12 + (
                 weighing_date.month - animal.birth_date.month
             )
             age_months = max(0, age_months)
 
-            weight = weight_loader.get_sample_weight(
+            # Obtener peso base del CSV
+            base_weight = weight_loader.get_sample_weight(
                 animal.breed, age_months, animal.gender
             )
+
+            # Aplicar lógica de peso según situación
+            if has_decline and i >= decline_start_index:
+                # DECLINE PROGRESIVO para animales deceased
+                # Pérdida entre 5-15% del peso máximo por pesaje
+                decline_factor = 1 - (
+                    random.uniform(0.05, 0.15) * (i - decline_start_index + 1)
+                )
+                weight = max(
+                    max_weight * decline_factor, base_weight * 0.5
+                )  # No menos del 50% del base
+            elif i > 0 and random.random() < 0.12:  # 12% de chance de pérdida de peso
+                # PÉRDIDA DE PESO ALEATORIA (realismo)
+                # Puede perder entre 3-8% del peso anterior
+                loss_factor = random.uniform(0.92, 0.97)
+                weight = previous_weight * loss_factor
+            else:
+                # CRECIMIENTO NORMAL
+                weight = base_weight
+
+            # Actualizar tracking
+            max_weight = max(max_weight, weight)
+            previous_weight = weight
 
             confidence = round(random.uniform(0.80, 0.96), 2)
             processing_time = random.randint(1200, 2800)
@@ -843,7 +886,7 @@ def generate_weight_estimations(
             estimation = WeightEstimationModel(
                 animal_id=str(animal.id),
                 breed=animal.breed,
-                estimated_weight_kg=weight,
+                estimated_weight_kg=round(weight, 1),
                 confidence=confidence,
                 method="tflite",
                 ml_model_version="1.0.0",
@@ -865,46 +908,231 @@ def generate_weight_estimations(
 def generate_sample_alerts(
     user_id: UUID, farm_id: UUID, animals: list[AnimalModel]
 ) -> list[AlertModel]:
-    """Genera alertas de ejemplo programadas."""
+    """
+    Genera alertas inteligentes programadas con límite de 20-25 animales.
+
+    Criterios:
+    - Por hato/potrero
+    - Por especie/raza
+    - Por edad/categoría
+    - Por temporada
+    - Por circunstancia (enfermedad, nacimiento, clima)
+    - Combinaciones múltiples
+    """
     alerts = []
     now = datetime.now(UTC)
 
-    breed_counts = Counter(animal.breed for animal in animals)
+    # Límite máximo de animales por alerta
+    max_animals_per_alert = 25
 
-    nelore_count = breed_counts.get("nelore", 0)
-    if nelore_count > 0:
+    # ALERTA 1: Pesaje - Terneros Nelore (edad + raza)
+    nelore_terneros = [
+        a
+        for a in animals
+        if a.breed == "nelore"
+        and a.calculate_age_category() == AgeCategory.TERNEROS
+        and a.status == "active"
+    ]
+    if len(nelore_terneros) > 0:
+        count = min(len(nelore_terneros), max_animals_per_alert)
         alerts.append(
             AlertModel(
                 user_id=user_id,
                 farm_id=farm_id,
                 type=AlertType.SCHEDULED_WEIGHING,
-                title="Pesaje Masivo - Nelore",
-                message=f"Pesar {min(nelore_count, 50)} animales Nelore",
+                title="Control de Peso - Terneros Nelore",
+                message=f"Pesar {count} terneros Nelore (<8 meses) del potrero norte",
                 status=AlertStatus.PENDING,
                 scheduled_at=now + timedelta(days=7),
                 recurrence=RecurrenceType.MONTHLY,
-                reminder_before_days=[7, 1],
-                filter_criteria={"breed": "nelore", "count": min(nelore_count, 50)},
+                reminder_before_days=[7, 3, 1],
+                filter_criteria={
+                    "breed": "nelore",
+                    "age_category": "terneros",
+                    "count": count,
+                    "location": "potrero_norte",
+                },
                 location={"type": "Point", "coordinates": [-60.797889, -15.859500]},
             )
         )
 
-    terneros = [
-        a for a in animals if a.calculate_age_category() == AgeCategory.TERNEROS
+    # ALERTA 2: Vacunación - Vaquillonas (edad + género)
+    vaquillonas_active = [
+        a
+        for a in animals
+        if a.gender == "female"
+        and a.calculate_age_category() == AgeCategory.VAQUILLONAS_TORILLOS
+        and a.status == "active"
     ]
-    if len(terneros) > 0:
+    if len(vaquillonas_active) > 0:
+        count = min(len(vaquillonas_active), max_animals_per_alert)
         alerts.append(
             AlertModel(
                 user_id=user_id,
                 farm_id=farm_id,
                 type=AlertType.VETERINARY_TREATMENT,
-                title="Vacunación - Terneros",
-                message=f"Vacunar {len(terneros)} terneros (<8 meses)",
+                title="Vacunación - Vaquillonas",
+                message=f"Vacunar {count} vaquillonas (6-18 meses) - Programa sanitario trimestral",
                 status=AlertStatus.PENDING,
                 scheduled_at=now + timedelta(days=14),
                 recurrence=RecurrenceType.QUARTERLY,
-                reminder_before_days=[7, 3, 1],
-                filter_criteria={"age_category": "terneros", "count": len(terneros)},
+                reminder_before_days=[14, 7, 3, 1],
+                filter_criteria={
+                    "gender": "female",
+                    "age_category": "vaquillonas_torillos",
+                    "count": count,
+                },
+            )
+        )
+
+    # ALERTA 3: Tratamiento - Brahman adultos por temporada de lluvia
+    brahman_adultos = [
+        a
+        for a in animals
+        if a.breed == "brahman"
+        and a.calculate_age_category()
+        in [AgeCategory.VAQUILLONAS_TORETES, AgeCategory.VACAS_TOROS]
+        and a.status == "active"
+    ]
+    if len(brahman_adultos) > 0:
+        count = min(len(brahman_adultos), max_animals_per_alert)
+        alerts.append(
+            AlertModel(
+                user_id=user_id,
+                farm_id=farm_id,
+                type=AlertType.VETERINARY_TREATMENT,
+                title="Antiparasitario - Brahman Adultos (Temporada Lluvia)",
+                message=f"Aplicar antiparasitario a {count} animales Brahman adultos por temporada de lluvias",
+                status=AlertStatus.PENDING,
+                scheduled_at=now + timedelta(days=5),
+                recurrence=RecurrenceType.MONTHLY,
+                reminder_before_days=[5, 2],
+                filter_criteria={
+                    "breed": "brahman",
+                    "age_category": ["vaquillonas_toretes", "vacas_toros"],
+                    "count": count,
+                    "reason": "temporada_lluvia",
+                },
+            )
+        )
+
+    # ALERTA 4: Pesaje selectivo - Machos de múltiples razas (género + múltiples razas)
+    machos_carne = [
+        a
+        for a in animals
+        if a.gender == "male"
+        and a.breed in ["nelore", "brahman", "guzerat"]
+        and a.calculate_age_category()
+        in [AgeCategory.VAQUILLONAS_TORETES, AgeCategory.VACAS_TOROS]
+        and a.status == "active"
+    ]
+    if len(machos_carne) > 0:
+        count = min(len(machos_carne), max_animals_per_alert)
+        alerts.append(
+            AlertModel(
+                user_id=user_id,
+                farm_id=farm_id,
+                type=AlertType.SCHEDULED_WEIGHING,
+                title="Evaluación Reproductores - Nelore/Brahman/Guzerat",
+                message=f"Pesar y evaluar {count} toros reproductores (Nelore, Brahman, Guzerat)",
+                status=AlertStatus.PENDING,
+                scheduled_at=now + timedelta(days=10),
+                recurrence=RecurrenceType.MONTHLY,
+                reminder_before_days=[7, 1],
+                filter_criteria={
+                    "gender": "male",
+                    "breed": ["nelore", "brahman", "guzerat"],
+                    "age_category": ["vaquillonas_toretes", "vacas_toros"],
+                    "count": count,
+                    "purpose": "evaluacion_reproductiva",
+                },
+            )
+        )
+
+    # ALERTA 5: Control de gestación - Hembras adultas
+    hembras_gestacion = [
+        a
+        for a in animals
+        if a.gender == "female"
+        and a.calculate_age_category() == AgeCategory.VACAS_TOROS
+        and a.status == "active"
+    ]
+    if len(hembras_gestacion) > 0:
+        count = min(len(hembras_gestacion), 20)  # Más selectivo: max 20
+        alerts.append(
+            AlertModel(
+                user_id=user_id,
+                farm_id=farm_id,
+                type=AlertType.VETERINARY_TREATMENT,
+                title="Control de Gestación - Vacas Adultas",
+                message=f"Revisar {count} vacas adultas para control de gestación y preñez",
+                status=AlertStatus.PENDING,
+                scheduled_at=now + timedelta(days=21),
+                recurrence=RecurrenceType.MONTHLY,
+                reminder_before_days=[7, 3],
+                filter_criteria={
+                    "gender": "female",
+                    "age_category": "vacas_toros",
+                    "count": count,
+                    "checkup": "gestacion",
+                },
+            )
+        )
+
+    # ALERTA 6: Pesaje post-sequía (circunstancia climática)
+    animales_potrero_sur = random.sample(
+        [a for a in animals if a.status == "active"],
+        min(max_animals_per_alert, len([a for a in animals if a.status == "active"])),
+    )
+    if len(animales_potrero_sur) > 0:
+        alerts.append(
+            AlertModel(
+                user_id=user_id,
+                farm_id=farm_id,
+                type=AlertType.SCHEDULED_WEIGHING,
+                title="Control Post-Sequía - Potrero Sur",
+                message=f"Evaluar peso de {len(animales_potrero_sur)} animales del potrero sur tras período de sequía",
+                status=AlertStatus.PENDING,
+                scheduled_at=now + timedelta(days=3),
+                recurrence=RecurrenceType.NONE,  # Evento único
+                reminder_before_days=[2, 1],
+                filter_criteria={
+                    "location": "potrero_sur",
+                    "count": len(animales_potrero_sur),
+                    "circumstance": "post_sequia",
+                },
+                location={"type": "Point", "coordinates": [-60.798000, -15.860000]},
+            )
+        )
+
+    # ALERTA 7: Preparación exposición ganadera (evento específico)
+    animales_exposicion = [
+        a
+        for a in animals
+        if a.breed in ["nelore", "brahman"]
+        and a.calculate_age_category()
+        in [AgeCategory.VAQUILLONAS_TORETES, AgeCategory.VACAS_TOROS]
+        and a.status == "active"
+    ]
+    if len(animales_exposicion) > 0:
+        count = min(15, len(animales_exposicion))  # Solo los mejores ejemplares
+        alerts.append(
+            AlertModel(
+                user_id=user_id,
+                farm_id=farm_id,
+                type=AlertType.CALENDAR_EVENT,
+                title="Preparación Exposición ASOCEBU",
+                message=f"Preparar {count} ejemplares (Nelore/Brahman) para exposición ganadera",
+                status=AlertStatus.PENDING,
+                scheduled_at=now + timedelta(days=30),
+                recurrence=RecurrenceType.YEARLY,
+                reminder_before_days=[30, 14, 7, 1],
+                filter_criteria={
+                    "breed": ["nelore", "brahman"],
+                    "age_category": ["vaquillonas_toretes", "vacas_toros"],
+                    "count": count,
+                    "event": "exposicion_asocebu",
+                },
             )
         )
 
@@ -964,7 +1192,7 @@ async def seed_database():
         farm = await create_farm(users["bruno"])
         print("✅ Finca creada\n")
 
-        print("🐄 Generando 200 animales con datos realistas...")
+        print("🐄 Generando 300 animales con datos realistas...")
         animals = generate_animals(farm.id, weight_loader)
         await AnimalModel.insert_many(animals)
         print(f"✅ {len(animals)} animales insertados\n")
