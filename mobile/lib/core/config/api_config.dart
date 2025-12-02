@@ -25,7 +25,7 @@ class ApiConfig {
   /// - Android: Configuración → Wi‑Fi → (red activa) → Ver detalles
   static const String baseUrl = String.fromEnvironment(
     'API_BASE_URL',
-    defaultValue: 'http://192.168.0.12:8000', // Default para emulador Android
+    defaultValue: 'http://localhost:8000', // Default para emulador Android
   );
 
   /// Prefijo de la API (v1, v2, etc.)

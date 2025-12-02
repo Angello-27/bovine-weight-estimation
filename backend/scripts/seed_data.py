@@ -1,50 +1,34 @@
 """
-Seed Data Script - Cargar datos iniciales en MongoDB
+Seed Data Script - Cargar datos iniciales en MongoDB con datos REALISTAS
 
 Ejecutar: python -m scripts.seed_data
 
-Carga datos de ejemplo para desarrollo y testing con TRAZABILIDAD COMPLETA:
-- Roles iniciales (Administrador, Usuario, Invitado)
-- Usuario principal: Bruno Brito Macedo
-- Finca: Hacienda Gamelera
-- 200 animales de las 7 razas tropicales
-- Evolución temporal de peso (múltiples pesajes por animal)
-- Relaciones familiares (madre/padre)
-- Estados variados (active/sold/deceased)
-- Datos controlados para demostración de trazabilidad
+Mejoras implementadas:
+- Datos de peso basados en CSV real (metadata_estimada.csv)
+- Usuarios del equipo Hacienda Gamelera
+- Nombres realistas para el ganado por raza
+- Relaciones padre/madre validadas por edad, género y raza
+- Confianza entre 80-96%
+- Evolución temporal de 1 año con pesajes realistas
 """
 
 import asyncio
+import csv
+import logging
 import random
-import sys
 import warnings
-from collections import Counter
-from datetime import datetime, timedelta
+from collections import Counter, defaultdict
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import cast
 from uuid import UUID
 
-# Suprimir warnings conocidos que no afectan funcionalidad
-# Suprimir mensaje informativo de bcrypt (compatibilidad con passlib)
-warnings.filterwarnings(
-    "ignore",
-    message=".*bcrypt.*",
-    category=UserWarning,
-)
-# Suprimir tracebacks de errores "trapped" (son informativos)
-import logging
+from beanie import init_beanie
+from motor.motor_asyncio import AsyncIOMotorClient
 
-logging.getLogger("passlib.handlers.bcrypt").setLevel(logging.ERROR)
-
-# Agregar el directorio raíz al path
-sys.path.insert(0, str(Path(__file__).parent.parent))  # noqa: E402
-
-from beanie import init_beanie  # noqa: E402
-from motor.motor_asyncio import AsyncIOMotorClient  # noqa: E402
-
-from app.core.config import settings  # noqa: E402
-from app.core.utils.password import get_password_hash  # noqa: E402
-from app.data.models import (  # noqa: E402
+from app.core.config import settings
+from app.core.utils.password import get_password_hash
+from app.data.models import (
     AlertModel,
     AnimalModel,
     FarmModel,
@@ -52,123 +36,441 @@ from app.data.models import (  # noqa: E402
     UserModel,
     WeightEstimationModel,
 )
-from app.data.models.alert_model import (  # noqa: E402
+from app.data.models.alert_model import (
     AlertStatus,
     AlertType,
     RecurrenceType,
 )
-from app.domain.shared.constants import AgeCategory, BreedType  # noqa: E402
+from app.domain.shared.constants import AgeCategory, BreedType
 
-# IDs fijos para datos de seed (para reproducibilidad)
+# Suprimir warnings de bcrypt/passlib
+warnings.filterwarnings("ignore", message=".*bcrypt.*")
+warnings.filterwarnings("ignore", message=".*trapped.*")
+logging.getLogger("passlib").setLevel(logging.ERROR)
+
+# IDs fijos
 ADMIN_ROLE_ID = UUID("110e8400-e29b-41d4-a716-446655440000")
 USER_ROLE_ID = UUID("220e8400-e29b-41d4-a716-446655440000")
 GUEST_ROLE_ID = UUID("330e8400-e29b-41d4-a716-446655440000")
 BRUNO_USER_ID = UUID("440e8400-e29b-41d4-a716-446655440000")
-FARM_ID = UUID("550e8400-e29b-41d4-a716-446655440000")
+MIGUEL_USER_ID = UUID("550e8400-e29b-41d4-a716-446655440001")
+RODRIGO_USER_ID = UUID("660e8400-e29b-41d4-a716-446655440002")
+FARM_ID = UUID("770e8400-e29b-41d4-a716-446655440000")
 
-# Referencias a imágenes en Drive (el usuario las descargará manualmente)
-IMAGE_REFERENCES = {
-    "nelore": "https://drive.google.com/file/d/NELORE_IMAGE_ID/view",
-    "brahman": "https://drive.google.com/file/d/BRAHMAN_IMAGE_ID/view",
-    "guzerat": "https://drive.google.com/file/d/GUZERAT_IMAGE_ID/view",
-    "senepol": "https://drive.google.com/file/d/SENEPOL_IMAGE_ID/view",
-    "girolando": "https://drive.google.com/file/d/GIROLANDO_IMAGE_ID/view",
-    "gyr_lechero": "https://drive.google.com/file/d/GYR_LECHERO_IMAGE_ID/view",
-    "sindi": "https://drive.google.com/file/d/SINDI_IMAGE_ID/view",
-}
-
-# Distribución realista de razas (basada en Hacienda Gamelera)
-# Nelore: 42%, Brahman: 25%, Guzerat: 15%, Senepol: 8%, Girolando: 5%, Gyr Lechero: 3%, Sindi: 2%
-BREED_DISTRIBUTION = {
-    BreedType.NELORE: 84,  # 42% de 200
-    BreedType.BRAHMAN: 50,  # 25% de 200
-    BreedType.GUZERAT: 30,  # 15% de 200
-    BreedType.SENEPOL: 16,  # 8% de 200
-    BreedType.GIROLANDO: 10,  # 5% de 200
-    BreedType.GYR_LECHERO: 6,  # 3% de 200
-    BreedType.SINDI: 4,  # 2% de 200
-}
-
-# Rangos de peso por raza y edad (en kg)
-# Formato: {raza: {categoría_edad: (min, max)}}
-BREED_WEIGHT_RANGES = {
+# Nombres realistas por raza
+CATTLE_NAMES = {
     BreedType.NELORE: {
-        AgeCategory.TERNEROS: (80, 180),
-        AgeCategory.VAQUILLONAS_TORILLOS: (200, 350),
-        AgeCategory.VAQUILLONAS_TORETES: (350, 480),
-        AgeCategory.VACAS_TOROS: (400, 550),
+        "male": [
+            "Brahma",
+            "Zeus",
+            "Thor",
+            "Apolo",
+            "Titan",
+            "Hércules",
+            "Atlas",
+            "Cronos",
+            "Ares",
+            "Poseidón",
+            "Emperador",
+            "Capitán",
+            "Guerrero",
+            "Duque",
+            "Rey",
+            "León",
+            "Trueno",
+            "Rayo",
+            "Volcán",
+            "Coloso",
+        ],
+        "female": [
+            "Reina",
+            "Princesa",
+            "Diva",
+            "Luna",
+            "Estrella",
+            "Aurora",
+            "Perla",
+            "Diamante",
+            "Jade",
+            "Ámbar",
+            "Bella",
+            "Linda",
+            "Graciosa",
+            "Emperatriz",
+            "Majestad",
+            "Venus",
+            "Afrodita",
+            "Hera",
+            "Atenea",
+            "Diana",
+        ],
     },
     BreedType.BRAHMAN: {
-        AgeCategory.TERNEROS: (90, 200),
-        AgeCategory.VAQUILLONAS_TORILLOS: (220, 380),
-        AgeCategory.VAQUILLONAS_TORETES: (380, 520),
-        AgeCategory.VACAS_TOROS: (450, 600),
+        "male": [
+            "Rajá",
+            "Sultán",
+            "Pachá",
+            "Maharajá",
+            "Visir",
+            "Brahmán",
+            "Krishna",
+            "Shiva",
+            "Indra",
+            "Ganesh",
+            "Tigre",
+            "Pantera",
+            "Jaguar",
+            "Puma",
+            "Cóndor",
+            "Halcón",
+            "Águila",
+            "Fénix",
+            "Dragón",
+            "Centauro",
+        ],
+        "female": [
+            "Maharaní",
+            "Sultana",
+            "Lakshmi",
+            "Kali",
+            "Durga",
+            "Saraswati",
+            "Parvati",
+            "Sita",
+            "Radha",
+            "Gita",
+            "Loto",
+            "Jazmín",
+            "Magnolia",
+            "Orquídea",
+            "Rosa",
+            "Azucena",
+            "Gardenia",
+            "Violeta",
+            "Dalia",
+            "Camelia",
+        ],
     },
     BreedType.GUZERAT: {
-        AgeCategory.TERNEROS: (85, 190),
-        AgeCategory.VAQUILLONAS_TORILLOS: (210, 360),
-        AgeCategory.VAQUILLONAS_TORETES: (360, 500),
-        AgeCategory.VACAS_TOROS: (420, 580),
+        "male": [
+            "Samurai",
+            "Shogun",
+            "Ronin",
+            "Ninja",
+            "Daimyo",
+            "Gurú",
+            "Sabio",
+            "Maestro",
+            "Sensei",
+            "Oráculo",
+            "Templo",
+            "Monasterio",
+            "Pagoda",
+            "Mandala",
+            "Nirvana",
+            "Karma",
+            "Dharma",
+            "Zen",
+            "Om",
+            "Lama",
+        ],
+        "female": [
+            "Geisha",
+            "Sakura",
+            "Kimono",
+            "Lotus",
+            "Bambú",
+            "Jade",
+            "Ópalo",
+            "Topacio",
+            "Esmeralda",
+            "Rubí",
+            "Mariposa",
+            "Libélula",
+            "Colibrí",
+            "Golondrina",
+            "Tórtola",
+            "Paloma",
+            "Grulla",
+            "Cigüeña",
+            "Garza",
+            "Flamingo",
+        ],
     },
     BreedType.SENEPOL: {
-        AgeCategory.TERNEROS: (95, 210),
-        AgeCategory.VAQUILLONAS_TORILLOS: (230, 400),
-        AgeCategory.VAQUILLONAS_TORETES: (400, 550),
-        AgeCategory.VACAS_TOROS: (480, 650),
+        "male": [
+            "Caribe",
+            "Trópico",
+            "Coral",
+            "Arrecife",
+            "Huracán",
+            "Ciclón",
+            "Tifón",
+            "Monsón",
+            "Vendaval",
+            "Tornado",
+            "Pirata",
+            "Corsario",
+            "Bucanero",
+            "Navegante",
+            "Capitán",
+            "Almirante",
+            "Marinero",
+            "Timonel",
+            "Piloto",
+            "Grumete",
+        ],
+        "female": [
+            "Isla",
+            "Bahía",
+            "Laguna",
+            "Playa",
+            "Costa",
+            "Orilla",
+            "Ribera",
+            "Marina",
+            "Náutica",
+            "Marítima",
+            "Perla",
+            "Concha",
+            "Caracol",
+            "Sirena",
+            "Ninfa",
+            "Náyade",
+            "Oceánida",
+            "Nereida",
+            "Tritona",
+            "Ondina",
+        ],
     },
     BreedType.GIROLANDO: {
-        AgeCategory.TERNEROS: (90, 200),
-        AgeCategory.VAQUILLONAS_TORILLOS: (220, 380),
-        AgeCategory.VAQUILLONAS_TORETES: (380, 520),
-        AgeCategory.VACAS_TOROS: (450, 600),
+        "male": [
+            "Lechero",
+            "Cremoso",
+            "Manteca",
+            "Yogur",
+            "Queso",
+            "Nata",
+            "Cuajo",
+            "Suero",
+            "Requesón",
+            "Ricota",
+            "Holstein",
+            "Frisón",
+            "Jersey",
+            "Guernsey",
+            "Ayrshire",
+            "Normando",
+            "Montbeliard",
+            "Simmental",
+            "Pardo",
+            "Fleckvieh",
+        ],
+        "female": [
+            "Lechera",
+            "Cremosa",
+            "Mantequilla",
+            "Nata",
+            "Dulce",
+            "Miel",
+            "Caramelo",
+            "Azúcar",
+            "Vainilla",
+            "Canela",
+            "Leche",
+            "Lactosa",
+            "Caseína",
+            "Proteína",
+            "Calcio",
+            "Vitamina",
+            "Nutriente",
+            "Probiótica",
+            "Fortificada",
+            "Enriquecida",
+        ],
     },
     BreedType.GYR_LECHERO: {
-        AgeCategory.TERNEROS: (80, 180),
-        AgeCategory.VAQUILLONAS_TORILLOS: (200, 350),
-        AgeCategory.VAQUILLONAS_TORETES: (350, 480),
-        AgeCategory.VACAS_TOROS: (400, 550),
+        "male": [
+            "Ordeño",
+            "Balde",
+            "Tarro",
+            "Cántaro",
+            "Botella",
+            "Bidón",
+            "Tanque",
+            "Cisterna",
+            "Depósito",
+            "Recipiente",
+            "Pastor",
+            "Vaquero",
+            "Ganadero",
+            "Ranchero",
+            "Llanero",
+            "Jinete",
+            "Arriero",
+            "Boyero",
+            "Caporal",
+            "Mayordomo",
+        ],
+        "female": [
+            "Ordeña",
+            "Vaca",
+            "Nodriza",
+            "Materna",
+            "Nutriz",
+            "Lactante",
+            "Productora",
+            "Donadora",
+            "Dadora",
+            "Proveedora",
+            "Madre",
+            "Mamá",
+            "Mami",
+            "Matriarca",
+            "Abuela",
+            "Nana",
+            "Tata",
+            "Yaya",
+            "Ama",
+            "Nodriza",
+        ],
     },
     BreedType.SINDI: {
-        AgeCategory.TERNEROS: (70, 160),
-        AgeCategory.VAQUILLONAS_TORILLOS: (180, 320),
-        AgeCategory.VAQUILLONAS_TORETES: (320, 450),
-        AgeCategory.VACAS_TOROS: (350, 500),
+        "male": [
+            "Rojo",
+            "Bermejo",
+            "Carmesí",
+            "Escarlata",
+            "Granate",
+            "Rubí",
+            "Coral",
+            "Salmón",
+            "Naranja",
+            "Ámbar",
+            "Compacto",
+            "Pequeño",
+            "Chico",
+            "Bajito",
+            "Petizo",
+            "Enano",
+            "Mini",
+            "Tiny",
+            "Diminuto",
+            "Pigmeo",
+        ],
+        "female": [
+            "Roja",
+            "Bermeja",
+            "Carmesí",
+            "Escarlata",
+            "Granate",
+            "Rubí",
+            "Coral",
+            "Salmón",
+            "Naranja",
+            "Ámbar",
+            "Compacta",
+            "Pequeña",
+            "Chica",
+            "Bajita",
+            "Petiza",
+            "Enana",
+            "Mini",
+            "Tiny",
+            "Diminuta",
+            "Pigmea",
+        ],
     },
 }
 
-# Pesos al nacer por raza (en kg)
-BIRTH_WEIGHTS = {
-    BreedType.NELORE: (25, 35),
-    BreedType.BRAHMAN: (28, 38),
-    BreedType.GUZERAT: (27, 36),
-    BreedType.SENEPOL: (30, 40),
-    BreedType.GIROLANDO: (32, 42),
-    BreedType.GYR_LECHERO: (28, 37),
-    BreedType.SINDI: (24, 32),
+# Distribución de razas
+BREED_DISTRIBUTION = {
+    BreedType.NELORE: 84,
+    BreedType.BRAHMAN: 50,
+    BreedType.GUZERAT: 30,
+    BreedType.SENEPOL: 16,
+    BreedType.GIROLANDO: 10,
+    BreedType.GYR_LECHERO: 6,
+    BreedType.SINDI: 4,
 }
 
-# Colores típicos por raza
+# Colores por raza
 BREED_COLORS = {
-    BreedType.NELORE: ["Blanco", "Gris claro", "Blanco con manchas"],
-    BreedType.BRAHMAN: ["Gris", "Gris oscuro", "Blanco grisáceo"],
-    BreedType.GUZERAT: ["Gris", "Gris claro", "Blanco"],
-    BreedType.SENEPOL: ["Rojo", "Rojo oscuro", "Marrón rojizo"],
-    BreedType.GIROLANDO: ["Blanco y negro", "Negro", "Blanco"],
-    BreedType.GYR_LECHERO: ["Amarillo", "Amarillo claro", "Dorado"],
-    BreedType.SINDI: ["Rojo", "Marrón", "Rojo oscuro"],
+    BreedType.NELORE: ["Blanco", "Gris claro", "Blanco con manchas", "Gris"],
+    BreedType.BRAHMAN: ["Gris", "Gris oscuro", "Blanco grisáceo", "Gris claro"],
+    BreedType.GUZERAT: ["Gris", "Gris claro", "Blanco", "Gris con manchas"],
+    BreedType.SENEPOL: ["Rojo", "Rojo oscuro", "Marrón rojizo", "Caoba"],
+    BreedType.GIROLANDO: ["Blanco y negro", "Negro", "Blanco", "Manchado"],
+    BreedType.GYR_LECHERO: ["Amarillo", "Amarillo claro", "Dorado", "Crema"],
+    BreedType.SINDI: ["Rojo", "Marrón", "Rojo oscuro", "Castaño"],
 }
+
+
+class WeightDataLoader:
+    """Carga y procesa datos de peso del CSV."""
+
+    def __init__(self, csv_path: str):
+        self.data: defaultdict[str, defaultdict[str, list[dict]]] = defaultdict(
+            lambda: defaultdict(list)
+        )
+        self.load_csv(csv_path)
+
+    def load_csv(self, csv_path: str):
+        """Carga el CSV y organiza los datos por raza y categoría de edad."""
+        with open(csv_path, encoding="utf-8") as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                breed = row["breed"]
+                age_in_year = float(row["age_in_year"])
+                weight_kg = float(row["weight_kg"])
+                sex = row["sex"]
+
+                age_months = int(age_in_year * 12)
+                if age_months < 8:
+                    category = "terneros"
+                elif age_months <= 18:
+                    category = "vaquillonas_torillos"
+                elif age_months <= 30:
+                    category = "vaquillonas_toretes"
+                else:
+                    category = "vacas_toros"
+
+                self.data[breed][category].append(
+                    {"weight": weight_kg, "age_months": age_months, "sex": sex}
+                )
+
+    def get_sample_weight(self, breed: str, age_months: int, gender: str) -> float:
+        """Obtiene un peso muestreado del CSV para una edad específica."""
+        if age_months < 8:
+            category = "terneros"
+        elif age_months <= 18:
+            category = "vaquillonas_torillos"
+        elif age_months <= 30:
+            category = "vaquillonas_toretes"
+        else:
+            category = "vacas_toros"
+
+        sex_filter = "FEMALE" if gender == "female" else "MALE"
+        candidates = [
+            item for item in self.data[breed][category] if sex_filter in item["sex"]
+        ]
+
+        if not candidates:
+            candidates = self.data[breed][category]
+
+        if not candidates:
+            return 200.0
+
+        weights = sorted(candidates, key=lambda x: abs(x["age_months"] - age_months))
+        selected = random.choice(weights[:5])
+        variation = random.uniform(0.95, 1.05)
+        return round(selected["weight"] * variation, 2)
 
 
 async def create_roles() -> dict[str, RoleModel]:
-    """
-    Crea roles iniciales del sistema.
-
-    Returns:
-        Dict con roles creados: {"admin": RoleModel, "user": RoleModel, "guest": RoleModel}
-    """
+    """Crea roles iniciales del sistema."""
     roles = {}
 
-    # Rol Administrador
     admin_role = RoleModel(
         id=ADMIN_ROLE_ID,
         name="Administrador",
@@ -180,7 +482,6 @@ async def create_roles() -> dict[str, RoleModel]:
     roles["admin"] = admin_role
     print(f"   ✅ Rol creado: {admin_role.name}")
 
-    # Rol Usuario
     user_role = RoleModel(
         id=USER_ROLE_ID,
         name="Usuario",
@@ -192,7 +493,6 @@ async def create_roles() -> dict[str, RoleModel]:
     roles["user"] = user_role
     print(f"   ✅ Rol creado: {user_role.name}")
 
-    # Rol Invitado
     guest_role = RoleModel(
         id=GUEST_ROLE_ID,
         name="Invitado",
@@ -207,22 +507,17 @@ async def create_roles() -> dict[str, RoleModel]:
     return roles
 
 
-async def create_users(admin_role: RoleModel) -> UserModel:
-    """
-    Crea usuarios iniciales del sistema.
+async def create_users(
+    admin_role: RoleModel, user_role: RoleModel
+) -> dict[str, UserModel]:
+    """Crea usuarios del equipo Hacienda Gamelera."""
+    users = {}
 
-    Args:
-        admin_role: Rol de administrador
-
-    Returns:
-        UserModel de Bruno Brito Macedo
-    """
-    # Usuario principal: Bruno Brito Macedo
     bruno = UserModel(
         id=BRUNO_USER_ID,
         username="bruno_brito",
         email="bruno@haciendagamelera.com",
-        hashed_password=get_password_hash("password123"),  # Cambiar en producción
+        hashed_password=get_password_hash("password123"),
         first_name="Bruno",
         last_name="Brito Macedo",
         role_id=admin_role.id,
@@ -231,150 +526,210 @@ async def create_users(admin_role: RoleModel) -> UserModel:
         is_superuser=True,
     )
     await bruno.insert()
-    print(f"   ✅ Usuario creado: {bruno.username} ({bruno.email})")
+    users["bruno"] = bruno
+    print(f"   ✅ Usuario creado: {bruno.first_name} {bruno.last_name} (Owner/Admin)")
 
-    # Usuario de ejemplo (no superusuario)
-    example_user = UserModel(
-        username="miguelo",
+    miguel = UserModel(
+        id=MIGUEL_USER_ID,
+        username="miguel_escobar",
         email="miguel@haciendagamelera.com",
         hashed_password=get_password_hash("password123"),
-        first_name="Miguel",
-        last_name="Escobar",
+        first_name="Miguel Angel",
+        last_name="Escobar Lazcano",
         role_id=admin_role.id,
         farm_id=FARM_ID,
         is_active=True,
         is_superuser=False,
     )
-    await example_user.insert()
-    print(f"   ✅ Usuario creado: {example_user.username}")
+    await miguel.insert()
+    users["miguel"] = miguel
+    print(
+        f"   ✅ Usuario creado: {miguel.first_name} {miguel.last_name} (Product Owner)"
+    )
 
-    return bruno
+    rodrigo = UserModel(
+        id=RODRIGO_USER_ID,
+        username="rodrigo_escobar",
+        email="rodrigo@haciendagamelera.com",
+        hashed_password=get_password_hash("password123"),
+        first_name="Rodrigo",
+        last_name="Escobar Morón",
+        role_id=user_role.id,
+        farm_id=FARM_ID,
+        is_active=True,
+        is_superuser=False,
+    )
+    await rodrigo.insert()
+    users["rodrigo"] = rodrigo
+    print(
+        f"   ✅ Usuario creado: {rodrigo.first_name} {rodrigo.last_name} (Scrum Master)"
+    )
+
+    return users
 
 
 async def create_farm(owner: UserModel) -> FarmModel:
-    """
-    Crea la finca Hacienda Gamelera.
-
-    Args:
-        owner: Usuario propietario (Bruno)
-
-    Returns:
-        FarmModel de Hacienda Gamelera
-    """
+    """Crea la finca Hacienda Gamelera."""
     farm = FarmModel(
         id=FARM_ID,
         name=settings.HACIENDA_NAME,
         owner_id=owner.id,
         location={
             "type": "Point",
-            "coordinates": [
-                -60.797889,
-                -15.859500,
-            ],  # [lon, lat] San Ignacio de Velasco
+            "coordinates": [-60.797889, -15.859500],
         },
         capacity=settings.HACIENDA_CAPACITY,
-        total_animals=0,  # Se actualizará después de insertar animales
+        total_animals=0,
     )
     await farm.insert()
     print(f"   ✅ Finca creada: {farm.name}")
     print(f"      📍 Ubicación: {settings.HACIENDA_LOCATION}")
-    print(f"      👤 Propietario: {settings.HACIENDA_OWNER}")
+    print(f"      👤 Propietario: {owner.first_name} {owner.last_name}")
     print(f"      📊 Capacidad: {farm.capacity} animales")
 
-    # Actualizar usuario con farm_id
-    owner.farm_id = cast(UUID, farm.id)  # type: ignore[assignment]
+    owner.farm_id = cast(UUID, farm.id)
     await owner.save()
-    print(f"   ✅ Usuario {owner.username} asociado a finca {farm.name}")
 
     return farm
 
 
-def generate_animals(farm_id: UUID) -> list[AnimalModel]:
-    """
-    Genera 200 animales con trazabilidad completa.
-
-    Incluye:
-    - Distribución realista de razas
-    - Fechas de nacimiento variadas (2018-2024)
-    - Relaciones familiares (madre/padre)
-    - Estados variados
-    """
+def generate_animals(
+    farm_id: UUID, weight_loader: WeightDataLoader
+) -> list[AnimalModel]:
+    """Genera 200 animales con datos realistas y relaciones familiares validadas."""
     animals = []
-    ear_tag_counter = 1
-    now = datetime.utcnow()
+    now = datetime.now(UTC)
+    used_names: defaultdict[str, set[str]] = defaultdict(set)
 
-    # Generar animales base (padres/madres) primero para relaciones familiares
-    base_animals = []
+    base_animals_by_breed: defaultdict[BreedType, dict[str, list[AnimalModel]]] = (
+        defaultdict(lambda: {"males": [], "females": []})
+    )
     base_counter = 1
 
-    # Crear 30 animales base (padres/madres) nacidos entre 2018-2020
-    for base_idx in range(30):
-        breed = random.choice(list(BreedType))
-        birth_date = datetime(2018, 1, 1) + timedelta(
-            days=random.randint(0, 730)  # 2018-2020
-        )
-        gender = "female" if base_idx % 2 == 0 else "male"
+    print("\n   📋 Generando animales base (potenciales reproductores)...")
+    for breed in BreedType:
+        num_females = random.randint(4, 8)
+        num_males = random.randint(2, 4)
 
-        animal = AnimalModel(
-            ear_tag=f"HG-{breed.value.upper()[:3]}-{base_counter:03d}",
-            breed=breed.value,
-            birth_date=birth_date,
-            gender=gender,
-            name=f"{'Vaca' if gender == 'female' else 'Toro'} Base {base_counter}",
-            color=random.choice(BREED_COLORS[breed]),
-            birth_weight_kg=round(random.uniform(*BIRTH_WEIGHTS[breed]), 1),
-            status="active",
-            farm_id=farm_id,
-            registration_date=birth_date + timedelta(days=random.randint(1, 30)),
-            last_updated=now - timedelta(days=random.randint(0, 30)),
-            photo_url=IMAGE_REFERENCES.get(breed.value),
-            observations=f"Animal base para reproducción. Raza {BreedType.get_display_name(breed)}.",
-        )
-        base_animals.append(animal)
-        base_counter += 1
+        for _ in range(num_females):
+            birth_date = datetime(
+                random.randint(2018, 2021),
+                random.randint(1, 12),
+                random.randint(1, 28),
+                tzinfo=UTC,
+            )
+            name = get_unique_name(breed, "female", used_names)
 
-    animals.extend(base_animals)
+            animal = AnimalModel(
+                ear_tag=f"HG-{breed.value.upper()[:3]}-B{base_counter:03d}",
+                breed=breed.value,
+                birth_date=birth_date,
+                gender="female",
+                name=name,
+                color=random.choice(BREED_COLORS[breed]),
+                birth_weight_kg=round(random.uniform(25, 40), 1),
+                status="active",
+                farm_id=farm_id,
+                registration_date=birth_date + timedelta(days=random.randint(1, 30)),
+                last_updated=now - timedelta(days=random.randint(0, 30)),
+                observations=f"Vaca reproductora base - {BreedType.get_display_name(breed)}",
+            )
+            base_animals_by_breed[breed]["females"].append(animal)
+            animals.append(animal)
+            base_counter += 1
 
-    # Generar animales según distribución de razas
+        for _ in range(num_males):
+            birth_date = datetime(
+                random.randint(2018, 2021),
+                random.randint(1, 12),
+                random.randint(1, 28),
+                tzinfo=UTC,
+            )
+            name = get_unique_name(breed, "male", used_names)
+
+            animal = AnimalModel(
+                ear_tag=f"HG-{breed.value.upper()[:3]}-B{base_counter:03d}",
+                breed=breed.value,
+                birth_date=birth_date,
+                gender="male",
+                name=name,
+                color=random.choice(BREED_COLORS[breed]),
+                birth_weight_kg=round(random.uniform(28, 45), 1),
+                status="active",
+                farm_id=farm_id,
+                registration_date=birth_date + timedelta(days=random.randint(1, 30)),
+                last_updated=now - timedelta(days=random.randint(0, 30)),
+                observations=f"Toro reproductor base - {BreedType.get_display_name(breed)}",
+            )
+            base_animals_by_breed[breed]["males"].append(animal)
+            animals.append(animal)
+            base_counter += 1
+
+    print(f"      ✓ {len(animals)} animales base creados")
+
+    print("\n   📋 Generando animales del hato principal...")
+    ear_tag_counter = 1
+
     for breed, count in BREED_DISTRIBUTION.items():
-        for _ in range(count):
-            # Fecha de nacimiento variada (2020-2024)
-            # Distribución: más animales jóvenes (2023-2024) que adultos
+        base_count = len(base_animals_by_breed[breed]["males"]) + len(
+            base_animals_by_breed[breed]["females"]
+        )
+        remaining = count - base_count
+
+        if remaining <= 0:
+            continue
+
+        for _ in range(remaining):
             year = random.choices(
-                [2020, 2021, 2022, 2023, 2024],
-                weights=[10, 15, 20, 30, 25],  # Más probabilidad en años recientes
+                [2021, 2022, 2023, 2024],
+                weights=[10, 20, 35, 35],
             )[0]
-            birth_date = datetime(year, 1, 1) + timedelta(days=random.randint(0, 364))
+            birth_date = datetime(
+                year, random.randint(1, 12), random.randint(1, 28), tzinfo=UTC
+            )
 
-            gender = "female" if random.random() < 0.55 else "male"  # 55% hembras
+            if birth_date > now:
+                birth_date = now - timedelta(days=random.randint(30, 365))
 
-            # Asignar madre/padre de animales base (si es posible)
+            gender = "female" if random.random() < 0.55 else "male"
+            name = get_unique_name(breed, gender, used_names)
+
             mother_id = None
             father_id = None
-            if random.random() < 0.7:  # 70% tienen padre/madre registrados
-                mothers = [a for a in base_animals if a.gender == "female"]
-                fathers = [a for a in base_animals if a.gender == "male"]
-                if mothers and random.random() < 0.8:
-                    mother_id = str(random.choice(mothers).id)
-                if fathers and random.random() < 0.6:
-                    father_id = str(random.choice(fathers).id)
 
-            # Estado: 85% active, 10% sold, 5% deceased
-            status_weights = [0.85, 0.10, 0.05]
+            if birth_date.year >= 2022 and random.random() < 0.75:
+                potential_mothers = [
+                    a
+                    for a in base_animals_by_breed[breed]["females"]
+                    if (birth_date - a.birth_date).days >= 730
+                ]
+                if potential_mothers:
+                    mother_id = str(random.choice(potential_mothers).id)
+
+                potential_fathers = [
+                    a
+                    for a in base_animals_by_breed[breed]["males"]
+                    if (birth_date - a.birth_date).days >= 730
+                ]
+                if potential_fathers:
+                    father_id = str(random.choice(potential_fathers).id)
+
             status = random.choices(
-                ["active", "sold", "deceased"], weights=status_weights
+                ["active", "sold", "deceased"], weights=[0.85, 0.10, 0.05]
             )[0]
 
-            # Si está muerto, debe haber muerto después de nacer
+            # Calcular last_updated según estado
+            days_alive = (now - birth_date).days
+
             if status == "deceased":
-                death_date = birth_date + timedelta(
-                    days=random.randint(30, (now - birth_date).days)
-                )
+                # Muerte entre 30 días y la edad actual
+                death_days = random.randint(30, max(31, days_alive))
+                death_date = birth_date + timedelta(days=death_days)
                 last_updated = death_date
             elif status == "sold":
-                sold_date = birth_date + timedelta(
-                    days=random.randint(180, (now - birth_date).days)
-                )
+                # Venta entre 180 días y la edad actual
+                sold_days = random.randint(180, max(181, days_alive))
+                sold_date = birth_date + timedelta(days=sold_days)
                 last_updated = sold_date
             else:
                 last_updated = now - timedelta(days=random.randint(0, 30))
@@ -384,171 +739,125 @@ def generate_animals(farm_id: UUID) -> list[AnimalModel]:
                 breed=breed.value,
                 birth_date=birth_date,
                 gender=gender,
-                name=f"{BreedType.get_display_name(breed)} {ear_tag_counter}",
+                name=name,
                 color=random.choice(BREED_COLORS[breed]),
-                birth_weight_kg=round(random.uniform(*BIRTH_WEIGHTS[breed]), 1),
+                birth_weight_kg=round(random.uniform(25, 45), 1),
                 mother_id=mother_id,
                 father_id=father_id,
                 status=status,
                 farm_id=farm_id,
                 registration_date=birth_date + timedelta(days=random.randint(1, 30)),
                 last_updated=last_updated,
-                photo_url=IMAGE_REFERENCES.get(breed.value),
-                observations=f"Animal de raza {BreedType.get_display_name(breed)}. "
-                f"Registrado para trazabilidad completa.",
+                observations=f"Animal {BreedType.get_display_name(breed)}. "
+                f"{'Con genealogía registrada.' if mother_id or father_id else 'Sin registro genealógico.'}",
             )
             animals.append(animal)
             ear_tag_counter += 1
 
+    print(f"      ✓ {len(animals)} animales totales generados")
     return animals
 
 
-def calculate_weight_for_age(
-    breed: BreedType,
-    age_months: int,
-    birth_weight: float,
-    base_date: datetime,
-) -> float:
-    """
-    Calcula peso esperado para un animal según su edad y raza.
+def get_unique_name(
+    breed: BreedType, gender: str, used_names: defaultdict[str, set[str]]
+) -> str:
+    """Genera un nombre único para el animal."""
+    breed_key = breed.value
+    available_names = [
+        n for n in CATTLE_NAMES[breed][gender] if n not in used_names[breed_key]
+    ]
 
-    Simula crecimiento realista con curvas de crecimiento.
-    """
-    age_category = AgeCategory.from_age_months(age_months)
-    min_weight, max_weight = BREED_WEIGHT_RANGES[breed][age_category]
-
-    # Curva de crecimiento: más rápido al inicio, se estabiliza
-    if age_months < 12:
-        # Crecimiento rápido (0-12 meses)
-        growth_factor = min(age_months / 12.0, 1.0)
-    elif age_months < 24:
-        # Crecimiento moderado (12-24 meses)
-        growth_factor = 1.0 + ((age_months - 12) / 12.0) * 0.3
+    if not available_names:
+        base_name = random.choice(CATTLE_NAMES[breed][gender])
+        counter = 2
+        while f"{base_name} {counter}" in used_names[breed_key]:
+            counter += 1
+        name = f"{base_name} {counter}"
     else:
-        # Crecimiento lento (24+ meses)
-        growth_factor = 1.3 + min((age_months - 24) / 12.0, 1.0) * 0.2
+        name = random.choice(available_names)
 
-    # Peso base + crecimiento
-    target_weight = birth_weight + (max_weight - birth_weight) * min(growth_factor, 1.5)
-
-    # Variación aleatoria ±10%
-    variation = random.uniform(0.90, 1.10)
-    weight = target_weight * variation
-
-    # Asegurar que esté en rango
-    weight = max(min_weight * 0.9, min(max_weight * 1.1, weight))
-
-    return round(weight, 1)
+    used_names[breed_key].add(name)
+    return name
 
 
 def generate_weight_estimations(
-    animals: list[AnimalModel],
+    animals: list[AnimalModel], weight_loader: WeightDataLoader
 ) -> list[WeightEstimationModel]:
     """
-    Genera estimaciones de peso con evolución temporal.
-
-    Crea múltiples pesajes por animal que muestren crecimiento a lo largo del tiempo.
+    Genera estimaciones de peso con evolución temporal usando datos del CSV.
+    Confianza entre 80-96%.
     """
     estimations = []
-    now = datetime.utcnow()
+    now = datetime.now(UTC)
+
+    print("\n   ⚖️  Generando estimaciones de peso con datos reales del CSV...")
 
     for animal in animals:
-        if animal.status == "deceased":
-            # Animal muerto: pesajes hasta fecha de muerte
-            end_date = animal.last_updated
-        elif animal.status == "sold":
-            # Animal vendido: pesajes hasta fecha de venta
-            end_date = animal.last_updated
-        else:
-            # Animal activo: pesajes hasta hoy
-            end_date = now
+        end_date = animal.last_updated if animal.status in ("deceased", "sold") else now
 
         age_at_end = (end_date.year - animal.birth_date.year) * 12 + (
             end_date.month - animal.birth_date.month
         )
 
-        if age_at_end < 1:
-            # Animal muy joven: solo 1-2 pesajes
-            num_weighings = random.randint(1, 2)
+        if age_at_end < 6:
+            num_weighings = random.randint(2, 4)
         elif age_at_end < 12:
-            # Animal joven: 3-5 pesajes
-            num_weighings = random.randint(3, 5)
+            num_weighings = random.randint(4, 7)
         elif age_at_end < 24:
-            # Animal en crecimiento: 6-10 pesajes
-            num_weighings = random.randint(6, 10)
+            num_weighings = random.randint(7, 12)
         else:
-            # Animal adulto: 10-15 pesajes (historial completo)
-            num_weighings = random.randint(10, 15)
+            num_weighings = random.randint(10, 18)
 
-        breed = BreedType(animal.breed)
-        birth_weight = animal.birth_weight_kg or random.uniform(*BIRTH_WEIGHTS[breed])
-
-        # Generar pesajes distribuidos a lo largo de la vida del animal
         weighing_dates = []
         start_date = animal.birth_date + timedelta(days=random.randint(30, 90))
 
+        # Verificar que hay suficiente tiempo para generar pesajes
         if (end_date - start_date).days < 30:
-            # Si el período es muy corto, solo un pesaje
-            days_diff = max(0, (end_date - start_date).days)
-            weighing_dates = (
-                [start_date + timedelta(days=random.randint(0, days_diff))]
-                if days_diff > 0
-                else [start_date]
-            )
+            # Si el período es muy corto, solo un pesaje en fecha válida
+            weighing_dates = [start_date] if start_date <= end_date else []
         else:
             # Distribuir pesajes uniformemente
             days_span = (end_date - start_date).days
             interval = days_span / max(num_weighings, 1)
             for i in range(num_weighings):
-                date = start_date + timedelta(
-                    days=int(i * interval) + random.randint(-7, 7)
-                )
-                if date <= end_date:
+                jitter = random.randint(-10, 10) if interval > 20 else 0
+                date = start_date + timedelta(days=int(i * interval) + jitter)
+                if start_date <= date <= end_date:
                     weighing_dates.append(date)
 
-        # Ordenar fechas
         weighing_dates.sort()
 
         for i, weighing_date in enumerate(weighing_dates):
-            # Calcular edad en meses al momento del pesaje
             age_months = (weighing_date.year - animal.birth_date.year) * 12 + (
                 weighing_date.month - animal.birth_date.month
             )
+            age_months = max(0, age_months)
 
-            # Calcular peso esperado para esa edad
-            weight = calculate_weight_for_age(
-                breed, age_months, birth_weight, weighing_date
+            weight = weight_loader.get_sample_weight(
+                animal.breed, age_months, animal.gender
             )
 
-            # Confidence: más alto para animales adultos, más variable para jóvenes
-            if age_months < 6:
-                confidence = random.uniform(0.85, 0.92)
-            elif age_months < 12:
-                confidence = random.uniform(0.88, 0.95)
-            else:
-                confidence = random.uniform(0.92, 0.98)
-
-            # Processing time: más rápido para animales grandes
-            if weight > 400:
-                processing_time = random.randint(1200, 2000)
-            else:
-                processing_time = random.randint(1500, 2500)
+            confidence = round(random.uniform(0.80, 0.96), 2)
+            processing_time = random.randint(1200, 2800)
 
             estimation = WeightEstimationModel(
                 animal_id=str(animal.id),
                 breed=animal.breed,
                 estimated_weight_kg=weight,
-                confidence=round(confidence, 2),
+                confidence=confidence,
                 method="tflite",
                 ml_model_version="1.0.0",
                 processing_time_ms=processing_time,
                 frame_image_path=f"/frames/{animal.ear_tag}_weighing_{i+1:03d}.jpg",
-                latitude=-15.859500,  # San Ignacio de Velasco
-                longitude=-60.797889,
+                latitude=-15.859500 + random.uniform(-0.001, 0.001),
+                longitude=-60.797889 + random.uniform(-0.001, 0.001),
                 timestamp=weighing_date,
                 created_at=weighing_date,
             )
             estimations.append(estimation)
+
+    print(f"      ✓ {len(estimations)} estimaciones generadas")
+    print(f"      ✓ Promedio: {len(estimations) / len(animals):.1f} pesajes por animal")
 
     return estimations
 
@@ -556,22 +865,12 @@ def generate_weight_estimations(
 def generate_sample_alerts(
     user_id: UUID, farm_id: UUID, animals: list[AnimalModel]
 ) -> list[AlertModel]:
-    """
-    Genera alertas de ejemplo con cronograma para hatos.
-
-    Incluye alertas programadas filtradas por:
-    - Raza/especie
-    - Categoría de edad
-    - Género
-    - Cantidad de animales
-    """
+    """Genera alertas de ejemplo programadas."""
     alerts = []
-    now = datetime.utcnow()
+    now = datetime.now(UTC)
 
-    # Contar animales por criterios
     breed_counts = Counter(animal.breed for animal in animals)
 
-    # Alerta 1: Pesaje masivo de Nelore (raza más común)
     nelore_count = breed_counts.get("nelore", 0)
     if nelore_count > 0:
         alerts.append(
@@ -580,130 +879,57 @@ def generate_sample_alerts(
                 farm_id=farm_id,
                 type=AlertType.SCHEDULED_WEIGHING,
                 title="Pesaje Masivo - Nelore",
-                message=f"Pesar {min(nelore_count, 50)} animales Nelore del potrero principal",
+                message=f"Pesar {min(nelore_count, 50)} animales Nelore",
                 status=AlertStatus.PENDING,
-                scheduled_at=now + timedelta(days=7),  # Próxima semana
+                scheduled_at=now + timedelta(days=7),
                 recurrence=RecurrenceType.MONTHLY,
                 reminder_before_days=[7, 1],
-                filter_criteria={
-                    "breed": "nelore",
-                    "count": min(nelore_count, 50),
-                },
-                location={
-                    "type": "Point",
-                    "coordinates": [-60.797889, -15.859500],
-                },
+                filter_criteria={"breed": "nelore", "count": min(nelore_count, 50)},
+                location={"type": "Point", "coordinates": [-60.797889, -15.859500]},
             )
         )
 
-    # Alerta 2: Tratamiento veterinario para terneros
     terneros = [
         a for a in animals if a.calculate_age_category() == AgeCategory.TERNEROS
     ]
-    terneros_count = len(terneros)
-    if terneros_count > 0:
+    if len(terneros) > 0:
         alerts.append(
             AlertModel(
                 user_id=user_id,
                 farm_id=farm_id,
                 type=AlertType.VETERINARY_TREATMENT,
                 title="Vacunación - Terneros",
-                message=f"Vacunar {terneros_count} terneros (<8 meses) - Programa sanitario",
+                message=f"Vacunar {len(terneros)} terneros (<8 meses)",
                 status=AlertStatus.PENDING,
-                scheduled_at=now + timedelta(days=14),  # En 2 semanas
+                scheduled_at=now + timedelta(days=14),
                 recurrence=RecurrenceType.QUARTERLY,
                 reminder_before_days=[7, 3, 1],
-                filter_criteria={
-                    "age_category": "terneros",
-                    "count": terneros_count,
-                },
+                filter_criteria={"age_category": "terneros", "count": len(terneros)},
             )
         )
-
-    # Alerta 3: Pesaje de vaquillonas hembras
-    vaquillonas = [
-        a
-        for a in animals
-        if a.gender == "female"
-        and a.calculate_age_category() == AgeCategory.VAQUILLONAS_TORILLOS
-    ]
-    vaquillonas_count = len(vaquillonas)
-    if vaquillonas_count > 0:
-        alerts.append(
-            AlertModel(
-                user_id=user_id,
-                farm_id=farm_id,
-                type=AlertType.SCHEDULED_WEIGHING,
-                title="Control de Peso - Vaquillonas",
-                message=f"Pesar {vaquillonas_count} vaquillonas (6-18 meses) para control de desarrollo",
-                status=AlertStatus.PENDING,
-                scheduled_at=now + timedelta(days=10),
-                recurrence=RecurrenceType.MONTHLY,
-                reminder_before_days=[7, 1],
-                filter_criteria={
-                    "age_category": "vaquillonas_torillos",
-                    "gender": "female",
-                    "count": vaquillonas_count,
-                },
-            )
-        )
-
-    # Alerta 4: Pesaje de Brahman machos
-    brahman_males = [a for a in animals if a.breed == "brahman" and a.gender == "male"]
-    brahman_males_count = len(brahman_males)
-    if brahman_males_count > 0:
-        alerts.append(
-            AlertModel(
-                user_id=user_id,
-                farm_id=farm_id,
-                type=AlertType.SCHEDULED_WEIGHING,
-                title="Pesaje - Toros Brahman",
-                message=f"Pesar {brahman_males_count} toros Brahman para evaluación reproductiva",
-                status=AlertStatus.PENDING,
-                scheduled_at=now + timedelta(days=5),
-                recurrence=RecurrenceType.MONTHLY,
-                reminder_before_days=[3, 1],
-                filter_criteria={
-                    "breed": "brahman",
-                    "gender": "male",
-                    "count": brahman_males_count,
-                },
-            )
-        )
-
-    # Alerta 5: Evento calendario - Competencia ASOCEBU
-    alerts.append(
-        AlertModel(
-            user_id=user_id,
-            farm_id=farm_id,
-            type=AlertType.CALENDAR_EVENT,
-            title="Competencia ASOCEBU - Exposición Ganadera",
-            message="Preparar animales Nelore y Brahman para exposición",
-            status=AlertStatus.PENDING,
-            scheduled_at=now + timedelta(days=30),
-            recurrence=RecurrenceType.YEARLY,
-            reminder_before_days=[30, 14, 7, 1],
-            filter_criteria={
-                "breed": ["nelore", "brahman"],
-                "count": 10,
-            },
-        )
-    )
 
     return alerts
 
 
 async def seed_database():
-    """Función principal para cargar datos iniciales con trazabilidad completa."""
-    print("🌱 Iniciando carga de datos iniciales con TRAZABILIDAD COMPLETA...")
+    """Función principal para cargar datos iniciales mejorados."""
+    print("🌱 Iniciando carga de datos MEJORADOS con CSV real...")
     print(f"📊 Base de datos: {settings.MONGODB_DB_NAME}")
     print(f"🔗 MongoDB URL: {settings.MONGODB_URL}\n")
 
-    # Conectar a MongoDB
+    csv_path = Path(__file__).parent.parent / "uploads" / "metadata_estimada.csv"
+    if not csv_path.exists():
+        print(f"❌ Error: No se encontró el archivo CSV en {csv_path}")
+        print("   Por favor coloca 'metadata_estimada.csv' en backend/uploads/")
+        return
+
+    print(f"📁 Cargando datos de peso desde: {csv_path}")
+    weight_loader = WeightDataLoader(str(csv_path))
+    print("   ✅ CSV cargado exitosamente\n")
+
     client = AsyncIOMotorClient(settings.MONGODB_URL)
 
     try:
-        # Inicializar Beanie
         await init_beanie(
             database=client[settings.MONGODB_DB_NAME],
             document_models=[
@@ -717,7 +943,6 @@ async def seed_database():
         )
         print("✅ Conectado a MongoDB\n")
 
-        # Limpiar datos existentes
         print("🗑️  Limpiando datos existentes...")
         await AlertModel.delete_all()
         await AnimalModel.delete_all()
@@ -727,143 +952,79 @@ async def seed_database():
         await RoleModel.delete_all()
         print("✅ Datos limpiados\n")
 
-        # Crear roles
         print("👥 Creando roles iniciales...")
         roles = await create_roles()
         print(f"✅ {len(roles)} roles creados\n")
 
-        # Crear usuarios
-        print("👤 Creando usuarios iniciales...")
-        bruno = await create_users(roles["admin"])
-        print("✅ Usuarios creados\n")
+        print("👤 Creando usuarios del equipo Hacienda Gamelera...")
+        users = await create_users(roles["admin"], roles["user"])
+        print(f"✅ {len(users)} usuarios creados\n")
 
-        # Crear finca
         print("🏢 Creando finca Hacienda Gamelera...")
-        farm = await create_farm(bruno)
-        farm_id = farm.id
+        farm = await create_farm(users["bruno"])
         print("✅ Finca creada\n")
 
-        # Generar animales
-        print("🐄 Generando 200 animales con trazabilidad completa...")
-        animals = generate_animals(farm_id)
-        print(f"   📝 {len(animals)} animales generados")
-
-        # Insertar animales
+        print("🐄 Generando 200 animales con datos realistas...")
+        animals = generate_animals(farm.id, weight_loader)
         await AnimalModel.insert_many(animals)
-        print(f"✅ {len(animals)} animales insertados en MongoDB\n")
+        print(f"✅ {len(animals)} animales insertados\n")
 
-        # Actualizar contador de animales en la finca
         farm.total_animals = len(animals)
         await farm.save()
-        print(f"✅ Contador de animales actualizado en finca: {farm.total_animals}\n")
 
-        # Generar estimaciones de peso con evolución temporal
-        print("⚖️  Generando estimaciones de peso con evolución temporal...")
-        estimations = generate_weight_estimations(animals)
-        print(f"   📝 {len(estimations)} estimaciones generadas")
-
-        # Insertar estimaciones
+        estimations = generate_weight_estimations(animals, weight_loader)
         await WeightEstimationModel.insert_many(estimations)
-        print(f"✅ {len(estimations)} estimaciones insertadas en MongoDB\n")
+        print(f"✅ {len(estimations)} estimaciones insertadas\n")
 
-        # Generar alertas de ejemplo con cronograma
-        print("🔔 Generando alertas de ejemplo con cronograma...")
-        alerts = generate_sample_alerts(bruno.id, farm_id, animals)
-        print(f"   📝 {len(alerts)} alertas generadas")
-
-        # Insertar alertas
+        print("🔔 Generando alertas...")
+        alerts = generate_sample_alerts(users["bruno"].id, farm.id, animals)
         if alerts:
             await AlertModel.insert_many(alerts)
-            print(f"✅ {len(alerts)} alertas insertadas en MongoDB\n")
+            print(f"✅ {len(alerts)} alertas insertadas\n")
 
-        # Resumen detallado
         print("=" * 70)
-        print("📊 RESUMEN DE DATOS CARGADOS - TRAZABILIDAD COMPLETA")
+        print("📊 RESUMEN - DATOS MEJORADOS CARGADOS")
         print("=" * 70)
-        print(f"👥 Roles creados: {len(roles)}")
-        print("👤 Usuarios creados: 2 (Bruno + Ejemplo)")
+        print(f"👥 Roles: {len(roles)}")
+        print(f"👤 Usuarios: {len(users)}")
+        print("   - Bruno Brito Macedo (Owner/Superusuario)")
+        print("   - Miguel Angel Escobar Lazcano (Product Owner)")
+        print("   - Rodrigo Escobar Morón (Scrum Master)")
         print(f"🏢 Finca: {farm.name}")
-        print(f"🐄 Animales totales: {len(animals)}")
-        print(f"⚖️  Estimaciones totales: {len(estimations)}")
-        print(
-            f"📈 Promedio de pesajes por animal: {len(estimations) / len(animals):.1f}"
-        )
-        alerts_count = len(alerts) if "alerts" in locals() else 0
-        if alerts_count > 0:
-            print(f"🔔 Alertas programadas: {alerts_count}")
-        print(f"🏢 Hacienda ID: {farm_id}\n")
+        print(f"🐄 Animales: {len(animals)}")
+        print(f"⚖️  Estimaciones: {len(estimations)}")
+        print(f"📈 Promedio pesajes/animal: {len(estimations)/len(animals):.1f}")
+        print(f"🔔 Alertas: {len(alerts)}")
 
-        # Distribución por raza
-        print("📋 Distribución por raza:")
+        print("\n📋 Distribución por raza:")
         breed_counts = Counter(animal.breed for animal in animals)
         for breed, count in sorted(breed_counts.items()):
             percentage = (count / len(animals)) * 100
             print(
-                f"   - {BreedType.get_display_name(BreedType(breed))}: "  # breed es str aquí
-                f"{count} animales ({percentage:.1f}%)"
+                f"   - {BreedType.get_display_name(BreedType(breed))}: "
+                f"{count} ({percentage:.1f}%)"
             )
 
-        # Distribución por estado
-        print("\n📊 Distribución por estado:")
-        status_counts = Counter(animal.status for animal in animals)
-        for status, count in sorted(status_counts.items()):
-            percentage = (count / len(animals)) * 100
-            print(f"   - {status.capitalize()}: {count} animales ({percentage:.1f}%)")
-
-        # Distribución por categoría de edad
-        print("\n👶 Distribución por categoría de edad:")
-        age_categories = Counter(
-            animal.calculate_age_category().value for animal in animals
-        )
-        for category, count in sorted(age_categories.items()):
-            percentage = (count / len(animals)) * 100
-            print(f"   - {category}: {count} animales ({percentage:.1f}%)")
-
-        # Animales con relaciones familiares
-        animals_with_parents = sum(1 for a in animals if a.mother_id or a.father_id)
+        with_parents = sum(1 for a in animals if a.mother_id or a.father_id)
         print(
-            f"\n👨‍👩‍👧 Animales con padre/madre registrados: "
-            f"{animals_with_parents} ({(animals_with_parents/len(animals)*100):.1f}%)"
+            f"\n👨‍👩‍👧 Animales con genealogía: {with_parents} ({with_parents/len(animals)*100:.1f}%)"
         )
 
-        # Rango de fechas de nacimiento
-        birth_dates = [a.birth_date for a in animals]
-        min_birth = min(birth_dates)
-        max_birth = max(birth_dates)
+        confidences = [e.confidence for e in estimations]
         print(
-            f"\n📅 Rango de fechas de nacimiento: "
-            f"{min_birth.strftime('%Y-%m-%d')} a {max_birth.strftime('%Y-%m-%d')}"
-        )
-
-        # Rango de fechas de pesajes
-        weighing_dates = [e.timestamp for e in estimations]
-        min_weighing = min(weighing_dates)
-        max_weighing = max(weighing_dates)
-        print(
-            f"📅 Rango de fechas de pesajes: "
-            f"{min_weighing.strftime('%Y-%m-%d')} a {max_weighing.strftime('%Y-%m-%d')}"
+            f"\n📊 Rango de confianza: {min(confidences):.2%} - {max(confidences):.2%}"
         )
 
         print("\n" + "=" * 70)
-        print("✅ Seed data completado exitosamente!")
-        print("\n🔐 CREDENCIALES DE ACCESO:")
-        print("   Usuario: bruno_brito")
-        print("   Email: bruno@haciendagamelera.com")
-        print("   Contraseña: password123")
-        print("   ⚠️  CAMBIAR EN PRODUCCIÓN")
-        print("\n📸 NOTA: Las referencias a imágenes están en IMAGE_REFERENCES")
-        print("   Descarga las imágenes de Drive y actualiza los IDs en el script.")
-        print("\n🔍 TRAZABILIDAD:")
-        print("   - Roles y usuarios configurados")
-        print("   - Finca Hacienda Gamelera creada")
-        print("   - Cada animal tiene historial completo de pesajes")
-        print("   - Relaciones familiares (madre/padre) registradas")
-        print("   - Estados variados (active/sold/deceased)")
-        print("   - Evolución temporal de peso documentada")
+        print("✅ Seed data MEJORADO completado!")
+        print("\n🔐 CREDENCIALES:")
+        print("   Usuario: bruno_brito | Contraseña: password123")
+        print("   Usuario: miguel_escobar | Contraseña: password123")
+        print("   Usuario: rodrigo_escobar | Contraseña: password123")
         print("=" * 70)
 
     except Exception as e:
-        print(f"❌ Error durante seed data: {e}")
+        print(f"❌ Error: {e}")
         import traceback
 
         traceback.print_exc()
