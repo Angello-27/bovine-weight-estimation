@@ -1,18 +1,34 @@
 // frontend/src/components/organisms/CattleList/index.js
 
 import DataTable from '../../molecules/DataTable';
-import ActionButton from '../../molecules/ActionButton';
-import VisibilityIcon from '@mui/icons-material/Visibility';
+import CustomIconButton from '../../atoms/IconButton';
+import LinkButton from '../../atoms/LinkButton';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
+import Box from '@mui/material/Box';
 
-function CattleList({ items, onViewClick }) {
+function CattleList({ items, onViewClick, onEditClick, onDeleteClick, pagination, onPageChange, onPageSizeChange }) {
     const columns = [
-        { label: 'Caravana', field: 'ear_tag' },
-        { label: 'Nombre', field: 'name' },
+        {
+            label: 'Caravana',
+            field: 'ear_tag',
+            render: (value, row) => (
+                <LinkButton
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        onViewClick && onViewClick(row.id);
+                    }}
+                >
+                    {value || '-'}
+                </LinkButton>
+            )
+        },
+        { label: 'Nombre', field: 'name', render: (value) => value || '-' },
         { label: 'Raza', field: 'breed' },
         {
             label: 'Género',
             field: 'gender',
-            render: (value) => value === 'male' ? 'Macho' : 'Hembra',
+            render: (value) => value === 'male' ? 'Macho' : value === 'female' ? 'Hembra' : '-',
         },
         {
             label: 'Edad',
@@ -20,19 +36,44 @@ function CattleList({ items, onViewClick }) {
             render: (value) => value ? `${value} meses` : '-',
         },
         {
+            label: 'Estado',
+            field: 'status',
+            render: (value) => {
+                const statusMap = {
+                    'active': 'Activo',
+                    'inactive': 'Inactivo',
+                    'sold': 'Vendido',
+                    'deceased': 'Fallecido'
+                };
+                return statusMap[value] || value || '-';
+            }
+        },
+        {
             label: 'Acciones',
             field: 'id',
             render: (value, row) => (
-                <ActionButton
-                    icon={<VisibilityIcon />}
-                    label="Ver"
-                    onClick={(e) => {
-                        e.stopPropagation();
-                        onViewClick && onViewClick(value);
-                    }}
-                    variant="outlined"
-                    size="small"
-                />
+                <Box sx={{ display: 'flex', gap: 0.5 }}>
+                    <CustomIconButton
+                        icon={<EditIcon />}
+                        tooltip="Editar animal"
+                        color="primary"
+                        size="small"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            onEditClick && onEditClick(value, row);
+                        }}
+                    />
+                    <CustomIconButton
+                        icon={<DeleteIcon />}
+                        tooltip="Eliminar animal"
+                        color="error"
+                        size="small"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            onDeleteClick && onDeleteClick(value, row);
+                        }}
+                    />
+                </Box>
             ),
         },
     ];
@@ -40,9 +81,11 @@ function CattleList({ items, onViewClick }) {
     return (
         <DataTable
             columns={columns}
-            rows={items}
-            onRowClick={(row) => onViewClick && onViewClick(row.id)}
+            rows={items || []}
             emptyMessage="No hay animales registrados."
+            pagination={pagination}
+            onPageChange={onPageChange}
+            onPageSizeChange={onPageSizeChange}
         />
     );
 }

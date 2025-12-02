@@ -1,13 +1,17 @@
 // frontend/src/views/WeightEstimationFromWebView.js
 
-import React from 'react';
+import React, { useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import PanelTemplate from '../templates/PanelTemplate';
 import WeightEstimationFromWebTemplate from '../templates/WeightEstimationFromWebTemplate';
 import EstimateWeightFromImage from '../containers/weight-estimations/EstimateWeightFromImage';
 import GetAllCattle from '../containers/cattle/GetAllCattle';
 
 function WeightEstimationFromWebView() {
-    const estimationProps = EstimateWeightFromImage();
+    const [searchParams] = useSearchParams();
+    const animalId = searchParams.get('animal_id');
+    
+    const estimationProps = EstimateWeightFromImage(animalId);
     const cattleProps = GetAllCattle();
 
     // Transformar animales a formato ComboBox

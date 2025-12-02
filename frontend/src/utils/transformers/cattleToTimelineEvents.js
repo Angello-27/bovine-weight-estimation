@@ -57,7 +57,7 @@ export function cattleToTimelineEvents(cattle, estimations = []) {
         });
     });
 
-    // Ordenar por fecha (más antiguo primero)
-    return events.sort((a, b) => new Date(a.date) - new Date(b.date));
+    // Ordenar por fecha (más reciente primero)
+    return events.sort((a, b) => new Date(b.date) - new Date(a.date));
 }
 

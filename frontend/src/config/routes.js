@@ -13,10 +13,10 @@ import { appRoutes } from './routesConfig';
 import ErrorView from '../views/ErrorView';
 import LoginView from '../views/LoginView';
 import DashboardView from '../views/DashboardView';
-import CattleView from '../views/CattleView';
+import CattleView from '../views/cattle/CattleView';
 import WeightEstimationsView from '../views/WeightEstimationsView';
 import SyncStatusView from '../views/SyncStatusView';
-import CattleDetailView from '../views/CattleDetailView';
+import CattleDetailView from '../views/cattle/CattleDetailView';
 import WeightEstimationFromWebView from '../views/WeightEstimationFromWebView';
 import WeightEstimationDetailView from '../views/WeightEstimationDetailView';
 import UserView from '../views/user/UserView';
@@ -71,6 +71,15 @@ function AppRoutes() {
                 {/* Rutas con parámetros dinámicos (no están en appRoutes por tener :id) */}
                 <Route
                     path="/cattle/:id"
+                    element={
+                        <ProtectedRoute requiredRoles={['Administrador', 'Usuario']}>
+                            <CattleDetailView />
+                        </ProtectedRoute>
+                    }
+                />
+                {/* Ruta alternativa /animals/:id para compatibilidad */}
+                <Route
+                    path="/animals/:id"
                     element={
                         <ProtectedRoute requiredRoles={['Administrador', 'Usuario']}>
                             <CattleDetailView />

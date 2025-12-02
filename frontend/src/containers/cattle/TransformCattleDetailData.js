@@ -8,14 +8,30 @@ import { weightEstimationToChartData } from '../../utils/transformers/weightEsti
  * TransformCattleDetailData container hook - Transforma datos para la vista de detalle
  * @param {Object} cattle - Datos del animal
  * @param {Array} estimations - Lista de estimaciones de peso
+ * @param {Object} timeline - Timeline del backend (opcional)
  * @returns {Object} { timelineEvents, chartData, galleryImages }
  */
-function TransformCattleDetailData(cattle, estimations) {
+function TransformCattleDetailData(cattle, estimations, timeline = null) {
     // Transformar datos para timeline
     const timelineEvents = useMemo(() => {
         if (!cattle) return [];
-        return cattleToTimelineEvents(cattle, estimations);
-    }, [cattle, estimations]);
+        
+        // Si hay timeline del backend, usarlo y ordenarlo
+        if (timeline && timeline.events && Array.isArray(timeline.events)) {
+            // Ordenar eventos del backend por fecha (más reciente primero)
+            const sortedEvents = [...timeline.events].sort((a, b) => {
+                const dateA = new Date(a.timestamp || a.date || 0);
+                const dateB = new Date(b.timestamp || b.date || 0);
+                return dateB - dateA; // Más reciente primero
+            });
+            return sortedEvents;
+        }
+        
+        // Si no hay timeline del backend, usar el transformador local
+        const events = cattleToTimelineEvents(cattle, estimations);
+        // Ya está ordenado en cattleToTimelineEvents (más reciente primero)
+        return events;
+    }, [cattle, estimations, timeline]);
 
     // Transformar datos para gráfico
     const chartData = useMemo(() => {

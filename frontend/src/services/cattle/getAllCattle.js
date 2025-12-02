@@ -85,5 +85,5 @@ const getAllCattle = async (filters = {}) => {
     }
 };
 
-export default getAllCattle;
+export { getAllCattle };
 

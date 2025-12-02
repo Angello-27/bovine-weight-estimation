@@ -1,7 +1,7 @@
 // frontend/src/containers/dashboard/DashboardStatsContainer.js
 
 import { useState, useEffect } from 'react';
-import { getAnimalsByCriteria } from '../../services/cattle/getAnimalsByCriteria';
+import { getAnimalsByCriteria } from '../../services/cattle';
 import { getWeightEstimationsByCriteria } from '../../services/weight-estimations/getWeightEstimationsByCriteria';
 import { getCurrentUser } from '../../services/auth/authService';
 

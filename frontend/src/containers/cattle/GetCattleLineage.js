@@ -1,7 +1,7 @@
 // frontend/src/containers/cattle/GetCattleLineage.js
 
 import { useState, useEffect } from 'react';
-import getCattleById from '../../services/cattle/getCattleById';
+import { getCattleById } from '../../services/cattle';
 
 /**
  * GetCattleLineage container hook - Obtiene el linaje (padre y madre) de un animal

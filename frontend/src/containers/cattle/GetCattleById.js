@@ -1,7 +1,7 @@
 // frontend/src/containers/cattle/GetCattleById.js
 
 import { useState, useEffect } from 'react';
-import getCattleById from '../../services/cattle/getCattleById';
+import { getCattleById } from '../../services/cattle';
 
 function GetCattleById(cattleId) {
     const [cattle, setCattle] = useState(null);

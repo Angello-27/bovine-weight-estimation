@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { getFarmById } from '../../services/farm/getFarmById';
-import getAllCattle from '../../services/cattle/getAllCattle';
+import { getAllCattle } from '../../services/cattle';
 import getAllWeightEstimations from '../../services/weight-estimations/getAllWeightEstimations';
 import { getUserById } from '../../services/user/getUserById';
 

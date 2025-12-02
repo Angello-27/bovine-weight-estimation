@@ -5,12 +5,12 @@ import { useNavigate } from 'react-router-dom';
 import estimateWeightFromImage from '../../services/weight-estimations/estimateWeightFromImage';
 import createWeightEstimation from '../../services/weight-estimations/createWeightEstimation';
 
-function EstimateWeightFromImage() {
+function EstimateWeightFromImage(initialAnimalId = null) {
     const navigate = useNavigate();
 
     const [formData, setFormData] = useState({
         image: null,
-        cattle_id: '',
+        cattle_id: initialAnimalId || '',
         breed: ''
     });
 

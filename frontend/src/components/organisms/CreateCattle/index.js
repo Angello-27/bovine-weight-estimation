@@ -1,12 +1,23 @@
 // frontend/src/components/organisms/CreateCattle/index.js
 
+import Box from '@mui/material/Box';
 import Grid from "@mui/material/Grid";
 import InputField from '../../atoms/InputFieldForm';
+import DateField from '../../atoms/DateField';
+import TextAreaField from '../../atoms/TextAreaField';
 import CustomButton from '../../atoms/CustomButton';
 import ComboBox from '../../atoms/ComboBox';
 import { breedToComboBox } from '../../../utils/transformers/breedToComboBox';
+import TagIcon from '@mui/icons-material/Tag';
+import PetsIcon from '@mui/icons-material/Pets';
+import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
+import WcIcon from '@mui/icons-material/Wc';
+import DriveFileRenameOutlineIcon from '@mui/icons-material/DriveFileRenameOutline';
+import PaletteIcon from '@mui/icons-material/Palette';
+import ScaleIcon from '@mui/icons-material/Scale';
+import NotesIcon from '@mui/icons-material/Notes';
 
-function CreateCattle({ formData, onInputChange, onSubmit, onComboBoxChange }) {
+function CreateCattle({ formData, errors = {}, onInputChange, onSubmit, onComboBoxChange }) {
     const breeds = breedToComboBox();
 
     const genderOptions = [
@@ -15,51 +26,61 @@ function CreateCattle({ formData, onInputChange, onSubmit, onComboBoxChange }) {
     ];
 
     return (
-        <Grid width="100%" component="form" method="post" onSubmit={onSubmit}>
-            <Grid p={3}>
+        <Box component="form" method="post" onSubmit={onSubmit} sx={{ width: '100%' }}>
+            <Box sx={{ px: 3, pb: 2 }}>
                 <Grid container spacing={3}>
                     {/* Campos obligatorios */}
                     <InputField 
                         xs={12} 
                         md={6}
-                        label="Caravana *" 
+                        label="Caravana" 
                         name="ear_tag" 
                         value={formData.ear_tag || ''} 
                         onChange={onInputChange}
+                        startIcon={<TagIcon />}
                         required
+                        error={!!errors.ear_tag}
+                        helperText={errors.ear_tag}
                     />
                     <ComboBox 
                         xs={12} 
                         md={6}
                         options={breeds} 
-                        label="Raza *" 
+                        label="Raza" 
                         id="combo-box-breed" 
                         fieldName="breed" 
                         onChange={onComboBoxChange} 
                         value={formData.breed || ''}
+                        startIcon={<PetsIcon />}
                         required
+                        error={!!errors.breed}
+                        helperText={errors.breed}
                     />
-                    <InputField 
+                    <DateField 
                         xs={12} 
                         md={6}
-                        label="Fecha de Nacimiento *" 
+                        label="Fecha de Nacimiento" 
                         name="birth_date" 
-                        type="date"
                         value={formData.birth_date || ''} 
                         onChange={onInputChange}
-                        InputLabelProps={{ shrink: true }}
+                        startIcon={<CalendarTodayIcon />}
                         required
+                        error={!!errors.birth_date}
+                        helperText={errors.birth_date}
                     />
                     <ComboBox 
                         xs={12} 
                         md={6}
                         options={genderOptions} 
-                        label="Género *" 
+                        label="Género" 
                         id="combo-box-gender" 
                         fieldName="gender" 
                         onChange={onComboBoxChange} 
                         value={formData.gender || ''}
+                        startIcon={<WcIcon />}
                         required
+                        error={!!errors.gender}
+                        helperText={errors.gender}
                     />
                     
                     {/* Campos opcionales */}
@@ -70,6 +91,7 @@ function CreateCattle({ formData, onInputChange, onSubmit, onComboBoxChange }) {
                         name="name" 
                         value={formData.name || ''} 
                         onChange={onInputChange}
+                        startIcon={<DriveFileRenameOutlineIcon />}
                     />
                     <InputField 
                         xs={12} 
@@ -78,6 +100,7 @@ function CreateCattle({ formData, onInputChange, onSubmit, onComboBoxChange }) {
                         name="color" 
                         value={formData.color || ''} 
                         onChange={onInputChange}
+                        startIcon={<PaletteIcon />}
                     />
                     <InputField 
                         xs={12} 
@@ -87,24 +110,27 @@ function CreateCattle({ formData, onInputChange, onSubmit, onComboBoxChange }) {
                         type="number"
                         value={formData.birth_weight_kg || ''} 
                         onChange={onInputChange}
+                        startIcon={<ScaleIcon />}
+                        error={!!errors.birth_weight_kg}
+                        helperText={errors.birth_weight_kg}
                     />
-                    <InputField 
+                    <TextAreaField 
                         xs={12} 
                         label="Observaciones" 
                         name="observations" 
-                        multiline 
                         rows={3} 
                         value={formData.observations || ''} 
                         onChange={onInputChange}
+                        startIcon={<NotesIcon />}
                     />
                 </Grid>
-                <Grid container item justifyContent="center" xs={12} my={4}>
-                    <CustomButton type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>
+                <Box sx={{ mt: 4, mb: 2 }}>
+                    <CustomButton type="submit" fullWidth variant="contained">
                         Guardar
                     </CustomButton>
-                </Grid>
-            </Grid>
-        </Grid>
+                </Box>
+            </Box>
+        </Box>
     );
 }
 

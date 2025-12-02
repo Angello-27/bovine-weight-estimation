@@ -1,13 +1,12 @@
 // frontend/src/containers/cattle/CreateNewCattle.js
 
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import createCattle from '../../services/cattle/createCattle';
+import { createCattle, updateCattle, deleteCattle } from '../../services/cattle';
+import { getCurrentUser } from '../../services/auth/authService';
 
 function CreateNewCattle() {
-    const navigate = useNavigate();
-
     const [formData, setFormData] = useState({
+        id: '',
         ear_tag: '',
         breed: '',
         birth_date: '',
@@ -15,8 +14,54 @@ function CreateNewCattle() {
         name: '',
         color: '',
         birth_weight_kg: '',
-        observations: ''
+        observations: '',
+        farm_id: ''
     });
+
+    const [errors, setErrors] = useState({});
+
+    const validateForm = () => {
+        const newErrors = {};
+
+        // Validar caravana
+        if (!formData.ear_tag || formData.ear_tag.trim() === '') {
+            newErrors.ear_tag = 'La caravana es requerida';
+        }
+
+        // Validar raza
+        if (!formData.breed || formData.breed === '') {
+            newErrors.breed = 'La raza es requerida';
+        }
+
+        // Validar fecha de nacimiento
+        if (!formData.birth_date || formData.birth_date === '') {
+            newErrors.birth_date = 'La fecha de nacimiento es requerida';
+        } else {
+            const birthDate = new Date(formData.birth_date);
+            const today = new Date();
+            if (birthDate > today) {
+                newErrors.birth_date = 'La fecha de nacimiento no puede ser futura';
+            }
+        }
+
+        // Validar género
+        if (!formData.gender || formData.gender === '') {
+            newErrors.gender = 'El género es requerido';
+        } else if (formData.gender !== 'male' && formData.gender !== 'female') {
+            newErrors.gender = 'El género debe ser "male" o "female"';
+        }
+
+        // Validar peso al nacer (si se proporciona)
+        if (formData.birth_weight_kg && formData.birth_weight_kg !== '') {
+            const weight = parseFloat(formData.birth_weight_kg);
+            if (isNaN(weight) || weight < 0 || weight > 100) {
+                newErrors.birth_weight_kg = 'El peso al nacer debe ser un número entre 0 y 100 kg';
+            }
+        }
+
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
 
     const handleChange = (event) => {
         const { name, value } = event.target;
@@ -24,36 +69,81 @@ function CreateNewCattle() {
             ...prevData,
             [name]: value
         }));
+        // Limpiar error del campo cuando el usuario empieza a escribir
+        if (errors[name]) {
+            setErrors((prevErrors) => {
+                const newErrors = { ...prevErrors };
+                delete newErrors[name];
+                return newErrors;
+            });
+        }
     };
 
     const handleComboBoxChange = (fieldName, value) => {
         setFormData((prevData) => ({
             ...prevData,
-            [fieldName]: value
+            [fieldName]: value ? (value.id || value) : ''
         }));
+        // Limpiar error del campo cuando el usuario selecciona
+        if (errors[fieldName]) {
+            setErrors((prevErrors) => {
+                const newErrors = { ...prevErrors };
+                delete newErrors[fieldName];
+                return newErrors;
+            });
+        }
     };
 
     const handleSubmit = async (event) => {
         event.preventDefault();
 
+        // Validar antes de enviar
+        if (!validateForm()) {
+            return false;
+        }
+
         try {
-            // Preparar datos para enviar (convertir strings vacíos a null para campos opcionales)
+            // Obtener farm_id del usuario actual si no está en formData
+            let farmId = formData.farm_id;
+            if (!farmId) {
+                const currentUser = getCurrentUser();
+                farmId = currentUser?.farm_id;
+                if (!farmId) {
+                    throw new Error('No se encontró una hacienda asignada. Por favor, contacta al administrador.');
+                }
+            }
+
+            // Preparar datos para enviar
             const cattleData = {
-                ear_tag: formData.ear_tag,
+                ear_tag: formData.ear_tag.trim(),
                 breed: formData.breed,
                 birth_date: formData.birth_date,
                 gender: formData.gender,
-                name: formData.name || null,
-                color: formData.color || null,
+                name: formData.name?.trim() || null,
+                color: formData.color?.trim() || null,
                 birth_weight_kg: formData.birth_weight_kg ? parseFloat(formData.birth_weight_kg) : null,
-                observations: formData.observations || null
+                observations: formData.observations?.trim() || null,
+                farm_id: farmId
             };
 
-            const data = await createCattle(cattleData);
-            console.log('Nuevo animal creado: ', data);
-            
-            // Reset form
+            if (formData.id) {
+                // Editar - solo enviar campos actualizables
+                const updateData = {
+                    name: cattleData.name,
+                    color: cattleData.color,
+                    observations: cattleData.observations
+                };
+                const data = await updateCattle(formData.id, updateData);
+                console.log('Animal actualizado: ', data);
+            } else {
+                // Crear
+                const data = await createCattle(cattleData);
+                console.log('Nuevo animal creado: ', data);
+            }
+
+            // Resetear formulario después de crear/editar
             setFormData({
+                id: '',
                 ear_tag: '',
                 breed: '',
                 birth_date: '',
@@ -61,22 +151,40 @@ function CreateNewCattle() {
                 name: '',
                 color: '',
                 birth_weight_kg: '',
-                observations: ''
+                observations: '',
+                farm_id: ''
             });
-
-            // Recargar la página o actualizar la lista
-            window.location.reload();
+            setErrors({});
+            return true;
         } catch (error) {
-            console.error('Error al crear animal:', error);
+            console.error(error);
+            throw error;
+        }
+    };
+
+    const resetErrors = () => {
+        setErrors({});
+    };
+
+    const handleDelete = async (animalId) => {
+        try {
+            await deleteCattle(animalId);
+            console.log('Animal eliminado:', animalId);
+        } catch (error) {
+            console.error(error);
             throw error;
         }
     };
 
     return {
         formData,
+        errors,
         handleChange,
+        handleSubmit,
         handleComboBoxChange,
-        handleSubmit
+        handleDelete,
+        resetErrors,
+        setFormData
     };
 }
 
