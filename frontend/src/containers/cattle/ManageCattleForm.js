@@ -23,7 +23,10 @@ function ManageCattleForm(formProps) {
             color: '',
             birth_weight_kg: '',
             observations: '',
-            farm_id: ''
+            farm_id: '',
+            status: 'active',
+            mother_id: '',
+            father_id: ''
         });
         formProps.resetErrors();
     };
@@ -51,7 +54,10 @@ function ManageCattleForm(formProps) {
             color: animalData.color || '',
             birth_weight_kg: animalData.birth_weight_kg ? String(animalData.birth_weight_kg) : '',
             observations: animalData.observations || '',
-            farm_id: animalData.farm_id || ''
+            farm_id: animalData.farm_id || '',
+            status: animalData.status || 'active',
+            mother_id: animalData.mother_id || '',
+            father_id: animalData.father_id || ''
         });
         formProps.resetErrors();
         setShowForm(true);

@@ -148,17 +148,19 @@ function CreateNewCattle() {
                 observations: formData.observations?.trim() || null,
                 farm_id: farmId,
                 status: formData.status || 'active',
-                mother_id: formData.mother_id || null,
-                father_id: formData.father_id || null
+                mother_id: formData.mother_id && formData.mother_id !== '' ? formData.mother_id : null,
+                father_id: formData.father_id && formData.father_id !== '' ? formData.father_id : null
             };
 
             if (formData.id) {
-                // Editar - solo enviar campos actualizables
+                // Editar - enviar campos actualizables incluyendo parentesco
                 const updateData = {
                     name: cattleData.name,
                     color: cattleData.color,
                     observations: cattleData.observations,
-                    status: cattleData.status
+                    status: cattleData.status,
+                    mother_id: cattleData.mother_id,
+                    father_id: cattleData.father_id
                 };
                 const data = await updateCattle(formData.id, updateData);
                 console.log('Animal actualizado: ', data);

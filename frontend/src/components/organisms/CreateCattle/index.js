@@ -162,15 +162,6 @@ function CreateCattle({
                         error={!!errors.birth_weight_kg}
                         helperText={errors.birth_weight_kg}
                     />
-                    <TextAreaField 
-                        xs={12} 
-                        label="Observaciones" 
-                        name="observations" 
-                        rows={3} 
-                        value={formData.observations || ''} 
-                        onChange={onInputChange}
-                        startIcon={<NotesIcon />}
-                    />
                     {femaleAnimals && femaleAnimals.length > 0 && (
                         <ComboBox 
                             xs={12} 
@@ -201,6 +192,15 @@ function CreateCattle({
                             helperText={errors.father_id}
                         />
                     )}
+                    <TextAreaField 
+                        xs={12} 
+                        label="Observaciones" 
+                        name="observations" 
+                        rows={3} 
+                        value={formData.observations || ''} 
+                        onChange={onInputChange}
+                        startIcon={<NotesIcon />}
+                    />
                 </Grid>
                 <Box sx={{ mt: 4, mb: 2 }}>
                     <CustomButton type="submit" fullWidth variant="contained">
