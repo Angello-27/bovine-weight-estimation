@@ -38,7 +38,7 @@ export default defineConfig({
           // Separar vendor chunks grandes
           'react-vendor': ['react', 'react-dom', 'react-router-dom'],
           'ui-vendor': ['@mui/material', '@mui/icons-material'],
-          'chart-vendor': ['recharts', 'chart.js'],
+          'chart-vendor': ['recharts'],
         },
       },
     },
