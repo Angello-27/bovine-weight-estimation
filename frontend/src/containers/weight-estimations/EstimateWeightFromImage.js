@@ -4,6 +4,7 @@ import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import estimateWeightFromImage from '../../services/weight-estimations/estimateWeightFromImage';
 import createWeightEstimation from '../../services/weight-estimations/createWeightEstimation';
+import { clearCache } from '../../utils/cache/weightEstimationsCache';
 
 function EstimateWeightFromImage(initialAnimalId = null, allCattle = []) {
     const navigate = useNavigate();
@@ -20,13 +21,11 @@ function EstimateWeightFromImage(initialAnimalId = null, allCattle = []) {
     const [error, setError] = useState(null);
     const [imagePreview, setImagePreview] = useState(null);
 
-    // Filtrar ganado por raza seleccionada
+    // No filtrar aquí, se hará en el componente que obtiene los datos
     const filteredCattle = useMemo(() => {
-        if (!selectedBreed || !allCattle || allCattle.length === 0) {
-            return [];
-        }
-        return allCattle.filter(cattle => cattle.breed === selectedBreed);
-    }, [selectedBreed, allCattle]);
+        // Retornar array vacío, los datos se obtendrán desde el servicio
+        return [];
+    }, []);
 
     const handleImageChange = (event) => {
         const file = event.target.files?.[0];
@@ -126,9 +125,13 @@ function EstimateWeightFromImage(initialAnimalId = null, allCattle = []) {
                 processing_time_ms: estimationResult.processing_time_ms || 0
             };
 
-            await createWeightEstimation(estimationData);
+            const savedEstimation = await createWeightEstimation(estimationData);
 
-            // Redirigir a la lista de estimaciones
+            // Invalidar caché para forzar recarga en la lista
+            // La lista recargará automáticamente cuando se navegue a ella
+            clearCache();
+
+            // Redirigir a la lista de estimaciones (recargará desde servidor)
             navigate('/weight-estimations');
         } catch (err) {
             setError(err.message || 'Error al guardar la estimación. Por favor intente de nuevo.');
@@ -149,6 +152,18 @@ function EstimateWeightFromImage(initialAnimalId = null, allCattle = []) {
         setError(null);
     };
 
+    const handleGoBack = () => {
+        setSelectedBreed('');
+        setFormData(prev => ({
+            ...prev,
+            breed: '',
+            cattle_id: ''
+        }));
+        setEstimationResult(null);
+        setImagePreview(null);
+        setError(null);
+    };
+
     return {
         formData,
         estimationResult,
@@ -162,7 +177,8 @@ function EstimateWeightFromImage(initialAnimalId = null, allCattle = []) {
         onCattleSelect: handleCattleSelect,
         onEstimate: handleEstimate,
         onSaveEstimation: handleSaveEstimation,
-        onReset: handleReset
+        onReset: handleReset,
+        onGoBack: handleGoBack
     };
 }
 

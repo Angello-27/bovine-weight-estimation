@@ -42,9 +42,33 @@ function ImageGallery({ images, apiBaseUrl }) {
     // Construir URL completa de la imagen
     const getImageUrl = (imagePath) => {
         if (!imagePath) return null;
-        return imagePath.startsWith('http') 
-            ? imagePath 
-            : `${apiBaseUrl || import.meta.env.REACT_APP_API_URL || ''}${imagePath.startsWith('/') ? '' : '/'}${imagePath}`;
+        
+        // Si ya es una URL completa, retornarla tal cual
+        if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
+            return imagePath;
+        }
+        
+        // Obtener URL base de la API
+        const baseUrl = apiBaseUrl || import.meta.env.REACT_APP_API_URL || import.meta.env.VITE_API_URL || '';
+        
+        // Si el path ya incluye /uploads/, usarlo directamente
+        // Si no, agregar /uploads/ antes del path
+        let finalPath = imagePath;
+        if (!finalPath.startsWith('/uploads/') && !finalPath.startsWith('uploads/')) {
+            // Si el path es relativo (ej: "brahman/animal_123.jpg"), agregar /uploads/
+            if (!finalPath.startsWith('/')) {
+                finalPath = `/uploads/${finalPath}`;
+            } else {
+                finalPath = `/uploads${finalPath}`;
+            }
+        } else if (finalPath.startsWith('uploads/')) {
+            // Si empieza con "uploads/" sin barra inicial, agregarla
+            finalPath = `/${finalPath}`;
+        }
+        
+        // Construir URL completa
+        const cleanBaseUrl = baseUrl.replace(/\/$/, ''); // Remover barra final si existe
+        return `${cleanBaseUrl}${finalPath}`;
     };
 
     return (

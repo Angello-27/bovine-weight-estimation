@@ -3,7 +3,10 @@ Routes Configuration
 Configuración y registro de todas las rutas de la API
 """
 
+from pathlib import Path
+
 from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
 
 from app.api.routes import (
     alert_router,
@@ -26,6 +29,19 @@ def setup_routes(app: FastAPI) -> None:
     Args:
         app: Instancia de FastAPI
     """
+    # Montar archivos estáticos para servir imágenes
+    # Obtener el directorio base del proyecto (subir 2 niveles desde este archivo)
+    # backend/app/core/routes.py -> backend/uploads
+    current_file = Path(__file__)
+    project_root = current_file.parent.parent.parent
+    uploads_dir = project_root / "uploads"
+
+    # Crear directorio si no existe
+    uploads_dir.mkdir(parents=True, exist_ok=True)
+
+    # Montar directorio de uploads como archivos estáticos
+    app.mount("/uploads", StaticFiles(directory=str(uploads_dir)), name="uploads")
+
     # Include Routers (separados por dominio)
     app.include_router(auth_router)  # Autenticación y autorización
     app.include_router(user_router)  # Gestión de usuarios

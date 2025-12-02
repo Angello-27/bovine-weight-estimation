@@ -3,6 +3,12 @@
 import { useState, useEffect } from 'react';
 import { getWeightEstimationsByCriteria } from '../../services/weight-estimations/getWeightEstimationsByCriteria';
 import { deleteWeightEstimation } from '../../services/weight-estimations/deleteWeightEstimation';
+import {
+    getCachedEstimations,
+    setCachedEstimations,
+    clearCache,
+    removeEstimationFromCache
+} from '../../utils/cache/weightEstimationsCache';
 
 function GetAllWeightEstimations() {
     const [items, setItems] = useState([]);
@@ -14,10 +20,25 @@ function GetAllWeightEstimations() {
         total: 0
     });
 
-    const fetchAllData = async () => {
+    const fetchAllData = async (forceRefresh = false) => {
         try {
             setLoading(true);
             setError(null);
+            
+            // Intentar obtener del caché primero (si no es refresh forzado)
+            if (!forceRefresh) {
+                const cached = getCachedEstimations();
+                if (cached && Array.isArray(cached) && cached.length > 0) {
+                    setItems(cached);
+                    setPagination({
+                        page: 0,
+                        pageSize: cached.length,
+                        total: cached.length
+                    });
+                    setLoading(false);
+                    return;
+                }
+            }
             
             // Cargar todos los registros usando paginación iterativa (como en dashboard)
             let allEstimations = [];
@@ -76,6 +97,9 @@ function GetAllWeightEstimations() {
             }
 
             console.log(`✅ Carga completa: ${allEstimations.length} estimaciones cargadas`);
+
+            // Guardar en caché
+            setCachedEstimations(allEstimations, 30); // 30 minutos de TTL
 
             // La información del animal ya viene en la respuesta del backend
             setItems(allEstimations);
@@ -148,16 +172,34 @@ function GetAllWeightEstimations() {
 
         try {
             await deleteWeightEstimation(deleteItem.id);
-            // Cerrar el diálogo antes de recargar
+            
+            // Eliminar del caché inmediatamente (actualización optimista)
+            removeEstimationFromCache(deleteItem.id);
+            
+            // Actualizar el estado local sin recargar todo
+            setItems(prevItems => prevItems.filter(item => item.id !== deleteItem.id));
+            setPagination(prev => ({
+                ...prev,
+                total: prev.total - 1
+            }));
+            
+            // Cerrar el diálogo
             handleCloseDeleteDialog();
-            // Recargar los datos después de eliminar
-            await fetchAllData();
         } catch (error) {
             // Cerrar el diálogo para que el usuario pueda ver el error
             handleCloseDeleteDialog();
             alert(`Error al eliminar la estimación: ${error.message}`);
             console.error('Error al eliminar estimación:', error);
+            
+            // Si falla, recargar desde el servidor para sincronizar
+            await fetchAllData(true);
         }
+    };
+
+    // Función para refrescar datos (útil para invalidar caché manualmente)
+    const refreshData = () => {
+        clearCache();
+        fetchAllData(true);
     };
 
     return { 
@@ -171,7 +213,8 @@ function GetAllWeightEstimations() {
         showDeleteDialog,
         deleteItem,
         onCloseDeleteDialog: handleCloseDeleteDialog,
-        onConfirmDelete: handleConfirmDelete
+        onConfirmDelete: handleConfirmDelete,
+        refreshData // Exportar función de refresh
     };
 }
 

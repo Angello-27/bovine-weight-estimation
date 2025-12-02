@@ -42,7 +42,7 @@ const getAnimalsByCriteria = async (filters = {}, pagination = {}) => {
         if (filters.gender) params.gender = filters.gender;
         if (filters.age_category) params.age_category = filters.age_category;
 
-        const response = await apiClient.get('/api/v1/animals/by-criteria', { params });
+        const response = await apiClient.get('/api/v1/animals', { params });
         return response.data;
     } catch (error) {
         // Extraer mensaje del backend si está disponible

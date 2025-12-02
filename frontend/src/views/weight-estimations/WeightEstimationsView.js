@@ -30,6 +30,7 @@ function WeightEstimationsView() {
                     deleteItem={estimationsProps.deleteItem}
                     onCloseDeleteDialog={estimationsProps.onCloseDeleteDialog}
                     onConfirmDelete={estimationsProps.onConfirmDelete}
+                    refreshData={estimationsProps.refreshData}
                 />
             } 
         />

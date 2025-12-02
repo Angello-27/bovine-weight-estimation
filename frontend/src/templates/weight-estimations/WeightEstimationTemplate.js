@@ -9,6 +9,7 @@ import LoadingState from '../../components/molecules/LoadingState';
 import ErrorState from '../../components/molecules/ErrorState';
 import ConfirmDialog from '../../components/molecules/ConfirmDialog';
 import AddIcon from '@mui/icons-material/Add';
+import RefreshIcon from '@mui/icons-material/Refresh';
 
 function WeightEstimationTemplate({ 
     items, 
@@ -23,7 +24,8 @@ function WeightEstimationTemplate({
     showDeleteDialog,
     deleteItem,
     onCloseDeleteDialog,
-    onConfirmDelete
+    onConfirmDelete,
+    refreshData
 }) {
     return (
         <Box sx={{ width: '100%' }}>
@@ -36,14 +38,26 @@ function WeightEstimationTemplate({
                                 Estimaciones de Peso
                             </CustomTypography>
                         </Box>
-                        <CustomButton
-                            variant="contained"
-                            startIcon={<AddIcon />}
-                            onClick={onEstimateClick}
-                            sx={{ ml: 3 }}
-                        >
-                            Estimar Peso
-                        </CustomButton>
+                        <Box sx={{ display: 'flex', gap: 2 }}>
+                            {refreshData && (
+                                <CustomButton
+                                    variant="outlined"
+                                    startIcon={<RefreshIcon />}
+                                    onClick={refreshData}
+                                    disabled={loading}
+                                    sx={{ ml: 2 }}
+                                >
+                                    Actualizar
+                                </CustomButton>
+                            )}
+                            <CustomButton
+                                variant="contained"
+                                startIcon={<AddIcon />}
+                                onClick={onEstimateClick}
+                            >
+                                Estimar Peso
+                            </CustomButton>
+                        </Box>
                     </Box>
                 </Box>
 

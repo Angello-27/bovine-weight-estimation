@@ -61,18 +61,40 @@ function TransformCattleDetailData(cattle, estimations, timeline = null) {
         );
     }, [estimations, cattle?.birth_date, cattle?.birth_weight_kg]);
 
-    // Extraer imágenes de las estimaciones para la galería
+    // Extraer imágenes de las estimaciones y foto del animal para la galería
     const galleryImages = useMemo(() => {
-        if (!estimations) return [];
-        return estimations
-            .filter(est => est.frame_image_path)
-            .map(est => ({
-                id: est.id,
-                url: est.frame_image_path,
-                title: `Estimación de Peso - ${est.estimated_weight?.toFixed(1)} kg`,
-                date: est.timestamp
-            }));
-    }, [estimations]);
+        const images = [];
+        
+        // Agregar foto del animal si existe
+        if (cattle?.photo_url) {
+            images.push({
+                id: `animal-photo-${cattle.id}`,
+                url: cattle.photo_url,
+                title: `Foto del Animal - ${cattle.name || cattle.ear_tag || 'Sin nombre'}`,
+                date: cattle.registration_date || cattle.last_updated
+            });
+        }
+        
+        // Agregar imágenes de las estimaciones
+        if (estimations && Array.isArray(estimations)) {
+            const estimationImages = estimations
+                .filter(est => est.frame_image_path)
+                .map(est => ({
+                    id: est.id,
+                    url: est.frame_image_path,
+                    title: `Estimación de Peso - ${(est.estimated_weight || est.estimated_weight_kg || 0).toFixed(1)} kg`,
+                    date: est.timestamp || est.created_at
+                }));
+            images.push(...estimationImages);
+        }
+        
+        // Ordenar por fecha (más reciente primero)
+        return images.sort((a, b) => {
+            const dateA = new Date(a.date || 0);
+            const dateB = new Date(b.date || 0);
+            return dateB - dateA;
+        });
+    }, [cattle, estimations]);
 
     return {
         timelineEvents,

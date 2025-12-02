@@ -24,18 +24,38 @@ function CattleListByBreed({ cattle, selectedCattleId, onCattleSelect, breed }) 
     const theme = useTheme();
     const [searchTerm, setSearchTerm] = useState('');
 
+    // Ordenar y limitar animales: mostrar los últimos 10 (más recientes primero)
+    const sortedCattle = useMemo(() => {
+        if (!cattle || cattle.length === 0) return [];
+        
+        // Ordenar por fecha de registro o última actualización (más reciente primero)
+        const sorted = [...cattle].sort((a, b) => {
+            const dateA = new Date(a.registration_date || a.last_updated || a.created_at || 0);
+            const dateB = new Date(b.registration_date || b.last_updated || b.created_at || 0);
+            return dateB - dateA;
+        });
+        
+        // Mostrar al menos los últimos 10, pero si hay búsqueda mostrar todos los resultados
+        return sorted;
+    }, [cattle]);
+
     // Filtrar animales por término de búsqueda
     const filteredCattle = useMemo(() => {
-        if (!cattle) return [];
-        if (!searchTerm.trim()) return cattle;
-
-        const term = searchTerm.toLowerCase();
-        return cattle.filter(animal => {
-            const earTag = (animal.ear_tag || '').toLowerCase();
-            const name = (animal.name || '').toLowerCase();
-            return earTag.includes(term) || name.includes(term);
-        });
-    }, [cattle, searchTerm]);
+        if (!sortedCattle || sortedCattle.length === 0) return [];
+        
+        // Si hay búsqueda, filtrar todos los resultados
+        if (searchTerm.trim()) {
+            const term = searchTerm.toLowerCase();
+            return sortedCattle.filter(animal => {
+                const earTag = (animal.ear_tag || '').toLowerCase();
+                const name = (animal.name || '').toLowerCase();
+                return earTag.includes(term) || name.includes(term);
+            });
+        }
+        
+        // Si no hay búsqueda, mostrar los últimos 10
+        return sortedCattle.slice(0, 10);
+    }, [sortedCattle, searchTerm]);
 
     if (!cattle || cattle.length === 0) {
         return (
@@ -81,7 +101,7 @@ function CattleListByBreed({ cattle, selectedCattleId, onCattleSelect, breed }) 
                     Ganado - {breed}
                 </CustomTypography>
                 <Chip
-                    label={`${cattle.length}`}
+                    label={`${sortedCattle.length}`}
                     color="primary"
                     size="small"
                 />
@@ -122,9 +142,11 @@ function CattleListByBreed({ cattle, selectedCattleId, onCattleSelect, breed }) 
 
             {/* Contador de resultados */}
             <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 1.5 }}>
-                {filteredCattle.length === cattle.length
-                    ? `${cattle.length} animal${cattle.length !== 1 ? 'es' : ''} disponible${cattle.length !== 1 ? 's' : ''}`
-                    : `${filteredCattle.length} de ${cattle.length} animal${cattle.length !== 1 ? 'es' : ''}`
+                {searchTerm.trim() 
+                    ? `${filteredCattle.length} resultado${filteredCattle.length !== 1 ? 's' : ''} encontrado${filteredCattle.length !== 1 ? 's' : ''}`
+                    : filteredCattle.length === sortedCattle.length
+                        ? `${sortedCattle.length} animal${sortedCattle.length !== 1 ? 'es' : ''} disponible${sortedCattle.length !== 1 ? 's' : ''}`
+                        : `Mostrando ${filteredCattle.length} de ${sortedCattle.length} animal${sortedCattle.length !== 1 ? 'es' : ''} (últimos registrados)`
                 }
             </Typography>
 

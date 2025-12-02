@@ -15,6 +15,7 @@ import CustomButton from '../../components/atoms/CustomButton';
 import LinkButton from '../../components/atoms/LinkButton';
 import EstimationComparisonCard from '../../components/molecules/EstimationComparisonCard';
 import EstimationImageCard from '../../components/molecules/EstimationImageCard';
+import ImageGallery from '../../components/molecules/ImageGallery';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import PetsIcon from '@mui/icons-material/Pets';
 import MonitorWeightIcon from '@mui/icons-material/MonitorWeight';
@@ -308,6 +309,7 @@ function WeightEstimationDetailTemplate({
                                 <Tabs value={tabValue} onChange={handleTabChange}>
                                     <Tab label="Imagen" />
                                     <Tab label="Comparación" />
+                                    <Tab label="Galería" />
                                 </Tabs>
                             </Box>
 
@@ -329,6 +331,41 @@ function WeightEstimationDetailTemplate({
                                         <EstimationComparisonCard 
                                             currentEstimation={estimation}
                                             previousEstimations={previousEstimations}
+                                        />
+                                    </Grid>
+                                </Grid>
+                            )}
+
+                            {tabValue === 2 && (
+                                <Grid container spacing={3}>
+                                    <Grid item xs={12}>
+                                        <ImageGallery 
+                                            images={[
+                                                // Imagen actual de la estimación
+                                                {
+                                                    id: estimation.id,
+                                                    url: estimation.frame_image_path || estimation.image_path,
+                                                    title: `Estimación de Peso - ${(estimation.estimated_weight || estimation.estimated_weight_kg || 0).toFixed(1)} kg`,
+                                                    date: estimation.timestamp
+                                                },
+                                                // Imágenes de estimaciones anteriores
+                                                ...(previousEstimations || [])
+                                                    .filter(est => est.frame_image_path)
+                                                    .map(est => ({
+                                                        id: est.id,
+                                                        url: est.frame_image_path,
+                                                        title: `Estimación Anterior - ${(est.estimated_weight || est.estimated_weight_kg || 0).toFixed(1)} kg`,
+                                                        date: est.timestamp
+                                                    })),
+                                                // Foto del animal si existe
+                                                ...(cattle?.photo_url ? [{
+                                                    id: `animal-photo-${cattle.id}`,
+                                                    url: cattle.photo_url,
+                                                    title: `Foto del Animal - ${cattle.name || cattle.ear_tag || 'Sin nombre'}`,
+                                                    date: cattle.registration_date || cattle.last_updated
+                                                }] : [])
+                                            ]}
+                                            apiBaseUrl={apiBaseUrl}
                                         />
                                     </Grid>
                                 </Grid>
