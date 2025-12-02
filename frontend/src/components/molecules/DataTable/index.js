@@ -10,6 +10,9 @@ import TableRow from '@mui/material/TableRow';
 import TablePagination from '@mui/material/TablePagination';
 import Paper from '@mui/material/Paper';
 import Box from '@mui/material/Box';
+import TextField from '@mui/material/TextField';
+import InputAdornment from '@mui/material/InputAdornment';
+import SearchIcon from '@mui/icons-material/Search';
 import EmptyState from '../EmptyState';
 
 /**
@@ -21,6 +24,10 @@ import EmptyState from '../EmptyState';
  * @param {Object} pagination - Objeto con { page, pageSize, total } para paginación controlada
  * @param {Function} onPageChange - Callback cuando cambia la página (page, pageSize)
  * @param {Function} onPageSizeChange - Callback cuando cambia el tamaño de página
+ * @param {boolean} searchable - Si es true, muestra un campo de búsqueda integrado
+ * @param {string} searchValue - Valor del campo de búsqueda (controlado)
+ * @param {Function} onSearchChange - Callback cuando cambia el valor de búsqueda
+ * @param {string} searchPlaceholder - Placeholder del campo de búsqueda
  */
 function DataTable({ 
     columns, 
@@ -29,7 +36,11 @@ function DataTable({
     emptyMessage = 'No hay datos disponibles.',
     pagination,
     onPageChange,
-    onPageSizeChange
+    onPageSizeChange,
+    searchable = false,
+    searchValue = '',
+    onSearchChange,
+    searchPlaceholder = 'Buscar...'
 }) {
     // Si hay paginación controlada, usar esos valores
     const isControlled = pagination !== undefined;
@@ -77,6 +88,38 @@ function DataTable({
                     overflowX: 'auto'
                 }}
             >
+                {/* Barra de búsqueda integrada */}
+                {searchable && (
+                    <Box sx={{ p: 2, borderBottom: (theme) => `1px solid ${theme.palette.divider}` }}>
+                        <TextField
+                            fullWidth
+                            variant="outlined"
+                            size="small"
+                            placeholder={searchPlaceholder}
+                            value={searchValue}
+                            onChange={(e) => {
+                                if (onSearchChange) {
+                                    onSearchChange(e);
+                                }
+                            }}
+                            InputProps={{
+                                startAdornment: (
+                                    <InputAdornment position="start">
+                                        <SearchIcon color="action" fontSize="small" />
+                                    </InputAdornment>
+                                ),
+                            }}
+                            sx={{
+                                '& .MuiOutlinedInput-root': {
+                                    backgroundColor: (theme) => 
+                                        theme.palette.mode === 'dark' 
+                                            ? theme.palette.grey[800] 
+                                            : theme.palette.grey[50],
+                                }
+                            }}
+                        />
+                    </Box>
+                )}
                 <Table sx={{ minWidth: 650 }}>
                     <TableHead>
                         <TableRow>

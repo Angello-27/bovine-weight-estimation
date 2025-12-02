@@ -7,7 +7,19 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import Box from '@mui/material/Box';
 
-function CattleList({ items, onViewClick, onEditClick, onDeleteClick, pagination, onPageChange, onPageSizeChange }) {
+function CattleList({ 
+    items, 
+    onViewClick, 
+    onEditClick, 
+    onDeleteClick, 
+    pagination, 
+    onPageChange, 
+    onPageSizeChange,
+    searchable = false,
+    searchValue = '',
+    onSearchChange,
+    searchPlaceholder = 'Buscar por caravana, nombre o raza...'
+}) {
     const columns = [
         {
             label: 'Caravana',
@@ -86,6 +98,10 @@ function CattleList({ items, onViewClick, onEditClick, onDeleteClick, pagination
             pagination={pagination}
             onPageChange={onPageChange}
             onPageSizeChange={onPageSizeChange}
+            searchable={searchable}
+            searchValue={searchValue}
+            onSearchChange={onSearchChange}
+            searchPlaceholder={searchPlaceholder}
         />
     );
 }

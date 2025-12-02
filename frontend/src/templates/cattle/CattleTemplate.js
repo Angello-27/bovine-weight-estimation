@@ -5,7 +5,6 @@ import Container from "@mui/material/Container";
 import CreateCattle from '../../components/organisms/CreateCattle';
 import CattleList from '../../components/organisms/CattleList';
 import CattleFilters from '../../components/molecules/CattleFilters';
-import SearchBar from '../../components/molecules/SearchBar';
 import CustomButton from '../../components/atoms/CustomButton';
 import CustomTypography from '../../components/atoms/CustomTypography';
 import LoadingState from '../../components/molecules/LoadingState';
@@ -70,20 +69,13 @@ function CattleTemplate({
                 <LoadingState loading={loading}>
                     {!error && (
                         <Box sx={{ width: '100%' }}>
-                            {/* Barra de búsqueda */}
-                            <SearchBar
-                                value={searchQuery}
-                                onChange={handleSearchChange}
-                                placeholder="Buscar por caravana, nombre o raza..."
-                            />
-                            
                             {/* Filtros */}
                             <CattleFilters
                                 filters={filters}
                                 onChange={handleFilterChange}
                             />
                             
-                            {/* Lista de animales */}
+                            {/* Lista de animales con búsqueda integrada */}
                             <CattleList
                                 items={items}
                                 onViewClick={onViewClick}
@@ -92,6 +84,10 @@ function CattleTemplate({
                                 pagination={pagination}
                                 onPageChange={onPageChange}
                                 onPageSizeChange={onPageSizeChange}
+                                searchable={true}
+                                searchValue={searchQuery}
+                                onSearchChange={handleSearchChange}
+                                searchPlaceholder="Buscar por caravana, nombre o raza..."
                             />
                         </Box>
                     )}
