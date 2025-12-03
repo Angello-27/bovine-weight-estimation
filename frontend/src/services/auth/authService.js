@@ -7,7 +7,7 @@ import apiClient from '../../api/axiosClient';
  */
 const loginUser = async (credentials) => {
     try {
-        const response = await apiClient.post('/auth/login', credentials);
+        const response = await apiClient.post('/api/v1/auth/login', credentials);
         const userData = response.data;
 
         // Guardar token y datos del usuario en localStorage
