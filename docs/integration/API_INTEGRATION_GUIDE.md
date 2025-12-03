@@ -6,7 +6,7 @@
 
 **Versión API**: `v1`
 
-**Autenticación**: JWT Bearer Token (excepto `/auth/login`)
+**Autenticación**: JWT Bearer Token (excepto `/api/v1/auth/login`)
 
 ---
 
@@ -23,7 +23,7 @@
 
 ## 🔐 Autenticación (Ambos)
 
-### POST `/auth/login`
+### POST `/api/v1/auth/login`
 
 **Descripción**: Autentica un usuario y retorna un token JWT.
 
@@ -1165,7 +1165,7 @@ Todas las respuestas de error siguen este formato:
 
 ### Cómo usar el token
 
-Después de hacer login en `/auth/login`, guarda el `access_token` y úsalo en todas las requests que requieran autenticación:
+Después de hacer login en `/api/v1/auth/login`, guarda el `access_token` y úsalo en todas las requests que requieran autenticación:
 
 ```javascript
 // Ejemplo en JavaScript/TypeScript

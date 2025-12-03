@@ -318,7 +318,7 @@ src/
 import apiClient from '../../api/axiosClient';
 
 export const login = async (username, password) => {
-  const response = await apiClient.post('/auth/login', {
+  const response = await apiClient.post('/api/v1/auth/login', {
     username,
     password,
   });
@@ -967,7 +967,7 @@ const ProtectedRoute = ({ children, requiredRoles = [] }) => {
 ### ✅ Endpoints Implementados (100% de cobertura para Web)
 
 #### Autenticación
-- ✅ POST `/auth/login` - Implementado en `authService.js`
+- ✅ POST `/api/v1/auth/login` - Implementado en `authService.js`
 
 #### Machine Learning (Web)
 - ✅ POST `/api/v1/ml/estimate` - Implementado en `estimateWeightFromImage.js`
@@ -991,25 +991,25 @@ const ProtectedRoute = ({ children, requiredRoles = [] }) => {
 - ✅ DELETE `/api/v1/weighings/{weighing_id}` - Implementado en `deleteWeightEstimation.js`
 
 #### Gestión de Fincas
-- ✅ POST `/farm` - Implementado en `createFarm.js`
-- ✅ GET `/farm` - Implementado en `getAllFarms.js` y `getFarmsByCriteria.js`
-- ✅ GET `/farm/{farm_id}` - Implementado en `getFarmById.js`
-- ✅ PUT `/farm/{farm_id}` - Implementado en `updateFarm.js`
-- ✅ DELETE `/farm/{farm_id}` - Implementado en `deleteFarm.js`
+- ✅ POST `/api/v1/farms` - Implementado en `createFarm.js`
+- ✅ GET `/api/v1/farms` - Implementado en `getAllFarms.js` y `getFarmsByCriteria.js`
+- ✅ GET `/api/v1/farms/{farm_id}` - Implementado en `getFarmById.js`
+- ✅ PUT `/api/v1/farms/{farm_id}` - Implementado en `updateFarm.js`
+- ✅ DELETE `/api/v1/farms/{farm_id}` - Implementado en `deleteFarm.js`
 
 #### Gestión de Usuarios
-- ✅ POST `/user` - Implementado en `createUser.js`
-- ✅ GET `/user` - Implementado en `getAllUsers.js` y `getUsersByCriteria.js`
-- ✅ GET `/user/{user_id}` - Implementado en `getUserById.js`
-- ✅ PUT `/user/{user_id}` - Implementado en `updateUser.js`
-- ✅ DELETE `/user/{user_id}` - Implementado en `deleteUser.js`
+- ✅ POST `/api/v1/users` - Implementado en `createUser.js`
+- ✅ GET `/api/v1/users` - Implementado en `getAllUsers.js` y `getUsersByCriteria.js`
+- ✅ GET `/api/v1/users/{user_id}` - Implementado en `getUserById.js`
+- ✅ PUT `/api/v1/users/{user_id}` - Implementado en `updateUser.js`
+- ✅ DELETE `/api/v1/users/{user_id}` - Implementado en `deleteUser.js`
 
 #### Gestión de Roles
-- ✅ POST `/role` - Implementado en `createRole.js`
-- ✅ GET `/role` - Implementado en `getAllRoles.js`
-- ✅ GET `/role/{role_id}` - Implementado en `getRoleById.js`
-- ✅ PUT `/role/{role_id}` - Implementado en `updateRole.js`
-- ✅ DELETE `/role/{role_id}` - Implementado en `deleteRole.js`
+- ✅ POST `/api/v1/roles` - Implementado en `createRole.js`
+- ✅ GET `/api/v1/roles` - Implementado en `getAllRoles.js`
+- ✅ GET `/api/v1/roles/{role_id}` - Implementado en `getRoleById.js`
+- ✅ PUT `/api/v1/roles/{role_id}` - Implementado en `updateRole.js`
+- ✅ DELETE `/api/v1/roles/{role_id}` - Implementado en `deleteRole.js`
 
 #### Alertas y Cronograma
 - ✅ POST `/api/v1/alerts` - Implementado en `createAlert.js`
