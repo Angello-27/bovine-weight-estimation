@@ -4,6 +4,7 @@ import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import estimateWeightFromImage from '../../services/weight-estimations/estimateWeightFromImage';
 import { clearCache } from '../../utils/cache/weightEstimationsCache';
+import { clearDashboardCache } from '../../utils/cache/dashboardCache';
 
 function EstimateWeightFromImage(initialAnimalId = null, allCattle = []) {
     const navigate = useNavigate();
@@ -112,6 +113,7 @@ function EstimateWeightFromImage(initialAnimalId = null, allCattle = []) {
         // El endpoint /api/v1/ml/estimate ya guarda automáticamente, así que si tiene ID, solo redirigir
         if (estimationResult.id) {
             clearCache();
+            clearDashboardCache(); // Invalidar también el caché del dashboard
             navigate(`/weight-estimations/${estimationResult.id}`);
             return;
         }
@@ -135,6 +137,7 @@ function EstimateWeightFromImage(initialAnimalId = null, allCattle = []) {
 
             // Invalidar caché
             clearCache();
+            clearDashboardCache(); // Invalidar también el caché del dashboard
 
             // Redirigir al detalle de la estimación guardada
             if (savedEstimation.id) {

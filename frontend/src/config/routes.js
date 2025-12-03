@@ -12,7 +12,7 @@ import { appRoutes } from './routesConfig';
 // Importa tus componentes y vistas
 import ErrorView from '../views/ErrorView';
 import LoginView from '../views/LoginView';
-import DashboardView from '../views/DashboardView';
+import DashboardView from '../views/dashboard/DashboardView';
 import CattleView from '../views/cattle/CattleView';
 import WeightEstimationsView from '../views/weight-estimations/WeightEstimationsView';
 import SyncStatusView from '../views/SyncStatusView';

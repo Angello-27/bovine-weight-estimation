@@ -11,6 +11,7 @@ import {
     addEstimationToCache,
     removeEstimationFromCache
 } from './weightEstimationsCache';
+import { clearDashboardCache } from './dashboardCache';
 
 /**
  * Hook para invalidar caché de estimaciones
@@ -20,9 +21,11 @@ export const useWeightEstimationsCache = () => {
     /**
      * Invalida completamente el caché
      * Útil cuando se crea una nueva estimación
+     * También invalida el caché del dashboard ya que las estadísticas dependen de las estimaciones
      */
     const invalidateCache = useCallback(() => {
         clearCache();
+        clearDashboardCache(); // Invalidar también el caché del dashboard
     }, []);
 
     /**

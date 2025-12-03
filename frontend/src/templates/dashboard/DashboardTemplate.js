@@ -2,28 +2,45 @@ import Grid from "@mui/material/Grid";
 import Container from "@mui/material/Container";
 import Box from "@mui/material/Box";
 import { useNavigate } from 'react-router-dom';
-import CustomTypography from '../components/atoms/CustomTypography';
-import CustomButton from '../components/atoms/CustomButton';
-import StatisticsCards from '../components/organisms/StatisticsCards';
-import LoadingState from '../components/molecules/LoadingState';
-import ErrorState from '../components/molecules/ErrorState';
-import PageHeaderCentered from '../components/molecules/PageHeaderCentered';
-import Card from '../components/atoms/Card';
+import CustomTypography from '../../components/atoms/CustomTypography';
+import CustomButton from '../../components/atoms/CustomButton';
+import StatisticsCards from '../../components/organisms/StatisticsCards';
+import LoadingState from '../../components/molecules/LoadingState';
+import ErrorState from '../../components/molecules/ErrorState';
+import PageHeaderCentered from '../../components/molecules/PageHeaderCentered';
+import Card from '../../components/atoms/Card';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import PetsIcon from '@mui/icons-material/Pets';
 import ScaleIcon from '@mui/icons-material/Scale';
 import DescriptionIcon from '@mui/icons-material/Description';
+import RefreshIcon from '@mui/icons-material/Refresh';
 
-function DashboardTemplate({ stats, loading, error }) {
+function DashboardTemplate({ stats, loading, error, refreshStats }) {
     const navigate = useNavigate();
 
     return (
         <Box sx={{ width: '100%' }}>
             <Container maxWidth="xl" sx={{ py: 3, px: { xs: 2, sm: 3 } }}>
-                <PageHeaderCentered
-                    title="Dashboard"
-                    description="Panel de control y estadísticas del sistema"
-                />
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                    <Box sx={{ flex: 1 }}>
+                        <CustomTypography customVariant="pageTitle" sx={{ mb: 1 }}>
+                            Dashboard
+                        </CustomTypography>
+                        <CustomTypography variant="body2" color="text.secondary">
+                            Panel de control y estadísticas del sistema
+                        </CustomTypography>
+                    </Box>
+                    {refreshStats && (
+                        <CustomButton
+                            variant="outlined"
+                            startIcon={<RefreshIcon />}
+                            onClick={refreshStats}
+                            disabled={loading}
+                        >
+                            Actualizar
+                        </CustomButton>
+                    )}
+                </Box>
 
                 <ErrorState error={error} />
 

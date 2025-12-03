@@ -4,6 +4,11 @@ import { useState, useEffect } from 'react';
 import { getAnimalsByCriteria } from '../../services/cattle';
 import { getWeightEstimationsByCriteria } from '../../services/weight-estimations/getWeightEstimationsByCriteria';
 import { getCurrentUser } from '../../services/auth/authService';
+import {
+    getCachedDashboardStats,
+    setCachedDashboardStats,
+    clearDashboardCache
+} from '../../utils/cache/dashboardCache';
 
 function DashboardStatsContainer() {
 
@@ -16,10 +21,19 @@ function DashboardStatsContainer() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    useEffect(() => {
-        async function fetchStats() {
-            try {
-                setError(null);
+    const fetchStats = async (forceRefresh = false) => {
+        try {
+            setError(null);
+
+            // Intentar obtener del caché primero (si no es refresh forzado)
+            if (!forceRefresh) {
+                const cached = getCachedDashboardStats();
+                if (cached && typeof cached === 'object') {
+                    setStats(cached);
+                    setLoading(false);
+                    return;
+                }
+            }
 
                 // Obtener farm_id del usuario logueado
                 const currentUser = getCurrentUser();
@@ -146,26 +160,38 @@ function DashboardStatsContainer() {
 
 
 
-                setStats({
-                    totalCattle,
-                    averageWeight: Math.round(averageWeight * 10) / 10, // Redondear a 1 decimal
-                    totalBreeds,
-                    totalEstimations,
-                });
-            } catch (err) {
-                // Solo establecer error si es un error crítico
-                const errorMessage = err.response?.data?.detail || err.message || 'Error al obtener estadísticas';
-                setError(errorMessage);
-                console.error('Error crítico al obtener estadísticas:', err);
-            } finally {
-                setLoading(false);
-            }
-        }
+            const finalStats = {
+                totalCattle,
+                averageWeight: Math.round(averageWeight * 10) / 10, // Redondear a 1 decimal
+                totalBreeds,
+                totalEstimations,
+            };
 
+            setStats(finalStats);
+            
+            // Guardar en caché
+            setCachedDashboardStats(finalStats);
+        } catch (err) {
+            // Solo establecer error si es un error crítico
+            const errorMessage = err.response?.data?.detail || err.message || 'Error al obtener estadísticas';
+            setError(errorMessage);
+            console.error('Error crítico al obtener estadísticas:', err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
         fetchStats();
     }, []);
 
-    return { stats, loading, error };
+    // Función para refrescar datos (invalidar caché y recargar)
+    const refreshStats = () => {
+        clearDashboardCache();
+        fetchStats(true);
+    };
+
+    return { stats, loading, error, refreshStats };
 }
 
 export default DashboardStatsContainer;

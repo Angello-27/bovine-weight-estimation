@@ -15,6 +15,7 @@ from app.api.routes import (
     farm_router,
     ml_router,
     reports_router,
+    resources_router,
     role_router,
     sync_router,
     user_router,
@@ -53,3 +54,4 @@ def setup_routes(app: FastAPI) -> None:
     app.include_router(sync_router)  # US-005: Sincronización Offline
     app.include_router(alert_router)  # Alertas y cronograma
     app.include_router(reports_router)  # Reportes (PDF, CSV, Excel)
+    app.include_router(resources_router)  # Recursos estáticos (imágenes)
