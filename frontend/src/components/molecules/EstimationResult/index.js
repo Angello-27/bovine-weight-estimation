@@ -74,11 +74,37 @@ function EstimationResult({ result, loading, onSave, onReset, showActions = true
                     </Box>
                 </Grid>
                 
+                {result.method && (
+                    <Grid item xs={12} md={6}>
+                        <Box>
+                            <CustomTypography variant="body2" mb={1}>
+                                Método de IA
+                            </CustomTypography>
+                            <Chip
+                                label={result.method === 'strategy_based' ? 'Estrategia Híbrida' : result.method === 'deep_learning_tflite' ? 'Deep Learning' : result.method}
+                                color="secondary"
+                                variant="outlined"
+                                sx={{ textTransform: 'capitalize' }}
+                            />
+                            {result.ml_model_version && (
+                                <CustomTypography variant="caption" color="text.secondary" display="block" mt={0.5}>
+                                    Modelo: {result.ml_model_version}
+                                </CustomTypography>
+                            )}
+                        </Box>
+                    </Grid>
+                )}
+                
                 {result.processing_time_ms && (
-                    <Grid item xs={12}>
-                        <CustomTypography variant="body2" color="text.secondary">
-                            Tiempo de procesamiento: {(result.processing_time_ms / 1000).toFixed(2)} segundos
-                        </CustomTypography>
+                    <Grid item xs={12} md={6}>
+                        <Box>
+                            <CustomTypography variant="body2" mb={1}>
+                                Tiempo de Procesamiento
+                            </CustomTypography>
+                            <CustomTypography variant="body2" color="text.secondary">
+                                {(result.processing_time_ms / 1000).toFixed(2)} segundos
+                            </CustomTypography>
+                        </Box>
                     </Grid>
                 )}
             </Grid>
@@ -90,7 +116,7 @@ function EstimationResult({ result, loading, onSave, onReset, showActions = true
                         onClick={onSave}
                         disabled={loading}
                     >
-                        Guardar Estimación
+                        {result.id ? 'Ver Detalle' : 'Guardar Estimación'}
                     </CustomButton>
                     <CustomButton
                         variant="outlined"

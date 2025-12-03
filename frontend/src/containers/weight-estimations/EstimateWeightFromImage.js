@@ -3,7 +3,6 @@
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import estimateWeightFromImage from '../../services/weight-estimations/estimateWeightFromImage';
-import createWeightEstimation from '../../services/weight-estimations/createWeightEstimation';
 import { clearCache } from '../../utils/cache/weightEstimationsCache';
 
 function EstimateWeightFromImage(initialAnimalId = null, allCattle = []) {
@@ -110,29 +109,40 @@ function EstimateWeightFromImage(initialAnimalId = null, allCattle = []) {
             return;
         }
 
+        // El endpoint /api/v1/ml/estimate ya guarda automáticamente, así que si tiene ID, solo redirigir
+        if (estimationResult.id) {
+            clearCache();
+            navigate(`/weight-estimations/${estimationResult.id}`);
+            return;
+        }
+
+        // Si por alguna razón no tiene ID, guardar nuevamente con la imagen
+        if (!formData.image) {
+            setError('No hay imagen para guardar.');
+            return;
+        }
+
         setLoading(true);
         setError(null);
 
         try {
-            const estimationData = {
-                animal_id: formData.cattle_id || null,
-                breed: estimationResult.breed || formData.breed,
-                estimated_weight_kg: estimationResult.estimated_weight,
-                confidence: estimationResult.confidence_score,
-                frame_image_path: estimationResult.image_path || '',
-                method: 'web_upload',
-                ml_model_version: estimationResult.model_version || '1.0.0',
-                processing_time_ms: estimationResult.processing_time_ms || 0
-            };
+            // Usar el endpoint /api/v1/ml/estimate que guarda automáticamente con la imagen
+            const savedEstimation = await estimateWeightFromImage(
+                formData.image,
+                estimationResult.breed || formData.breed,
+                formData.cattle_id || null
+            );
 
-            const savedEstimation = await createWeightEstimation(estimationData);
-
-            // Invalidar caché para forzar recarga en la lista
-            // La lista recargará automáticamente cuando se navegue a ella
+            // Invalidar caché
             clearCache();
 
-            // Redirigir a la lista de estimaciones (recargará desde servidor)
-            navigate('/weight-estimations');
+            // Redirigir al detalle de la estimación guardada
+            if (savedEstimation.id) {
+                navigate(`/weight-estimations/${savedEstimation.id}`);
+            } else {
+                // Si no tiene ID, redirigir a la lista
+                navigate('/weight-estimations');
+            }
         } catch (err) {
             setError(err.message || 'Error al guardar la estimación. Por favor intente de nuevo.');
         } finally {

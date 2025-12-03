@@ -189,48 +189,59 @@ function CattleListByBreed({ cattle, selectedCattleId, onCattleSelect, breed }) 
                                 <ListItem
                                     key={animal.id}
                                     disablePadding
-                                    sx={{ mb: 1 }}
                                 >
                                     <ListItemButton
                                         onClick={() => onCattleSelect(animal.id)}
                                         selected={isSelected}
                                         sx={{
-                                            borderRadius: 2,
+                                            borderRadius: 1.5,
                                             border: isSelected
                                                 ? `2px solid ${theme.palette.primary.main}`
-                                                : `1px solid ${theme.palette.grey[200]}`,
+                                                : `1px solid ${theme.palette.divider}`,
+                                            backgroundColor: isSelected
+                                                ? theme.palette.mode === 'dark' 
+                                                    ? `${theme.palette.primary.main}20`
+                                                    : `${theme.palette.primary.main}08`
+                                                : 'transparent',
                                             transition: 'all 0.2s ease',
                                             '&:hover': {
                                                 borderColor: theme.palette.primary.main,
-                                                transform: 'translateX(4px)',
+                                                backgroundColor: theme.palette.mode === 'dark'
+                                                    ? `${theme.palette.primary.main}15`
+                                                    : `${theme.palette.primary.main}12`,
+                                                transform: 'translateY(-1px)',
+                                                boxShadow: theme.shadows[2],
                                             },
                                             px: 2,
-                                            py: 1.5,
+                                            py: 4,
+                                            mb: 1,
                                         }}
                                     >
                                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, width: '100%' }}>
-                                            {/* Icono */}
+                                            {/* Icono con fondo - Color primario atenuado, icono texto primario */}
                                             <Box
                                                 sx={{
                                                     display: 'flex',
                                                     alignItems: 'center',
                                                     justifyContent: 'center',
-                                                    width: 36,
-                                                    height: 36,
+                                                    width: 40,
+                                                    height: 40,
                                                     borderRadius: 1.5,
+                                                    backgroundColor: `${theme.palette.primary.main}35`,
                                                     flexShrink: 0,
+                                                    transition: 'all 0.2s ease',
                                                 }}
                                             >
                                                 <PetsIcon
                                                     sx={{
                                                         fontSize: 20,
-                                                        color: theme.palette.primary.main
+                                                        color: theme.palette.text.primary
                                                     }}
                                                 />
                                             </Box>
 
                                             {/* Información */}
-                                            <Box sx={{ flex: 1, minWidth: 0 }}>
+                                            <Box sx={{ flex: 1, minWidth: 0, mr: 1 }}>
                                                 <Typography
                                                     variant="body2"
                                                     fontWeight={600}
@@ -241,6 +252,7 @@ function CattleListByBreed({ cattle, selectedCattleId, onCattleSelect, breed }) 
                                                         overflow: 'hidden',
                                                         textOverflow: 'ellipsis',
                                                         whiteSpace: 'nowrap',
+                                                        mb: 0.25,
                                                     }}
                                                 >
                                                     {animal.ear_tag || 'Sin caravana'}
@@ -250,10 +262,10 @@ function CattleListByBreed({ cattle, selectedCattleId, onCattleSelect, breed }) 
                                                         variant="caption"
                                                         color="text.secondary"
                                                         sx={{
-                                                            display: 'block',
                                                             overflow: 'hidden',
                                                             textOverflow: 'ellipsis',
                                                             whiteSpace: 'nowrap',
+                                                            display: 'block',
                                                         }}
                                                     >
                                                         {animal.name}
@@ -261,38 +273,39 @@ function CattleListByBreed({ cattle, selectedCattleId, onCattleSelect, breed }) 
                                                 )}
                                             </Box>
 
-                                            {/* Género */}
-                                            <Box
-                                                sx={{
-                                                    display: 'flex',
-                                                    alignItems: 'center',
-                                                    justifyContent: 'center',
-                                                    width: 28,
-                                                    height: 28,
-                                                    borderRadius: '50%',
-                                                    backgroundColor: isMale
-                                                        ? theme.palette.info.light
-                                                        : theme.palette.secondary.light,
-                                                    flexShrink: 0,
-                                                }}
-                                            >
-                                                {isMale ? (
-                                                    <MaleIcon sx={{ fontSize: 16, color: theme.palette.info.dark }} />
-                                                ) : (
-                                                    <FemaleIcon sx={{ fontSize: 16, color: theme.palette.secondary.dark }} />
+                                            {/* Género y selección */}
+                                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexShrink: 0 }}>
+                                                {/* Género */}
+                                                <Box
+                                                    sx={{
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        justifyContent: 'center',
+                                                        width: 32,
+                                                        height: 32,
+                                                        borderRadius: '50%',
+                                                        backgroundColor: isMale
+                                                            ? theme.palette.info.light
+                                                            : theme.palette.secondary.light,
+                                                    }}
+                                                >
+                                                    {isMale ? (
+                                                        <MaleIcon sx={{ fontSize: 16, color: theme.palette.info.dark }} />
+                                                    ) : (
+                                                        <FemaleIcon sx={{ fontSize: 16, color: theme.palette.secondary.dark }} />
+                                                    )}
+                                                </Box>
+
+                                                {/* Indicador de selección */}
+                                                {isSelected && (
+                                                    <CheckCircleIcon
+                                                        sx={{
+                                                            fontSize: 20,
+                                                            color: theme.palette.primary.main,
+                                                        }}
+                                                    />
                                                 )}
                                             </Box>
-
-                                            {/* Indicador de selección */}
-                                            {isSelected && (
-                                                <CheckCircleIcon
-                                                    sx={{
-                                                        fontSize: 20,
-                                                        color: theme.palette.primary.main,
-                                                        flexShrink: 0,
-                                                    }}
-                                                />
-                                            )}
                                         </Box>
                                     </ListItemButton>
                                 </ListItem>
