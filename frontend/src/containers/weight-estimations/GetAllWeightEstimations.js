@@ -44,7 +44,7 @@ function GetAllWeightEstimations() {
             let allEstimations = [];
             let page = 1;
             let hasMore = true;
-            const pageSize = 100;
+            const pageSize = 500;
 
             while (hasMore) {
                 try {

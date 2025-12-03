@@ -15,7 +15,7 @@ const createRole = async (roleData) => {
             priority: roleData.priority || 'Invitado',
             permissions: roleData.permissions || [],
         };
-        const response = await apiClient.post('/role', payload);
+        const response = await apiClient.post('/api/v1/roles', payload);
         return response.data;
     } catch (error) {
         // Extraer mensaje del backend si está disponible

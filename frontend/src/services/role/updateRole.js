@@ -17,7 +17,7 @@ const updateRole = async (roleId, roleData) => {
         if (roleData.priority !== undefined) payload.priority = roleData.priority;
         if (roleData.permissions !== undefined) payload.permissions = roleData.permissions || [];
         
-        const response = await apiClient.put(`/role/${roleId}`, payload);
+        const response = await apiClient.put(`/api/v1/roles/${roleId}`, payload);
         return response.data;
     } catch (error) {
         // Extraer mensaje del backend si está disponible

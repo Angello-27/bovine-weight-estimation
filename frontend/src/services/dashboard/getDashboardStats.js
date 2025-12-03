@@ -1,15 +1,15 @@
-// frontend/src/services/role/deleteRole.js
+// frontend/src/services/dashboard/getDashboardStats.js
 
 import apiClient from '../../api/axiosClient';
 
 /**
- * Elimina un rol
- * @param {string} roleId - ID del rol a eliminar
- * @returns {Promise<void>}
+ * Obtiene las estadísticas del dashboard
+ * @returns {Promise<Object>} Objeto con totalCattle, averageWeight, totalBreeds, totalEstimations
  */
-const deleteRole = async (roleId) => {
+const getDashboardStats = async () => {
     try {
-        await apiClient.delete(`/api/v1/roles/${roleId}`);
+        const response = await apiClient.get('/api/v1/dashboard/stats');
+        return response.data;
     } catch (error) {
         // Extraer mensaje del backend si está disponible
         let backendMessage = null;
@@ -25,15 +25,15 @@ const deleteRole = async (roleId) => {
         }
         
         if (error.response && error.response.status === 400) {
-            const message = backendMessage || 'No se puede eliminar el rol.';
+            const message = backendMessage || 'El usuario no tiene una finca asignada.';
             throw new Error(message);
-        } else if (error.response && error.response.status === 404) {
-            throw new Error('Recurso no encontrado.');
+        } else if (error.response && error.response.status === 401) {
+            throw new Error('No autenticado. Por favor inicia sesión.');
         } else {
-            throw new Error(backendMessage || 'Ocurrió un error. Por favor intenta de nuevo.');
+            throw new Error(backendMessage || 'Error al obtener estadísticas del dashboard.');
         }
     }
 };
 
-export { deleteRole };
+export { getDashboardStats };
 

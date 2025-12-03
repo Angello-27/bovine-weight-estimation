@@ -15,7 +15,7 @@ const getUsersByCriteria = async (filters = {}, pagination = {}) => {
             ...filters,
         };
         
-        const response = await apiClient.get('/user/by-criteria', { params });
+        const response = await apiClient.get('/api/v1/users/by-criteria', { params });
         return response.data;
     } catch (error) {
         // Extraer mensaje del backend si está disponible

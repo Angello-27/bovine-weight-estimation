@@ -9,7 +9,7 @@ import apiClient from '../../api/axiosClient';
  */
 const getUserById = async (userId) => {
     try {
-        const response = await apiClient.get(`/user/${userId}`);
+        const response = await apiClient.get(`/api/v1/users/${userId}`);
         return response.data;
     } catch (error) {
         // Extraer mensaje del backend si está disponible
