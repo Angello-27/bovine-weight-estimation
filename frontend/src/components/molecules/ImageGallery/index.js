@@ -48,8 +48,29 @@ function ImageGallery({ images, apiBaseUrl }) {
             return imagePath;
         }
         
-        // Obtener URL base de la API
-        const baseUrl = apiBaseUrl || import.meta.env.REACT_APP_API_URL || import.meta.env.VITE_API_URL || '';
+        // Obtener URL base de la API con detección automática
+        // Usar la misma lógica que axiosClient para garantizar consistencia
+        let baseUrl = apiBaseUrl;
+        if (!baseUrl) {
+            // Intentar desde variables de entorno (misma lógica que axiosClient)
+            baseUrl = import.meta.env.VITE_API_URL || import.meta.env.REACT_APP_API_URL;
+            
+            // Si no hay variable de entorno, detectar automáticamente desde window.location
+            if (!baseUrl && typeof window !== 'undefined') {
+                const { protocol, hostname, port } = window.location;
+                // Si estamos en producción (no localhost), usar el mismo dominio
+                // Esto asume que el backend está en el mismo dominio que el frontend
+                if (hostname !== 'localhost' && hostname !== '127.0.0.1') {
+                    // En producción, generalmente no hay puerto en la URL (puerto 80/443)
+                    baseUrl = port && port !== '80' && port !== '443'
+                        ? `${protocol}//${hostname}:${port}`
+                        : `${protocol}//${hostname}`;
+                } else {
+                    // Desarrollo local
+                    baseUrl = 'http://localhost:8000';
+                }
+            }
+        }
         
         // Si el path ya incluye /uploads/, usarlo directamente
         // Si no, agregar /uploads/ antes del path
@@ -67,7 +88,7 @@ function ImageGallery({ images, apiBaseUrl }) {
         }
         
         // Construir URL completa
-        const cleanBaseUrl = baseUrl.replace(/\/$/, ''); // Remover barra final si existe
+        const cleanBaseUrl = (baseUrl || '').replace(/\/$/, ''); // Remover barra final si existe
         return `${cleanBaseUrl}${finalPath}`;
     };
 

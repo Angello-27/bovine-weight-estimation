@@ -25,9 +25,59 @@ function EstimationImage({ imagePath, apiBaseUrl }) {
     }
 
     // Construir URL completa de la imagen
-    const imageUrl = imagePath.startsWith('http') 
-        ? imagePath 
-        : `${apiBaseUrl || import.meta.env.REACT_APP_API_URL || ''}${imagePath.startsWith('/') ? '' : '/'}${imagePath}`;
+    const getImageUrl = (path) => {
+        if (!path) return null;
+        
+        // Si ya es una URL completa, retornarla tal cual
+        if (path.startsWith('http://') || path.startsWith('https://')) {
+            return path;
+        }
+        
+        // Obtener URL base de la API con detección automática
+        // Usar la misma lógica que axiosClient para garantizar consistencia
+        let baseUrl = apiBaseUrl;
+        if (!baseUrl) {
+            // Intentar desde variables de entorno (misma lógica que axiosClient)
+            baseUrl = import.meta.env.VITE_API_URL || import.meta.env.REACT_APP_API_URL;
+            
+            // Si no hay variable de entorno, detectar automáticamente desde window.location
+            if (!baseUrl && typeof window !== 'undefined') {
+                const { protocol, hostname, port } = window.location;
+                // Si estamos en producción (no localhost), usar el mismo dominio
+                // Esto asume que el backend está en el mismo dominio que el frontend
+                if (hostname !== 'localhost' && hostname !== '127.0.0.1') {
+                    // En producción, generalmente no hay puerto en la URL (puerto 80/443)
+                    baseUrl = port && port !== '80' && port !== '443'
+                        ? `${protocol}//${hostname}:${port}`
+                        : `${protocol}//${hostname}`;
+                } else {
+                    // Desarrollo local
+                    baseUrl = 'http://localhost:8000';
+                }
+            }
+        }
+        
+        // Si el path ya incluye /uploads/, usarlo directamente
+        // Si no, agregar /uploads/ antes del path
+        let finalPath = path;
+        if (!finalPath.startsWith('/uploads/') && !finalPath.startsWith('uploads/')) {
+            // Si el path es relativo (ej: "brahman/animal_123.jpg"), agregar /uploads/
+            if (!finalPath.startsWith('/')) {
+                finalPath = `/uploads/${finalPath}`;
+            } else {
+                finalPath = `/uploads${finalPath}`;
+            }
+        } else if (finalPath.startsWith('uploads/')) {
+            // Si empieza con "uploads/" sin barra inicial, agregarla
+            finalPath = `/${finalPath}`;
+        }
+        
+        // Construir URL completa
+        const cleanBaseUrl = (baseUrl || '').replace(/\/$/, ''); // Remover barra final si existe
+        return `${cleanBaseUrl}${finalPath}`;
+    };
+    
+    const imageUrl = getImageUrl(imagePath);
 
     return (
         <Card>
