@@ -25,6 +25,7 @@ import RoleView from '../views/role/RoleView';
 import RoleDetailView from '../views/role/RoleDetailView';
 import FarmView from '../views/farm/FarmView';
 import FarmDetailView from '../views/farm/FarmDetailView';
+import ProfileView from '../views/profile/ProfileView';
 // import StatisticsView from '../views/StatisticsView';
 
 // Mapeo de paths a componentes
@@ -39,6 +40,7 @@ const routeComponents = {
     '/users': UserView,
     '/roles': RoleView,
     '/farms': FarmView,
+    '/profile': ProfileView,
     // '/statistics': StatisticsView,
 };
 
@@ -49,6 +51,16 @@ function AppRoutes() {
                 {/* Rutas públicas */}
                 <Route path="/login" element={<LoginView />} />
                 <Route path="/" element={<Navigate to="/home" replace />} />
+                
+                {/* Ruta de perfil (accesible para todos los usuarios autenticados) */}
+                <Route
+                    path="/profile"
+                    element={
+                        <ProtectedRoute requiredRoles={['Administrador', 'Usuario', 'Invitado']}>
+                            <ProfileView />
+                        </ProtectedRoute>
+                    }
+                />
 
                 {/* Rutas dinámicas desde configuración centralizada */}
                 {appRoutes.map((routeConfig) => {

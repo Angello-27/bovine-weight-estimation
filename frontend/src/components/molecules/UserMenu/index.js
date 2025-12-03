@@ -11,6 +11,7 @@
  */
 
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import Avatar from '@mui/material/Avatar';
 import Menu from '@mui/material/Menu';
 import Divider from '@mui/material/Divider';
@@ -24,6 +25,7 @@ import { useUserMenu } from './useUserMenu';
 import UserMenuItem from './UserMenuItem';
 
 function UserMenu() {
+    const navigate = useNavigate();
     const {
         displayName,
         userRole,
@@ -108,7 +110,10 @@ function UserMenu() {
                 <UserMenuItem
                     icon={<PersonIcon fontSize="small" />}
                     text="Mi Perfil"
-                    onClick={handleClose}
+                    onClick={() => {
+                        handleClose();
+                        navigate('/profile');
+                    }}
                 />
                 <UserMenuItem
                     icon={<SettingsIcon fontSize="small" />}
