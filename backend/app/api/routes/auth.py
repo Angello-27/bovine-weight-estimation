@@ -16,9 +16,9 @@ from ...schemas.auth_schemas import LoginRequest, LoginResponse
 from ..mappers import AuthMapper
 from ..utils import handle_domain_exceptions
 
-# Router con prefijo /auth
+# Router con prefijo /api/v1/auth
 router = APIRouter(
-    prefix="/auth",
+    prefix="/api/v1/auth",
     tags=["Autenticación"],
     responses={
         401: {"description": "Credenciales inválidas"},

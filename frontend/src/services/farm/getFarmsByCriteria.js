@@ -14,7 +14,7 @@ const getFarmsByCriteria = async (filters = {}, pagination = {}) => {
             ...pagination,
             ...filters,
         };
-        const response = await apiClient.get('/farm/by-criteria', { params });
+        const response = await apiClient.get('/api/v1/farms/by-criteria', { params });
         return response.data;
     } catch (error) {
         // Extraer mensaje del backend si está disponible

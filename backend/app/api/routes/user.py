@@ -36,9 +36,9 @@ from ...schemas.user_schemas import (
 from ..mappers import UserMapper
 from ..utils import handle_domain_exceptions
 
-# Router con prefijo /user
+# Router con prefijo /api/v1/users
 router = APIRouter(
-    prefix="/user",
+    prefix="/api/v1/users",
     tags=["Usuarios"],
     responses={
         404: {"description": "Usuario no encontrado"},

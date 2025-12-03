@@ -35,9 +35,9 @@ from ...schemas.farm_schemas import (
 from ..mappers import FarmMapper
 from ..utils import handle_domain_exceptions
 
-# Router con prefijo /farm
+# Router con prefijo /api/v1/farms
 router = APIRouter(
-    prefix="/farm",
+    prefix="/api/v1/farms",
     tags=["Fincas"],
     responses={
         404: {"description": "Finca no encontrada"},

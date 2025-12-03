@@ -9,7 +9,7 @@ import apiClient from '../../api/axiosClient';
  */
 const getFarmById = async (farmId) => {
     try {
-        const response = await apiClient.get(`/farm/${farmId}`);
+        const response = await apiClient.get(`/api/v1/farms/${farmId}`);
         return response.data;
     } catch (error) {
         if (error.response && error.response.status === 404) {

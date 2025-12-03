@@ -24,7 +24,7 @@ const updateUser = async (userId, userData) => {
             payload.password = userData.password;
         }
         
-        const response = await apiClient.put(`/user/${userId}`, payload);
+        const response = await apiClient.put(`/api/v1/users/${userId}`, payload);
         return response.data;
     } catch (error) {
         // Extraer mensaje del backend si está disponible

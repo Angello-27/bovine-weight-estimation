@@ -101,7 +101,9 @@ async def get_weighings_by_criteria(
     animal_id: UUID | None = Query(None, description="Filtrar por animal"),
     breed: str | None = Query(None, description="Filtrar por raza"),
     page: int = Query(1, ge=1, description="Número de página"),
-    page_size: int = Query(50, ge=1, le=100, description="Tamaño de página"),
+    page_size: int = Query(
+        50, ge=1, le=500, description="Tamaño de página (máximo 500)"
+    ),
 ) -> WeighingsListResponse:
     """Busca estimaciones por criterios de filtrado."""
     from typing import Any
@@ -158,7 +160,9 @@ async def get_animal_weighings(
     ],
     animal_id: UUID,
     page: int = Query(1, ge=1, description="Número de página"),
-    page_size: int = Query(50, ge=1, le=100, description="Tamaño de página"),
+    page_size: int = Query(
+        50, ge=1, le=500, description="Tamaño de página (máximo 500)"
+    ),
 ) -> WeighingsListResponse:
     """Obtiene historial de pesajes de un animal."""
     skip = calculate_skip(page=page, page_size=page_size)
@@ -225,7 +229,9 @@ async def list_weighings(
         GetAllWeightEstimationsUseCase, Depends(get_all_weight_estimations_usecase)
     ],
     page: int = Query(1, ge=1),
-    page_size: int = Query(50, ge=1, le=100),
+    page_size: int = Query(
+        50, ge=1, le=500, description="Tamaño de página (máximo 500)"
+    ),
 ) -> WeighingsListResponse:
     """Lista todas las estimaciones."""
     skip = calculate_skip(page=page, page_size=page_size)

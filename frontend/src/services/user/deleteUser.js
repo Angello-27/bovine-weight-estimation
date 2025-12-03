@@ -9,7 +9,7 @@ import apiClient from '../../api/axiosClient';
  */
 const deleteUser = async (userId) => {
     try {
-        await apiClient.delete(`/user/${userId}`);
+        await apiClient.delete(`/api/v1/users/${userId}`);
     } catch (error) {
         // Extraer mensaje del backend si está disponible
         let backendMessage = null;

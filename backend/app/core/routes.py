@@ -12,6 +12,7 @@ from app.api.routes import (
     alert_router,
     animals_router,
     auth_router,
+    dashboard_router,
     farm_router,
     ml_router,
     reports_router,
@@ -55,3 +56,4 @@ def setup_routes(app: FastAPI) -> None:
     app.include_router(alert_router)  # Alertas y cronograma
     app.include_router(reports_router)  # Reportes (PDF, CSV, Excel)
     app.include_router(resources_router)  # Recursos estáticos (imágenes)
+    app.include_router(dashboard_router)  # Dashboard y estadísticas

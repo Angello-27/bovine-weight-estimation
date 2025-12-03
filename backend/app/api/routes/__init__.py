@@ -6,6 +6,7 @@ Routers de FastAPI por dominio
 from .alert import alert_router
 from .animals import router as animals_router
 from .auth import router as auth_router
+from .dashboard import router as dashboard_router
 from .farm import router as farm_router
 from .ml import router as ml_router
 from .reports import router as reports_router
@@ -19,6 +20,7 @@ __all__ = [
     "alert_router",
     "animals_router",
     "auth_router",
+    "dashboard_router",
     "farm_router",
     "ml_router",
     "reports_router",

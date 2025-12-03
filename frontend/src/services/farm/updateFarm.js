@@ -10,7 +10,7 @@ import apiClient from '../../api/axiosClient';
  */
 const updateFarm = async (farmId, farmData) => {
     try {
-        const response = await apiClient.put(`/farm/${farmId}`, farmData);
+        const response = await apiClient.put(`/api/v1/farms/${farmId}`, farmData);
         return response.data;
     } catch (error) {
         // Extraer mensaje del backend si está disponible

@@ -9,7 +9,7 @@ import apiClient from '../../api/axiosClient';
  */
 const getAllRoles = async (params = {}) => {
     try {
-        const response = await apiClient.get('/role', { params });
+        const response = await apiClient.get('/api/v1/roles', { params });
         return response.data;
     } catch (error) {
         // Extraer mensaje del backend si está disponible

@@ -9,7 +9,7 @@ import apiClient from '../../api/axiosClient';
  */
 const deleteFarm = async (farmId) => {
     try {
-        await apiClient.delete(`/farm/${farmId}`);
+        await apiClient.delete(`/api/v1/farms/${farmId}`);
     } catch (error) {
         // Extraer mensaje del backend si está disponible
         // FastAPI puede enviar: string, array de errores, o objeto

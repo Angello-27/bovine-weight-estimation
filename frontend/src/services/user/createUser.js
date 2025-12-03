@@ -19,7 +19,7 @@ const createUser = async (userData) => {
             first_name: userData.first_name || null,
             last_name: userData.last_name || null,
         };
-        const response = await apiClient.post('/user', payload);
+        const response = await apiClient.post('/api/v1/users', payload);
         return response.data;
     } catch (error) {
         // Extraer mensaje del backend si está disponible

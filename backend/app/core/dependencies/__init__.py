@@ -37,6 +37,7 @@ from .auth import (
     get_get_user_by_token_usecase,
     security,
 )
+from .dashboard import get_get_dashboard_stats_usecase
 from .farms import (
     get_create_farm_usecase,
     get_delete_farm_usecase,
@@ -161,6 +162,8 @@ __all__ = [
     "get_generate_inventory_report_usecase",
     "get_generate_movements_report_usecase",
     "get_generate_growth_report_usecase",
+    # Dashboard Use Cases
+    "get_get_dashboard_stats_usecase",
     # Repositories
     "get_weight_estimation_repository",
 ]
