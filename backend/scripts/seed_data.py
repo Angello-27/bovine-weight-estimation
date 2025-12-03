@@ -770,10 +770,11 @@ def generate_animals(
                 photo_url=photo_url,
                 status="active",
                 farm_id=farm_id,
-                registration_date=birth_date + timedelta(
+                registration_date=birth_date
+                + timedelta(
                     days=random.randint(1, 30),
                     hours=random.randint(7, 10),
-                    minutes=random.randint(0, 59)
+                    minutes=random.randint(0, 59),
                 ),
                 last_updated=now - timedelta(days=random.randint(0, 30)),
                 observations=f"Vaca reproductora base - {BreedType.get_display_name(breed)}",
@@ -808,10 +809,11 @@ def generate_animals(
                 photo_url=photo_url,
                 status="active",
                 farm_id=farm_id,
-                registration_date=birth_date + timedelta(
+                registration_date=birth_date
+                + timedelta(
                     days=random.randint(1, 30),
                     hours=random.randint(7, 10),
-                    minutes=random.randint(0, 59)
+                    minutes=random.randint(0, 59),
                 ),
                 last_updated=now - timedelta(days=random.randint(0, 30)),
                 observations=f"Toro reproductor base - {BreedType.get_display_name(breed)}",
@@ -912,10 +914,11 @@ def generate_animals(
                 father_id=father_id,
                 status=status,
                 farm_id=farm_id,
-                registration_date=birth_date + timedelta(
+                registration_date=birth_date
+                + timedelta(
                     days=random.randint(1, 30),
                     hours=random.randint(7, 10),
-                    minutes=random.randint(0, 59)
+                    minutes=random.randint(0, 59),
                 ),
                 last_updated=last_updated,
                 observations=f"Animal {BreedType.get_display_name(breed)}. "
