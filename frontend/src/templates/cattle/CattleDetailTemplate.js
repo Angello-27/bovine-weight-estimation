@@ -9,6 +9,8 @@ import Divider from '@mui/material/Divider';
 import LoadingState from '../../components/molecules/LoadingState';
 import ErrorState from '../../components/molecules/ErrorState';
 import ActionButton from '../../components/molecules/ActionButton';
+import Alert from '@mui/material/Alert';
+import Snackbar from '@mui/material/Snackbar';
 import Card from '../../components/atoms/Card';
 import InfoField from '../../components/atoms/InfoField';
 import CustomTypography from '../../components/atoms/CustomTypography';
@@ -32,7 +34,7 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import BusinessIcon from '@mui/icons-material/Business';
 import FamilyRestroomIcon from '@mui/icons-material/FamilyRestroom';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { breedToComboBox } from '../../utils/transformers/breedToComboBox';
 
@@ -53,7 +55,15 @@ function CattleDetailTemplate({
     reportError
 }) {
     const [tabValue, setTabValue] = useState(0);
+    const [showReportError, setShowReportError] = useState(false);
     const navigate = useNavigate();
+
+    // Mostrar error del reporte cuando cambie
+    useEffect(() => {
+        if (reportError) {
+            setShowReportError(true);
+        }
+    }, [reportError]);
 
     const handleTabChange = (event, newValue) => {
         setTabValue(newValue);
@@ -140,6 +150,13 @@ function CattleDetailTemplate({
                 </Box>
 
                 <ErrorState error={error} />
+
+                {/* Error del reporte */}
+                {reportError && (
+                    <Alert severity="error" sx={{ mb: 2 }} onClose={() => setShowReportError(false)}>
+                        {reportError}
+                    </Alert>
+                )}
 
                 <LoadingState loading={loading}>
                     {!error && cattle && (

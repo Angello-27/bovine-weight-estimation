@@ -42,6 +42,11 @@ from app.data.models.alert_model import (
     RecurrenceType,
 )
 from app.domain.shared.constants import AgeCategory, BreedType
+from app.domain.shared.constants.breeds import (
+    DAIRY_BREEDS,
+    DUAL_PURPOSE_BREEDS,
+    MEAT_BREEDS,
+)
 
 # Cache de imágenes disponibles por raza
 IMAGE_CACHE: dict[str, dict[str, list[str]]] = {}
@@ -185,7 +190,11 @@ GUEST_ROLE_ID = UUID("330e8400-e29b-41d4-a716-446655440000")
 BRUNO_USER_ID = UUID("440e8400-e29b-41d4-a716-446655440000")
 MIGUEL_USER_ID = UUID("550e8400-e29b-41d4-a716-446655440001")
 RODRIGO_USER_ID = UUID("660e8400-e29b-41d4-a716-446655440002")
-FARM_ID = UUID("770e8400-e29b-41d4-a716-446655440000")
+CARLOS_USER_ID = UUID("770e8400-e29b-41d4-a716-446655440003")
+NELSON_USER_ID = UUID("880e8400-e29b-41d4-a716-446655440004")
+ANDRES_USER_ID = UUID("990e8400-e29b-41d4-a716-446655440005")
+TECNICO_USER_ID = UUID("aa0e8400-e29b-41d4-a716-446655440006")
+FARM_ID = UUID("bb0e8400-e29b-41d4-a716-446655440000")
 
 # Nombres realistas por raza
 CATTLE_NAMES = {
@@ -513,16 +522,16 @@ CATTLE_NAMES = {
     },
 }
 
-# Distribución de razas (TOTAL: 300 animales)
-# Proporciones: Nelore 35.39%, Brahman 21.07%, Guzerat 13.48%, Senepol 9.27%, Girolando 8.15%, Gyr Lechero 7.58%, Sindi 5.06%
+# Distribución de razas (TOTAL: 373 animales)
+# Proporciones: Nelore 39.14%, Brahman 19.03%, Guzerat 12.87%, Senepol 9.12%, Girolando 7.77%, Gyr Lechero 7.24%, Sindi 4.83%
 BREED_DISTRIBUTION = {
-    BreedType.NELORE: 126,  # 35.39% de 356
-    BreedType.BRAHMAN: 75,  # 21.07% de 356
-    BreedType.GUZERAT: 48,  # 13.48% de 356
-    BreedType.SENEPOL: 33,  # 9.27% de 356
-    BreedType.GIROLANDO: 29,  # 8.15% de 356
-    BreedType.GYR_LECHERO: 27,  # 7.58% de 356
-    BreedType.SINDI: 18,  # 5.06% de 356
+    BreedType.NELORE: 146,  # 39.14% de 373
+    BreedType.BRAHMAN: 71,  # 19.03% de 373
+    BreedType.GUZERAT: 48,  # 12.87% de 373
+    BreedType.SENEPOL: 34,  # 9.12% de 373
+    BreedType.GIROLANDO: 29,  # 7.77% de 373
+    BreedType.GYR_LECHERO: 27,  # 7.24% de 373
+    BreedType.SINDI: 18,  # 4.83% de 373
 }
 
 # Colores por raza
@@ -535,6 +544,187 @@ BREED_COLORS = {
     BreedType.GYR_LECHERO: ["Amarillo", "Amarillo claro", "Dorado", "Crema"],
     BreedType.SINDI: ["Rojo", "Marrón", "Rojo oscuro", "Castaño"],
 }
+
+
+def get_birth_year_range(
+    breed: BreedType, gender: str, is_base_animal: bool = False
+) -> tuple[int, int]:
+    """
+    Determina el rango de años de nacimiento según el propósito de la raza.
+
+    Consideraciones:
+    - Animales base (reproductores): pueden ser más viejos (2018-2021)
+    - Razas de carne: más recientes (2022-2024), se fanean rápido
+    - Razas lecheras: ciclo de producción (2021-2024)
+    - Doble propósito: más longevos (2020-2024)
+
+    Args:
+        breed: Raza del animal
+        gender: Género (male/female)
+        is_base_animal: Si es animal base (reproductor)
+
+    Returns:
+        Tupla (año_minimo, año_maximo)
+    """
+    purpose = get_breed_purpose(breed)
+
+    # Animales base (reproductores): se mantienen más tiempo
+    if is_base_animal:
+        # Reproductores pueden ser de 2018-2021 (más viejos pero activos)
+        return 2018, 2021
+
+    # Animales del hato principal según propósito
+    if purpose == "meat":
+        # Razas de carne: se fanean rápido (2-3 años), mayoría recientes
+        if gender == "male":
+            # Terneros de carne: nacidos 2022-2024 (se fanean a los 2-3 años)
+            return 2022, 2024
+        # Hembras de carne: algunas se mantienen como reproductoras
+        return 2021, 2024
+
+    if purpose == "dairy":
+        # Razas lecheras: ciclo de producción 4-6 partos
+        # Vacas lecheras se descartan después del 4-6 parto (48-84 meses)
+        # Mayoría nacidas 2021-2024 para tener animales en producción activa
+        return 2021, 2024
+
+    if purpose == "dual_purpose":
+        # Doble propósito: más longevos pero también con límites
+        return 2020, 2024
+
+    # Default: razas de carne
+    return 2022, 2024
+
+
+def get_breed_purpose(breed: BreedType) -> str:
+    """
+    Determina el propósito de la raza: 'meat', 'dairy', o 'dual_purpose'.
+
+    Args:
+        breed: Raza del animal
+
+    Returns:
+        Propósito de la raza
+    """
+    if breed in MEAT_BREEDS:
+        return "meat"
+    if breed in DAIRY_BREEDS:
+        return "dairy"
+    if breed in DUAL_PURPOSE_BREEDS:
+        return "dual_purpose"
+    return "meat"  # Default
+
+
+def should_cull_animal(
+    breed: BreedType,
+    gender: str,
+    age_months: int,
+    purpose: str,
+    random_factor: float,
+) -> tuple[bool, str]:
+    """
+    Determina si un animal debe ser descartado (faneado) según su raza, propósito y edad.
+
+    Basado en contexto ganadero:
+    - Vacas lecheras: descarte al 4-6 parto (producción láctea decrece)
+    - Razas de carne: terneros se levantan antes de 2.5-3 años
+    - Doble propósito: más longevas, no se descartan pronto
+    - Vacas de 5+ años tienen carne de menor calidad
+
+    Args:
+        breed: Raza del animal
+        gender: Género (male/female)
+        age_months: Edad en meses
+        purpose: Propósito de la raza (meat/dairy/dual_purpose)
+        random_factor: Factor aleatorio para variación (0-1)
+
+    Returns:
+        Tupla (debe_descartar, razon)
+    """
+    # RAZAS LECHERAS (Girolando, Gyr Lechero, Sindi)
+    if purpose == "dairy":
+        if gender == "female":
+            # Vacas lecheras: descarte al 4-6 parto
+            # Asumiendo primer parto a ~24 meses, cada parto cada 12 meses
+            # 4-6 partos = 48-72 meses (4-6 años)
+            # Jersey alcanza madurez después del 3er parto, pero Girolando/Gyr similar a Holstein
+            # Gyr Lechero: descarte después del 3er-5to parto (36-60 meses)
+            if (
+                breed == BreedType.GYR_LECHERO
+                and 36 <= age_months <= 72
+                and random_factor < 0.15
+            ):
+                return True, "descarte_produccion_lechera"
+            # Girolando/Sindi: descarte al 4-6 parto (48-72 meses)
+            if (
+                breed != BreedType.GYR_LECHERO
+                and 48 <= age_months <= 84
+                and random_factor < 0.20
+            ):
+                return True, "descarte_produccion_lechera"
+        # Machos lecheros: se descartan más temprano (no son reproductores principales)
+        elif gender == "male" and age_months >= 30 and random_factor < 0.10:
+            return True, "descarte_macho_lechero"
+
+    # RAZAS DE CARNE (Nelore, Brahman, Senepol)
+    elif purpose == "meat":
+        # Terneros de carne: se levantan antes de 2.5-3 años (30-36 meses)
+        if gender == "male" and 24 <= age_months <= 42 and random_factor < 0.25:
+            return True, "destinado_faneo_carne"
+        # Hembras de carne: pueden mantenerse más tiempo si son reproductoras
+        # Pero algunas se descartan temprano si no son productivas
+        if gender == "female" and 30 <= age_months <= 48 and random_factor < 0.12:
+            return True, "descarte_hembra_carne"
+
+    # DOBLE PROPÓSITO (Guzerat)
+    elif purpose == "dual_purpose" and age_months >= 84 and random_factor < 0.08:
+        # Doble propósito: más longevas, no se descartan pronto
+        # Solo descarte por edad avanzada (7+ años = 84+ meses)
+        return True, "descarte_edad_avanzada"
+
+    # DESCARTE GENERAL POR EDAD (todas las razas)
+    # Vacas de 5+ años (60+ meses) tienen carne de menor calidad
+    if age_months >= 60 and random_factor < 0.05:
+        return True, "descarte_calidad_carne"
+
+    return False, ""
+
+
+def determine_animal_status(
+    breed: BreedType,
+    gender: str,
+    age_months: int,
+    random_factor: float,
+) -> tuple[str, str]:
+    """
+    Determina el status final del animal considerando descarte (faneo) según propósito.
+
+    Args:
+        breed: Raza del animal
+        gender: Género (male/female)
+        age_months: Edad en meses
+        random_factor: Factor aleatorio para variación
+
+    Returns:
+        Tupla (status, razon)
+    """
+    purpose = get_breed_purpose(breed)
+
+    # Verificar si debe ser descartado (faneado)
+    should_cull, cull_reason = should_cull_animal(
+        breed, gender, age_months, purpose, random_factor
+    )
+
+    if should_cull:
+        return "culled", cull_reason
+
+    # Si no es descarte, usar lógica normal
+    status_choice = random.choices(
+        ["active", "sold", "deceased"],
+        weights=[0.85, 0.10, 0.05],
+    )[0]
+
+    return status_choice, ""
 
 
 class WeightDataLoader:
@@ -639,7 +829,7 @@ async def create_roles() -> dict[str, RoleModel]:
 
 
 async def create_users(
-    admin_role: RoleModel, user_role: RoleModel
+    admin_role: RoleModel, user_role: RoleModel, guest_role: RoleModel
 ) -> dict[str, UserModel]:
     """Crea usuarios del equipo Hacienda Gamelera."""
     users = {}
@@ -670,12 +860,12 @@ async def create_users(
         role_id=admin_role.id,
         farm_id=FARM_ID,
         is_active=True,
-        is_superuser=False,
+        is_superuser=True,
     )
     await miguel.insert()
     users["miguel"] = miguel
     print(
-        f"   ✅ Usuario creado: {miguel.first_name} {miguel.last_name} (Product Owner)"
+        f"   ✅ Usuario creado: {miguel.first_name} {miguel.last_name} (Administrador/Product Owner)"
     )
 
     rodrigo = UserModel(
@@ -693,7 +883,81 @@ async def create_users(
     await rodrigo.insert()
     users["rodrigo"] = rodrigo
     print(
-        f"   ✅ Usuario creado: {rodrigo.first_name} {rodrigo.last_name} (Scrum Master)"
+        f"   ✅ Usuario creado: {rodrigo.first_name} {rodrigo.last_name} (Usuario/Scrum Master)"
+    )
+
+    # Técnico de medición (Usuario)
+    tecnico = UserModel(
+        id=TECNICO_USER_ID,
+        username="sara_montero",
+        email="sara.montero@haciendagamelera.com",
+        hashed_password=get_password_hash("password123"),
+        first_name="Sara Luz",
+        last_name="Montero",
+        role_id=user_role.id,
+        farm_id=FARM_ID,
+        is_active=True,
+        is_superuser=False,
+    )
+    await tecnico.insert()
+    users["tecnico"] = tecnico
+    print(
+        f"   ✅ Usuario creado: {tecnico.first_name} {tecnico.last_name} (Usuario - Técnico de Medición)"
+    )
+
+    # Capataces/Asistentes (Invitados - solo lectura)
+    carlos = UserModel(
+        id=CARLOS_USER_ID,
+        username="carlos_ferrufino",
+        email="carlos@haciendagamelera.com",
+        hashed_password=get_password_hash("password123"),
+        first_name="Carlos",
+        last_name="Ferrufino",
+        role_id=guest_role.id,
+        farm_id=FARM_ID,
+        is_active=True,
+        is_superuser=False,
+    )
+    await carlos.insert()
+    users["carlos"] = carlos
+    print(
+        f"   ✅ Usuario creado: {carlos.first_name} {carlos.last_name} (Invitado - Capataz)"
+    )
+
+    nelson = UserModel(
+        id=NELSON_USER_ID,
+        username="nelson_farel",
+        email="nelson@haciendagamelera.com",
+        hashed_password=get_password_hash("password123"),
+        first_name="Nelson",
+        last_name="Farel",
+        role_id=guest_role.id,
+        farm_id=FARM_ID,
+        is_active=True,
+        is_superuser=False,
+    )
+    await nelson.insert()
+    users["nelson"] = nelson
+    print(
+        f"   ✅ Usuario creado: {nelson.first_name} {nelson.last_name} (Invitado - Capataz)"
+    )
+
+    andres = UserModel(
+        id=ANDRES_USER_ID,
+        username="andres_saravia",
+        email="andres@haciendagamelera.com",
+        hashed_password=get_password_hash("password123"),
+        first_name="Andres",
+        last_name="Saravia",
+        role_id=guest_role.id,
+        farm_id=FARM_ID,
+        is_active=True,
+        is_superuser=False,
+    )
+    await andres.insert()
+    users["andres"] = andres
+    print(
+        f"   ✅ Usuario creado: {andres.first_name} {andres.last_name} (Invitado - Asistente)"
     )
 
     return users
@@ -745,8 +1009,12 @@ def generate_animals(
         num_males = random.randint(2, 4)
 
         for _ in range(num_females):
+            # Animales base: reproductores que se mantienen más tiempo
+            min_year, max_year = get_birth_year_range(
+                breed, "female", is_base_animal=True
+            )
             birth_date = datetime(
-                random.randint(2018, 2021),
+                random.randint(min_year, max_year),
                 random.randint(1, 12),
                 random.randint(1, 28),
                 tzinfo=UTC,
@@ -784,8 +1052,12 @@ def generate_animals(
             base_counter += 1
 
         for _ in range(num_males):
+            # Animales base: reproductores que se mantienen más tiempo
+            min_year, max_year = get_birth_year_range(
+                breed, "male", is_base_animal=True
+            )
             birth_date = datetime(
-                random.randint(2018, 2021),
+                random.randint(min_year, max_year),
                 random.randint(1, 12),
                 random.randint(1, 28),
                 tzinfo=UTC,
@@ -837,18 +1109,42 @@ def generate_animals(
             continue
 
         for _ in range(remaining):
-            year = random.choices(
-                [2021, 2022, 2023, 2024],
-                weights=[10, 20, 35, 35],
-            )[0]
+            gender: str = "female" if random.random() < 0.55 else "male"
+
+            # Determinar rango de años según propósito de la raza
+            min_year, max_year = get_birth_year_range(breed, gender)
+
+            # Asegurar que max_year no exceda el año actual
+            max_year = min(max_year, now.year)
+
+            # Generar año con distribución: más peso a años recientes
+            available_years = list(range(min_year, max_year + 1))
+            if len(available_years) == 1:
+                year = available_years[0]
+            else:
+                # Más peso a años recientes (últimos 2 años tienen más probabilidad)
+                weights: list[int] = []
+                for y in available_years:
+                    if y == max_year:
+                        weights.append(35)  # Año más reciente: 35%
+                    elif y == max_year - 1:
+                        weights.append(35)  # Segundo más reciente: 35%
+                    elif y == max_year - 2:
+                        weights.append(20)  # Tercero: 20%
+                    else:
+                        weights.append(10)  # Más antiguos: 10%
+
+                # Normalizar pesos
+                total_weight = sum(weights)
+                normalized_weights: list[float] = [w / total_weight for w in weights]
+                year = random.choices(available_years, weights=normalized_weights)[0]
+
             birth_date = datetime(
                 year, random.randint(1, 12), random.randint(1, 28), tzinfo=UTC
             )
 
             if birth_date > now:
                 birth_date = now - timedelta(days=random.randint(30, 365))
-
-            gender = "female" if random.random() < 0.55 else "male"
             name = get_unique_name(breed, gender, used_names)
 
             # Calcular edad para seleccionar imagen apropiada
@@ -881,14 +1177,42 @@ def generate_animals(
                 if potential_fathers:
                     father_id = str(random.choice(potential_fathers).id)
 
-            status = random.choices(
-                ["active", "sold", "deceased"], weights=[0.85, 0.10, 0.05]
-            )[0]
+            # Calcular edad actual para determinar descarte
+            age_months = (now.year - birth_date.year) * 12 + (
+                now.month - birth_date.month
+            )
+            age_months = max(0, age_months)
+
+            # Determinar status considerando descarte según propósito de raza
+            status, status_reason = determine_animal_status(
+                breed, gender, age_months, random.random()
+            )
 
             # Calcular last_updated según estado
             days_alive = (now - birth_date).days
 
-            if status == "deceased":
+            if status == "culled":
+                # Descarte (faneo): entre edad mínima de descarte y la edad actual
+                # Para razas de carne: 24-42 meses, lecheras: 36-84 meses
+                purpose = get_breed_purpose(breed)
+                if purpose == "meat" and gender == "male":
+                    min_cull_age = 24 * 30  # 24 meses en días
+                    max_cull_age = min(42 * 30, days_alive)
+                elif purpose == "dairy" and gender == "female":
+                    min_cull_age = 36 * 30  # 36 meses en días
+                    max_cull_age = min(84 * 30, days_alive)
+                else:
+                    min_cull_age = 30 * 30  # 30 meses en días
+                    max_cull_age = min(60 * 30, days_alive)
+
+                if max_cull_age > min_cull_age:
+                    cull_days = random.randint(min_cull_age, max_cull_age)
+                else:
+                    cull_days = random.randint(30, max(31, days_alive))
+
+                cull_date = birth_date + timedelta(days=cull_days)
+                last_updated = cull_date
+            elif status == "deceased":
                 # Muerte entre 30 días y la edad actual
                 death_days = random.randint(30, max(31, days_alive))
                 death_date = birth_date + timedelta(days=death_days)
@@ -921,8 +1245,11 @@ def generate_animals(
                     minutes=random.randint(0, 59),
                 ),
                 last_updated=last_updated,
-                observations=f"Animal {BreedType.get_display_name(breed)}. "
-                f"{'Con genealogía registrada.' if mother_id or father_id else 'Sin registro genealógico.'}",
+                observations=(
+                    f"Animal {BreedType.get_display_name(breed)}. "
+                    f"{'Con genealogía registrada.' if mother_id or father_id else 'Sin registro genealógico.'}"
+                    f"{f' Destinado al faneo: {status_reason}.' if status == 'culled' and status_reason else ''}"
+                ),
             )
             animals.append(animal)
             ear_tag_counter += 1
@@ -953,6 +1280,205 @@ def get_unique_name(
     return name
 
 
+def get_season(month: int) -> str:
+    """
+    Determina la época del año en Bolivia (San Ignacio de Velasco).
+
+    Args:
+        month: Mes (1-12)
+
+    Returns:
+        'dry' (seca) o 'rainy' (lluviosa)
+    """
+    # Época seca: mayo-octubre (5-10)
+    # Época lluviosa: noviembre-abril (11-12, 1-4)
+    if 5 <= month <= 10:
+        return "dry"
+    return "rainy"
+
+
+def get_seasonal_weight_factor(month: int, random_factor: float) -> float:
+    """
+    Calcula factor de ajuste de peso según época del año.
+
+    Época seca (mayo-octubre): pérdida de peso (-2% a -8%)
+    Época lluviosa (noviembre-abril): ganancia de peso (+1% a +5%)
+
+    Args:
+        month: Mes del pesaje (1-12)
+        random_factor: Factor aleatorio para variación
+
+    Returns:
+        Factor multiplicador (ej: 0.95 = -5%, 1.03 = +3%)
+    """
+    season = get_season(month)
+    if season == "dry":
+        # Pérdida de peso: -2% a -8% (0.92 a 0.98)
+        return random.uniform(0.92, 0.98)
+    # Época lluviosa: ganancia de peso: +1% a +5% (1.01 a 1.05)
+    return random.uniform(1.01, 1.05)
+
+
+def get_growth_curve_factor(age_months: int) -> float:
+    """
+    Aplica curva de crecimiento realista según edad.
+
+    Terneros (0-12 meses): crecimiento acelerado (factor 1.0-1.15)
+    Jóvenes (12-24 meses): crecimiento moderado (factor 0.95-1.05)
+    Adultos (24+ meses): crecimiento lento o mantenimiento (factor 0.90-1.0)
+
+    Args:
+        age_months: Edad en meses
+
+    Returns:
+        Factor multiplicador de crecimiento
+    """
+    if age_months < 12:
+        # Terneros: crecimiento acelerado
+        # Más crecimiento al inicio, disminuye con la edad
+        growth_rate = 1.0 + (12 - age_months) * 0.012  # 1.0 a 1.144
+        return random.uniform(growth_rate * 0.98, growth_rate * 1.02)
+    if age_months < 24:
+        # Jóvenes: crecimiento moderado
+        return random.uniform(0.95, 1.05)
+    # Adultos: crecimiento lento o mantenimiento
+    return random.uniform(0.90, 1.0)
+
+
+def get_confidence_by_conditions(hour: int, random_factor: float) -> float:
+    """
+    Calcula confianza según condiciones de captura.
+
+    Día soleado (8-16h): 0.90-0.96
+    Día nublado: 0.85-0.92
+    Atardecer/amanecer (6-8h, 16-18h): 0.80-0.88
+    Condiciones adversas (noche/temprano): 0.80-0.85
+
+    Args:
+        hour: Hora del día (0-23)
+        random_factor: Factor aleatorio para variación
+
+    Returns:
+        Nivel de confianza (0.80-0.96)
+    """
+    # Determinar condiciones según hora
+    if 8 <= hour <= 16:
+        # Día: 70% soleado, 30% nublado
+        if random_factor < 0.7:
+            return round(random.uniform(0.90, 0.96), 2)  # Día soleado
+        return round(random.uniform(0.85, 0.92), 2)  # Día nublado
+    if 6 <= hour < 8 or 16 < hour <= 18:
+        # Atardecer/amanecer
+        return round(random.uniform(0.80, 0.88), 2)
+    # Noche o muy temprano: condiciones adversas
+    return round(random.uniform(0.80, 0.85), 2)
+
+
+def simulate_life_events(
+    animal: AnimalModel,
+    weighing_date: datetime,
+    age_months: int,
+    previous_weight: float,
+) -> tuple[float, str]:
+    """
+    Simula eventos de vida que afectan el peso.
+
+    - Enfermedades: pérdida temporal de peso (5-15%)
+    - Tratamientos veterinarios: pérdida inicial, luego recuperación
+    - Partos (hembras): pérdida post-parto (8-15%), luego recuperación
+    - Toros en servicio: mantenimiento de peso
+
+    Args:
+        animal: Animal
+        weighing_date: Fecha del pesaje
+        age_months: Edad en meses
+        previous_weight: Peso anterior
+
+    Returns:
+        Tupla (peso_ajustado, evento_descripcion)
+    """
+    event_description = ""
+    adjusted_weight = previous_weight
+
+    # Hembras: simular partos (solo si tienen más de 24 meses)
+    # 15% de chance de estar preñada o haber parido recientemente
+    if animal.gender == "female" and age_months >= 24 and random.random() < 0.15:
+        days_since_birth = random.randint(0, 120)  # 0-4 meses post-parto
+        if days_since_birth < 30:
+            # Recién parido: pérdida de peso 8-15%
+            loss_factor = random.uniform(0.85, 0.92)
+            adjusted_weight = previous_weight * loss_factor
+            event_description = f"Post-parto reciente ({days_since_birth} días)"
+        elif days_since_birth < 60:
+            # Recuperación post-parto: peso intermedio
+            recovery_factor = random.uniform(0.92, 0.98)
+            adjusted_weight = previous_weight * recovery_factor
+            event_description = f"Recuperación post-parto ({days_since_birth} días)"
+        elif days_since_birth < 90:
+            # Preñada: ganancia de peso 2-5%
+            gain_factor = random.uniform(1.02, 1.05)
+            adjusted_weight = previous_weight * gain_factor
+            event_description = f"Preñada (aprox {days_since_birth} días)"
+        else:
+            # Lactante: posible pérdida leve 2-5%
+            loss_factor = random.uniform(0.95, 0.98)
+            adjusted_weight = previous_weight * loss_factor
+            event_description = f"Lactante ({days_since_birth} días)"
+
+    # Enfermedades: 8% de chance (afecta a cualquier animal)
+    if random.random() < 0.08:
+        # Pérdida de peso por enfermedad: 5-15%
+        illness_factor = random.uniform(0.85, 0.95)
+        adjusted_weight = previous_weight * illness_factor
+        if event_description:
+            event_description += f" | Enfermedad (-{int((1-illness_factor)*100)}%)"
+        else:
+            event_description = f"Enfermedad (-{int((1-illness_factor)*100)}%)"
+
+    # Tratamientos veterinarios: 5% de chance
+    if random.random() < 0.05 and not event_description:
+        # Pérdida inicial por tratamiento, luego recuperación
+        treatment_factor = random.uniform(0.92, 0.97)
+        adjusted_weight = previous_weight * treatment_factor
+        event_description = "Tratamiento veterinario reciente"
+
+    # Toros en servicio: mantenimiento de peso (si es toro adulto)
+    if (
+        animal.gender == "male"
+        and age_months >= 30
+        and random.random() < 0.20
+        and not event_description
+    ):
+        # 20% de chance de estar en servicio activo
+        # Mantenimiento: peso estable (±2%)
+        maintenance_factor = random.uniform(0.98, 1.02)
+        adjusted_weight = previous_weight * maintenance_factor
+        event_description = "Toro en servicio activo"
+
+    return adjusted_weight, event_description
+
+
+def get_gender_weight_adjustment(gender: str, base_weight: float) -> float:
+    """
+    Ajusta peso según género.
+
+    Machos: generalmente 5-10% más pesados
+    Hembras: ligeramente más ligeras (usar peso base)
+
+    Args:
+        gender: Género (male/female)
+        base_weight: Peso base del CSV
+
+    Returns:
+        Peso ajustado según género
+    """
+    if gender == "male":
+        # Machos: 5-10% más pesados
+        return base_weight * random.uniform(1.05, 1.10)
+    # Hembras: usar peso base (ya viene ajustado del CSV)
+    return base_weight
+
+
 def generate_weight_estimations(
     animals: list[AnimalModel],
     weight_loader: WeightDataLoader,
@@ -963,6 +1489,11 @@ def generate_weight_estimations(
     Confianza entre 80-96%.
 
     Incluye:
+    - Variaciones estacionales (época seca vs lluviosa)
+    - Curvas de crecimiento realistas según edad
+    - Variaciones en confianza según condiciones
+    - Eventos de vida (enfermedades, partos, tratamientos)
+    - Ajustes por género y estado reproductivo
     - Pérdida de peso aleatoria (10-15% de pesajes)
     - Decline progresivo para animales deceased
     """
@@ -972,7 +1503,11 @@ def generate_weight_estimations(
     print("\n   ⚖️  Generando estimaciones de peso con datos reales del CSV...")
 
     for animal in animals:
-        end_date = animal.last_updated if animal.status in ("deceased", "sold") else now
+        end_date = (
+            animal.last_updated
+            if animal.status in ("deceased", "sold", "culled")
+            else now
+        )
 
         age_at_end = (end_date.year - animal.birth_date.year) * 12 + (
             end_date.month - animal.birth_date.month
@@ -987,20 +1522,25 @@ def generate_weight_estimations(
         else:
             num_weighings = random.randint(10, 18)
 
-        weighing_dates = []
-        start_date = animal.birth_date + timedelta(days=random.randint(30, 90))
+        weighing_dates: list[datetime] = []
+        # Primer pesaje entre 30-90 días después del nacimiento
+        current_date = animal.birth_date + timedelta(days=random.randint(30, 90))
 
         # Verificar que hay suficiente tiempo para generar pesajes
-        if (end_date - start_date).days < 30:
-            weighing_dates = [start_date] if start_date <= end_date else []
+        if current_date > end_date:
+            # Si el primer pesaje ya excede la fecha de fin, no generar pesajes
+            weighing_dates = []
         else:
-            days_span = (end_date - start_date).days
-            interval = days_span / max(num_weighings, 1)
-            for i in range(num_weighings):
-                jitter = random.randint(-10, 10) if interval > 20 else 0
-                date = start_date + timedelta(days=int(i * interval) + jitter)
-                if start_date <= date <= end_date:
-                    weighing_dates.append(date)
+            # Intervalo entre pesajes: 4-6 meses (120-180 días)
+            min_interval_days = 120  # 4 meses
+            max_interval_days = 180  # 6 meses
+
+            while current_date <= end_date and len(weighing_dates) < num_weighings:
+                weighing_dates.append(current_date)
+
+                # Calcular siguiente pesaje: 4-6 meses después del actual
+                interval_days = random.randint(min_interval_days, max_interval_days)
+                current_date = current_date + timedelta(days=interval_days)
 
         weighing_dates.sort()
 
@@ -1008,8 +1548,10 @@ def generate_weight_estimations(
         max_weight = 0.0  # Tipo peso máximo: float
         previous_weight = 0.0  # Tipo peso anterior: float
 
-        # Determinar si este animal tendrá decline (solo deceased)
-        has_decline = animal.status == "deceased" and len(weighing_dates) > 3
+        # Determinar si este animal tendrá decline (deceased o culled)
+        has_decline = (
+            animal.status in ("deceased", "culled") and len(weighing_dates) > 3
+        )
         decline_start_index = (
             len(weighing_dates) - random.randint(2, 4)
             if has_decline
@@ -1027,10 +1569,22 @@ def generate_weight_estimations(
                 animal.breed, age_months, animal.gender
             )
 
-            # Aplicar lógica de peso según situación
+            # 1. AJUSTE POR GÉNERO (machos más pesados)
+            weight = get_gender_weight_adjustment(animal.gender, base_weight)
+
+            # 2. APLICAR CURVA DE CRECIMIENTO según edad
+            growth_factor = get_growth_curve_factor(age_months)
+            weight = weight * growth_factor
+
+            # 3. VARIACIONES ESTACIONALES (época seca vs lluviosa)
+            seasonal_factor = get_seasonal_weight_factor(
+                weighing_date.month, random.random()
+            )
+            weight = weight * seasonal_factor
+
+            # 4. APLICAR LÓGICA DE PESO según situación
             if has_decline and i >= decline_start_index:
-                # DECLINE PROGRESIVO para animales deceased
-                # Pérdida entre 5-15% del peso máximo por pesaje
+                # DECLINE PROGRESIVO para animales deceased/culled
                 decline_factor = 1 - (
                     random.uniform(0.05, 0.15) * (i - decline_start_index + 1)
                 )
@@ -1039,23 +1593,48 @@ def generate_weight_estimations(
                 )  # No menos del 50% del base
             elif i > 0 and random.random() < 0.12:  # 12% de chance de pérdida de peso
                 # PÉRDIDA DE PESO ALEATORIA (realismo)
-                # Puede perder entre 3-8% del peso anterior
                 loss_factor = random.uniform(0.92, 0.97)
                 weight = previous_weight * loss_factor
-            else:
-                # CRECIMIENTO NORMAL
-                weight = base_weight
+            # Si no hay decline ni pérdida aleatoria, usar peso calculado con todos los factores
+
+            # 5. SIMULAR EVENTOS DE VIDA (enfermedades, partos, tratamientos)
+            if i > 0:  # Solo aplicar eventos después del primer pesaje
+                event_weight, event_description = simulate_life_events(
+                    animal, weighing_date, age_months, previous_weight
+                )
+                # Combinar peso calculado con eventos (promedio ponderado)
+                weight = (weight * 0.7) + (event_weight * 0.3)
 
             # Actualizar tracking
             max_weight = max(max_weight, weight)
             previous_weight = weight
 
-            confidence = round(random.uniform(0.80, 0.96), 2)
-            processing_time = random.randint(1200, 2800)
+            # 6. VARIACIONES EN CONFIANZA según condiciones
+            # Generar hora realista (mayoría en mañana: 6-10 AM)
+            if random.random() < 0.70:  # 70% en mañana
+                hour = random.randint(6, 10)
+            elif random.random() < 0.85:  # 15% en tarde
+                hour = random.randint(14, 17)
+            else:  # 15% otros horarios
+                hour = random.randint(11, 13)
+
+            confidence = get_confidence_by_conditions(hour, random.random())
+            # Processing time relacionado con confianza (menor confianza = más tiempo)
+            if confidence < 0.85:
+                processing_time = random.randint(2000, 2800)
+            elif confidence < 0.90:
+                processing_time = random.randint(1500, 2200)
+            else:
+                processing_time = random.randint(1200, 2000)
 
             # Obtener imagen real para la estimación
             breed_enum = BreedType(animal.breed)
             frame_image_path = get_estimation_frame_path(breed_enum, images_by_breed)
+
+            # Ajustar timestamp con hora realista
+            weighing_datetime = weighing_date.replace(
+                hour=hour, minute=random.randint(0, 59), second=random.randint(0, 59)
+            )
 
             estimation = WeightEstimationModel(
                 animal_id=str(animal.id),
@@ -1068,8 +1647,8 @@ def generate_weight_estimations(
                 frame_image_path=frame_image_path,
                 latitude=-15.859500 + random.uniform(-0.001, 0.001),
                 longitude=-60.797889 + random.uniform(-0.001, 0.001),
-                timestamp=weighing_date,
-                created_at=weighing_date,
+                timestamp=weighing_datetime,
+                created_at=weighing_datetime,
             )
             estimations.append(estimation)
 
@@ -1365,7 +1944,7 @@ async def seed_database():
         print(f"✅ {len(roles)} roles creados\n")
 
         print("👤 Creando usuarios del equipo Hacienda Gamelera...")
-        users = await create_users(roles["admin"], roles["user"])
+        users = await create_users(roles["admin"], roles["user"], roles["guest"])
         print(f"✅ {len(users)} usuarios creados\n")
 
         print("🏢 Creando finca Hacienda Gamelera...")
@@ -1397,9 +1976,16 @@ async def seed_database():
         print("=" * 70)
         print(f"👥 Roles: {len(roles)}")
         print(f"👤 Usuarios: {len(users)}")
+        print("   Administradores:")
         print("   - Bruno Brito Macedo (Owner/Superusuario)")
-        print("   - Miguel Angel Escobar Lazcano (Product Owner)")
-        print("   - Rodrigo Escobar Morón (Scrum Master)")
+        print("   - Miguel Angel Escobar Lazcano (Administrador/Product Owner)")
+        print("   Usuarios:")
+        print("   - Rodrigo Escobar Morón (Usuario/Scrum Master)")
+        print("   - Sara Luz Montero (Usuario - Técnico de Medición)")
+        print("   Invitados (Capataces/Asistentes):")
+        print("   - Carlos Ferrufino (Invitado - Capataz)")
+        print("   - Nelson Farel (Invitado - Capataz)")
+        print("   - Andres Saravia (Invitado - Asistente)")
         print(f"🏢 Finca: {farm.name}")
         print(f"🐄 Animales: {len(animals)}")
         print(f"⚖️  Estimaciones: {len(estimations)}")
@@ -1428,9 +2014,16 @@ async def seed_database():
         print("\n" + "=" * 70)
         print("✅ Seed data MEJORADO completado!")
         print("\n🔐 CREDENCIALES:")
-        print("   Usuario: bruno_brito | Contraseña: password123")
-        print("   Usuario: miguel_escobar | Contraseña: password123")
-        print("   Usuario: rodrigo_escobar | Contraseña: password123")
+        print("   Administradores:")
+        print("   - bruno_brito | password123 (Owner/Superusuario)")
+        print("   - miguel_escobar | password123 (Administrador)")
+        print("   Usuarios:")
+        print("   - rodrigo_escobar | password123 (Usuario)")
+        print("   - sara_montero | password123 (Técnico de Medición)")
+        print("   Invitados (solo lectura):")
+        print("   - carlos_ferrufino | password123 (Capataz)")
+        print("   - nelson_farel | password123 (Capataz)")
+        print("   - andres_saravia | password123 (Asistente)")
         print("=" * 70)
 
     except Exception as e:

@@ -24,7 +24,6 @@ import MemoryIcon from '@mui/icons-material/Memory';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import ScienceIcon from '@mui/icons-material/Science';
-import InfoIcon from '@mui/icons-material/Info';
 import Chip from '@mui/material/Chip';
 import LinearProgress from '@mui/material/LinearProgress';
 import { useState } from 'react';

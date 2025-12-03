@@ -917,10 +917,18 @@ const ProtectedRoute = ({ children, requiredRoles = [] }) => {
 - [ ] Ordenamiento (UI pendiente)
 - [x] Filtros disponibles en backend y servicios
 
-### Fase 8: Mejoras y Optimizaciones ⚠️ PARCIAL
+### Fase 8: Endpoints de Recursos ✅ COMPLETADO
+- [x] GET `/api/v1/resources/images/{image_path}` - Implementado en backend
+- [x] Utilidad `getImageUrl()` para construir URLs de imágenes
+- [x] Integración en componentes: ImageGallery, EstimationImageCard, EstimationImage
+- [x] Configuración de Nginx para servir recursos con caché
+
+### Fase 9: Mejoras y Optimizaciones ⚠️ PARCIAL
 - [x] Manejo de errores robusto (implementado en todos los servicios)
 - [x] Loading states (implementados en varios componentes)
-- [ ] Caché de datos (mejora futura)
+- [x] Caché de datos para dashboard (15 minutos TTL)
+- [x] Caché de estimaciones de peso
+- [x] Invalidación de caché sincronizada entre módulos
 - [ ] Optimización de imágenes (mejora futura)
 - [ ] Testing (pendiente)
 
@@ -952,9 +960,103 @@ const ProtectedRoute = ({ children, requiredRoles = [] }) => {
 
 ---
 
+---
+
+## 📊 Análisis de Cobertura de Endpoints (Excluyendo Reportes)
+
+### ✅ Endpoints Implementados (100% de cobertura para Web)
+
+#### Autenticación
+- ✅ POST `/auth/login` - Implementado en `authService.js`
+
+#### Machine Learning (Web)
+- ✅ POST `/api/v1/ml/estimate` - Implementado en `estimateWeightFromImage.js`
+- ✅ GET `/api/v1/ml/models/status` - Implementado en `getModelsStatus.js`
+- ✅ GET `/api/v1/ml/health` - Implementado en `getMLHealth.js`
+
+#### Gestión de Animales
+- ✅ POST `/api/v1/animals` - Implementado en `createCattle.js`
+- ✅ GET `/api/v1/animals` - Implementado en `getAllCattle.js` y `getAnimalsByCriteria.js`
+- ✅ GET `/api/v1/animals/{animal_id}` - Implementado en `getCattleById.js`
+- ✅ PUT `/api/v1/animals/{animal_id}` - Implementado en `updateCattle.js`
+- ✅ DELETE `/api/v1/animals/{animal_id}` - Implementado en `deleteCattle.js`
+- ✅ GET `/api/v1/animals/{animal_id}/timeline` - Implementado en `getAnimalTimeline.js`
+- ✅ GET `/api/v1/animals/{animal_id}/lineage` - Implementado en `getAnimalLineage.js`
+
+#### Historial de Pesajes
+- ✅ GET `/api/v1/weighings/animal/{animal_id}` - Implementado en `getWeightEstimationsByCattleId.js`
+- ✅ GET `/api/v1/weighings/{weighing_id}` - Implementado en `getWeightEstimationById.js`
+- ✅ GET `/api/v1/weighings` - Implementado en `getAllWeightEstimations.js` y `getWeightEstimationsByCriteria.js`
+- ✅ POST `/api/v1/weighings` - Implementado en `createWeightEstimation.js`
+- ✅ DELETE `/api/v1/weighings/{weighing_id}` - Implementado en `deleteWeightEstimation.js`
+
+#### Gestión de Fincas
+- ✅ POST `/farm` - Implementado en `createFarm.js`
+- ✅ GET `/farm` - Implementado en `getAllFarms.js` y `getFarmsByCriteria.js`
+- ✅ GET `/farm/{farm_id}` - Implementado en `getFarmById.js`
+- ✅ PUT `/farm/{farm_id}` - Implementado en `updateFarm.js`
+- ✅ DELETE `/farm/{farm_id}` - Implementado en `deleteFarm.js`
+
+#### Gestión de Usuarios
+- ✅ POST `/user` - Implementado en `createUser.js`
+- ✅ GET `/user` - Implementado en `getAllUsers.js` y `getUsersByCriteria.js`
+- ✅ GET `/user/{user_id}` - Implementado en `getUserById.js`
+- ✅ PUT `/user/{user_id}` - Implementado en `updateUser.js`
+- ✅ DELETE `/user/{user_id}` - Implementado en `deleteUser.js`
+
+#### Gestión de Roles
+- ✅ POST `/role` - Implementado en `createRole.js`
+- ✅ GET `/role` - Implementado en `getAllRoles.js`
+- ✅ GET `/role/{role_id}` - Implementado en `getRoleById.js`
+- ✅ PUT `/role/{role_id}` - Implementado en `updateRole.js`
+- ✅ DELETE `/role/{role_id}` - Implementado en `deleteRole.js`
+
+#### Alertas y Cronograma
+- ✅ POST `/api/v1/alerts` - Implementado en `createAlert.js`
+- ✅ GET `/api/v1/alerts` - Implementado en `getAllAlerts.js`
+- ✅ GET `/api/v1/alerts/{alert_id}` - Implementado en `getAlertById.js`
+- ✅ PUT `/api/v1/alerts/{alert_id}` - Implementado en `updateAlert.js`
+- ✅ DELETE `/api/v1/alerts/{alert_id}` - Implementado en `deleteAlert.js`
+- ✅ GET `/api/v1/alerts/today` - Implementado en `getTodayAlerts.js`
+- ✅ GET `/api/v1/alerts/upcoming` - Implementado en `getUpcomingAlerts.js`
+- ✅ GET `/api/v1/alerts/pending` - Implementado en `getPendingAlerts.js`
+- ✅ GET `/api/v1/alerts/scheduled` - Implementado en `getScheduledAlerts.js`
+- ✅ GET `/api/v1/alerts/{alert_id}/animals` - Implementado en `getAlertAnimals.js`
+
+#### Sincronización (Solo lectura para Web)
+- ✅ GET `/api/v1/sync/health` - Implementado en `getSyncHealth.js`
+- ✅ GET `/api/v1/sync/stats` - Implementado en `getSyncStats.js`
+- ✅ POST `/api/v1/sync/cattle` - Implementado en `syncCattleBatch.js` (para administración)
+- ✅ POST `/api/v1/sync/weight-estimations` - Implementado en `syncWeightEstimationsBatch.js` (para administración)
+
+#### Recursos Estáticos
+- ✅ GET `/api/v1/resources/images/{image_path}` - Implementado en backend, usado a través de `getImageUrl.js`
+
+### ⚠️ Endpoints No Aplicables al Frontend Web
+- ❌ POST `/api/v1/ml/predict` - Solo para Mobile (sin guardar en BD)
+- ❌ Endpoints de sincronización POST - Principalmente para Mobile, pero implementados para administración
+
+### 📝 Notas sobre Implementación
+
+1. **Dashboard**: No existe un endpoint específico `/api/v1/dashboard`. Las estadísticas se calculan desde múltiples llamadas a:
+   - `getAnimalsByCriteria()` para obtener total de animales y razas
+   - `getWeightEstimationsByCriteria()` para obtener total de estimaciones y peso promedio
+   - ✅ Implementación correcta y eficiente con caché
+
+2. **Recursos de Imágenes**: El endpoint `/api/v1/resources/images/{image_path}` está implementado en el backend y se utiliza a través de la utilidad `getImageUrl.js` en todos los componentes que muestran imágenes.
+
+3. **Caché**: Se ha implementado un sistema de caché para:
+   - Dashboard (TTL: 15 minutos)
+   - Estimaciones de peso
+   - Invalidación automática cuando se crean/actualizan estimaciones
+
+4. **Filtros y Búsqueda**: Todos los servicios soportan filtros y paginación. La UI de búsqueda avanzada está pendiente pero los servicios están listos.
+
+---
+
 **Última actualización**: 2025-01-02  
 **Versión Frontend**: 1.0.0  
 **React Version**: 18+  
 **Material-UI Version**: 5+  
-**Estado**: ✅ **TODOS LOS SERVICIOS API IMPLEMENTADOS** (100%)
+**Estado**: ✅ **TODOS LOS ENDPOINTS WEB IMPLEMENTADOS** (100% - Excluyendo reportes como solicitado)
 

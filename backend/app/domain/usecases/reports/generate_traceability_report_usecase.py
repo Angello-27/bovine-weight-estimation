@@ -8,6 +8,7 @@ from uuid import UUID
 from ....core.exceptions import NotFoundException
 from ...repositories.animal_repository import AnimalRepository
 from ...repositories.weight_estimation_repository import WeightEstimationRepository
+from ..animals.get_animal_timeline_usecase import GetAnimalTimelineUseCase
 
 
 class GenerateTraceabilityReportUseCase:
@@ -31,6 +32,10 @@ class GenerateTraceabilityReportUseCase:
         """
         self.animal_repository = animal_repository
         self.weight_estimation_repository = weight_estimation_repository
+        # Crear usecase de timeline
+        self.timeline_usecase = GetAnimalTimelineUseCase(
+            animal_repository, weight_estimation_repository
+        )
 
     async def execute(self, animal_id: UUID, format: str = "pdf") -> dict:
         """
@@ -77,25 +82,47 @@ class GenerateTraceabilityReportUseCase:
             animal_id, parent_role="both"
         )
 
-        # 4. Preparar datos para el reporte
+        # 4. Obtener timeline de eventos
+        timeline_data = await self.timeline_usecase.execute(animal_id)
+        timeline_events = timeline_data.get("events", [])
+
+        # 5. Ordenar estimaciones por fecha (más reciente primero)
+        def get_timestamp(est):
+            """Obtiene el timestamp de una estimación."""
+            if hasattr(est, "timestamp") and est.timestamp:
+                return est.timestamp
+            if hasattr(est, "created_at") and est.created_at:
+                return est.created_at
+            from datetime import datetime
+
+            return datetime.utcnow()
+
+        sorted_estimations = sorted(
+            weight_estimations,
+            key=get_timestamp,
+            reverse=True,
+        )
+
+        # 6. Preparar datos para el reporte
         report_data = {
             "animal": animal,
-            "weight_estimations": weight_estimations,
+            "weight_estimations": sorted_estimations,
             "lineage": {
                 "mother": mother,
                 "father": father,
                 "descendants": descendants,
             },
+            "timeline": timeline_events,
             "summary": {
                 "total_weight_estimations": len(weight_estimations),
                 "current_weight": (
-                    weight_estimations[0].estimated_weight_kg
-                    if weight_estimations
+                    sorted_estimations[0].estimated_weight_kg
+                    if sorted_estimations
                     else None
                 ),
                 "first_weight": (
-                    weight_estimations[-1].estimated_weight_kg
-                    if weight_estimations
+                    sorted_estimations[-1].estimated_weight_kg
+                    if sorted_estimations
                     else None
                 ),
                 "age_months": animal.calculate_age_months(),

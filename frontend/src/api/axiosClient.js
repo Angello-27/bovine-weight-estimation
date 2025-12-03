@@ -40,7 +40,19 @@ apiClient.interceptors.request.use(
 // Interceptor para manejar errores (especialmente 401 - No autorizado)
 apiClient.interceptors.response.use(
     (response) => response,
-    (error) => {
+    async (error) => {
+        // Si el error es de un blob, intentar leer el mensaje de error del JSON
+        if (error.config?.responseType === 'blob' && error.response?.data instanceof Blob) {
+            try {
+                const text = await error.response.data.text();
+                const errorData = JSON.parse(text);
+                error.response.data = errorData;
+            } catch (e) {
+                // Si no es JSON, mantener el blob original
+                console.warn('Error response no es JSON:', e);
+            }
+        }
+
         if (error.response?.status === 401) {
             // Token expirado o inválido
             localStorage.removeItem('access_token');

@@ -6,10 +6,7 @@ import CustomTypography from '../../atoms/CustomTypography';
 import Card from '../../atoms/Card';
 import EmptyState from '../EmptyState';
 import ImageIcon from '@mui/icons-material/Image';
-import Dialog from '@mui/material/Dialog';
-import DialogContent from '@mui/material/DialogContent';
-import IconButton from '@mui/material/IconButton';
-import CloseIcon from '@mui/icons-material/Close';
+import ExpandedImageDialog from '../../atoms/ExpandedImageDialog';
 import { useState } from 'react';
 import { getImageUrl } from '../../../utils/getImageUrl';
 
@@ -104,7 +101,7 @@ function ImageGallery({ images, apiBaseUrl }) {
                                                 bgcolor: 'rgba(0, 0, 0, 0.6)',
                                                 color: 'white',
                                                 p: 0.5,
-                                                fontSize: '0.75rem'
+                                                fontSize: '1.05rem'
                                             }}
                                         >
                                             {new Date(image.date).toLocaleDateString('es-ES')}
@@ -118,58 +115,11 @@ function ImageGallery({ images, apiBaseUrl }) {
             </Card>
 
             {/* Dialog para vista ampliada */}
-            <Dialog
+            <ExpandedImageDialog
                 open={openDialog}
                 onClose={handleCloseDialog}
-                maxWidth="lg"
-                fullWidth
-            >
-                <DialogContent sx={{ p: 0, position: 'relative' }}>
-                    <IconButton
-                        onClick={handleCloseDialog}
-                        sx={{
-                            position: 'absolute',
-                            top: 8,
-                            right: 8,
-                            zIndex: 1,
-                            bgcolor: 'rgba(0, 0, 0, 0.5)',
-                            color: 'white',
-                            '&:hover': {
-                                bgcolor: 'rgba(0, 0, 0, 0.7)'
-                            }
-                        }}
-                    >
-                        <CloseIcon />
-                    </IconButton>
-                    {selectedImage && (
-                        <Box>
-                            <img
-                                src={buildImageUrl(selectedImage.url)}
-                                alt={selectedImage.title || 'Imagen ampliada'}
-                                style={{
-                                    width: '100%',
-                                    height: 'auto',
-                                    display: 'block'
-                                }}
-                            />
-                            {(selectedImage.title || selectedImage.date) && (
-                                <Box p={2} bgcolor="background.paper">
-                                    {selectedImage.title && (
-                                        <CustomTypography variant="h6" mb={1}>
-                                            {selectedImage.title}
-                                        </CustomTypography>
-                                    )}
-                                    {selectedImage.date && (
-                                        <CustomTypography variant="body2" color="text.secondary">
-                                            Fecha: {new Date(selectedImage.date).toLocaleString('es-ES')}
-                                        </CustomTypography>
-                                    )}
-                                </Box>
-                            )}
-                        </Box>
-                    )}
-                </DialogContent>
-            </Dialog>
+                image={selectedImage}
+            />
         </>
     );
 }
