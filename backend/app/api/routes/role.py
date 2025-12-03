@@ -33,9 +33,9 @@ from ...schemas.role_schemas import (
 from ..mappers import RoleMapper
 from ..utils import handle_domain_exceptions
 
-# Router con prefijo /role
+# Router con prefijo /api/v1/roles
 router = APIRouter(
-    prefix="/role",
+    prefix="/api/v1/roles",
     tags=["Roles"],
     responses={
         404: {"description": "Rol no encontrado"},

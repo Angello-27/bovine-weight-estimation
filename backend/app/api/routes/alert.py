@@ -47,8 +47,8 @@ from ...schemas.animal_schemas import AnimalResponse
 from ..mappers import AlertMapper, AnimalMapper
 from ..utils import handle_domain_exceptions
 
-# Crear router
-alert_router = APIRouter(prefix="/alerts", tags=["Alerts"])
+# Router con prefijo /api/v1/alerts
+alert_router = APIRouter(prefix="/api/v1/alerts", tags=["Alerts"])
 
 
 @alert_router.post("", response_model=AlertResponse, status_code=201)
