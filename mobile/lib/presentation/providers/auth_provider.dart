@@ -55,34 +55,47 @@ class AuthProvider extends ChangeNotifier {
     }
 
     try {
+      // Verificar si hay sesión guardada
       final hasSessionResult = await hasSessionUseCase(const NoParams());
-      hasSessionResult.fold(
-        (failure) {
+
+      await hasSessionResult.fold(
+        (failure) async {
           _error = failure;
           _currentUser = null;
         },
         (hasSession) async {
           if (hasSession) {
+            // Si hay sesión, cargar datos del usuario
             final userResult = await getCurrentUserUseCase(const NoParams());
             userResult.fold(
               (failure) {
                 _error = failure;
                 _currentUser = null;
+                debugPrint('⚠️ Error al cargar usuario: ${failure.message}');
               },
               (user) {
-                _currentUser = user;
-                _error = null;
+                if (user != null) {
+                  _currentUser = user;
+                  _error = null;
+                  debugPrint('✅ Usuario cargado: ${user.username}');
+                } else {
+                  _currentUser = null;
+                  _error = null;
+                  debugPrint('⚠️ No hay usuario en sesión');
+                }
               },
             );
           } else {
             _currentUser = null;
             _error = null;
+            debugPrint('ℹ️ No hay sesión guardada');
           }
         },
       );
     } catch (e) {
       _error = ServerFailure(message: 'Error al inicializar: $e');
       _currentUser = null;
+      debugPrint('❌ Error al inicializar auth: $e');
     } finally {
       _isLoading = false;
       if (!silent) {

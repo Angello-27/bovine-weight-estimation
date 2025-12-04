@@ -27,19 +27,29 @@ class _AuthGuardState extends State<AuthGuard> {
   @override
   void initState() {
     super.initState();
-    _initializeAuth();
+    // Usar addPostFrameCallback para asegurar que los providers estén listos
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeAuth();
+    });
   }
 
   /// Inicializa la autenticación verificando sesión existente
   Future<void> _initializeAuth() async {
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    // Inicializar en modo silencioso para evitar notifyListeners durante el build
-    await authProvider.initialize(silent: true);
+    if (!mounted) return;
 
-    if (mounted) {
-      setState(() {
-        _isInitializing = false;
-      });
+    try {
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+
+      // Inicializar en modo silencioso para evitar notifyListeners durante el build
+      await authProvider.initialize(silent: true);
+    } catch (e) {
+      debugPrint('Error al inicializar auth en AuthGuard: $e');
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isInitializing = false;
+        });
+      }
     }
   }
 
@@ -51,6 +61,13 @@ class _AuthGuardState extends State<AuthGuard> {
 
     return Consumer<AuthProvider>(
       builder: (context, authProvider, _) {
+        // Si está cargando, mostrar indicador
+        if (authProvider.isLoading) {
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
+
         // Si no está autenticado, mostrar login
         if (!authProvider.isAuthenticated) {
           return const LoginPage();

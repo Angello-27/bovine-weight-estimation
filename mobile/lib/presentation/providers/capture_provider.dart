@@ -8,12 +8,17 @@ library;
 
 import 'dart:async';
 
+import 'package:camera/camera.dart' as camera;
 import 'package:flutter/material.dart';
 
+import '../../core/config/dependency_injection.dart';
+import '../../core/constants/breeds.dart';
 import '../../core/theme/app_colors.dart';
 import '../../domain/entities/capture_session.dart';
 import '../../domain/entities/frame.dart';
+import '../../domain/entities/weight_estimation.dart';
 import '../../domain/usecases/capture_frames_usecase.dart';
+import '../../domain/usecases/estimate_weight_usecase.dart';
 
 /// Estados posibles de la captura
 enum CaptureState {
@@ -92,6 +97,8 @@ extension CaptureStateUI on CaptureState {
 /// Provider para gestionar el estado de captura de fotogramas
 class CaptureProvider with ChangeNotifier {
   final CaptureFramesUseCase captureFramesUseCase;
+  final EstimateWeightUseCase?
+  estimateWeightUseCase; // Opcional para estimación
 
   /// Estado actual
   CaptureState _state = CaptureState.idle;
@@ -105,8 +112,8 @@ class CaptureProvider with ChangeNotifier {
   /// Fotogramas capturados en la sesión actual
   List<Frame> _frames = [];
 
-  /// FPS objetivo (10-15)
-  int _targetFps = 12;
+  /// FPS objetivo (se lee desde settings, default: 5)
+  int _targetFps = 5;
 
   /// Duración objetivo en segundos (3-5)
   int _targetDurationSeconds = 4;
@@ -117,7 +124,28 @@ class CaptureProvider with ChangeNotifier {
   /// Timestamp de inicio de captura continua
   DateTime? _continuousCaptureStartTime;
 
-  CaptureProvider({required this.captureFramesUseCase});
+  /// Controller de la cámara (se establece desde CapturePage)
+  camera.CameraController? _cameraController;
+
+  /// Flag para evitar capturas simultáneas
+  bool _isCapturingFrame = false;
+
+  /// Última estimación de peso (resultado del servidor)
+  WeightEstimation? _lastEstimation;
+
+  /// Estado de estimación
+  bool _isEstimating = false;
+  String? _estimationError;
+
+  CaptureProvider({
+    required this.captureFramesUseCase,
+    this.estimateWeightUseCase,
+  });
+
+  /// Establece el controller de la cámara (llamado desde CapturePage)
+  void setCameraController(camera.CameraController? controller) {
+    _cameraController = controller;
+  }
 
   // Getters
   CaptureState get state => _state;
@@ -158,12 +186,27 @@ class CaptureProvider with ChangeNotifier {
   /// Indica si hay un error
   bool get hasError => _state == CaptureState.error;
 
-  /// Configura FPS objetivo
+  /// Última estimación de peso
+  WeightEstimation? get lastEstimation => _lastEstimation;
+
+  /// Elimina un frame específico de la lista
+  /// Si se elimina el mejor frame, se recalcula automáticamente
+  void removeFrame(Frame frame) {
+    _frames.removeWhere((f) => f.id == frame.id);
+    notifyListeners();
+  }
+
+  /// Indica si está estimando peso
+  bool get isEstimating => _isEstimating;
+
+  /// Error de estimación (si existe)
+  String? get estimationError => _estimationError;
+
+  /// Configura FPS objetivo (1-10)
   void setTargetFps(int fps) {
-    if (fps >= 10 && fps <= 15) {
-      _targetFps = fps;
-      notifyListeners();
-    }
+    final clampedFps = fps.clamp(1, 10);
+    _targetFps = clampedFps;
+    notifyListeners();
   }
 
   /// Configura duración objetivo
@@ -242,12 +285,13 @@ class CaptureProvider with ChangeNotifier {
       notifyListeners();
 
       // Iniciar timer para captura continua
+      // Usar FPS configurado (ya está validado en 1-10)
       final msPerFrame = (1000 / _targetFps).round();
       _continuousCaptureTimer = Timer.periodic(
         Duration(milliseconds: msPerFrame),
-        (timer) async {
-          // Capturar frame
-          await _captureSingleFrame();
+        (timer) {
+          // Capturar frame en segundo plano sin bloquear
+          _captureSingleFrame();
         },
       );
     } catch (e) {
@@ -258,12 +302,17 @@ class CaptureProvider with ChangeNotifier {
   }
 
   /// Detiene la captura continua
-  void stopContinuousCapture() {
+  Future<void> stopContinuousCapture() async {
     _continuousCaptureTimer?.cancel();
     _continuousCaptureTimer = null;
 
     if (_frames.isNotEmpty) {
       _state = CaptureState.completed;
+
+      // Enviar el mejor frame al servidor para estimación
+      if (bestFrame != null && estimateWeightUseCase != null) {
+        await _estimateBestFrame();
+      }
     } else {
       _state = CaptureState.idle;
     }
@@ -272,35 +321,93 @@ class CaptureProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  /// Captura un solo frame (usado en captura continua)
-  Future<void> _captureSingleFrame() async {
+  /// Estima el peso del mejor frame usando el servidor
+  Future<void> _estimateBestFrame() async {
+    if (bestFrame == null || estimateWeightUseCase == null) return;
+
     try {
-      // Crear parámetros para un solo frame
-      final params = CaptureParams(
-        targetFps: _targetFps,
-        durationSeconds: 1, // Solo necesitamos 1 segundo para 1 frame
+      _isEstimating = true;
+      _estimationError = null;
+      notifyListeners();
+
+      // Usar una raza por defecto (el usuario puede cambiarla después)
+      // Por ahora usamos nelore como default
+      final params = EstimateWeightParams(
+        imagePath: bestFrame!.imagePath,
+        breed: BreedType.nelore, // Default, el usuario puede cambiar
+        cattleId: null,
       );
 
-      // Ejecutar caso de uso (capturará 1 frame)
-      final result = await captureFramesUseCase.call(params);
+      final result = await estimateWeightUseCase!.call(params);
 
       result.fold(
         (failure) {
-          // Error en frame individual, continuar con siguiente
-          debugPrint('Error capturando frame: ${failure.message}');
+          _estimationError = failure.message;
+          _lastEstimation = null;
         },
-        (session) {
-          // Agregar frames a la lista
-          if (session.frames.isNotEmpty) {
-            _frames.addAll(session.frames);
-            notifyListeners();
-          }
+        (estimation) {
+          _lastEstimation = estimation;
+          _estimationError = null;
         },
       );
     } catch (e) {
-      debugPrint('Error capturando frame: $e');
-      // Continuar capturando aunque haya error en un frame
+      _estimationError = 'Error al estimar peso: $e';
+      _lastEstimation = null;
+    } finally {
+      _isEstimating = false;
+      notifyListeners();
     }
+  }
+
+  /// Captura un solo frame (usado en captura continua)
+  ///
+  /// Captura directamente desde la cámara sin usar el use case,
+  /// para evitar validaciones de duración mínima.
+  /// Se ejecuta en segundo plano para no bloquear la UI.
+  void _captureSingleFrame() {
+    // Evitar capturas simultáneas
+    if (_isCapturingFrame) {
+      return;
+    }
+
+    // Ejecutar en segundo plano sin bloquear
+    Future.microtask(() async {
+      try {
+        // Verificar que la cámara esté disponible
+        if (_cameraController == null ||
+            !_cameraController!.value.isInitialized) {
+          return;
+        }
+
+        // Marcar como capturando
+        _isCapturingFrame = true;
+
+        // Capturar frame directamente de la cámara usando CameraDataSource
+        // Esto evita usar captureFramesUseCase que requiere duración mínima de 3-5 segundos
+        final di = DependencyInjection();
+        final frame = await di.cameraDataSource.captureFrame(
+          _cameraController!,
+        );
+
+        // Agregar frame a la lista
+        _frames.add(frame);
+
+        // Notificar cambios en el siguiente frame para no bloquear
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          notifyListeners();
+        });
+      } catch (e) {
+        // Solo loguear errores críticos, ignorar errores de "Previous capture"
+        if (e.toString().contains('Previous capture')) {
+          // Error esperado cuando la cámara está ocupada, ignorar silenciosamente
+        } else {
+          debugPrint('Error capturando frame: $e');
+        }
+      } finally {
+        // Liberar flag
+        _isCapturingFrame = false;
+      }
+    });
   }
 
   /// Duración de captura continua (en segundos)

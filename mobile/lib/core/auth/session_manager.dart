@@ -7,6 +7,7 @@
 library;
 
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 /// Gestor de sesión de usuario
@@ -35,12 +36,27 @@ class SessionManager {
     required Map<String, dynamic> userData,
     String? refreshToken,
   }) async {
-    await Future.wait([
-      _storage.write(key: _accessTokenKey, value: accessToken),
-      _storage.write(key: _userDataKey, value: jsonEncode(userData)),
-      if (refreshToken != null)
-        _storage.write(key: _refreshTokenKey, value: refreshToken),
-    ]);
+    try {
+      await Future.wait([
+        _storage.write(key: _accessTokenKey, value: accessToken),
+        _storage.write(key: _userDataKey, value: jsonEncode(userData)),
+        if (refreshToken != null)
+          _storage.write(key: _refreshTokenKey, value: refreshToken),
+      ]);
+      // Verificar que se guardó correctamente
+      final savedToken = await getAccessToken();
+      final savedUserData = await getUserData();
+      if (savedToken != null && savedUserData != null) {
+        debugPrint(
+          '✅ Sesión guardada correctamente: ${savedUserData['username']}',
+        );
+      } else {
+        debugPrint('⚠️ Error: Sesión no se guardó correctamente');
+      }
+    } catch (e) {
+      debugPrint('❌ Error al guardar sesión: $e');
+      rethrow;
+    }
   }
 
   /// Obtiene el token de acceso actual
@@ -50,20 +66,40 @@ class SessionManager {
 
   /// Obtiene los datos del usuario actual
   Future<Map<String, dynamic>?> getUserData() async {
-    final userDataStr = await _storage.read(key: _userDataKey);
-    if (userDataStr == null) return null;
-
     try {
-      return jsonDecode(userDataStr) as Map<String, dynamic>;
+      final userDataStr = await _storage.read(key: _userDataKey);
+      if (userDataStr == null) {
+        debugPrint('⚠️ No hay datos de usuario guardados');
+        return null;
+      }
+
+      try {
+        final userData = jsonDecode(userDataStr) as Map<String, dynamic>;
+        debugPrint('✅ Datos de usuario cargados: ${userData['username']}');
+        return userData;
+      } catch (e) {
+        debugPrint('❌ Error al decodificar datos de usuario: $e');
+        return null;
+      }
     } catch (e) {
+      debugPrint('❌ Error al leer datos de usuario: $e');
       return null;
     }
   }
 
   /// Verifica si hay una sesión activa
   Future<bool> hasSession() async {
-    final token = await getAccessToken();
-    return token != null && token.isNotEmpty;
+    try {
+      final token = await getAccessToken();
+      final hasToken = token != null && token.isNotEmpty;
+      debugPrint(
+        '🔍 Verificando sesión: ${hasToken ? "✅ Token encontrado" : "❌ No hay token"}',
+      );
+      return hasToken;
+    } catch (e) {
+      debugPrint('❌ Error al verificar sesión: $e');
+      return false;
+    }
   }
 
   /// Limpia la sesión (logout)

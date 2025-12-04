@@ -37,29 +37,44 @@ class BestFramePreviewDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Dialog(
       backgroundColor: Colors.transparent,
       insetPadding: const EdgeInsets.all(AppSpacing.md),
       child: Container(
-        constraints: const BoxConstraints(maxHeight: 600),
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.of(context).size.height * 0.9,
+        ),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: colorScheme.surface,
           borderRadius: BorderRadius.circular(AppSpacing.borderRadiusLarge),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Header
-            _buildHeader(context),
+            // Header (fijo)
+            _buildHeader(context, theme, colorScheme),
 
-            // Imagen del mejor frame
-            Flexible(child: _buildImagePreview()),
+            // Contenido scrolleable
+            Flexible(
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Imagen del mejor frame
+                    _buildImagePreview(),
 
-            // Información detallada
-            _buildFrameInfo(),
+                    // Información detallada
+                    _buildFrameInfo(context, theme, colorScheme),
+                  ],
+                ),
+              ),
+            ),
 
-            // Botones de acción
-            _buildActionButtons(context),
+            // Botones de acción (fijos en la parte inferior)
+            _buildActionButtons(context, theme, colorScheme),
           ],
         ),
       ),
@@ -67,11 +82,17 @@ class BestFramePreviewDialog extends StatelessWidget {
   }
 
   /// Header del diálogo
-  Widget _buildHeader(BuildContext context) {
+  Widget _buildHeader(
+    BuildContext context,
+    ThemeData theme,
+    ColorScheme colorScheme,
+  ) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Container(
       padding: const EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
-        color: AppColors.primary,
+        color: colorScheme.primary,
         borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(AppSpacing.borderRadiusLarge),
           topRight: Radius.circular(AppSpacing.borderRadiusLarge),
@@ -79,20 +100,19 @@ class BestFramePreviewDialog extends StatelessWidget {
       ),
       child: Row(
         children: [
-          const Icon(Icons.star, color: Colors.white),
+          Icon(Icons.star, color: colorScheme.onPrimary),
           const SizedBox(width: AppSpacing.sm),
-          const Expanded(
+          Expanded(
             child: Text(
-              'Mejor Frame Capturado',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 18,
+              l10n.bestFrameCaptured,
+              style: theme.textTheme.titleLarge?.copyWith(
+                color: colorScheme.onPrimary,
                 fontWeight: FontWeight.bold,
               ),
             ),
           ),
           IconButton(
-            icon: const Icon(Icons.close, color: Colors.white),
+            icon: Icon(Icons.close, color: colorScheme.onPrimary),
             onPressed: () => Navigator.of(context).pop(),
           ),
         ],
@@ -102,30 +122,40 @@ class BestFramePreviewDialog extends StatelessWidget {
 
   /// Preview de la imagen
   Widget _buildImagePreview() {
-    return Container(
-      width: double.infinity,
-      constraints: const BoxConstraints(maxHeight: 300),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(AppSpacing.borderRadiusMedium),
-        child: Image.file(
-          File(bestFrame.imagePath),
-          fit: BoxFit.contain,
-          errorBuilder: (context, error, stackTrace) {
-            return Container(
-              height: 200,
-              color: Colors.grey[200],
-              child: const Center(
-                child: Icon(Icons.image, size: 64, color: Colors.grey),
-              ),
-            );
-          },
+    return Padding(
+      padding: const EdgeInsets.all(AppSpacing.md),
+      child: Container(
+        width: double.infinity,
+        constraints: const BoxConstraints(minHeight: 200, maxHeight: 250),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(AppSpacing.borderRadiusMedium),
+          child: Image.file(
+            File(bestFrame.imagePath),
+            fit: BoxFit.cover,
+            alignment: Alignment.center,
+            errorBuilder: (context, error, stackTrace) {
+              return Container(
+                height: 200,
+                color: Colors.grey[200],
+                child: const Center(
+                  child: Icon(Icons.image, size: 64, color: Colors.grey),
+                ),
+              );
+            },
+          ),
         ),
       ),
     );
   }
 
   /// Información del frame
-  Widget _buildFrameInfo() {
+  Widget _buildFrameInfo(
+    BuildContext context,
+    ThemeData theme,
+    ColorScheme colorScheme,
+  ) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Container(
       padding: const EdgeInsets.all(AppSpacing.md),
       child: Column(
@@ -133,10 +163,13 @@ class BestFramePreviewDialog extends StatelessWidget {
         children: [
           // Score global
           _buildInfoRow(
+            context: context,
+            theme: theme,
+            colorScheme: colorScheme,
             icon: Icons.star,
-            label: 'Score Global',
+            label: l10n.globalScore,
             value: bestFrame.globalScore.toStringAsFixed(2),
-            color: AppColors.accent,
+            color: colorScheme.primary,
           ),
 
           const SizedBox(height: AppSpacing.sm),
@@ -146,16 +179,22 @@ class BestFramePreviewDialog extends StatelessWidget {
             children: [
               Expanded(
                 child: _buildInfoCard(
+                  context: context,
+                  theme: theme,
+                  colorScheme: colorScheme,
                   icon: Icons.center_focus_strong,
-                  label: 'Nitidez',
+                  label: l10n.sharpness,
                   value: bestFrame.quality.sharpness.toStringAsFixed(2),
                 ),
               ),
               const SizedBox(width: AppSpacing.sm),
               Expanded(
                 child: _buildInfoCard(
+                  context: context,
+                  theme: theme,
+                  colorScheme: colorScheme,
                   icon: Icons.wb_sunny,
-                  label: 'Iluminación',
+                  label: l10n.illumination,
                   value: bestFrame.quality.brightness.toStringAsFixed(2),
                 ),
               ),
@@ -168,16 +207,22 @@ class BestFramePreviewDialog extends StatelessWidget {
             children: [
               Expanded(
                 child: _buildInfoCard(
+                  context: context,
+                  theme: theme,
+                  colorScheme: colorScheme,
                   icon: Icons.contrast,
-                  label: 'Contraste',
+                  label: l10n.contrast,
                   value: bestFrame.quality.contrast.toStringAsFixed(2),
                 ),
               ),
               const SizedBox(width: AppSpacing.sm),
               Expanded(
                 child: _buildInfoCard(
+                  context: context,
+                  theme: theme,
+                  colorScheme: colorScheme,
                   icon: Icons.visibility,
-                  label: 'Silueta',
+                  label: l10n.silhouette,
                   value: bestFrame.quality.silhouetteVisibility.toStringAsFixed(
                     2,
                   ),
@@ -190,16 +235,22 @@ class BestFramePreviewDialog extends StatelessWidget {
 
           // Estadísticas de captura
           _buildInfoRow(
+            context: context,
+            theme: theme,
+            colorScheme: colorScheme,
             icon: Icons.camera,
-            label: 'Total Frames',
+            label: l10n.totalFrames,
             value: '$totalFrames',
           ),
 
           const SizedBox(height: 4),
 
           _buildInfoRow(
+            context: context,
+            theme: theme,
+            colorScheme: colorScheme,
             icon: Icons.check_circle,
-            label: 'Frames Óptimos',
+            label: l10n.optimalFrames,
             value: '$optimalFrames',
             color: AppColors.success,
           ),
@@ -210,6 +261,9 @@ class BestFramePreviewDialog extends StatelessWidget {
 
   /// Fila de información
   Widget _buildInfoRow({
+    required BuildContext context,
+    required ThemeData theme,
+    required ColorScheme colorScheme,
     required IconData icon,
     required String label,
     required String value,
@@ -217,18 +271,19 @@ class BestFramePreviewDialog extends StatelessWidget {
   }) {
     return Row(
       children: [
-        Icon(icon, size: 20, color: color ?? AppColors.textSecondary),
+        Icon(icon, size: 20, color: color ?? colorScheme.onSurfaceVariant),
         const SizedBox(width: AppSpacing.sm),
         Text(
           label,
-          style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
+          style: theme.textTheme.bodyMedium?.copyWith(
+            color: colorScheme.onSurfaceVariant,
+          ),
         ),
         const Spacer(),
         Text(
           value,
-          style: TextStyle(
-            color: color ?? AppColors.onSurface,
-            fontSize: 14,
+          style: theme.textTheme.bodyMedium?.copyWith(
+            color: color ?? colorScheme.onSurface,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -238,6 +293,9 @@ class BestFramePreviewDialog extends StatelessWidget {
 
   /// Card de información
   Widget _buildInfoCard({
+    required BuildContext context,
+    required ThemeData theme,
+    required ColorScheme colorScheme,
     required IconData icon,
     required String label,
     required String value,
@@ -245,26 +303,24 @@ class BestFramePreviewDialog extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(AppSpacing.sm),
       decoration: BoxDecoration(
-        color: AppColors.surfaceVariant,
+        color: colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(AppSpacing.borderRadiusMedium),
       ),
       child: Column(
         children: [
-          Icon(icon, size: 24, color: AppColors.primary),
+          Icon(icon, size: 24, color: colorScheme.primary),
           const SizedBox(height: 4),
           Text(
             label,
-            style: const TextStyle(
-              fontSize: 12,
-              color: AppColors.textSecondary,
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: colorScheme.onSurfaceVariant,
             ),
           ),
           Text(
             value,
-            style: const TextStyle(
-              fontSize: 16,
+            style: theme.textTheme.bodyLarge?.copyWith(
               fontWeight: FontWeight.bold,
-              color: AppColors.onSurface,
+              color: colorScheme.onSurface,
             ),
           ),
         ],
@@ -273,14 +329,76 @@ class BestFramePreviewDialog extends StatelessWidget {
   }
 
   /// Botones de acción
-  Widget _buildActionButtons(BuildContext context) {
+  Widget _buildActionButtons(
+    BuildContext context,
+    ThemeData theme,
+    ColorScheme colorScheme,
+  ) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Container(
       padding: const EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
-        border: Border(top: BorderSide(color: AppColors.surfaceVariant)),
+        border: Border(top: BorderSide(color: colorScheme.outlineVariant)),
       ),
       child: Row(
         children: [
+          // Botón eliminar
+          Expanded(
+            child: OutlinedButton.icon(
+              onPressed: () {
+                // Mostrar diálogo de confirmación
+                showDialog(
+                  context: context,
+                  builder: (dialogContext) => AlertDialog(
+                    title: Text(l10n.deleteFrame),
+                    content: Text(l10n.deleteFrameConfirmation),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.of(dialogContext).pop(),
+                        child: Text(l10n.cancel),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          // Eliminar el frame primero
+                          final provider = Provider.of<CaptureProvider>(
+                            context,
+                            listen: false,
+                          );
+                          provider.removeFrame(bestFrame);
+
+                          // Cerrar diálogo de confirmación
+                          Navigator.of(dialogContext).pop();
+
+                          // Cerrar diálogo principal después de un pequeño delay
+                          // para que la UI se actualice
+                          Future.microtask(() {
+                            if (context.mounted) {
+                              Navigator.of(context).pop();
+                            }
+                          });
+                        },
+                        style: TextButton.styleFrom(
+                          foregroundColor: AppColors.error,
+                        ),
+                        child: Text(l10n.deleteFrame),
+                      ),
+                    ],
+                  ),
+                );
+              },
+              style: OutlinedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
+                foregroundColor: AppColors.error,
+                side: BorderSide(color: AppColors.error),
+              ),
+              icon: const Icon(Icons.delete_outline, size: 20),
+              label: Text(l10n.deleteFrame),
+            ),
+          ),
+
+          const SizedBox(width: AppSpacing.md),
+
           // Botón cancelar
           Expanded(
             child: OutlinedButton(
@@ -288,7 +406,7 @@ class BestFramePreviewDialog extends StatelessWidget {
               style: OutlinedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
               ),
-              child: Text(AppLocalizations.of(context)!.cancel),
+              child: Text(l10n.cancel),
             ),
           ),
 
@@ -297,7 +415,7 @@ class BestFramePreviewDialog extends StatelessWidget {
           // Botón confirmar y continuar
           Expanded(
             flex: 2,
-            child: ElevatedButton(
+            child: ElevatedButton.icon(
               onPressed: () {
                 // Cerrar diálogo
                 Navigator.of(context).pop();
@@ -321,21 +439,13 @@ class BestFramePreviewDialog extends StatelessWidget {
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.success,
+                foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
               ),
-              child: const Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.check_circle, color: Colors.white),
-                  SizedBox(width: AppSpacing.sm),
-                  Text(
-                    'Confirmar y Continuar',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
+              icon: const Icon(Icons.check_circle, size: 20),
+              label: Text(
+                l10n.confirmAndContinue,
+                style: const TextStyle(fontWeight: FontWeight.bold),
               ),
             ),
           ),

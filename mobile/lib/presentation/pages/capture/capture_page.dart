@@ -50,6 +50,7 @@ class _CapturePageState extends State<CapturePage> {
   camera.CameraController? _cameraController;
   bool _isInitializing = false;
   String? _errorMessage;
+  bool? _lastFlashEnabled; // Para detectar cambios
 
   @override
   void initState() {
@@ -121,6 +122,7 @@ class _CapturePageState extends State<CapturePage> {
         listen: false,
       );
       final enableFlash = settingsProvider.settings.flashEnabled;
+      _lastFlashEnabled = enableFlash; // Guardar estado inicial
       final controller = await di.cameraDataSource.initializeCamera(
         enableFlash: enableFlash,
       );
@@ -129,6 +131,13 @@ class _CapturePageState extends State<CapturePage> {
         await di.cameraDataSource.dispose(controller);
         return;
       }
+
+      // Actualizar FPS desde settings
+      final captureProvider = Provider.of<CaptureProvider>(
+        context,
+        listen: false,
+      );
+      captureProvider.setTargetFps(settingsProvider.settings.captureFps);
 
       setState(() {
         _cameraController = controller;
@@ -140,6 +149,22 @@ class _CapturePageState extends State<CapturePage> {
         _errorMessage = 'Error al inicializar cámara: $e';
         _isInitializing = false;
       });
+    }
+  }
+
+  /// Actualiza el modo de flash de la cámara
+  Future<void> _updateFlashMode(bool enableFlash) async {
+    if (_cameraController == null || !_cameraController!.value.isInitialized) {
+      return;
+    }
+
+    try {
+      await _cameraController!.setFlashMode(
+        enableFlash ? camera.FlashMode.always : camera.FlashMode.off,
+      );
+    } catch (e) {
+      // Ignorar errores de flash (algunos dispositivos no tienen flash)
+      debugPrint('Error al actualizar flash: $e');
     }
   }
 
@@ -202,8 +227,23 @@ class _CapturePageState extends State<CapturePage> {
   Widget build(BuildContext context) {
     // Si la cámara está inicializada, mostrar vista a pantalla completa
     if (_cameraController != null && _cameraController!.value.isInitialized) {
-      return Consumer<CaptureProvider>(
-        builder: (context, provider, child) {
+      return Consumer2<CaptureProvider, SettingsProvider>(
+        builder: (context, captureProvider, settingsProvider, child) {
+          // Establecer el controller de la cámara en el provider y sincronizar settings
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            captureProvider.setCameraController(_cameraController);
+            // Sincronizar FPS desde settings
+            captureProvider.setTargetFps(settingsProvider.settings.captureFps);
+          });
+
+          // Actualizar flash mode cuando cambie el setting (en tiempo real)
+          final currentFlashEnabled = settingsProvider.settings.flashEnabled;
+          if (_lastFlashEnabled != currentFlashEnabled) {
+            _lastFlashEnabled = currentFlashEnabled;
+            // Actualizar flash de forma asíncrona para no bloquear el build
+            Future.microtask(() => _updateFlashMode(currentFlashEnabled));
+          }
+
           return Scaffold(
             backgroundColor: Colors.black,
             // Sin AppBar para pantalla completa

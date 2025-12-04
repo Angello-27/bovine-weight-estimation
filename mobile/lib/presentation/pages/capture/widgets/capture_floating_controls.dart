@@ -9,6 +9,7 @@ library;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../core/routes/app_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../providers/capture_provider.dart';
@@ -42,10 +43,28 @@ class CaptureFloatingControls extends StatelessWidget {
     final isCapturing = provider.isCapturing;
 
     return GestureDetector(
-      onTap: () {
+      onTap: () async {
         if (isCapturing) {
-          // Detener captura
-          provider.stopContinuousCapture();
+          // Detener captura (ahora es async)
+          await provider.stopContinuousCapture();
+
+          // Navegar a estimación de peso si hay frames capturados
+          if (provider.bestFrame != null && provider.frameCount > 0) {
+            // Esperar un momento para que la UI se actualice
+            await Future.delayed(const Duration(milliseconds: 300));
+
+            if (context.mounted) {
+              AppRouter.push(
+                context,
+                AppRoutes.weightEstimation,
+                arguments: {
+                  'framePath': provider.bestFrame!.imagePath,
+                  'cattleId':
+                      null, // Se puede pasar si hay un animal seleccionado
+                },
+              );
+            }
+          }
         } else {
           // Iniciar captura continua
           provider.startContinuousCapture();

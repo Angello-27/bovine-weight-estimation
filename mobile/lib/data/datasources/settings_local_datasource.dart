@@ -20,6 +20,7 @@ class SettingsKeys {
   static const String weightUnit = 'weight_unit';
   static const String dateFormat = 'date_format';
   static const String language = 'language';
+  static const String captureFps = 'capture_fps';
 }
 
 /// DataSource local para settings
@@ -47,6 +48,7 @@ class SettingsLocalDataSourceImpl implements SettingsLocalDataSource {
       weightUnit: _getWeightUnit(),
       dateFormat: _getDateFormat(),
       language: _getLanguage(),
+      captureFps: _prefs.getInt(SettingsKeys.captureFps) ?? 5,
     );
   }
 
@@ -59,6 +61,7 @@ class SettingsLocalDataSourceImpl implements SettingsLocalDataSource {
       _prefs.setString(SettingsKeys.weightUnit, settings.weightUnit.name),
       _prefs.setString(SettingsKeys.dateFormat, settings.dateFormat.name),
       _prefs.setString(SettingsKeys.language, settings.language.name),
+      _prefs.setInt(SettingsKeys.captureFps, settings.captureFps),
     ]);
   }
 

@@ -32,6 +32,18 @@
   "@autoFlashSubtitle": {
     "description": "Subtítulo para o switch de flash automático"
   },
+  "captureFps": "FPS de Captura",
+  "@captureFps": {
+    "description": "Rótulo para o seletor de FPS de captura"
+  },
+  "fps": "FPS",
+  "@fps": {
+    "description": "Abreviação de Frames Per Second"
+  },
+  "selectCaptureFps": "Selecionar FPS de Captura",
+  "@selectCaptureFps": {
+    "description": "Título do diálogo de seleção de FPS"
+  },
   "unitsAndFormat": "Unidades e formato",
   "@unitsAndFormat": {
     "description": "Título da seção de unidades e formato"
@@ -793,6 +805,50 @@
   "appDescription": "Fazenda Gamelera",
   "@appDescription": {
     "description": "Descrição da aplicação"
+  },
+  "bestFrameCaptured": "Melhor Quadro Capturado",
+  "@bestFrameCaptured": {
+    "description": "Título do diálogo de melhor quadro"
+  },
+  "globalScore": "Pontuação Global",
+  "@globalScore": {
+    "description": "Rótulo da pontuação global"
+  },
+  "sharpness": "Nitidez",
+  "@sharpness": {
+    "description": "Rótulo de nitidez"
+  },
+  "illumination": "Iluminação",
+  "@illumination": {
+    "description": "Rótulo de iluminação"
+  },
+  "contrast": "Contraste",
+  "@contrast": {
+    "description": "Rótulo de contraste"
+  },
+  "silhouette": "Silhueta",
+  "@silhouette": {
+    "description": "Rótulo de silhueta"
+  },
+  "totalFrames": "Total de Quadros",
+  "@totalFrames": {
+    "description": "Rótulo de total de quadros"
+  },
+  "optimalFrames": "Quadros Ótimos",
+  "@optimalFrames": {
+    "description": "Rótulo de quadros ótimos"
+  },
+  "confirmAndContinue": "Confirmar e Continuar",
+  "@confirmAndContinue": {
+    "description": "Texto do botão confirmar e continuar"
+  },
+  "deleteFrame": "Excluir Quadro",
+  "@deleteFrame": {
+    "description": "Texto do botão excluir quadro"
+  },
+  "deleteFrameConfirmation": "Excluir este quadro? Outro melhor quadro será buscado automaticamente.",
+  "@deleteFrameConfirmation": {
+    "description": "Mensagem de confirmação para excluir quadro"
   }
 }
 

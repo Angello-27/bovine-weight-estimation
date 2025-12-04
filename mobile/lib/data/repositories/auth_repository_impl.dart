@@ -89,8 +89,15 @@ class AuthRepositoryImpl implements AuthRepository {
         return const Right(null);
       }
 
-      final user = UserModel.fromJson(userData);
-      return Right(_mapToUserFromModel(user));
+      try {
+        final user = UserModel.fromJson(userData);
+        final userEntity = _mapToUserFromModel(user);
+        return Right(userEntity);
+      } catch (e) {
+        // Si hay error al parsear, limpiar sesión corrupta
+        await sessionManager.clearSession();
+        return const Right(null);
+      }
     } catch (e) {
       return Left(ServerFailure(message: 'Error al obtener usuario: $e'));
     }

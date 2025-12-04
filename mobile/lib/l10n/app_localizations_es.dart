@@ -33,6 +33,15 @@ class AppLocalizationsEs extends AppLocalizations {
   String get autoFlashSubtitle => 'Activar flash durante la captura';
 
   @override
+  String get captureFps => 'FPS de Captura';
+
+  @override
+  String get fps => 'FPS';
+
+  @override
+  String get selectCaptureFps => 'Seleccionar FPS de Captura';
+
+  @override
   String get unitsAndFormat => 'Unidades y formato';
 
   @override
@@ -560,4 +569,38 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get appDescription => 'Hacienda Gamelera';
+
+  @override
+  String get bestFrameCaptured => 'Mejor Frame Capturado';
+
+  @override
+  String get globalScore => 'Score Global';
+
+  @override
+  String get sharpness => 'Nitidez';
+
+  @override
+  String get illumination => 'Iluminación';
+
+  @override
+  String get contrast => 'Contraste';
+
+  @override
+  String get silhouette => 'Silueta';
+
+  @override
+  String get totalFrames => 'Total Frames';
+
+  @override
+  String get optimalFrames => 'Frames Óptimos';
+
+  @override
+  String get confirmAndContinue => 'Confirmar y Continuar';
+
+  @override
+  String get deleteFrame => 'Eliminar Frame';
+
+  @override
+  String get deleteFrameConfirmation =>
+      '¿Eliminar este frame? Se buscará otro mejor frame automáticamente.';
 }

@@ -56,17 +56,32 @@ class SyncProvider extends ChangeNotifier {
   // Timer para polling de estado
   Timer? _statePollingTimer;
 
+  // Intervalo actual de polling
+  Duration _currentPollingInterval = const Duration(seconds: 30);
+
+  // Timestamp de última verificación de conectividad
+  DateTime? _lastConnectivityCheck;
+
+  // Intervalo mínimo entre verificaciones de conectividad (30 segundos)
+  static const Duration _minConnectivityCheckInterval = Duration(seconds: 30);
+
+  // Intervalo de polling cuando está offline (60 segundos)
+  static const Duration _offlinePollingInterval = Duration(seconds: 60);
+
+  // Intervalo de polling cuando está online (30 segundos)
+  static const Duration _onlinePollingInterval = Duration(seconds: 30);
+
   SyncProvider({
     required this.syncPendingItemsUseCase,
     required this.getPendingCountUseCase,
     required this.triggerManualSyncUseCase,
     required this.checkConnectivityUseCase,
   }) {
-    // Iniciar polling de estado cada 5 segundos
-    _startStatePolling();
-
     // Hacer primera verificación inmediatamente
     _updateState();
+
+    // Iniciar polling de estado con intervalo adaptativo
+    _startStatePolling();
   }
 
   // ===== Getters =====
@@ -243,8 +258,20 @@ class SyncProvider extends ChangeNotifier {
     );
   }
 
-  /// Verifica conectividad
+  /// Verifica conectividad (con throttling para evitar llamadas excesivas)
   Future<void> checkConnectivity() async {
+    // Throttling: solo verificar si pasó el intervalo mínimo
+    final now = DateTime.now();
+    if (_lastConnectivityCheck != null) {
+      final timeSinceLastCheck = now.difference(_lastConnectivityCheck!);
+      if (timeSinceLastCheck < _minConnectivityCheckInterval) {
+        // Aún no ha pasado el tiempo mínimo, saltar esta verificación
+        return;
+      }
+    }
+
+    _lastConnectivityCheck = now;
+
     final result = await checkConnectivityUseCase(const NoParams());
 
     result.fold(
@@ -273,18 +300,46 @@ class SyncProvider extends ChangeNotifier {
 
   // ===== Métodos privados =====
 
-  /// Inicia polling de estado cada 5 segundos
+  /// Inicia polling de estado con intervalo adaptativo
+  /// - Online: cada 30 segundos
+  /// - Offline: cada 60 segundos (menos frecuente)
   void _startStatePolling() {
     _statePollingTimer?.cancel();
-    _statePollingTimer = Timer.periodic(
-      const Duration(seconds: 5),
-      (_) => _updateState(),
-    );
+
+    // Usar intervalo más largo cuando está offline
+    _currentPollingInterval = _isConnected
+        ? _onlinePollingInterval
+        : _offlinePollingInterval;
+
+    _statePollingTimer = Timer.periodic(_currentPollingInterval, (_) {
+      _updateState();
+      // Reajustar intervalo si cambió el estado de conectividad
+      _adjustPollingInterval();
+    });
+  }
+
+  /// Ajusta el intervalo de polling según el estado de conectividad
+  void _adjustPollingInterval() {
+    final desiredInterval = _isConnected
+        ? _onlinePollingInterval
+        : _offlinePollingInterval;
+
+    // Si el intervalo cambió, reiniciar el timer
+    if (_currentPollingInterval != desiredInterval) {
+      _startStatePolling();
+    }
   }
 
   /// Actualiza estado completo
   Future<void> _updateState() async {
-    await checkConnectivity();
+    // Solo verificar conectividad si no hay items pendientes o si está offline
+    // Si está online y no hay items pendientes, no necesitamos verificar tan seguido
+    if (_pendingCount > 0 ||
+        !_isConnected ||
+        _syncState == GlobalSyncState.offline) {
+      await checkConnectivity();
+    }
+
     await refreshPendingCount();
 
     // Si hay items pendientes y hay conexión → auto-sync

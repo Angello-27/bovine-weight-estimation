@@ -43,6 +43,7 @@ import '../../data/datasources/settings_local_datasource.dart';
 import '../../data/repositories/settings_repository_impl.dart';
 import '../../domain/repositories/settings_repository.dart';
 import '../../data/datasources/auth_remote_datasource.dart';
+import '../../data/datasources/ml_remote_datasource.dart';
 import '../../data/repositories/auth_repository_impl.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../../domain/usecases/login_usecase.dart';
@@ -84,6 +85,9 @@ class DependencyInjection {
 
   // DataSources - Auth
   late final AuthRemoteDataSource _authRemoteDataSource;
+
+  // DataSources - ML (Machine Learning)
+  late final MLRemoteDataSource _mlRemoteDataSource;
 
   // Repositories
   late final FrameRepository _frameRepository;
@@ -149,6 +153,9 @@ class DependencyInjection {
     // DataSources - Auth
     _authRemoteDataSource = AuthRemoteDataSourceImpl(dio: _dioClient.create());
 
+    // DataSources - ML
+    _mlRemoteDataSource = MLRemoteDataSourceImpl(dio: _dioClient.create());
+
     // Repositories - US-001
     _frameRepository = FrameRepositoryImpl(
       cameraDataSource: _cameraDataSource,
@@ -159,6 +166,7 @@ class DependencyInjection {
     _weightEstimationRepository = WeightEstimationRepositoryImpl(
       tfliteDataSource: _tfliteDataSource,
       localDataSource: _weightEstimationLocalDataSource,
+      mlRemoteDataSource: _mlRemoteDataSource,
     );
 
     // Repositories - US-003

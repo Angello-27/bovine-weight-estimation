@@ -13,6 +13,7 @@ import 'package:provider/provider.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../../providers/capture_provider.dart';
 import 'best_frame_preview_dialog.dart';
 
@@ -147,6 +148,78 @@ class BestFrameThumbnail extends StatelessWidget {
                           color: Colors.white,
                           fontSize: 10,
                           fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  // Botón de eliminar en la esquina superior izquierda
+                  Positioned(
+                    top: 4,
+                    left: 4,
+                    child: GestureDetector(
+                      onTap: () {
+                        // Mostrar diálogo de confirmación
+                        showDialog(
+                          context: context,
+                          builder: (dialogContext) => AlertDialog(
+                            title: Text(
+                              AppLocalizations.of(context)!.deleteFrame,
+                            ),
+                            content: Text(
+                              AppLocalizations.of(
+                                context,
+                              )!.deleteFrameConfirmation,
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () =>
+                                    Navigator.of(dialogContext).pop(),
+                                child: Text(
+                                  AppLocalizations.of(context)!.cancel,
+                                ),
+                              ),
+                              TextButton(
+                                onPressed: () {
+                                  // Guardar referencia al frame antes de eliminar
+                                  final frameToDelete = provider.bestFrame!;
+
+                                  // Eliminar el frame
+                                  provider.removeFrame(frameToDelete);
+
+                                  // Cerrar diálogo
+                                  if (dialogContext.mounted) {
+                                    Navigator.of(dialogContext).pop();
+                                  }
+                                },
+                                style: TextButton.styleFrom(
+                                  foregroundColor: AppColors.error,
+                                ),
+                                child: Text(
+                                  AppLocalizations.of(context)!.deleteFrame,
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: BoxDecoration(
+                          color: AppColors.error,
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.3),
+                              blurRadius: 4,
+                              spreadRadius: 1,
+                            ),
+                          ],
+                        ),
+                        child: const Icon(
+                          Icons.close,
+                          color: Colors.white,
+                          size: 16,
                         ),
                       ),
                     ),

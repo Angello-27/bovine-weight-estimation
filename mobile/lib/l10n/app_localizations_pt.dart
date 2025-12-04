@@ -33,6 +33,15 @@ class AppLocalizationsPt extends AppLocalizations {
   String get autoFlashSubtitle => 'Ativar flash durante a captura';
 
   @override
+  String get captureFps => 'FPS de Captura';
+
+  @override
+  String get fps => 'FPS';
+
+  @override
+  String get selectCaptureFps => 'Selecionar FPS de Captura';
+
+  @override
   String get unitsAndFormat => 'Unidades e formato';
 
   @override
@@ -560,4 +569,38 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get appDescription => 'Fazenda Gamelera';
+
+  @override
+  String get bestFrameCaptured => 'Melhor Quadro Capturado';
+
+  @override
+  String get globalScore => 'Pontuação Global';
+
+  @override
+  String get sharpness => 'Nitidez';
+
+  @override
+  String get illumination => 'Iluminação';
+
+  @override
+  String get contrast => 'Contraste';
+
+  @override
+  String get silhouette => 'Silhueta';
+
+  @override
+  String get totalFrames => 'Total de Quadros';
+
+  @override
+  String get optimalFrames => 'Quadros Ótimos';
+
+  @override
+  String get confirmAndContinue => 'Confirmar e Continuar';
+
+  @override
+  String get deleteFrame => 'Excluir Quadro';
+
+  @override
+  String get deleteFrameConfirmation =>
+      'Excluir este quadro? Outro melhor quadro será buscado automaticamente.';
 }
