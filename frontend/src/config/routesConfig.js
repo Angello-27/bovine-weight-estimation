@@ -96,15 +96,6 @@ export const appRoutes = [
             to: '/farms',
         },
     },
-    {
-        path: '/statistics',
-        roles: ['Administrador', 'Usuario'],
-        sidebar: {
-            text: 'Estadísticas',
-            icon: <BarChartIcon />,
-            to: '/statistics',
-        },
-    },
 ];
 
 /**
