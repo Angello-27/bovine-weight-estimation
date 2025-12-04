@@ -87,6 +87,11 @@ dependencies:
   # Features: Retry logic, timeout, interceptors para auth
   # Documentación: docs/sprints/sprint-02/sprint-goal.md
   dio: ^5.4.0
+  
+  # Flutter Secure Storage: Almacenamiento seguro de tokens JWT
+  # Usado en: Autenticación - guardar access_token de forma segura
+  # Features: Encriptación nativa, compatible con iOS Keychain y Android Keystore
+  flutter_secure_storage: ^9.0.0
 
   # ========================================
   # UTILITIES

@@ -1,0 +1,798 @@
+{
+  "@@locale": "pt",
+  "appName": "Agrocom",
+  "@appName": {
+    "description": "Nome da aplicação"
+  },
+  "settings": "Configurações",
+  "@settings": {
+    "description": "Título da página de configurações"
+  },
+  "appearance": "Aparência",
+  "@appearance": {
+    "description": "Título da seção de aparência"
+  },
+  "theme": "Tema",
+  "@theme": {
+    "description": "Etiqueta para o seletor de tema"
+  },
+  "textSize": "Tamanho do texto",
+  "@textSize": {
+    "description": "Etiqueta para o seletor de tamanho do texto"
+  },
+  "capture": "Captura",
+  "@capture": {
+    "description": "Título da seção de captura"
+  },
+  "autoFlash": "Flash automático",
+  "@autoFlash": {
+    "description": "Etiqueta para o switch de flash automático"
+  },
+  "autoFlashSubtitle": "Ativar flash durante a captura",
+  "@autoFlashSubtitle": {
+    "description": "Subtítulo para o switch de flash automático"
+  },
+  "unitsAndFormat": "Unidades e formato",
+  "@unitsAndFormat": {
+    "description": "Título da seção de unidades e formato"
+  },
+  "weightUnit": "Unidade de peso",
+  "@weightUnit": {
+    "description": "Etiqueta para o seletor de unidade de peso"
+  },
+  "dateFormat": "Formato de data",
+  "@dateFormat": {
+    "description": "Etiqueta para o seletor de formato de data"
+  },
+  "language": "Idioma",
+  "@language": {
+    "description": "Título da seção de idioma"
+  },
+  "interfaceLanguage": "Idioma da interface",
+  "@interfaceLanguage": {
+    "description": "Etiqueta para o seletor de idioma"
+  },
+  "themeModeSystem": "Seguir sistema",
+  "@themeModeSystem": {
+    "description": "Opção de tema: seguir sistema"
+  },
+  "themeModeLight": "Claro",
+  "@themeModeLight": {
+    "description": "Opção de tema: claro"
+  },
+  "themeModeDark": "Escuro",
+  "@themeModeDark": {
+    "description": "Opção de tema: escuro"
+  },
+  "textSizeSmall": "Pequeno",
+  "@textSizeSmall": {
+    "description": "Opção de tamanho do texto: pequeno"
+  },
+  "textSizeNormal": "Normal",
+  "@textSizeNormal": {
+    "description": "Opção de tamanho do texto: normal"
+  },
+  "textSizeLarge": "Grande",
+  "@textSizeLarge": {
+    "description": "Opção de tamanho do texto: grande"
+  },
+  "textSizeExtraLarge": "Extra grande",
+  "@textSizeExtraLarge": {
+    "description": "Opção de tamanho do texto: extra grande"
+  },
+  "weightUnitKilograms": "Quilogramas (kg)",
+  "@weightUnitKilograms": {
+    "description": "Opção de unidade de peso: quilogramas"
+  },
+  "weightUnitPounds": "Libras (lb)",
+  "@weightUnitPounds": {
+    "description": "Opção de unidade de peso: libras"
+  },
+  "dateFormatDayMonthYear": "DD/MM/YYYY",
+  "@dateFormatDayMonthYear": {
+    "description": "Formato de data: dia/mês/ano"
+  },
+  "dateFormatMonthDayYear": "MM/DD/YYYY",
+  "@dateFormatMonthDayYear": {
+    "description": "Formato de data: mês/dia/ano"
+  },
+  "dateFormatYearMonthDay": "YYYY-MM-DD",
+  "@dateFormatYearMonthDay": {
+    "description": "Formato de data: ano-mês-dia"
+  },
+  "languageSpanish": "Español",
+  "@languageSpanish": {
+    "description": "Opção de idioma: Espanhol"
+  },
+  "languagePortuguese": "Português",
+  "@languagePortuguese": {
+    "description": "Opção de idioma: Português"
+  },
+  "selectTheme": "Selecionar tema",
+  "@selectTheme": {
+    "description": "Título do diálogo de seleção de tema"
+  },
+  "selectTextSize": "Tamanho do texto",
+  "@selectTextSize": {
+    "description": "Título do diálogo de seleção de tamanho do texto"
+  },
+  "selectWeightUnit": "Selecionar unidade de peso",
+  "@selectWeightUnit": {
+    "description": "Título do diálogo de seleção de unidade de peso"
+  },
+  "selectDateFormat": "Selecionar formato de data",
+  "@selectDateFormat": {
+    "description": "Título do diálogo de seleção de formato de data"
+  },
+  "selectLanguage": "Idioma",
+  "@selectLanguage": {
+    "description": "Título do diálogo de seleção de idioma"
+  },
+  "quickAccess": "Acesso rápido",
+  "@quickAccess": {
+    "description": "Título da seção de acesso rápido"
+  },
+  "captureAction": "Capturar",
+  "@captureAction": {
+    "description": "Título da ação de captura"
+  },
+  "captureSubtitle": "Fotogramas",
+  "@captureSubtitle": {
+    "description": "Subtítulo da ação de captura"
+  },
+  "estimateAction": "Estimar",
+  "@estimateAction": {
+    "description": "Título da ação de estimativa"
+  },
+  "estimateSubtitle": "Peso IA",
+  "@estimateSubtitle": {
+    "description": "Subtítulo da ação de estimativa"
+  },
+  "registerAction": "Registrar",
+  "@registerAction": {
+    "description": "Título da ação de registro"
+  },
+  "registerSubtitle": "Animal",
+  "@registerSubtitle": {
+    "description": "Subtítulo da ação de registro"
+  },
+  "historyAction": "Histórico",
+  "@historyAction": {
+    "description": "Título da ação de histórico"
+  },
+  "historySubtitle": "Pesagens",
+  "@historySubtitle": {
+    "description": "Subtítulo da ação de histórico"
+  },
+  "retry": "Tentar novamente",
+  "@retry": {
+    "description": "Texto do botão de tentar novamente"
+  },
+  "captureFrames": "Captura de fotogramas",
+  "@captureFrames": {
+    "description": "Título da página de captura"
+  },
+  "configurePermissions": "Configurar permissões",
+  "@configurePermissions": {
+    "description": "Texto do botão de configurar permissões"
+  },
+  "cameraPermissionDenied": "Permissão da câmera negada. Por favor, habilite nas configurações.",
+  "@cameraPermissionDenied": {
+    "description": "Mensagem quando a permissão da câmera é negada"
+  },
+  "weightEstimation": "Estimativa de peso",
+  "@weightEstimation": {
+    "description": "Título da página de estimativa de peso"
+  },
+  "cancel": "Cancelar",
+  "@cancel": {
+    "description": "Texto do botão de cancelar"
+  },
+  "generatingPdf": "Gerando PDF para {cattleName}...",
+  "@generatingPdf": {
+    "description": "Mensagem ao gerar PDF",
+    "placeholders": {
+      "cattleName": {
+        "type": "String"
+      }
+    }
+  },
+  "error": "Erro",
+  "@error": {
+    "description": "Título genérico de erro"
+  },
+  "unexpectedError": "Erro inesperado: {error}",
+  "@unexpectedError": {
+    "description": "Mensagem de erro inesperado",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "generatingCsv": "Gerando CSV para {cattleName}...",
+  "@generatingCsv": {
+    "description": "Mensagem ao gerar CSV",
+    "placeholders": {
+      "cattleName": {
+        "type": "String"
+      }
+    }
+  },
+  "pdfSharedSuccessfully": "PDF compartilhado com sucesso",
+  "@pdfSharedSuccessfully": {
+    "description": "Mensagem quando o PDF foi compartilhado com sucesso"
+  },
+  "errorSharingPdf": "Erro ao compartilhar PDF: {error}",
+  "@errorSharingPdf": {
+    "description": "Mensagem de erro ao compartilhar PDF",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "errorPrintingPdf": "Erro ao imprimir PDF: {error}",
+  "@errorPrintingPdf": {
+    "description": "Mensagem de erro ao imprimir PDF",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "errorShowingPdf": "Erro ao mostrar PDF: {error}",
+  "@errorShowingPdf": {
+    "description": "Mensagem de erro ao mostrar PDF",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "csvSavedAt": "CSV salvo em: {path}",
+  "@csvSavedAt": {
+    "description": "Mensagem quando o CSV foi salvo com sucesso",
+    "placeholders": {
+      "path": {
+        "type": "String"
+      }
+    }
+  },
+  "errorSharingCsv": "Erro ao compartilhar CSV: {error}",
+  "@errorSharingCsv": {
+    "description": "Mensagem de erro ao compartilhar CSV",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "noSyncHistory": "Sem histórico de sincronização",
+  "@noSyncHistory": {
+    "description": "Mensagem quando não há histórico de sincronização"
+  },
+  "historyTitle": "Histórico - {cattleName}",
+  "@historyTitle": {
+    "description": "Título da página de histórico",
+    "placeholders": {
+      "cattleName": {
+        "type": "String"
+      }
+    }
+  },
+  "export": "Exportar",
+  "@export": {
+    "description": "Texto do botão de exportar"
+  },
+  "loadingHistory": "Carregando histórico...",
+  "@loadingHistory": {
+    "description": "Mensagem ao carregar histórico"
+  },
+  "errorLoadingHistory": "Erro ao carregar histórico",
+  "@errorLoadingHistory": {
+    "description": "Título de erro ao carregar histórico"
+  },
+  "unknownError": "Erro desconhecido",
+  "@unknownError": {
+    "description": "Mensagem de erro desconhecido"
+  },
+  "noWeighingsRegistered": "Nenhuma pesagem registrada",
+  "@noWeighingsRegistered": {
+    "description": "Título quando não há pesagens"
+  },
+  "performFirstEstimation": "Realize a primeira estimativa de peso\npara ver o histórico de {cattleName}",
+  "@performFirstEstimation": {
+    "description": "Mensagem quando não há pesagens",
+    "placeholders": {
+      "cattleName": {
+        "type": "String"
+      }
+    }
+  },
+  "detailedHistory": "Histórico detalhado",
+  "@detailedHistory": {
+    "description": "Título da seção de histórico detalhado"
+  },
+  "syncStatus": "Status de sincronização",
+  "@syncStatus": {
+    "description": "Título da página de status de sincronização"
+  },
+  "registerAnimal": "Registrar animal",
+  "@registerAnimal": {
+    "description": "Título da página de registro de animal"
+  },
+  "period": "Período",
+  "@period": {
+    "description": "Título da seção de período"
+  },
+  "estimateAgain": "Estimar novamente",
+  "@estimateAgain": {
+    "description": "Texto do botão para estimar novamente"
+  },
+  "estimateWeight": "Estimar peso",
+  "@estimateWeight": {
+    "description": "Texto do botão para estimar peso"
+  },
+  "analyzingAnimalFeatures": "Analisando características do animal",
+  "@analyzingAnimalFeatures": {
+    "description": "Mensagem ao analisar o animal"
+  },
+  "cameraPermissionRequired": "Permissão da câmera é necessária para mostrar a pré-visualização.",
+  "@cameraPermissionRequired": {
+    "description": "Mensagem quando a permissão da câmera é necessária"
+  },
+  "exportAsCsv": "Exportar como CSV",
+  "@exportAsCsv": {
+    "description": "Texto para opção de exportar como CSV"
+  },
+  "forExcelAnalysis": "Para análise no Excel",
+  "@forExcelAnalysis": {
+    "description": "Subtítulo para opção de exportar CSV"
+  },
+  "exportAsPdf": "Exportar como PDF",
+  "@exportAsPdf": {
+    "description": "Texto para opção de exportar como PDF"
+  },
+  "forPrinting": "Para impressão e compartilhamento",
+  "@forPrinting": {
+    "description": "Subtítulo para opção de exportar PDF"
+  },
+  "estimatingWeightWithAI": "Estimando peso com IA...",
+  "@estimatingWeightWithAI": {
+    "description": "Mensagem ao estimar peso com IA"
+  },
+  "requiredData": "Dados obrigatórios",
+  "@requiredData": {
+    "description": "Título da seção de dados obrigatórios"
+  },
+  "optionalData": "Dados opcionais",
+  "@optionalData": {
+    "description": "Título da seção de dados opcionais"
+  },
+  "earTagNumber": "Número da brinco *",
+  "@earTagNumber": {
+    "description": "Etiqueta do campo de número da brinco"
+  },
+  "earTagExample": "Ex: A-001",
+  "@earTagExample": {
+    "description": "Hint do campo de número da brinco"
+  },
+  "earTagRequired": "O número da brinco é obrigatório",
+  "@earTagRequired": {
+    "description": "Mensagem de validação: número da brinco obrigatório"
+  },
+  "earTagInvalid": "Apenas alfanumérico e hífens",
+  "@earTagInvalid": {
+    "description": "Mensagem de validação: formato de número da brinco inválido"
+  },
+  "birthDate": "Data de nascimento *",
+  "@birthDate": {
+    "description": "Etiqueta do campo de data de nascimento"
+  },
+  "selectDate": "Selecionar data",
+  "@selectDate": {
+    "description": "Hint do campo de data de nascimento"
+  },
+  "birthDateRequired": "A data de nascimento é obrigatória",
+  "@birthDateRequired": {
+    "description": "Mensagem de validação: data de nascimento obrigatória"
+  },
+  "selectBirthDate": "Selecionar data de nascimento",
+  "@selectBirthDate": {
+    "description": "Título do seletor de data"
+  },
+  "accept": "Aceitar",
+  "@accept": {
+    "description": "Texto do botão de aceitar"
+  },
+  "name": "Nome",
+  "@name": {
+    "description": "Etiqueta do campo de nome"
+  },
+  "nameExample": "Ex: Brownie",
+  "@nameExample": {
+    "description": "Hint do campo de nome"
+  },
+  "color": "Cor",
+  "@color": {
+    "description": "Etiqueta do campo de cor"
+  },
+  "colorExample": "Ex: Marrom, Preto",
+  "@colorExample": {
+    "description": "Hint do campo de cor"
+  },
+  "birthWeight": "Peso ao nascer (kg)",
+  "@birthWeight": {
+    "description": "Etiqueta do campo de peso ao nascer"
+  },
+  "birthWeightExample": "Ex: 35",
+  "@birthWeightExample": {
+    "description": "Hint do campo de peso ao nascer"
+  },
+  "birthWeightInvalid": "O peso deve estar entre 10-100 kg",
+  "@birthWeightInvalid": {
+    "description": "Mensagem de validação: peso inválido"
+  },
+  "observations": "Observações",
+  "@observations": {
+    "description": "Etiqueta do campo de observações"
+  },
+  "observationsHint": "Notas adicionais",
+  "@observationsHint": {
+    "description": "Hint do campo de observações"
+  },
+  "automaticCategory": "Categoria automática",
+  "@automaticCategory": {
+    "description": "Título da categoria automática"
+  },
+  "newAnimal": "Novo animal",
+  "@newAnimal": {
+    "description": "Título do cabeçalho de registro"
+  },
+  "completeAnimalData": "Complete os dados do animal",
+  "@completeAnimalData": {
+    "description": "Descrição do cabeçalho de registro"
+  },
+  "estimationCompleted": "Estimativa concluída!",
+  "@estimationCompleted": {
+    "description": "Título quando a estimativa é concluída"
+  },
+  "estimatedWeight": "Peso estimado",
+  "@estimatedWeight": {
+    "description": "Etiqueta de peso estimado"
+  },
+  "confidence": "Confiança: {percentage}%",
+  "@confidence": {
+    "description": "Etiqueta de confiança com porcentagem",
+    "placeholders": {
+      "percentage": {
+        "type": "String"
+      }
+    }
+  },
+  "breed": "Raça",
+  "@breed": {
+    "description": "Etiqueta de raça"
+  },
+  "method": "Método",
+  "@method": {
+    "description": "Etiqueta de método"
+  },
+  "processingTime": "Tempo de processamento",
+  "@processingTime": {
+    "description": "Etiqueta de tempo de processamento"
+  },
+  "model": "Modelo",
+  "@model": {
+    "description": "Etiqueta de modelo"
+  },
+  "selectedFrame": "Fotograma selecionado",
+  "@selectedFrame": {
+    "description": "Título da pré-visualização do fotograma"
+  },
+  "breedRequired": "Raça *",
+  "@breedRequired": {
+    "description": "Etiqueta do dropdown de raça"
+  },
+  "selectBreed": "Selecionar raça",
+  "@selectBreed": {
+    "description": "Hint do dropdown de raça"
+  },
+  "breedRequiredValidation": "A raça é obrigatória",
+  "@breedRequiredValidation": {
+    "description": "Mensagem de validação: raça obrigatória"
+  },
+  "genderRequired": "Gênero *",
+  "@genderRequired": {
+    "description": "Etiqueta do dropdown de gênero"
+  },
+  "selectGender": "Selecionar gênero",
+  "@selectGender": {
+    "description": "Hint do dropdown de gênero"
+  },
+  "genderRequiredValidation": "O gênero é obrigatório",
+  "@genderRequiredValidation": {
+    "description": "Mensagem de validação: gênero obrigatório"
+  },
+  "animals": "Animais",
+  "@animals": {
+    "description": "Etiqueta de estatísticas: animais"
+  },
+  "averageWeight": "Peso médio",
+  "@averageWeight": {
+    "description": "Etiqueta de estatísticas: peso médio"
+  },
+  "breeds": "Raças",
+  "@breeds": {
+    "description": "Etiqueta de estatísticas: raças"
+  },
+  "information": "Informação",
+  "@information": {
+    "description": "Título da seção de informação"
+  },
+  "connectivity": "Conectividade",
+  "@connectivity": {
+    "description": "Etiqueta de conectividade"
+  },
+  "online": "Online",
+  "@online": {
+    "description": "Status: online"
+  },
+  "offline": "Offline",
+  "@offline": {
+    "description": "Status: offline"
+  },
+  "pendingItems": "Itens pendentes",
+  "@pendingItems": {
+    "description": "Etiqueta de itens pendentes"
+  },
+  "automaticSync": "Sincronização automática",
+  "@automaticSync": {
+    "description": "Etiqueta de sincronização automática"
+  },
+  "active": "Ativo",
+  "@active": {
+    "description": "Status: ativo"
+  },
+  "syncAutoDescription": "A sincronização é executada automaticamente a cada 60 segundos quando há conexão e itens pendentes.",
+  "@syncAutoDescription": {
+    "description": "Descrição da sincronização automática"
+  },
+  "syncStatusTitle": "Status de sincronização",
+  "@syncStatusTitle": {
+    "description": "Título do card de status de sincronização"
+  },
+  "synced": "Sincronizado",
+  "@synced": {
+    "description": "Etiqueta: sincronizado"
+  },
+  "pending": "Pendente",
+  "@pending": {
+    "description": "Etiqueta: pendente"
+  },
+  "errors": "Erros",
+  "@errors": {
+    "description": "Etiqueta: erros"
+  },
+  "conflicts": "Conflitos",
+  "@conflicts": {
+    "description": "Etiqueta: conflitos"
+  },
+  "syncNow": "Sincronizar agora",
+  "@syncNow": {
+    "description": "Texto do botão de sincronização manual"
+  },
+  "syncing": "Sincronizando...",
+  "@syncing": {
+    "description": "Status: sincronizando"
+  },
+  "noConnection": "Sem conexão",
+  "@noConnection": {
+    "description": "Status: sem conexão"
+  },
+  "syncedStatus": "Sincronizado",
+  "@syncedStatus": {
+    "description": "Status: sincronizado"
+  },
+  "syncError": "Erro de sincronização",
+  "@syncError": {
+    "description": "Status: erro de sincronização"
+  },
+  "allSynced": "Tudo sincronizado",
+  "@allSynced": {
+    "description": "Status: tudo sincronizado"
+  },
+  "itemsWaitingSync": "{count} itens aguardando sincronização",
+  "@itemsWaitingSync": {
+    "description": "Mensagem: itens aguardando sincronização",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "noPendingChanges": "Sem alterações pendentes",
+  "@noPendingChanges": {
+    "description": "Status: sem alterações pendentes"
+  },
+  "pendingCount": "{count} pendentes",
+  "@pendingCount": {
+    "description": "Status: contagem pendente",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "agoSeconds": "Há alguns segundos",
+  "@agoSeconds": {
+    "description": "Tempo decorrido: há alguns segundos"
+  },
+  "agoMinutes": "{minutes}m atrás",
+  "@agoMinutes": {
+    "description": "Tempo decorrido: X minutos atrás",
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "agoHours": "{hours}h atrás",
+  "@agoHours": {
+    "description": "Tempo decorrido: X horas atrás",
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "agoDays": "{days}d atrás",
+  "@agoDays": {
+    "description": "Tempo decorrido: X dias atrás",
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "syncResultSuccess": "{count} itens sincronizados com sucesso",
+  "@syncResultSuccess": {
+    "description": "Mensagem de sincronização bem-sucedida",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "syncResultPartial": "{synced} de {total} sincronizados. {failed} erros.",
+  "@syncResultPartial": {
+    "description": "Mensagem de sincronização parcial com erros",
+    "placeholders": {
+      "synced": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      },
+      "failed": {
+        "type": "int"
+      }
+    }
+  },
+  "syncResultConflicts": "{conflicts} conflitos detectados. {synced} sincronizados.",
+  "@syncResultConflicts": {
+    "description": "Mensagem de sincronização com conflitos",
+    "placeholders": {
+      "conflicts": {
+        "type": "int"
+      },
+      "synced": {
+        "type": "int"
+      }
+    }
+  },
+  "syncResultEmpty": "Sem itens pendentes para sincronizar",
+  "@syncResultEmpty": {
+    "description": "Mensagem quando não há itens para sincronizar"
+  },
+  "syncResultNoChanges": "Sem alterações",
+  "@syncResultNoChanges": {
+    "description": "Mensagem quando não há alterações"
+  },
+  "syncResultSynced": "{count} sincronizados",
+  "@syncResultSynced": {
+    "description": "Resumo de itens sincronizados",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "syncResultPartialSummary": "{synced} de {total} sincronizados",
+  "@syncResultPartialSummary": {
+    "description": "Resumo de sincronização parcial",
+    "placeholders": {
+      "synced": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "syncResultError": "Erro: {failed} falharam",
+  "@syncResultError": {
+    "description": "Mensagem de erro de sincronização",
+    "placeholders": {
+      "failed": {
+        "type": "int"
+      }
+    }
+  },
+  "login": "Entrar",
+  "@login": {
+    "description": "Botão de login"
+  },
+  "loginTitle": "Entrar",
+  "@loginTitle": {
+    "description": "Título da página de login"
+  },
+  "loginSubtitle": "Digite suas credenciais para continuar",
+  "@loginSubtitle": {
+    "description": "Subtítulo da página de login"
+  },
+  "username": "Usuário",
+  "@username": {
+    "description": "Etiqueta do campo de usuário"
+  },
+  "usernameHint": "Digite seu nome de usuário",
+  "@usernameHint": {
+    "description": "Hint do campo de usuário"
+  },
+  "usernameRequired": "O usuário é obrigatório",
+  "@usernameRequired": {
+    "description": "Mensagem de validação: usuário obrigatório"
+  },
+  "password": "Senha",
+  "@password": {
+    "description": "Etiqueta do campo de senha"
+  },
+  "passwordHint": "Digite sua senha",
+  "@passwordHint": {
+    "description": "Hint do campo de senha"
+  },
+  "passwordRequired": "A senha é obrigatória",
+  "@passwordRequired": {
+    "description": "Mensagem de validação: senha obrigatória"
+  },
+  "loggingIn": "Entrando...",
+  "@loggingIn": {
+    "description": "Mensagem enquanto se faz login"
+  },
+  "authenticationError": "Erro de autenticação",
+  "@authenticationError": {
+    "description": "Título de erro de autenticação"
+  },
+  "invalidCredentials": "Credenciais inválidas. Verifique seu usuário e senha.",
+  "@invalidCredentials": {
+    "description": "Mensagem de erro: credenciais inválidas"
+  },
+  "noInternetConnection": "Sem conexão à internet. Verifique sua conexão.",
+  "@noInternetConnection": {
+    "description": "Mensagem de erro: sem conexão"
+  },
+  "serverError": "Erro do servidor",
+  "@serverError": {
+    "description": "Mensagem de erro do servidor"
+  },
+  "loginError": "Erro ao fazer login",
+  "@loginError": {
+    "description": "Mensagem genérica de erro de login"
+  },
+  "appDescription": "Fazenda Gamelera",
+  "@appDescription": {
+    "description": "Descrição da aplicação"
+  }
+}
+

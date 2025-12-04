@@ -9,6 +9,7 @@ library;
 
 import 'package:provider/provider.dart';
 
+import '../../presentation/providers/auth_provider.dart';
 import '../../presentation/providers/capture_provider.dart';
 import '../../presentation/providers/cattle_provider.dart';
 import '../../presentation/providers/settings_provider.dart';
@@ -29,6 +30,9 @@ class ProviderConfiguration {
   /// el mantenimiento y la adición de nuevos providers.
   static List<ChangeNotifierProvider> createProviders(DependencyInjection di) {
     return [
+      // Autenticación (debe ir primero para inicializar sesión)
+      _createAuthProvider(di),
+
       // US-001: Captura de fotogramas
       _createCaptureProvider(di),
 
@@ -51,6 +55,20 @@ class ProviderConfiguration {
       // US-006: SearchProvider
       // US-007: ReportProvider
     ];
+  }
+
+  /// Crea el provider de autenticación
+  static ChangeNotifierProvider<AuthProvider> _createAuthProvider(
+    DependencyInjection di,
+  ) {
+    return ChangeNotifierProvider(
+      create: (_) => AuthProvider(
+        loginUseCase: di.loginUseCase,
+        hasSessionUseCase: di.hasSessionUseCase,
+        getCurrentUserUseCase: di.getCurrentUserUseCase,
+        logoutUseCase: di.logoutUseCase,
+      ),
+    );
   }
 
   /// Crea el provider de captura (US-001)

@@ -119,6 +119,11 @@ class TimeoutFailure extends Failure {
   const TimeoutFailure({required super.message, super.code = 'TIMEOUT_ERROR'});
 }
 
+/// Fallo de autenticación
+class AuthFailure extends Failure {
+  const AuthFailure({required super.message, super.code = 'AUTH_ERROR'});
+}
+
 /// Fallo inesperado
 class UnexpectedFailure extends Failure {
   const UnexpectedFailure({

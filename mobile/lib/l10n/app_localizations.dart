@@ -5,8 +5,8 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/intl.dart' as intl;
 
-import 'app_localizations_en.dart';
 import 'app_localizations_es.dart';
+import 'app_localizations_pt.dart';
 
 // ignore_for_file: type=lint
 
@@ -94,8 +94,8 @@ abstract class AppLocalizations {
 
   /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[
-    Locale('en'),
     Locale('es'),
+    Locale('pt'),
   ];
 
   /// Nombre de la aplicación
@@ -254,11 +254,11 @@ abstract class AppLocalizations {
   /// **'Español'**
   String get languageSpanish;
 
-  /// Opción de idioma: inglés
+  /// Opción de idioma: Portugués
   ///
   /// In es, this message translates to:
-  /// **'English'**
-  String get languageEnglish;
+  /// **'Português'**
+  String get languagePortuguese;
 
   /// Título del diálogo de selección de tema
   ///
@@ -1009,6 +1009,102 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Error: {failed} fallidos'**
   String syncResultError(int failed);
+
+  /// Botón de login
+  ///
+  /// In es, this message translates to:
+  /// **'Iniciar Sesión'**
+  String get login;
+
+  /// Título de la página de login
+  ///
+  /// In es, this message translates to:
+  /// **'Iniciar Sesión'**
+  String get loginTitle;
+
+  /// Subtítulo de la página de login
+  ///
+  /// In es, this message translates to:
+  /// **'Ingresa tus credenciales para continuar'**
+  String get loginSubtitle;
+
+  /// Etiqueta del campo de usuario
+  ///
+  /// In es, this message translates to:
+  /// **'Usuario'**
+  String get username;
+
+  /// Hint del campo de usuario
+  ///
+  /// In es, this message translates to:
+  /// **'Ingresa tu nombre de usuario'**
+  String get usernameHint;
+
+  /// Mensaje de validación: usuario requerido
+  ///
+  /// In es, this message translates to:
+  /// **'El usuario es requerido'**
+  String get usernameRequired;
+
+  /// Etiqueta del campo de contraseña
+  ///
+  /// In es, this message translates to:
+  /// **'Contraseña'**
+  String get password;
+
+  /// Hint del campo de contraseña
+  ///
+  /// In es, this message translates to:
+  /// **'Ingresa tu contraseña'**
+  String get passwordHint;
+
+  /// Mensaje de validación: contraseña requerida
+  ///
+  /// In es, this message translates to:
+  /// **'La contraseña es requerida'**
+  String get passwordRequired;
+
+  /// Mensaje mientras se inicia sesión
+  ///
+  /// In es, this message translates to:
+  /// **'Iniciando sesión...'**
+  String get loggingIn;
+
+  /// Título de error de autenticación
+  ///
+  /// In es, this message translates to:
+  /// **'Error de autenticación'**
+  String get authenticationError;
+
+  /// Mensaje de error: credenciales inválidas
+  ///
+  /// In es, this message translates to:
+  /// **'Credenciales inválidas. Verifica tu usuario y contraseña.'**
+  String get invalidCredentials;
+
+  /// Mensaje de error: sin conexión
+  ///
+  /// In es, this message translates to:
+  /// **'Sin conexión a internet. Verifica tu conexión.'**
+  String get noInternetConnection;
+
+  /// Mensaje de error del servidor
+  ///
+  /// In es, this message translates to:
+  /// **'Error del servidor'**
+  String get serverError;
+
+  /// Mensaje genérico de error de login
+  ///
+  /// In es, this message translates to:
+  /// **'Error al iniciar sesión'**
+  String get loginError;
+
+  /// Descripción de la aplicación
+  ///
+  /// In es, this message translates to:
+  /// **'Hacienda Gamelera'**
+  String get appDescription;
 }
 
 class _AppLocalizationsDelegate
@@ -1022,7 +1118,7 @@ class _AppLocalizationsDelegate
 
   @override
   bool isSupported(Locale locale) =>
-      <String>['en', 'es'].contains(locale.languageCode);
+      <String>['es', 'pt'].contains(locale.languageCode);
 
   @override
   bool shouldReload(_AppLocalizationsDelegate old) => false;
@@ -1031,10 +1127,10 @@ class _AppLocalizationsDelegate
 AppLocalizations lookupAppLocalizations(Locale locale) {
   // Lookup logic when only language code is specified.
   switch (locale.languageCode) {
-    case 'en':
-      return AppLocalizationsEn();
     case 'es':
       return AppLocalizationsEs();
+    case 'pt':
+      return AppLocalizationsPt();
   }
 
   throw FlutterError(
