@@ -104,60 +104,110 @@ class _BreedCard extends StatelessWidget {
             ),
           ],
         ),
-        child: Padding(
-          padding: const EdgeInsets.all(6.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Icono de la raza
-              AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                padding: const EdgeInsets.all(AppSpacing.xs),
+        child: Stack(
+          children: [
+            // Imagen de fondo de la raza
+            ClipRRect(
+              borderRadius: BorderRadius.circular(AppSpacing.borderRadiusLarge),
+              child: Image.asset(
+                breed.imageAssetPath,
+                width: double.infinity,
+                height: double.infinity,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) {
+                  // Fallback a icono si la imagen no se encuentra
+                  return Container(
+                    color: AppColors.surface,
+                    child: Icon(
+                      Icons.pets,
+                      size: AppSpacing.iconSize,
+                      color: AppColors.grey600,
+                    ),
+                  );
+                },
+              ),
+            ),
+
+            // Overlay oscuro para mejor legibilidad del texto
+            Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(
+                  AppSpacing.borderRadiusLarge,
+                ),
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Colors.transparent,
+                    Colors.black.withValues(alpha: isSelected ? 0.7 : 0.5),
+                  ],
+                ),
+              ),
+            ),
+
+            // Contenido (texto y checkmark)
+            Padding(
+              padding: const EdgeInsets.all(6.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.end,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Nombre de la raza
+                  Flexible(
+                    child: Text(
+                      breed.displayName,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: isSelected
+                            ? FontWeight.bold
+                            : FontWeight.w600,
+                        color: Colors.white,
+                        height: 1.2,
+                        shadows: [
+                          Shadow(
+                            color: Colors.black.withValues(alpha: 0.8),
+                            blurRadius: 4,
+                            offset: const Offset(0, 1),
+                          ),
+                        ],
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+
+                  // Checkmark si está seleccionado
+                  if (isSelected) ...[
+                    const SizedBox(height: 4),
+                    Container(
+                      padding: const EdgeInsets.all(2),
+                      decoration: BoxDecoration(
+                        color: AppColors.success,
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.check,
+                        size: 12,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+
+            // Borde destacado si está seleccionado
+            if (isSelected)
+              Container(
                 decoration: BoxDecoration(
-                  color: isSelected
-                      ? AppColors.primary.withValues(alpha: 0.15)
-                      : Colors.transparent,
                   borderRadius: BorderRadius.circular(
-                    AppSpacing.borderRadiusMedium,
+                    AppSpacing.borderRadiusLarge,
                   ),
-                ),
-                child: Icon(
-                  Icons.pets,
-                  size: AppSpacing.iconSize,
-                  color: isSelected ? AppColors.primary : AppColors.grey600,
+                  border: Border.all(color: AppColors.primary, width: 3),
                 ),
               ),
-
-              const SizedBox(height: 2),
-
-              // Nombre de la raza
-              Flexible(
-                child: Text(
-                  breed.displayName,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                    color: isSelected ? AppColors.primary : AppColors.grey800,
-                    height: 1.2,
-                  ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-
-              // Checkmark si está seleccionado
-              if (isSelected) ...[
-                const SizedBox(height: 2),
-                const Icon(
-                  Icons.check_circle,
-                  size: 16,
-                  color: AppColors.success,
-                ),
-              ],
-            ],
-          ),
+          ],
         ),
       ),
     );

@@ -27,6 +27,9 @@ enum BreedType {
   /// Retorna el nombre del archivo del modelo TFLite
   String get modelFilename => '$value-v1.0.0.tflite';
 
+  /// Retorna el path del asset de imagen de la raza
+  String get imageAssetPath => 'assets/$value.jpg';
+
   /// Valida si un string es una raza válida
   static bool isValid(String breed) {
     try {
