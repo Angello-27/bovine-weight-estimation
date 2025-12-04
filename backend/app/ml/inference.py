@@ -80,7 +80,7 @@ class MLInferenceEngine:
         start_time = time.time()
 
         try:
-            # 1. Validar raza
+            # 1. Validar y convertir raza a BreedType
             breed_value = breed.value if hasattr(breed, "value") else breed
             if not BreedType.is_valid(breed_value):
                 raise ValidationException(
@@ -88,10 +88,19 @@ class MLInferenceEngine:
                     f"Razas válidas: {[b.value for b in BreedType]}"
                 )
 
+            # Convertir string a BreedType enum para las estrategias
+            # BreedType es un enum, podemos crear instancia directamente con el valor
+            try:
+                breed_enum = BreedType(breed_value)
+            except ValueError:
+                raise ValidationException(
+                    f"No se pudo convertir raza '{breed_value}' a BreedType enum"
+                )
+
             # 2. Usar contexto de estrategias para estimación
             # Esto reemplaza el sistema híbrido anterior con Strategy Pattern
             strategy_result = self.strategy_context.estimate_weight(
-                image_bytes, breed_value
+                image_bytes, breed_enum
             )
 
             estimated_weight = strategy_result["weight"]

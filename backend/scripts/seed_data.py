@@ -1479,6 +1479,168 @@ def get_gender_weight_adjustment(gender: str, base_weight: float) -> float:
     return base_weight
 
 
+def apply_weight_correction_for_seeder(
+    raw_weight: float, breed: BreedType, gender: str
+) -> float:
+    """
+    Aplica corrección post-procesamiento para pesos fuera del rango del modelo.
+
+    Misma lógica que deep_learning_strategy.py pero adaptada para el seeder.
+    Detecta cuando el peso está subestimado y aplica corrección basada en:
+    - Posición en el rango del modelo
+    - Distancia al máximo real conocido
+    - Diferenciación entre hembras y toros de élite
+
+    Args:
+        raw_weight: Peso calculado (después de todos los ajustes)
+        breed: Raza del animal
+        gender: Género (male/female)
+
+    Returns:
+        Peso corregido (puede ser igual al raw_weight si no necesita corrección)
+    """
+    # Rangos de entrenamiento del modelo (lo que el modelo "conoce")
+    model_training_ranges = {
+        BreedType.NELORE: (250, 650),
+        BreedType.BRAHMAN: (260, 680),
+        BreedType.GUZERAT: (240, 650),
+        BreedType.SENEPOL: (280, 620),
+        BreedType.GIROLANDO: (240, 640),
+        BreedType.GYR_LECHERO: (220, 620),
+        BreedType.SINDI: (150, 380),
+    }
+
+    # Rangos máximos reales conocidos para cada raza
+    real_max_ranges = {
+        BreedType.NELORE: 1150,
+        BreedType.BRAHMAN: 1100,
+        BreedType.GUZERAT: 1000,
+        BreedType.SENEPOL: 950,
+        BreedType.GIROLANDO: 900,
+        BreedType.GYR_LECHERO: 850,
+        BreedType.SINDI: 550,
+    }
+
+    # Rangos típicos para hembras adultas
+    female_ranges = {
+        BreedType.NELORE: (380, 520),
+        BreedType.BRAHMAN: (390, 540),
+        BreedType.GUZERAT: (360, 520),
+        BreedType.SENEPOL: (360, 480),
+        BreedType.GIROLANDO: (420, 580),
+        BreedType.GYR_LECHERO: (380, 520),
+        BreedType.SINDI: (260, 380),
+    }
+
+    weight_min, weight_max = model_training_ranges.get(breed, (300, 700))
+    real_max = real_max_ranges.get(breed, 1000)
+    female_min, female_max = female_ranges.get(breed, (300, 500))
+
+    # Calcular posición en el rango del modelo
+    range_size = weight_max - weight_min
+    position_in_range = (raw_weight - weight_min) / range_size if range_size > 0 else 0
+
+    should_correct = False
+    correction_factor = 1.0
+
+    # Caso 1: Peso muy por debajo del mínimo del modelo (< 90% del mínimo)
+    if raw_weight < weight_min * 0.9:
+        base_factor = real_max / weight_max
+        extreme_factor = 1.3 if raw_weight < weight_min * 0.7 else 1.1
+        correction_factor = base_factor * extreme_factor
+        should_correct = True
+
+    # Caso 2: Peso en el rango muy bajo del modelo (primeros 25% del rango)
+    elif position_in_range < 0.25:
+        # Para hembras: corrección conservadora
+        if gender == "female":
+            is_likely_female = (
+                female_min * 0.85 <= raw_weight <= female_max * 1.1
+            ) and (raw_weight >= weight_min * 1.1)
+
+            if is_likely_female and raw_weight < female_min:
+                target_weight = female_min
+                distance_to_target = target_weight - raw_weight
+                max_distance = female_min - weight_min
+                if max_distance > 0:
+                    correction_ratio = min(distance_to_target / max_distance, 1.0)
+                    correction_factor = 1.1 + (correction_ratio * 0.5)
+                else:
+                    correction_factor = 1.2
+                correction_factor = min(correction_factor, 1.6)
+                should_correct = True
+        else:
+            # Toros: corrección más agresiva
+            base_factor = real_max / weight_max
+            position_factor = 1.0 + (0.25 - position_in_range) * 2.0
+            correction_factor = base_factor * position_factor
+            should_correct = True
+
+    # Caso 3: Peso en el rango bajo-medio (25-40% del rango)
+    elif position_in_range < 0.4:
+        base_factor = (real_max / weight_max) * 0.7
+        position_factor = 1.0 + (0.4 - position_in_range) * 0.3
+        correction_factor = base_factor * position_factor
+        correction_factor = min(correction_factor, 1.5)
+        should_correct = True
+
+    # Caso 4: Peso en el rango medio-bajo (40-60% del rango)
+    elif position_in_range < 0.6 and (real_max / weight_max) > 1.4:
+        base_factor = real_max / weight_max
+        position_factor = 1.0 + (0.6 - position_in_range) * 0.2
+        correction_factor = base_factor * position_factor * 0.85
+        should_correct = True
+
+    # Caso 5: Peso en el rango medio (60-80% del rango) pero subestimado para toro de élite
+    elif (
+        position_in_range >= 0.6
+        and position_in_range < 0.8
+        and raw_weight < weight_max * 0.75
+        and (real_max / weight_max) > 1.5
+    ):
+        # Solo aplicar si es macho (toros de élite)
+        if gender == "male":
+            is_likely_female = female_min * 0.9 <= raw_weight <= female_max * 1.1
+
+            if not is_likely_female:
+                target_weight_elite = float(real_max) * 0.85
+                distance_to_target = target_weight_elite - raw_weight
+                max_possible_distance = float(real_max) - float(weight_min)
+
+                if max_possible_distance > 0:
+                    correction_ratio = min(
+                        distance_to_target / max_possible_distance, 1.0
+                    )
+                    base_factor = real_max / weight_max
+                    distance_factor = 1.0 + (correction_ratio * 0.3)
+                    correction_factor = base_factor * distance_factor
+                else:
+                    base_factor = real_max / weight_max
+                    position_factor = 1.0 + (0.8 - position_in_range) * 0.3
+                    correction_factor = base_factor * position_factor * 0.9
+
+                correction_factor = min(correction_factor, 2.8)
+                should_correct = True
+
+    if should_correct:
+        # Limitar el factor de corrección a un máximo razonable
+        correction_factor = min(correction_factor, 3.5)
+
+        # Asegurar que no exceda el máximo real conocido
+        max_allowed = real_max * 1.1
+        return min(raw_weight * correction_factor, max_allowed)
+
+    # Si el peso está por encima del máximo del modelo pero dentro de lo razonable, aceptarlo
+    if raw_weight > weight_max and raw_weight <= real_max:
+        return raw_weight
+
+    # Si el peso está por encima del máximo real conocido, limitarlo
+    if raw_weight > real_max:
+        return real_max
+
+    return raw_weight
+
+
 def generate_weight_estimations(
     animals: list[AnimalModel],
     weight_loader: WeightDataLoader,
@@ -1605,11 +1767,18 @@ def generate_weight_estimations(
                 # Combinar peso calculado con eventos (promedio ponderado)
                 weight = (weight * 0.7) + (event_weight * 0.3)
 
+            # 6. APLICAR CORRECCIÓN POST-PROCESAMIENTO (misma lógica que ML)
+            # Esto corrige pesos subestimados para toros de élite y hembras
+            breed_enum = BreedType(animal.breed)
+            weight = apply_weight_correction_for_seeder(
+                weight, breed_enum, animal.gender
+            )
+
             # Actualizar tracking
             max_weight = max(max_weight, weight)
             previous_weight = weight
 
-            # 6. VARIACIONES EN CONFIANZA según condiciones
+            # 7. VARIACIONES EN CONFIANZA según condiciones
             # Generar hora realista (mayoría en mañana: 6-10 AM)
             if random.random() < 0.70:  # 70% en mañana
                 hour = random.randint(6, 10)
