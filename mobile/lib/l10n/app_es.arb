@@ -104,9 +104,9 @@
   "@languageSpanish": {
     "description": "Opción de idioma: español"
   },
-  "languageEnglish": "English",
-  "@languageEnglish": {
-    "description": "Opción de idioma: inglés"
+  "languagePortuguese": "Português",
+  "@languagePortuguese": {
+    "description": "Opción de idioma: Portugués"
   },
   "selectTheme": "Seleccionar tema",
   "@selectTheme": {
@@ -729,6 +729,70 @@
         "type": "int"
       }
     }
+  },
+  "login": "Iniciar Sesión",
+  "@login": {
+    "description": "Botón de login"
+  },
+  "loginTitle": "Iniciar Sesión",
+  "@loginTitle": {
+    "description": "Título de la página de login"
+  },
+  "loginSubtitle": "Ingresa tus credenciales para continuar",
+  "@loginSubtitle": {
+    "description": "Subtítulo de la página de login"
+  },
+  "username": "Usuario",
+  "@username": {
+    "description": "Etiqueta del campo de usuario"
+  },
+  "usernameHint": "Ingresa tu nombre de usuario",
+  "@usernameHint": {
+    "description": "Hint del campo de usuario"
+  },
+  "usernameRequired": "El usuario es requerido",
+  "@usernameRequired": {
+    "description": "Mensaje de validación: usuario requerido"
+  },
+  "password": "Contraseña",
+  "@password": {
+    "description": "Etiqueta del campo de contraseña"
+  },
+  "passwordHint": "Ingresa tu contraseña",
+  "@passwordHint": {
+    "description": "Hint del campo de contraseña"
+  },
+  "passwordRequired": "La contraseña es requerida",
+  "@passwordRequired": {
+    "description": "Mensaje de validación: contraseña requerida"
+  },
+  "loggingIn": "Iniciando sesión...",
+  "@loggingIn": {
+    "description": "Mensaje mientras se inicia sesión"
+  },
+  "authenticationError": "Error de autenticación",
+  "@authenticationError": {
+    "description": "Título de error de autenticación"
+  },
+  "invalidCredentials": "Credenciales inválidas. Verifica tu usuario y contraseña.",
+  "@invalidCredentials": {
+    "description": "Mensaje de error: credenciales inválidas"
+  },
+  "noInternetConnection": "Sin conexión a internet. Verifica tu conexión.",
+  "@noInternetConnection": {
+    "description": "Mensaje de error: sin conexión"
+  },
+  "serverError": "Error del servidor",
+  "@serverError": {
+    "description": "Mensaje de error del servidor"
+  },
+  "loginError": "Error al iniciar sesión",
+  "@loginError": {
+    "description": "Mensaje genérico de error de login"
+  },
+  "appDescription": "Hacienda Gamelera",
+  "@appDescription": {
+    "description": "Descripción de la aplicación"
   }
 }
 

@@ -87,7 +87,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get languageSpanish => 'Español';
 
   @override
-  String get languageEnglish => 'English';
+  String get languagePortuguese => 'Português';
 
   @override
   String get selectTheme => 'Seleccionar tema';
@@ -510,4 +510,54 @@ class AppLocalizationsEs extends AppLocalizations {
   String syncResultError(int failed) {
     return 'Error: $failed fallidos';
   }
+
+  @override
+  String get login => 'Iniciar Sesión';
+
+  @override
+  String get loginTitle => 'Iniciar Sesión';
+
+  @override
+  String get loginSubtitle => 'Ingresa tus credenciales para continuar';
+
+  @override
+  String get username => 'Usuario';
+
+  @override
+  String get usernameHint => 'Ingresa tu nombre de usuario';
+
+  @override
+  String get usernameRequired => 'El usuario es requerido';
+
+  @override
+  String get password => 'Contraseña';
+
+  @override
+  String get passwordHint => 'Ingresa tu contraseña';
+
+  @override
+  String get passwordRequired => 'La contraseña es requerida';
+
+  @override
+  String get loggingIn => 'Iniciando sesión...';
+
+  @override
+  String get authenticationError => 'Error de autenticación';
+
+  @override
+  String get invalidCredentials =>
+      'Credenciales inválidas. Verifica tu usuario y contraseña.';
+
+  @override
+  String get noInternetConnection =>
+      'Sin conexión a internet. Verifica tu conexión.';
+
+  @override
+  String get serverError => 'Error del servidor';
+
+  @override
+  String get loginError => 'Error al iniciar sesión';
+
+  @override
+  String get appDescription => 'Hacienda Gamelera';
 }

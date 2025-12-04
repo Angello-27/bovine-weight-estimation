@@ -8,6 +8,9 @@ library;
 
 import 'package:flutter/material.dart';
 
+import 'package:provider/provider.dart';
+
+import '../../presentation/pages/auth/login_page.dart';
 import '../../presentation/pages/capture/capture_page.dart';
 import '../../presentation/pages/cattle_registration/cattle_registration_page.dart';
 import '../../presentation/pages/home/home_page.dart';
@@ -15,9 +18,11 @@ import '../../presentation/pages/settings/settings_page.dart';
 import '../../presentation/pages/sync/sync_status_page.dart';
 import '../../presentation/pages/weight_estimation/weight_estimation_page.dart';
 import '../../presentation/pages/weight_history/weight_history_page.dart';
+import '../../presentation/providers/auth_provider.dart';
 
 /// Nombres de rutas
 class AppRoutes {
+  static const String login = '/login';
   static const String home = '/';
   static const String capture = '/capture';
   static const String weightEstimation = '/weight-estimation';
@@ -36,14 +41,20 @@ class AppRouter {
   /// Genera rutas de la aplicación
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
-      case AppRoutes.home:
+      case AppRoutes.login:
         return MaterialPageRoute(
+          builder: (_) => const LoginPage(),
+          settings: settings,
+        );
+
+      case AppRoutes.home:
+        return _protectedRoute(
           builder: (_) => const HomePage(),
           settings: settings,
         );
 
       case AppRoutes.capture:
-        return MaterialPageRoute(
+        return _protectedRoute(
           builder: (_) => const CapturePage(),
           settings: settings,
         );
@@ -54,14 +65,14 @@ class AppRouter {
         final framePath = args?['framePath'] as String? ?? '';
         final cattleId = args?['cattleId'] as String?;
 
-        return MaterialPageRoute(
+        return _protectedRoute(
           builder: (_) =>
               WeightEstimationPage(framePath: framePath, cattleId: cattleId),
           settings: settings,
         );
 
       case AppRoutes.cattleRegistration:
-        return MaterialPageRoute(
+        return _protectedRoute(
           builder: (_) => const CattleRegistrationPage(),
           settings: settings,
         );
@@ -72,20 +83,20 @@ class AppRouter {
         final cattleId = args?['cattleId'] as String? ?? '';
         final cattleName = args?['cattleName'] as String? ?? 'Animal';
 
-        return MaterialPageRoute(
+        return _protectedRoute(
           builder: (_) =>
               WeightHistoryPage(cattleId: cattleId, cattleName: cattleName),
           settings: settings,
         );
 
       case AppRoutes.sync:
-        return MaterialPageRoute(
+        return _protectedRoute(
           builder: (_) => const SyncStatusPage(),
           settings: settings,
         );
 
       case AppRoutes.settings:
-        return MaterialPageRoute(
+        return _protectedRoute(
           builder: (_) => const SettingsPage(),
           settings: settings,
         );
@@ -159,5 +170,34 @@ class AppRouter {
   /// Pop con resultado
   static void pop<T>(BuildContext context, [T? result]) {
     Navigator.pop(context, result);
+  }
+
+  /// Crea una ruta protegida que verifica autenticación
+  static Route<dynamic> _protectedRoute({
+    required Widget Function(BuildContext) builder,
+    required RouteSettings settings,
+  }) {
+    return MaterialPageRoute(
+      builder: (context) {
+        final authProvider = Provider.of<AuthProvider>(context, listen: false);
+
+        // Si no está autenticado, redirigir a login
+        if (!authProvider.isAuthenticated) {
+          // Usar un Future.microtask para evitar problemas de navegación
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (context.mounted) {
+              Navigator.of(context).pushReplacementNamed(AppRoutes.login);
+            }
+          });
+          // Retornar un widget temporal mientras redirige
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
+
+        return builder(context);
+      },
+      settings: settings,
+    );
   }
 }

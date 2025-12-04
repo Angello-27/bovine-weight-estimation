@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { getCurrentUser } from '../../services/auth/authService';
+import { getUserById } from '../../services/user/getUserById';
 import { updateProfile } from '../../services/user/updateProfile';
 import { changePassword } from '../../services/user/changePassword';
 import ManageProfileForm from './ManageProfileForm';
@@ -27,17 +28,19 @@ function useProfileView() {
 
     // Cargar datos del usuario actual
     useEffect(() => {
-        const loadUser = () => {
+        const loadUser = async () => {
             try {
                 const currentUser = getCurrentUser();
-                if (currentUser) {
-                    setUser(currentUser);
+                if (currentUser && currentUser.id) {
+                    // Obtener datos completos del usuario desde la API
+                    const fullUserData = await getUserById(currentUser.id);
+                    setUser(fullUserData);
                     // Inicializar formulario de perfil con datos del usuario
                     profileFormProps.setFormData({
-                        id: currentUser.id,
-                        email: currentUser.email || '',
-                        first_name: currentUser.first_name || '',
-                        last_name: currentUser.last_name || '',
+                        id: fullUserData.id,
+                        email: fullUserData.email || '',
+                        first_name: fullUserData.first_name || '',
+                        last_name: fullUserData.last_name || '',
                     });
                 } else {
                     setError('No se pudo cargar la información del usuario');

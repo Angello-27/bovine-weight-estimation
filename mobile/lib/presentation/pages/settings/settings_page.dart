@@ -212,8 +212,8 @@ class SettingsPage extends StatelessWidget {
     switch (language) {
       case AppLanguage.spanish:
         return l10n.languageSpanish;
-      case AppLanguage.english:
-        return l10n.languageEnglish;
+      case AppLanguage.portuguese:
+        return l10n.languagePortuguese;
     }
   }
 

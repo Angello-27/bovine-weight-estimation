@@ -21,6 +21,7 @@ import 'core/utils/locale_helper.dart';
 import 'domain/entities/app_settings.dart';
 import 'l10n/app_localizations.dart';
 import 'presentation/providers/settings_provider.dart';
+import 'presentation/widgets/auth/auth_guard.dart';
 
 void main() async {
   // Asegurar inicialización de Flutter
@@ -90,7 +91,8 @@ class MyApp extends StatelessWidget {
             ),
             themeMode: themeMode, // Usa la preferencia del usuario
             // Sistema de rutas
-            initialRoute: AppRoutes.home,
+            // Usar AuthGuard como home para determinar la ruta inicial según autenticación
+            home: const AuthGuard(),
             onGenerateRoute: AppRouter.generateRoute,
           );
         },

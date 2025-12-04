@@ -67,6 +67,10 @@ Ver documentación completa en: `docs/design/ui-design-system.md`
 - Extension methods pattern para estado → UI
 - Glassmorphism y efectos visuales modernos
 
+### **Sprint 3** ✅
+- US-005: Sincronización Offline-First con estrategia Last-Write-Wins
+- Endpoints de sincronización (health, cattle, weight-estimations)
+
 ## 📱 Requisitos
 
 - **Flutter**: 3.35.6+
@@ -152,6 +156,76 @@ flutter build ios --release
 - R² ≥ 0.95 (correlación con báscula)
 - MAE < 5 kg (error absoluto medio)
 - Tiempo procesamiento < 3s
+
+---
+
+## 📚 Documentación
+
+### Guías de Integración
+
+1. **[Guía de Sincronización](./docs/integration/FLUTTER_SYNC_GUIDE.md)**
+   - Flujo completo de sincronización offline-first
+   - Endpoints de sync (health, cattle, weight-estimations)
+   - Estrategia Last-Write-Wins
+   - Manejo de errores y reintentos
+
+2. **[Guía de Integración API Completa](./docs/integration/FLUTTER_API_INTEGRATION.md)** ⭐ **NUEVO**
+   - Todos los endpoints disponibles para Flutter
+   - Autenticación JWT
+   - Machine Learning (predict, models/status)
+   - CRUD de animales
+   - Historial de pesajes
+   - Reportes (PDF/Excel)
+   - Alertas y cronograma
+   - Ejemplos de implementación en Dart
+
+3. **[Análisis del Estado Actual](./docs/integration/FLUTTER_APP_STATUS_ANALYSIS.md)** 📊 **NUEVO**
+   - Estado de implementación de endpoints (35% completo)
+   - Análisis detallado por categoría
+   - Plan de implementación recomendado (6 fases)
+   - Checklist de tareas pendientes
+   - Mejoras de infraestructura sugeridas
+
+3. **[Guía de Integración API Backend](../docs/integration/API_INTEGRATION_GUIDE.md)**
+   - Documentación completa del backend
+   - Endpoints para Mobile y Web
+   - Especificaciones técnicas
+
+### Endpoints Pendientes de Implementar
+
+Basado en la comparación con la API, estos endpoints aún no están documentados en Flutter:
+
+#### ✅ Ya Documentados
+- Sincronización (health, cattle, weight-estimations) - Ver `FLUTTER_SYNC_GUIDE.md`
+
+#### ❌ Pendientes de Documentar/Implementar
+- **Autenticación**: POST `/api/v1/auth/login` con manejo de JWT
+- **Machine Learning**: 
+  - POST `/api/v1/ml/predict` (predicción sin guardar)
+  - GET `/api/v1/ml/models/status` (estado de modelos)
+- **Gestión de Animales**:
+  - POST `/api/v1/animals` (crear)
+  - GET `/api/v1/animals` (listar con filtros)
+  - GET `/api/v1/animals/{id}` (obtener)
+  - PUT `/api/v1/animals/{id}` (actualizar)
+  - DELETE `/api/v1/animals/{id}` (eliminar)
+  - GET `/api/v1/animals/{id}/timeline` (timeline)
+  - GET `/api/v1/animals/{id}/lineage` (linaje)
+- **Historial de Pesajes**:
+  - GET `/api/v1/weighings/animal/{id}` (historial)
+  - GET `/api/v1/weighings/{id}` (detalle)
+- **Reportes**:
+  - POST `/api/v1/reports/traceability/{id}` (trazabilidad)
+  - POST `/api/v1/reports/inventory` (inventario)
+  - POST `/api/v1/reports/movements` (movimientos)
+  - POST `/api/v1/reports/growth` (crecimiento)
+- **Alertas**:
+  - POST `/api/v1/alerts` (crear)
+  - GET `/api/v1/alerts` (listar)
+  - GET `/api/v1/alerts/today` (hoy)
+  - GET `/api/v1/alerts/upcoming` (próximas)
+
+> **Nota**: Todos estos endpoints están ahora documentados en [`FLUTTER_API_INTEGRATION.md`](./docs/integration/FLUTTER_API_INTEGRATION.md) con ejemplos de implementación en Dart.
 
 ---
 

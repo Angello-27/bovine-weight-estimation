@@ -17,8 +17,8 @@ class LocaleHelper {
     switch (language) {
       case AppLanguage.spanish:
         return const Locale('es');
-      case AppLanguage.english:
-        return const Locale('en');
+      case AppLanguage.portuguese:
+        return const Locale('pt');
     }
   }
 
@@ -27,8 +27,8 @@ class LocaleHelper {
     switch (locale.languageCode) {
       case 'es':
         return AppLanguage.spanish;
-      case 'en':
-        return AppLanguage.english;
+      case 'pt':
+        return AppLanguage.portuguese;
       default:
         return AppLanguage.spanish; // Default a español
     }

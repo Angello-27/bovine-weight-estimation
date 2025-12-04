@@ -44,8 +44,8 @@ enum AppLanguage {
   /// Español
   spanish,
 
-  /// Inglés
-  english,
+  /// Portugués
+  portuguese,
 }
 
 /// Tamaño de texto

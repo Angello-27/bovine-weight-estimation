@@ -130,7 +130,7 @@ class InfoCard extends StatelessWidget {
           ),
           child: Icon(
             icon,
-            color: highlighted ? Colors.white : contentColor,
+            color: Colors.white,
             size: AppSpacing.iconSizeLarge,
           ),
         ),
@@ -146,16 +146,14 @@ class InfoCard extends StatelessWidget {
                 title,
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.bold,
-                  color: highlighted ? Colors.white : AppColors.grey900,
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
               const SizedBox(height: AppSpacing.xs),
               Text(
                 description,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: highlighted
-                      ? Colors.white.withValues(alpha: 0.9)
-                      : AppColors.grey700,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
               ),
             ],

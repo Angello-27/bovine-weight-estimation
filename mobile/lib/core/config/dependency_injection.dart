@@ -8,6 +8,8 @@ library;
 
 import 'api_config.dart';
 import '../services/permission_service.dart';
+import '../auth/session_manager.dart';
+import '../network/dio_client.dart';
 import '../../data/datasources/camera_datasource.dart';
 import '../../data/datasources/cattle_local_datasource.dart';
 import '../../data/datasources/frame_local_datasource.dart';
@@ -40,6 +42,13 @@ import '../../domain/usecases/save_settings_usecase.dart';
 import '../../data/datasources/settings_local_datasource.dart';
 import '../../data/repositories/settings_repository_impl.dart';
 import '../../domain/repositories/settings_repository.dart';
+import '../../data/datasources/auth_remote_datasource.dart';
+import '../../data/repositories/auth_repository_impl.dart';
+import '../../domain/repositories/auth_repository.dart';
+import '../../domain/usecases/login_usecase.dart';
+import '../../domain/usecases/has_session_usecase.dart';
+import '../../domain/usecases/get_current_user_usecase.dart';
+import '../../domain/usecases/logout_usecase.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// Contenedor de dependencias
@@ -53,6 +62,10 @@ class DependencyInjection {
 
   // Services
   late final PermissionService _permissionService;
+
+  // Auth Infrastructure
+  late final SessionManager _sessionManager;
+  late final DioClient _dioClient;
 
   // DataSources - US-001
   late final CameraDataSource _cameraDataSource;
@@ -69,12 +82,16 @@ class DependencyInjection {
   late final SyncQueueLocalDataSource _syncQueueLocalDataSource;
   late final SyncRemoteDataSource _syncRemoteDataSource;
 
+  // DataSources - Auth
+  late final AuthRemoteDataSource _authRemoteDataSource;
+
   // Repositories
   late final FrameRepository _frameRepository;
   late final WeightEstimationRepository _weightEstimationRepository;
   late final CattleRepository _cattleRepository;
   late final WeightHistoryRepository _weightHistoryRepository;
   late final SyncRepository _syncRepository;
+  late final AuthRepository _authRepository;
 
   // UseCases
   late final CaptureFramesUseCase _captureFramesUseCase;
@@ -88,6 +105,12 @@ class DependencyInjection {
   late final TriggerManualSyncUseCase _triggerManualSyncUseCase;
   late final CheckConnectivityUseCase _checkConnectivityUseCase;
 
+  // UseCases - Auth
+  late final LoginUseCase _loginUseCase;
+  late final HasSessionUseCase _hasSessionUseCase;
+  late final GetCurrentUserUseCase _getCurrentUserUseCase;
+  late final LogoutUseCase _logoutUseCase;
+
   // Settings
   late final SettingsLocalDataSource _settingsLocalDataSource;
   late final SettingsRepository _settingsRepository;
@@ -98,6 +121,13 @@ class DependencyInjection {
   void init({required SharedPreferences prefs}) {
     // Services
     _permissionService = PermissionService();
+
+    // Auth Infrastructure
+    _sessionManager = SessionManager();
+    _dioClient = DioClient(
+      baseUrl: ApiConfig.getBaseUrlForEnvironment(),
+      sessionManager: _sessionManager,
+    );
 
     // DataSources - US-001
     _cameraDataSource = CameraDataSourceImpl();
@@ -115,6 +145,9 @@ class DependencyInjection {
     _syncRemoteDataSource = SyncRemoteDataSourceFactory.create(
       baseUrl: ApiConfig.getBaseUrlForEnvironment(),
     );
+
+    // DataSources - Auth
+    _authRemoteDataSource = AuthRemoteDataSourceImpl(dio: _dioClient.create());
 
     // Repositories - US-001
     _frameRepository = FrameRepositoryImpl(
@@ -149,6 +182,12 @@ class DependencyInjection {
       deviceId: 'dev-device-001',
     );
 
+    // Repositories - Auth
+    _authRepository = AuthRepositoryImpl(
+      remoteDataSource: _authRemoteDataSource,
+      sessionManager: _sessionManager,
+    );
+
     // UseCases - US-001
     _captureFramesUseCase = CaptureFramesUseCase(_frameRepository);
 
@@ -178,6 +217,12 @@ class DependencyInjection {
     );
     _getSettingsUseCase = GetSettingsUseCase(_settingsRepository);
     _saveSettingsUseCase = SaveSettingsUseCase(_settingsRepository);
+
+    // UseCases - Auth
+    _loginUseCase = LoginUseCase(_authRepository);
+    _hasSessionUseCase = HasSessionUseCase(_authRepository);
+    _getCurrentUserUseCase = GetCurrentUserUseCase(_authRepository);
+    _logoutUseCase = LogoutUseCase(_authRepository);
   }
 
   // Getters - Services
@@ -223,6 +268,14 @@ class DependencyInjection {
   // Getters - Settings
   GetSettingsUseCase get getSettingsUseCase => _getSettingsUseCase;
   SaveSettingsUseCase get saveSettingsUseCase => _saveSettingsUseCase;
+
+  // Getters - Auth
+  LoginUseCase get loginUseCase => _loginUseCase;
+  HasSessionUseCase get hasSessionUseCase => _hasSessionUseCase;
+  GetCurrentUserUseCase get getCurrentUserUseCase => _getCurrentUserUseCase;
+  LogoutUseCase get logoutUseCase => _logoutUseCase;
+  SessionManager get sessionManager => _sessionManager;
+  DioClient get dioClient => _dioClient;
 
   /// Libera recursos
   Future<void> dispose() async {
