@@ -23,8 +23,7 @@ class ApiConfig {
   /// O cambiar el `defaultValue` abajo para desarrollo local permanente.
   static const String baseUrl = String.fromEnvironment(
     'API_BASE_URL',
-    defaultValue:
-        'http://192.168.100.180:8000', // Default: desarrollo local (IP de tu Mac)
+    defaultValue: 'https://taller.agrocom.com.bo', // Default: producción
   );
 
   /// Prefijo de la API (v1, v2, etc.)
