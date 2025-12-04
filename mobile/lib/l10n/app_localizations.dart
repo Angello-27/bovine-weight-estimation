@@ -146,6 +146,24 @@ abstract class AppLocalizations {
   /// **'Activar flash durante la captura'**
   String get autoFlashSubtitle;
 
+  /// Etiqueta para el selector de FPS de captura
+  ///
+  /// In es, this message translates to:
+  /// **'FPS de Captura'**
+  String get captureFps;
+
+  /// Abreviatura de Frames Per Second
+  ///
+  /// In es, this message translates to:
+  /// **'FPS'**
+  String get fps;
+
+  /// Título del diálogo de selección de FPS
+  ///
+  /// In es, this message translates to:
+  /// **'Seleccionar FPS de Captura'**
+  String get selectCaptureFps;
+
   /// Título de la sección de unidades y formato
   ///
   /// In es, this message translates to:
@@ -1105,6 +1123,72 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Hacienda Gamelera'**
   String get appDescription;
+
+  /// Título del diálogo de mejor frame
+  ///
+  /// In es, this message translates to:
+  /// **'Mejor Frame Capturado'**
+  String get bestFrameCaptured;
+
+  /// Label del score global
+  ///
+  /// In es, this message translates to:
+  /// **'Score Global'**
+  String get globalScore;
+
+  /// Label de nitidez
+  ///
+  /// In es, this message translates to:
+  /// **'Nitidez'**
+  String get sharpness;
+
+  /// Label de iluminación
+  ///
+  /// In es, this message translates to:
+  /// **'Iluminación'**
+  String get illumination;
+
+  /// Label de contraste
+  ///
+  /// In es, this message translates to:
+  /// **'Contraste'**
+  String get contrast;
+
+  /// Label de silueta
+  ///
+  /// In es, this message translates to:
+  /// **'Silueta'**
+  String get silhouette;
+
+  /// Label de total de frames
+  ///
+  /// In es, this message translates to:
+  /// **'Total Frames'**
+  String get totalFrames;
+
+  /// Label de frames óptimos
+  ///
+  /// In es, this message translates to:
+  /// **'Frames Óptimos'**
+  String get optimalFrames;
+
+  /// Texto del botón confirmar y continuar
+  ///
+  /// In es, this message translates to:
+  /// **'Confirmar y Continuar'**
+  String get confirmAndContinue;
+
+  /// Texto del botón eliminar frame
+  ///
+  /// In es, this message translates to:
+  /// **'Eliminar Frame'**
+  String get deleteFrame;
+
+  /// Mensaje de confirmación para eliminar frame
+  ///
+  /// In es, this message translates to:
+  /// **'¿Eliminar este frame? Se buscará otro mejor frame automáticamente.'**
+  String get deleteFrameConfirmation;
 }
 
 class _AppLocalizationsDelegate

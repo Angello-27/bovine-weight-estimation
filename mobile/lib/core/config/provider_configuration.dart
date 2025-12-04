@@ -76,8 +76,10 @@ class ProviderConfiguration {
     DependencyInjection di,
   ) {
     return ChangeNotifierProvider(
-      create: (_) =>
-          CaptureProvider(captureFramesUseCase: di.captureFramesUseCase),
+      create: (_) => CaptureProvider(
+        captureFramesUseCase: di.captureFramesUseCase,
+        estimateWeightUseCase: di.estimateWeightUseCase,
+      ),
     );
   }
 

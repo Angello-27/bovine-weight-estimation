@@ -15,20 +15,16 @@ class ApiConfig {
   /// URL base del backend
   ///
   /// **IMPORTANTE**: Cambiar según el entorno:
-  /// - **Producción**: `https://taller.agrocom.com.bo` (default)
-  /// - **Emulador Android**: `http://192.168.0.12:8000` (emulador usa 192.168.0.12 para localhost de la máquina)
-  /// - **Dispositivo físico Android/iOS**: `http://TU_IP_LOCAL:8000` (ej: `http://192.168.1.100:8000`)
+  /// - **Producción**: `https://taller.agrocom.com.bo`
+  /// - **Desarrollo local (dispositivo físico)**: `http://192.168.100.180:8000` (default)
   ///
-  /// **Cómo obtener tu IP local:**
-  /// - Mac/Linux: `ifconfig | grep "inet " | grep -v 127.0.0.1`
-  /// - Windows: `ipconfig` (buscar "IPv4 Address")
-  /// - Android: Configuración → Wi‑Fi → (red activa) → Ver detalles
-  ///
-  /// **Para usar localhost en desarrollo:**
+  /// **Para usar una URL diferente:**
   /// Ejecutar: `flutter run --dart-define=API_BASE_URL=http://localhost:8000`
+  /// O cambiar el `defaultValue` abajo para desarrollo local permanente.
   static const String baseUrl = String.fromEnvironment(
     'API_BASE_URL',
-    defaultValue: 'https://taller.agrocom.com.bo', // Default: URL de producción
+    defaultValue:
+        'http://192.168.100.180:8000', // Default: desarrollo local (IP de tu Mac)
   );
 
   /// Prefijo de la API (v1, v2, etc.)

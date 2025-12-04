@@ -72,16 +72,44 @@ class WeightEstimationLocalDataSourceImpl
       final databasesPath = await sqflite.getDatabasesPath();
       final path = join(databasesPath, _databaseName);
 
-      return await sqflite.openDatabase(
+      final db = await sqflite.openDatabase(
         path,
         version: _databaseVersion,
         onCreate: _onCreate,
         onUpgrade: _onUpgrade,
       );
+
+      // Asegurar que las tablas existan (por si otro DataSource creó la DB primero)
+      await _ensureTablesExist(db);
+
+      return db;
     } catch (e) {
       throw DatabaseException(
         message: 'Error al inicializar base de datos: $e',
       );
+    }
+  }
+
+  /// Asegura que las tablas existan (por si otro DataSource creó la DB primero)
+  Future<void> _ensureTablesExist(sqflite.Database db) async {
+    try {
+      // Verificar si la tabla existe
+      final tables = await db.rawQuery(
+        "SELECT name FROM sqlite_master WHERE type='table' AND name=?",
+        [_tableEstimations],
+      );
+
+      if (tables.isEmpty) {
+        // La tabla no existe, crearla
+        await _onCreate(db, _databaseVersion);
+      }
+    } catch (e) {
+      // Si hay error, intentar crear la tabla de nuevo
+      try {
+        await _onCreate(db, _databaseVersion);
+      } catch (e2) {
+        // Ignorar si la tabla ya existe
+      }
     }
   }
 

@@ -32,6 +32,18 @@
   "@autoFlashSubtitle": {
     "description": "Subtítulo para el switch de flash automático"
   },
+  "captureFps": "FPS de Captura",
+  "@captureFps": {
+    "description": "Etiqueta para el selector de FPS de captura"
+  },
+  "fps": "FPS",
+  "@fps": {
+    "description": "Abreviatura de Frames Per Second"
+  },
+  "selectCaptureFps": "Seleccionar FPS de Captura",
+  "@selectCaptureFps": {
+    "description": "Título del diálogo de selección de FPS"
+  },
   "unitsAndFormat": "Unidades y formato",
   "@unitsAndFormat": {
     "description": "Título de la sección de unidades y formato"
@@ -793,6 +805,50 @@
   "appDescription": "Hacienda Gamelera",
   "@appDescription": {
     "description": "Descripción de la aplicación"
+  },
+  "bestFrameCaptured": "Mejor Frame Capturado",
+  "@bestFrameCaptured": {
+    "description": "Título del diálogo de mejor frame"
+  },
+  "globalScore": "Score Global",
+  "@globalScore": {
+    "description": "Label del score global"
+  },
+  "sharpness": "Nitidez",
+  "@sharpness": {
+    "description": "Label de nitidez"
+  },
+  "illumination": "Iluminación",
+  "@illumination": {
+    "description": "Label de iluminación"
+  },
+  "contrast": "Contraste",
+  "@contrast": {
+    "description": "Label de contraste"
+  },
+  "silhouette": "Silueta",
+  "@silhouette": {
+    "description": "Label de silueta"
+  },
+  "totalFrames": "Total Frames",
+  "@totalFrames": {
+    "description": "Label de total de frames"
+  },
+  "optimalFrames": "Frames Óptimos",
+  "@optimalFrames": {
+    "description": "Label de frames óptimos"
+  },
+  "confirmAndContinue": "Confirmar y Continuar",
+  "@confirmAndContinue": {
+    "description": "Texto del botón confirmar y continuar"
+  },
+  "deleteFrame": "Eliminar Frame",
+  "@deleteFrame": {
+    "description": "Texto del botón eliminar frame"
+  },
+  "deleteFrameConfirmation": "¿Eliminar este frame? Se buscará otro mejor frame automáticamente.",
+  "@deleteFrameConfirmation": {
+    "description": "Mensaje de confirmación para eliminar frame"
   }
 }
 

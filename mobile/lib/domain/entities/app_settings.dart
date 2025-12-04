@@ -83,6 +83,9 @@ class AppSettings {
   /// Idioma de la interfaz
   final AppLanguage language;
 
+  /// FPS objetivo para captura de frames (1-10)
+  final int captureFps;
+
   const AppSettings({
     this.themeMode = AppThemeMode.system,
     this.textSize = TextSize.normal,
@@ -90,6 +93,7 @@ class AppSettings {
     this.weightUnit = WeightUnit.kilograms,
     this.dateFormat = DateFormat.dayMonthYear,
     this.language = AppLanguage.spanish,
+    this.captureFps = 5, // Default: 5 FPS (rango seguro 3-5)
   });
 
   /// Crea una copia con valores modificados
@@ -100,6 +104,7 @@ class AppSettings {
     WeightUnit? weightUnit,
     DateFormat? dateFormat,
     AppLanguage? language,
+    int? captureFps,
   }) {
     return AppSettings(
       themeMode: themeMode ?? this.themeMode,
@@ -108,6 +113,7 @@ class AppSettings {
       weightUnit: weightUnit ?? this.weightUnit,
       dateFormat: dateFormat ?? this.dateFormat,
       language: language ?? this.language,
+      captureFps: captureFps ?? this.captureFps,
     );
   }
 

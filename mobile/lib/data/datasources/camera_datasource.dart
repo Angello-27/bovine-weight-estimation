@@ -7,9 +7,9 @@
 library;
 
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:camera/camera.dart' as camera;
+import 'package:flutter/foundation.dart';
 import 'package:image/image.dart' as img;
 import 'package:path_provider/path_provider.dart';
 import 'package:uuid/uuid.dart';
@@ -100,8 +100,8 @@ class CameraDataSourceImpl implements CameraDataSource {
       // Copiar imagen al path permanente
       await File(imageFile.path).copy(imagePath);
 
-      // Evaluar calidad del fotograma
-      final quality = await evaluateFrameQuality(imagePath);
+      // Evaluar calidad del fotograma en segundo plano para no bloquear
+      final quality = await compute(_evaluateFrameQualityIsolate, imagePath);
 
       // Calcular score global
       final globalScore = Frame.calculateGlobalScore(quality);
@@ -273,5 +273,133 @@ class CameraDataSourceImpl implements CameraDataSource {
   @override
   Future<void> dispose(camera.CameraController controller) async {
     await controller.dispose();
+  }
+}
+
+/// Función isolate para evaluar calidad de frame en segundo plano
+/// Debe ser top-level para poder usarse con compute
+Future<FrameQuality> _evaluateFrameQualityIsolate(String imagePath) async {
+  try {
+    // Leer imagen
+    final imageFile = File(imagePath);
+    if (!await imageFile.exists()) {
+      throw StorageException(message: 'Imagen no encontrada: $imagePath');
+    }
+
+    final Uint8List imageBytes = await imageFile.readAsBytes();
+    final img.Image? image = img.decodeImage(imageBytes);
+
+    if (image == null) {
+      throw const FormatException(message: 'No se pudo decodificar la imagen');
+    }
+
+    // Calcular métricas de calidad
+    final sharpness = _calculateSharpnessIsolate(image);
+    final brightness = _calculateBrightnessIsolate(image);
+    final contrast = _calculateContrastIsolate(image);
+    final silhouetteVisibility = _calculateSilhouetteVisibilityIsolate(image);
+    final angleScore = _calculateAngleScoreIsolate(image);
+
+    return FrameQuality(
+      sharpness: sharpness,
+      brightness: brightness,
+      contrast: contrast,
+      silhouetteVisibility: silhouetteVisibility,
+      angleScore: angleScore,
+    );
+  } catch (e) {
+    throw CameraException(message: 'Error al evaluar calidad: $e');
+  }
+}
+
+/// Calcula nitidez (función isolate)
+double _calculateSharpnessIsolate(img.Image image) {
+  final grayscale = img.grayscale(image);
+  double sumVariance = 0.0;
+  int count = 0;
+
+  for (int y = 1; y < grayscale.height - 1; y++) {
+    for (int x = 1; x < grayscale.width - 1; x++) {
+      final center = grayscale.getPixel(x, y).r;
+      final left = grayscale.getPixel(x - 1, y).r;
+      final right = grayscale.getPixel(x + 1, y).r;
+      final top = grayscale.getPixel(x, y - 1).r;
+      final bottom = grayscale.getPixel(x, y + 1).r;
+
+      final laplacian = ((4 * center) - left - right - top - bottom).abs();
+      sumVariance += laplacian;
+      count++;
+    }
+  }
+
+  final avgVariance = count > 0 ? sumVariance / count : 0.0;
+  return (avgVariance / 50).clamp(0.0, 1.0);
+}
+
+/// Calcula iluminación (función isolate)
+double _calculateBrightnessIsolate(img.Image image) {
+  final grayscale = img.grayscale(image);
+  double sumBrightness = 0.0;
+  int count = 0;
+
+  for (int y = 0; y < grayscale.height; y++) {
+    for (int x = 0; x < grayscale.width; x++) {
+      sumBrightness += grayscale.getPixel(x, y).r;
+      count++;
+    }
+  }
+
+  final avgBrightness = count > 0 ? sumBrightness / count : 0.0;
+  return avgBrightness / 255.0;
+}
+
+/// Calcula contraste (función isolate)
+double _calculateContrastIsolate(img.Image image) {
+  final grayscale = img.grayscale(image);
+  final brightness = _calculateBrightnessIsolate(image) * 255;
+
+  double sumSquaredDiff = 0.0;
+  int count = 0;
+
+  for (int y = 0; y < grayscale.height; y++) {
+    for (int x = 0; x < grayscale.width; x++) {
+      final pixelValue = grayscale.getPixel(x, y).r;
+      final diff = pixelValue - brightness;
+      sumSquaredDiff += diff * diff;
+      count++;
+    }
+  }
+
+  final variance = count > 0 ? sumSquaredDiff / count : 0.0;
+  final stdDev = variance > 0 ? (variance).abs() : 0.0;
+  return (stdDev / 80).clamp(0.0, 1.0);
+}
+
+/// Calcula visibilidad de silueta (función isolate)
+double _calculateSilhouetteVisibilityIsolate(img.Image image) {
+  final edges = img.sobel(image);
+  double edgeStrength = 0.0;
+  int count = 0;
+
+  for (int y = 0; y < edges.height; y++) {
+    for (int x = 0; x < edges.width; x++) {
+      edgeStrength += edges.getPixel(x, y).r;
+      count++;
+    }
+  }
+
+  final avgEdgeStrength = count > 0 ? edgeStrength / count : 0.0;
+  return (avgEdgeStrength / 128).clamp(0.0, 1.0);
+}
+
+/// Calcula score de ángulo (función isolate)
+double _calculateAngleScoreIsolate(img.Image image) {
+  final aspectRatio = image.width / image.height;
+  if (aspectRatio >= 1.5 && aspectRatio <= 2.0) {
+    return 0.8;
+  } else if (aspectRatio >= 1.2 && aspectRatio <= 2.5) {
+    return 0.6;
+  } else {
+    return 0.4;
   }
 }

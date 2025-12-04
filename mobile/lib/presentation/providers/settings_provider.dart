@@ -110,6 +110,13 @@ class SettingsProvider extends ChangeNotifier {
     await updateSettings(_settings.copyWith(language: language));
   }
 
+  /// Actualiza el FPS de captura
+  Future<void> updateCaptureFps(int fps) async {
+    // Validar rango 1-10
+    final clampedFps = fps.clamp(1, 10);
+    await updateSettings(_settings.copyWith(captureFps: clampedFps));
+  }
+
   /// Limpia mensajes de error
   void clearError() {
     _errorMessage = null;

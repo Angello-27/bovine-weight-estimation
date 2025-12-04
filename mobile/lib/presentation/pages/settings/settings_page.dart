@@ -112,7 +112,20 @@ class SettingsPage extends StatelessWidget {
           value: provider.settings.flashEnabled,
           onChanged: (value) => provider.updateFlashEnabled(value),
         ),
+        const SizedBox(height: AppSpacing.sm),
+        _buildCaptureFpsTile(context, provider),
       ],
+    );
+  }
+
+  /// Tile para configurar FPS de captura
+  Widget _buildCaptureFpsTile(BuildContext context, SettingsProvider provider) {
+    final l10n = AppLocalizations.of(context)!;
+    return SettingsListTile(
+      title: l10n.captureFps,
+      subtitle: '${provider.settings.captureFps} ${l10n.fps}',
+      icon: Icons.speed_rounded,
+      onTap: () => _showCaptureFpsDialog(context, provider),
     );
   }
 
@@ -392,6 +405,70 @@ class SettingsPage extends StatelessWidget {
             }).toList(),
           ),
         ),
+      ),
+    );
+  }
+
+  void _showCaptureFpsDialog(BuildContext context, SettingsProvider provider) {
+    final l10n = AppLocalizations.of(context)!;
+    showDialog(
+      context: context,
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (context, setState) {
+          int currentFps = provider.settings.captureFps;
+          return AlertDialog(
+            title: Text(l10n.selectCaptureFps),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  '${l10n.captureFps}: $currentFps ${l10n.fps}',
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                const SizedBox(height: AppSpacing.md),
+                Slider(
+                  value: currentFps.toDouble(),
+                  min: 1,
+                  max: 10,
+                  divisions: 9,
+                  label: '$currentFps ${l10n.fps}',
+                  onChanged: (value) {
+                    setState(() {
+                      currentFps = value.round();
+                    });
+                  },
+                ),
+                const SizedBox(height: AppSpacing.sm),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      '1 ${l10n.fps}',
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                    Text(
+                      '10 ${l10n.fps}',
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text(l10n.cancel),
+              ),
+              TextButton(
+                onPressed: () {
+                  provider.updateCaptureFps(currentFps);
+                  Navigator.pop(context);
+                },
+                child: Text(l10n.accept),
+              ),
+            ],
+          );
+        },
       ),
     );
   }
